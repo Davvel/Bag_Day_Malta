@@ -8,7 +8,7 @@
   const promptCooldownMs = 24*60*60*1000;
   const names = data.localities.map(row => row[0]);
   let selected = names.includes(localStorage.getItem(localityKey)) ? localStorage.getItem(localityKey) : null;
-  let language = localStorage.getItem(languageKey) === 'en' ? 'en' : 'mt';
+  let language = localStorage.getItem(languageKey) === 'mt' ? 'mt' : 'en';
   let pending = null;
   let detected = null;
   let dayOffset = 0;
