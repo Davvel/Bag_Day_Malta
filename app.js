@@ -8,7 +8,7 @@
   const promptCooldownMs = 24*60*60*1000;
   const names = data.localities.map(row => row[0]);
   let selected = names.includes(localStorage.getItem(localityKey)) ? localStorage.getItem(localityKey) : null;
-  let language = localStorage.getItem(languageKey) === 'en' ? 'en' : 'mt';
+  let language = localStorage.getItem(languageKey) === 'mt' ? 'mt' : 'en';
   let pending = null;
   let detected = null;
   let dayOffset = 0;
@@ -223,7 +223,6 @@
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();if($('languageOverlay').hidden)detectLocation();}});
   setInterval(()=>{if(dayOffset===0)render();},60000);
   render();
-  if(!localStorage.getItem(languageKey))$('languageOverlay').hidden=false;
-  else{if(!selected)openSettings();detectLocation();}
+  if(!selected)openSettings();detectLocation();
   if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 })();
