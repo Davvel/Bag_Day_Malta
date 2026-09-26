@@ -27,7 +27,7 @@
       eyebrow:'ĠBIR TAL-ISKART MILL-BIEB', previous:'Jum ta’ qabel', next:'Jum ta’ wara',
       morning:'Filgħodu',afternoon:'Wara nofsinhar',evening:'Filgħaxija',
       organic:'Skart organiku',mixed:'Skart imħallat',recycle:'Materjal riċiklabbli',
-      collection:'Ħin tal-ġbir',putOut:time=>`Oħroġ minn ${time}`,glass:'Il-ħġieġ ukoll f’kontenitur li jerġa’ jintuża',
+      collection:'Ħin tal-ġbir',putOut:time=>`Oħroġ minn ${time}`,glass:'Il-ħġieġ ukoll f’kontenitur li jerġa’ jintuża',glassBottles:'Fliexken tal-ħġieġ',
       noCollection:'Illum ma jinġabarx skart',swipe:'Żerżaq biex tara jum ieħor ↔',
       notice:place=>`Jidher li bħalissa tinsab f’${place}.`,noticeQuestion:'Trid tuża l-iskeda ta’ hemm?',yes:'Iva',
       source:'Skeda uffiċjali ↗',sourceNote:'Il-ħinijiet jistgħu jinbidlu. Iċċekkja s-sit uffiċjali.',
@@ -43,7 +43,7 @@
       eyebrow:'HOUSEHOLD KERBSIDE COLLECTION', previous:'Previous day', next:'Next day',
       morning:'Morning',afternoon:'Afternoon',evening:'Evening',today:'TODAY',tomorrow:'TOMORROW',days:n=>`IN ${n} DAYS`,
       organic:'Organic waste',mixed:'Mixed waste',recycle:'Recyclables',
-      collection:'Collection time',putOut:time=>`Put out from ${time}`,glass:'Also put out glass in a reusable container',
+      collection:'Collection time',putOut:time=>`Put out from ${time}`,glass:'Also put out glass in a reusable container',glassBottles:'Glass bottles',
       noCollection:'No collection today',swipe:'Swipe to see another day ↔',
       notice:place=>`You seem to be in ${place} now.`,noticeQuestion:'Would you like to use its schedule?',yes:'Yes',
       source:'Official schedule ↗',sourceNote:'Times may change. Check the official site.',
@@ -114,7 +114,8 @@
     $('title').textContent=selected;
     const fullDate=language==='mt'?`${date.getUTCDate()} ta’ ${malteseMonths[date.getUTCMonth()]} ${date.getUTCFullYear()}`:new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(date);
     $('date').textContent=`${day}, ${fullDate}`;
-    $('todayPill').textContent=dayOffset===0?c.today:dayOffset===1?c.tomorrow:c.days(dayOffset);
+    $('todayPill').hidden=language==='mt';
+    if(language==='en')$('todayPill').textContent=dayOffset===0?c.today:dayOffset===1?c.tomorrow:c.days(dayOffset);
     $('prevDay').disabled=dayOffset===0;
     $('nextDay').disabled=dayOffset===6;
     const schedule=scheduleFor(date);
@@ -122,7 +123,10 @@
       $('bagArea').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">${c.noCollection}</div></div>`;
     }else{
       const row=rowFor(selected),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
-      $('bagArea').innerHTML=`<div class="collection-card"><div class="bag-figure">${bagSvg(schedule.bag)}</div><div class="bag-name">${c[schedule.bag]}</div><div class="time-box"><div class="time-label">${c.collection}</div><div class="time-value"><span>${time}</span><span class="time-period">(${timeOfDay(time)})</span></div><div class="put-out">${c.putOut(formatTime(time))}</div></div>${schedule.glass?`<div class="glass-note">${c.glass}</div>`:''}</div>`;
+      const figures=schedule.glass
+        ? `<div class="collection-figures"><div class="collection-item"><div class="bag-figure">${bagSvg(schedule.bag)}</div><span class="collection-item-label">${c[schedule.bag]}</span></div><div class="collection-item"><div class="bag-figure"><img src="icons/glass-carrier.svg" alt="${c.glassBottles}"></div><span class="collection-item-label">${c.glassBottles}</span></div></div>`
+        : `<div class="bag-figure">${bagSvg(schedule.bag)}</div><div class="bag-name">${c[schedule.bag]}</div>`;
+      $('bagArea').innerHTML=`<div class="collection-card">${figures}<div class="time-box"><div class="time-label">${c.collection}</div><div class="time-value"><span>${time}</span><span class="time-period">(${timeOfDay(time)})</span></div><div class="put-out">${c.putOut(formatTime(time))}</div></div>${schedule.glass?`<div class="glass-note">${c.glass}</div>`:''}</div>`;
     }
     const different=detected&&detected!==selected&&!promptIsDismissed();
     $('locationNotice').hidden=!different;
