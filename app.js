@@ -6,6 +6,7 @@
   const languageKey = 'bag-day-language-v1';
   const locationPromptKey = 'bag-day-location-prompt-v1';
   const promptCooldownMs = 24*60*60*1000;
+  const maxDaysAhead = 30;
   const names = data.localities.map(row => row[0]);
   let selected = names.includes(localStorage.getItem(localityKey)) ? localStorage.getItem(localityKey) : null;
   let language = localStorage.getItem(languageKey) === 'mt' ? 'mt' : 'en';
@@ -117,7 +118,7 @@
     $('todayPill').hidden=language==='mt';
     if(language==='en')$('todayPill').textContent=dayOffset===0?c.today:dayOffset===1?c.tomorrow:c.days(dayOffset);
     $('prevDay').disabled=dayOffset===0;
-    $('nextDay').disabled=dayOffset===6;
+    $('nextDay').disabled=dayOffset===maxDaysAhead;
     const schedule=scheduleFor(date);
     if(!schedule.bag){
       $('bagArea').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">${c.noCollection}</div></div>`;
@@ -143,7 +144,7 @@
     if(!$('settingsOverlay').hidden)listOptions();
   }
   function changeDay(delta) {
-    dayOffset=Math.max(0,Math.min(6,dayOffset+delta));render();
+    dayOffset=Math.max(0,Math.min(maxDaysAhead,dayOffset+delta));render();
     clearTimeout(returnTimer);
     if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=0;render();},60000);
   }

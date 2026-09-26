@@ -6,7 +6,7 @@ On first use, the app starts in English and asks for location access to prefill 
 
 If a different locality is detected, tapping Yes opens Settings with that locality preselected. The prompt for that selected/detected pair disappears immediately and does not reappear for 24 hours, even if Settings is cancelled.
 
-Swipe or use the arrows to view upcoming days. The display returns to today after one minute without another day change. On the first and third Fridays, the card shows both the organic waste bag and a reusable carrier with glass bottles.
+Swipe or use the arrows to view up to 30 days ahead. The display returns to today after one minute without another day change. On the first and third Fridays, the card shows both the organic waste bag and a reusable carrier with glass bottles.
 
 Source: [Waste Collection Malta](https://www.wastecollection.mt/) national collection schedule and September 2026 locality timetable. `data.js` contains the transcribed times for 68 councils. Friday glass collection occurs on the first and third Friday of each month. Put bags out no earlier than four hours before the published collection time. Sunday has no national collection. Times are displayed in Malta time. The timetable is a snapshot: check the official source periodically and update `data.js`, then increase the cache name in `service-worker.js` when publishing changes. Special holiday arrangements or later council notices are not included.
 
