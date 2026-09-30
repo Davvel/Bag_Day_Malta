@@ -13,7 +13,6 @@
   let language = localStorage.getItem(languageKey) === 'mt' ? 'mt' : 'en';
   let followLocation = (localStorage.getItem(followLocationKey) || '').toLowerCase() === 'true';
   let temporaryView = null;
-  let pending = null;
   let detected = null;
   let dayOffset = 0;
   let returnTimer = null;
@@ -48,28 +47,27 @@
       notice:place=>`Jidher li bħalissa tinsab f’${place}.`,noticeQuestion:'Trid tara l-iskeda ta’ hemm mingħajr ma tibdel il-lokalità tiegħek?',yes:'Ara',
       source:'Skeda uffiċjali ↗',sourceNote:'Il-ħinijiet jistgħu jinbidlu. Iċċekkja s-sit uffiċjali.',
       settings:'Is-settings',schedule:'BAG DAY MALTA',choose:'Agħżel il-lokalità tiegħek',
-      nearby:place=>`Lokalità misjuba: ${place}. Ikkonferma jew agħżel oħra.`,
+      nearby:place=>`Lokalità misjuba: ${place}`,
       chooseBelow:'Agħżel lokalità hawn taħt.',locating:'Qed infittxu l-lokalità tiegħek…',
       unavailable:'Ma stajniex insibu l-lokalità. Agħżilha hawn taħt.',
       locality:'Lokalità',search:'Fittex lokalità',localities:'Lokalitajiet',empty:'Ma nstabet l-ebda lokalità',
       cancel:'Ikkanċella',save:'Issejvja bħala l-lokalità tad-dar',done:'Lest',homeLocalityTitle:'Il-lokalità tad-dar',homeLocalityHelp:'Agħżel il-lokalità li trid iżżomm bħala d-dar għall-iskeda tal-ġbir.',savedHome:place=>`Lokalità tad-dar issejvjata: ${place}`,noSavedHome:'Għad m’hemmx lokalità tad-dar issejvjata.',locationModeNote:'Agħżel liema skeda tara meta tivvjaġġa. Il-bidliet jiġu ssejvjati minnufih.',supportSettingsTitle:'Appoġġ għal Bag Day',
       settingsNote:'Agħżel lokalità u agħfas “Issejvja bħala l-lokalità tad-dar” biex tissejvjaha.',
       locationBehaviour:'Il-lokalità meta tivvjaġġa',
-      keepTitle:'Żomm il-lokalità magħżula',keepHelp:'Default. Il-PWA ma tibdilx il-lokalità waħedha meta tivvjaġġa.',
+      keepTitle:'Żomm il-lokalità tad-dar',keepHelp:'Default. Il-PWA ma tibdilx il-lokalità waħedha meta tivvjaġġa.',
       followTitle:'Segwi l-lokalità attwali awtomatikament',followHelp:'Meta l-GPS isib lokalità oħra, turi l-iskeda tagħha mingħajr ma tħassar il-lokalità ssejvjata.',
       following:place=>`📍 Qed issegwi l-lokalità attwali: ${place}`,
       viewing:place=>`📍 Qed tara temporanjament: ${place}`,
       backHome:place=>`Lura għal ${place}`,
       supportTitle:'Bag Day qed jgħinek?',
-      supportIntro:'Ninsabu kuntenti li Bag Day qed jgħinek. Jekk tixtieq tappoġġja l-iżvilupp kontinwu tagħna, tista’ tixtrilna kafè. L-appoġġ huwa kompletament volontarju.',
-      hideSupport:'Diġà tajt kontribut, jew tippreferi ma tarax dan? Aħbi l-messaġġ tal-appoġġ.',
-      supportPreferenceNote:'Issejvjat fuq dan l-apparat. Tista’ terġa’ turi l-messaġġ mis-settings.',
+      supportIntro:'Ferħanin li Bag Day jgħinek! Ixtrilna kafè biex tappoġġja l-iżvilupp kontinwu.',
+      hideSupport:'Diġà tajt kontribut, jew tippreferi taħbi dan il-messaġġ?',
+      supportPreferenceNote:'Tista’ tibdel dan mis-settings.',
       showSupport:'Uri l-buttuna Agħti kontribut/Appoġġjana',supportSettingNote:'Turi l-buttuna tal-appoġġ volontarju taħt l-iskeda. Il-bidliet jiġu ssejvjati minnufih fuq dan l-apparat.',
-      supportPaymentNote:'Appoġġ issuġġerit: €2. Tista’ tibdel l-ammont fil-paġna tal-ħlas.',
-      supportPermission:'Jiena sid il-karta jew għandi l-permess tiegħu, u nixtieq nagħmel kontribut volontarju.',
-      supportMathExplanation:'Biex ngħinu nevitaw kontributi bi żball, jekk jogħġbok wieġeb din is-somma sempliċi qabel tkompli.',
-      supportMathAnswer:(a,b)=>`It-tweġiba għal ${a} u ${b} flimkien`,supportMathCorrect:'Tajjeb. Ikkonferma l-permess tiegħek hawn fuq biex tkompli.',supportMathReady:'Tajjeb. Issa tista’ tkompli għal Stripe.',supportMathIncorrect:'Jekk jogħġbok iċċekkja t-tweġiba tiegħek.',
-      coffee:'Ixtrilna kafè ↗',supportCheckoutNote:'Tiftaħ il-paġna tal-ħlas ta’ Stripe. Hawn ma jsir ebda ħlas; iċċekkja l-ammont u kkonferma l-ħlas fuq Stripe.',
+      supportPaymentNote:'Appoġġ volontarju: €2 — tista’ tibdel l-ammont fil-paġna tal-ħlas.',
+      supportMathExplanation:'Biex ngħinu nevitaw kontributi bi żball, wieġeb din is-somma sempliċi.',
+      supportMathAnswer:(a,b)=>`It-tweġiba għal ${a} u ${b} flimkien`,supportMathReady:'Tajjeb.',supportMathIncorrect:'Jekk jogħġbok iċċekkja t-tweġiba tiegħek.',
+      coffee:'Ixtrilna kafè ↗',supportCheckoutNote:'Iċċekkja u kkonferma l-ħlas tiegħek fuq Stripe.',
       dismissSupport:'Forsi aktar tard',closeSupport:'Agħlaq il-panel tal-appoġġ' 
     },
     en: {
@@ -81,28 +79,27 @@
       notice:place=>`You seem to be in ${place} now.`,noticeQuestion:'View its schedule without changing your saved locality?',yes:'View',
       source:'Official schedule ↗',sourceNote:'Times may change. Check the official site.',
       settings:'Settings',schedule:'BAG DAY MALTA',choose:'Choose your locality',
-      nearby:place=>`Detected nearby: ${place}. Confirm or choose another.`,
+      nearby:place=>`Detected nearby: ${place}`,
       chooseBelow:'Choose a locality below.',locating:'Finding your locality…',
       unavailable:'Could not detect your locality. Choose it below.',
       locality:'Locality',search:'Search a locality',localities:'Localities',empty:'No locality found',
       cancel:'Cancel',save:'Set as my home locality',done:'Done',homeLocalityTitle:'Home locality',homeLocalityHelp:'Choose the locality whose collection schedule you want to keep as your home.',savedHome:place=>`Saved home: ${place}`,noSavedHome:'No home locality saved yet.',locationModeNote:'Choose what to show when you travel. Changes save immediately.',supportSettingsTitle:'Support Bag Day',
       settingsNote:'Select a locality, then tap “Set as my home locality” to save it.',
       locationBehaviour:'Location when travelling',
-      keepTitle:'Keep my chosen locality',keepHelp:'Default. The PWA does not silently switch locality when you travel.',
+      keepTitle:'Keep my home locality',keepHelp:'Default. The PWA does not silently switch locality when you travel.',
       followTitle:'Follow my current location automatically',followHelp:'When GPS detects another locality, show its schedule without replacing your saved locality.',
       following:place=>`📍 Following current location: ${place}`,
       viewing:place=>`📍 Temporarily viewing: ${place}`,
       backHome:place=>`Back to ${place}`,
       supportTitle:'Finding Bag Day useful?',
-      supportIntro:'We’re glad Bag Day is useful to you. If you’d like to support our ongoing development, you can buy us a coffee. Support is entirely optional.',
-      hideSupport:'Already contributed, or prefer not to see this? Hide the support message.',
-      supportPreferenceNote:'Saved on this device. You can show the message again in Settings.',
+      supportIntro:'Glad Bag Day helps! Buy us a coffee to support ongoing development.',
+      hideSupport:'Already contributed, or prefer to hide this message?',
+      supportPreferenceNote:'You can change this in Settings.',
       showSupport:'Show the Donate/Support us button',supportSettingNote:'Shows the optional support button below your schedule. Changes save immediately on this device.',
-      supportPaymentNote:'Suggested support: €2. You can change the amount at checkout.',
-      supportPermission:'I’m the cardholder or have their permission, and I want to make a voluntary contribution.',
-      supportMathExplanation:'To help prevent accidental donations, please solve this quick sum before continuing.',
-      supportMathAnswer:(a,b)=>`Answer to ${a} plus ${b}`,supportMathCorrect:'Correct. Confirm your permission above to continue.',supportMathReady:'Correct. You can now continue to Stripe.',supportMathIncorrect:'Please check your answer.',
-      coffee:'Buy us a coffee ↗',supportCheckoutNote:'Opens Stripe checkout. No payment is made here; review the amount and confirm payment on Stripe.',
+      supportPaymentNote:'Optional support: €2 — change the amount at checkout.',
+      supportMathExplanation:'To help prevent accidental donations, solve this quick sum.',
+      supportMathAnswer:(a,b)=>`Answer to ${a} plus ${b}`,supportMathReady:'Correct.',supportMathIncorrect:'Please check your answer.',
+      coffee:'Buy us a coffee ↗',supportCheckoutNote:'Review and confirm your payment on Stripe.',
       dismissSupport:'Maybe later',closeSupport:'Close support panel' 
     }
   };
@@ -215,15 +212,14 @@
   function updateSupportPayment(){
     const answer=$('supportMathAnswer');
     const correct=supportAnswerIsCorrect();
-    const permitted=$('supportPermission').checked;
-    $('coffeeButton').disabled=!donationUrl || !correct || !permitted;
+    $('coffeeButton').disabled=!donationUrl || !correct;
     answer.setAttribute('aria-invalid',String(answer.value.trim()!==''&&!correct));
-    $('supportMathStatus').textContent=answer.value.trim()===''?'':correct?(permitted?t().supportMathReady:t().supportMathCorrect):t().supportMathIncorrect;
+    $('supportMathStatus').textContent=answer.value.trim()===''?'':correct?t().supportMathReady:t().supportMathIncorrect;
   }
 
   function renderSupport(){
     const c=t();
-    for(const [id,key] of Object.entries({supportTitle:'supportTitle',supportIntro:'supportIntro',hideSupportLabel:'hideSupport',supportPreferenceNote:'supportPreferenceNote',showSupportLabel:'showSupport',supportSettingNote:'supportSettingNote',supportPaymentNote:'supportPaymentNote',supportPermissionLabel:'supportPermission',coffeeButton:'coffee',supportCheckoutNote:'supportCheckoutNote',dismissSupport:'dismissSupport',supportMathExplanation:'supportMathExplanation'})) $(id).textContent=c[key];
+    for(const [id,key] of Object.entries({supportTitle:'supportTitle',supportIntro:'supportIntro',hideSupportLabel:'hideSupport',supportPreferenceNote:'supportPreferenceNote',showSupportLabel:'showSupport',supportPaymentNote:'supportPaymentNote',coffeeButton:'coffee',supportCheckoutNote:'supportCheckoutNote',dismissSupport:'dismissSupport',supportMathExplanation:'supportMathExplanation'})) $(id).textContent=c[key];
     $('supportMathFirst').textContent=String(supportMathFirst);
     $('supportMathSecond').textContent=String(supportMathSecond);
     $('supportMathAnswer').setAttribute('aria-label',c.supportMathAnswer(supportMathFirst,supportMathSecond));
@@ -245,7 +241,6 @@
     newSupportSum();
     previousOverflow=document.body.style.overflow;
     document.body.style.overflow='hidden';
-    $('supportPermission').checked=false;
     $('supportMathAnswer').value='';
     renderSupport();renderDonation();
     $('supportOverlay').hidden=false;
@@ -256,7 +251,6 @@
   function closeSupport(){
     if($('supportOverlay').hidden)return;
     $('supportOverlay').hidden=true;
-    $('supportPermission').checked=false;
     $('supportMathAnswer').value='';
     $('coffeeButton').disabled=true;
     document.body.style.overflow=previousOverflow;
@@ -297,27 +291,17 @@
     $('sourceLink').textContent=c.source;
     $('sourceNote').textContent=c.sourceNote;
     $('settingsEyebrow').textContent=c.schedule;
-    $('settingsTitle').textContent=selected?c.settings:c.choose;
+    $('settingsTitle').textContent=c.settings;
     $('homeLocalityTitle').textContent=c.homeLocalityTitle;
-    $('homeLocalityHelp').textContent=c.homeLocalityHelp;
-    $('savedHomeLocality').textContent=selected?c.savedHome(selected):c.noSavedHome;
-    $('locationModeNote').textContent=c.locationModeNote;
     $('supportSettingsTitle').textContent=c.supportSettingsTitle;
     $('closeSettings').setAttribute('aria-label',c.cancel);
-    $('localityLabel').textContent=c.locality;
-    $('localitySearch').placeholder=c.search;
-    $('localityList').setAttribute('aria-label',c.localities);
+    renderHomeLocality();
     $('cancelSettings').textContent=c.done;
-    $('saveSettings').textContent=c.save;
-    $('settingsNote').textContent=c.settingsNote;
     $('locationBehaviourLabel').textContent=c.locationBehaviour;
     $('keepLocalityTitle').textContent=c.keepTitle;
-    $('keepLocalityHelp').textContent=c.keepHelp;
     $('followLocationTitle').textContent=c.followTitle;
-    $('followLocationHelp').textContent=c.followHelp;
     $('keepLocalityMode').checked=!followLocation;
     $('followLocationMode').checked=followLocation;
-    updateGpsStatus();
   }
 
   function renderLocationMode(){
@@ -362,17 +346,11 @@
     if(different)$('noticeText').textContent=c.notice(detected);
   }
 
-  function updateGpsStatus() {
-    if($('settingsOverlay').hidden)return;
-    $('gpsStatus').textContent=detected?t().nearby(detected):locationFailed?t().unavailable:lastGpsAttempt?t().locating:t().chooseBelow;
-  }
-
   function setLanguage(value) {
     language=value;
     localStorage.setItem(languageKey,value);
     analyticsEvent('language_changed',{language:value});
     render();
-    if(!$('settingsOverlay').hidden)listOptions();
   }
 
   function changeDay(delta) {
@@ -381,38 +359,34 @@
     if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=0;render();},60000);
   }
 
-  function listOptions() {
-    const query=normal($('localitySearch').value);
-    const matching=data.localities.filter(row=>[row[0],...(row[3]||[])].some(name=>normal(name).includes(query)));
-    $('localityList').replaceChildren();
-    if(!matching.length){const empty=document.createElement('div');empty.className='empty-list';empty.textContent=t().empty;$('localityList').append(empty);return;}
-    matching.forEach(row=>{
-      const button=document.createElement('button');button.type='button';button.className='locality-option';button.setAttribute('role','option');
-      button.setAttribute('aria-selected',String(row[0]===pending));button.textContent=row[0];
-      button.onclick=()=>{pending=row[0];$('localitySearch').value=row[0];$('saveSettings').disabled=false;listOptions();};
-      $('localityList').append(button);
-    });
-  }
-
-  function openSettings(suggestion) {
-    pending=suggestion||selected||detected||null;
-    $('localitySearch').value=pending||'';
-    $('settingsOverlay').hidden=false;
+  let homeOptionsReady=false;
+  function renderHomeLocality(){
+    const menu=$('homeLocalitySelect');
+    if(!homeOptionsReady){
+      for(const name of names){const option=document.createElement('option');option.value=name;option.textContent=name;menu.append(option);}
+      homeOptionsReady=true;
+    }
+    $('homeLocalityPlaceholder').textContent=t().choose;
+    menu.value=selected||'';
     $('closeSettings').hidden=!selected;
     $('cancelSettings').hidden=!selected;
-    $('saveSettings').disabled=!pending;
-    renderStaticText();listOptions();
-    // Do not force the on-screen keyboard open on phones/tablets.
-    // Desktop users still get the convenience of immediate typing.
-    const mobileLike = window.matchMedia('(pointer: coarse)').matches || window.innerWidth <= 600;
-    if (mobileLike) {
-      $('localitySearch').blur();
-      $('settingsDialog')?.scrollTo?.({top:0,behavior:'instant'});
-    } else {
-      $('localitySearch').focus({preventScroll:true});
-    }
   }
-  function closeSettings(){if(selected){$('settingsOverlay').hidden=true;pending=null;}}
+
+  function saveHomeLocality(name){
+    if(!names.includes(name))return;
+    selected=name;temporaryView=null;
+    localStorage.setItem(localityKey,selected);
+    analyticsEvent('locality_changed');
+    dayOffset=0;render();
+  }
+
+  function openSettings(){
+    $('settingsOverlay').hidden=false;
+    renderStaticText();
+    // Keep the phone keyboard closed; the native picker opens only on a tap.
+    $('settingsDialog')?.scrollTo?.({top:0,behavior:'instant'});
+  }
+  function closeSettings(){if(selected)$('settingsOverlay').hidden=true;}
 
   function identifyPlace(address,latitude) {
     const candidates=[address.city,address.town,address.village,address.municipality,address.suburb,address.neighbourhood,address.city_district,address.county].filter(Boolean);
@@ -426,11 +400,11 @@
     return null;
   }
 
-  function detectionUnavailable() {locationFailed=true;updateGpsStatus();}
+  function detectionUnavailable() {locationFailed=true;}
   function detectLocation() {
     if(!navigator.geolocation){detectionUnavailable();return;}
     if(Date.now()-lastGpsAttempt<60000)return;
-    lastGpsAttempt=Date.now();updateGpsStatus();
+    lastGpsAttempt=Date.now();
     navigator.geolocation.getCurrentPosition(async position=>{
       try{
         const {latitude,longitude}=position.coords;
@@ -444,10 +418,10 @@
         if(detected && newlyDetected!==detected && temporaryView) temporaryView=null;
         detected=newlyDetected;
         locationFailed=false;
-        if(!selected&&!$('settingsOverlay').hidden&&!$('localitySearch').value.trim()){
-          pending=detected;$('localitySearch').value=detected;$('saveSettings').disabled=false;listOptions();
-        }
-        updateGpsStatus();render();
+        // GPS may establish a home only before a home has been saved.
+        // A manual choice made while GPS was pending always wins.
+        if(!selected)saveHomeLocality(detected);
+        render();
       }catch(_){detectionUnavailable();}
     },detectionUnavailable,{enableHighAccuracy:false,timeout:10000,maximumAge:300000});
   }
@@ -476,13 +450,7 @@
   };
   $('closeSettings').onclick=closeSettings;
   $('cancelSettings').onclick=closeSettings;
-  $('saveSettings').onclick=()=>{
-    if(!pending)return;
-    selected=pending;temporaryView=null;localStorage.setItem(localityKey,selected);
-    analyticsEvent('locality_changed');
-    $('settingsOverlay').hidden=true;dayOffset=0;render();
-  };
-  $('localitySearch').oninput=()=>{pending=null;$('saveSettings').disabled=true;listOptions();};
+  $('homeLocalitySelect').onchange=()=>saveHomeLocality($('homeLocalitySelect').value);
   $('prevDay').onclick=()=>changeDay(-1);
   $('nextDay').onclick=()=>changeDay(1);
   $('donationCard').addEventListener('click',openSupport);
@@ -491,10 +459,9 @@
   $('supportOverlay').onclick=e=>{if(e.target===$('supportOverlay'))closeSupport();};
   $('hideSupport').onchange=()=>setSupportHidden($('hideSupport').checked);
   $('showSupport').onchange=()=>setSupportHidden(!$('showSupport').checked);
-  $('supportPermission').onchange=updateSupportPayment;
   $('supportMathAnswer').oninput=updateSupportPayment;
   $('coffeeButton').onclick=()=>{
-    if($('supportOverlay').hidden || !donationUrl || !$('supportPermission').checked || !supportAnswerIsCorrect())return;
+    if($('supportOverlay').hidden || !donationUrl || !supportAnswerIsCorrect())return;
     window.open(donationUrl,'_blank','noopener,noreferrer');
     analyticsEvent('donation_click',{language});
     closeSupport();
