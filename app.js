@@ -24,6 +24,7 @@
   const supportHiddenKey = 'bag-day-support-hidden-v1';
   let supportHidden = localStorage.getItem(supportHiddenKey) === 'true';
   let donationUrl = null;
+  const tipAmounts=[2,5,10,20];
   let supportReturnFocus = null;
   let previousOverflow = '';
   let supportMathPair = null;
@@ -59,15 +60,15 @@
       following:place=>`📍 Qed issegwi l-lokalità attwali: ${place}`,
       viewing:place=>`📍 Qed tara temporanjament: ${place}`,
       backHome:place=>`Lura għal ${place}`,
-      supportTitle:'Bag Day qed jgħinek?',
-      supportIntro:'Ferħanin li Bag Day jgħinek! Ixtrilna kafè biex tappoġġja l-iżvilupp kontinwu.',
-      hideSupport:'Diġà tajt kontribut, jew tippreferi taħbi dan il-messaġġ?',
-      supportPreferenceNote:'Tista’ tibdel dan mis-settings.',
+      supportTitle:'Ferħanin li sibt din l-app utli.',
+      supportIntro:'Ixtrilna kafè',
+      hideSupport:'Aħbi l-buttuna tal-kontribut',
+
       showSupport:'Uri l-buttuna Agħti kontribut/Appoġġjana',supportSettingNote:'Turi l-buttuna tal-appoġġ volontarju taħt l-iskeda. Il-bidliet jiġu ssejvjati minnufih fuq dan l-apparat.',
-      supportPaymentNote:'Appoġġ volontarju: €2 — tista’ tibdel l-ammont fil-paġna tal-ħlas.',
-      supportMathExplanation:'Biex ngħinu nevitaw kontributi bi żball, wieġeb din is-somma sempliċi.',
+
+      supportMathExplanation:'Biex nevitaw kontributi bi żball, jekk jogħġbok wieġeb is-somma sempliċi hawn taħt.',
       supportMathAnswer:(a,b)=>`It-tweġiba għal ${a} u ${b} flimkien`,supportMathReady:'Tajjeb.',supportMathIncorrect:'Jekk jogħġbok iċċekkja t-tweġiba tiegħek.',
-      coffee:'Ixtrilna kafè ↗',supportCheckoutNote:'Iċċekkja u kkonferma l-ħlas tiegħek fuq Stripe.',
+      tipThanks:'Grazzi tal-kontribut tiegħek.',tipAmountLabel:amount=>`Agħti kontribut ta’ €${amount} — tiftaħ il-paġna tal-ħlas ta’ Stripe`,tipAmountsLabel:'Agħżel ammont għall-kontribut',
       dismissSupport:'Forsi aktar tard',closeSupport:'Agħlaq il-panel tal-appoġġ' 
     },
     en: {
@@ -91,15 +92,15 @@
       following:place=>`📍 Following current location: ${place}`,
       viewing:place=>`📍 Temporarily viewing: ${place}`,
       backHome:place=>`Back to ${place}`,
-      supportTitle:'Finding Bag Day useful?',
-      supportIntro:'Glad Bag Day helps! Buy us a coffee to support ongoing development.',
-      hideSupport:'Already contributed, or prefer to hide this message?',
-      supportPreferenceNote:'You can change this in Settings.',
+      supportTitle:'Glad you found this app useful.',
+      supportIntro:'Buy us a Coffee',
+      hideSupport:'Hide the Donate Button',
+
       showSupport:'Show the Donate/Support us button',supportSettingNote:'Shows the optional support button below your schedule. Changes save immediately on this device.',
-      supportPaymentNote:'Optional support: €2 — change the amount at checkout.',
-      supportMathExplanation:'To help prevent accidental donations, solve this quick sum.',
+
+      supportMathExplanation:'To prevent accidental donations, please answer the simple maths question below.',
       supportMathAnswer:(a,b)=>`Answer to ${a} plus ${b}`,supportMathReady:'Correct.',supportMathIncorrect:'Please check your answer.',
-      coffee:'Buy us a coffee ↗',supportCheckoutNote:'Review and confirm your payment on Stripe.',
+      tipThanks:'Thank you for your tip.',tipAmountLabel:amount=>`Support with €${amount} — opens Stripe checkout`,tipAmountsLabel:'Choose a tip amount',
       dismissSupport:'Maybe later',closeSupport:'Close support panel' 
     }
   };
@@ -177,7 +178,7 @@
     const cfg=donationConfig;
     card.hidden=true;
     donationUrl=null;
-    $('coffeeButton').disabled=true;
+    tipAmounts.forEach(amount=>{$(`tip${amount}`).disabled=true;});
     if(!cfg || String(cfg.Donation_Visible||'').toLowerCase()!=='true') return;
     const text=String((language==='mt' && cfg.Donation_Text_MT) || cfg.Donation_Text || '').trim();
     const link=String(cfg.Donation_Link||'').trim();
@@ -212,18 +213,20 @@
   function updateSupportPayment(){
     const answer=$('supportMathAnswer');
     const correct=supportAnswerIsCorrect();
-    $('coffeeButton').disabled=!donationUrl || !correct;
+    tipAmounts.forEach(amount=>{$(`tip${amount}`).disabled=!donationUrl || !correct;});
     answer.setAttribute('aria-invalid',String(answer.value.trim()!==''&&!correct));
     $('supportMathStatus').textContent=answer.value.trim()===''?'':correct?t().supportMathReady:t().supportMathIncorrect;
   }
 
   function renderSupport(){
     const c=t();
-    for(const [id,key] of Object.entries({supportTitle:'supportTitle',supportIntro:'supportIntro',hideSupportLabel:'hideSupport',supportPreferenceNote:'supportPreferenceNote',showSupportLabel:'showSupport',supportPaymentNote:'supportPaymentNote',coffeeButton:'coffee',supportCheckoutNote:'supportCheckoutNote',dismissSupport:'dismissSupport',supportMathExplanation:'supportMathExplanation'})) $(id).textContent=c[key];
+    for(const [id,key] of Object.entries({supportTitle:'supportTitle',supportIntro:'supportIntro',hideSupportLabel:'hideSupport',showSupportLabel:'showSupport',tipThanks:'tipThanks',dismissSupport:'dismissSupport',supportMathExplanation:'supportMathExplanation'})) $(id).textContent=c[key];
     $('supportMathFirst').textContent=String(supportMathFirst);
     $('supportMathSecond').textContent=String(supportMathSecond);
     $('supportMathAnswer').setAttribute('aria-label',c.supportMathAnswer(supportMathFirst,supportMathSecond));
     updateSupportPayment();
+    $('tipAmounts').setAttribute('aria-label',c.tipAmountsLabel);
+    tipAmounts.forEach(amount=>$(`tip${amount}`).setAttribute('aria-label',c.tipAmountLabel(amount)));
     $('closeSupport').setAttribute('aria-label',c.closeSupport);
     $('hideSupport').checked=supportHidden;
     $('showSupport').checked=!supportHidden;
@@ -252,7 +255,7 @@
     if($('supportOverlay').hidden)return;
     $('supportOverlay').hidden=true;
     $('supportMathAnswer').value='';
-    $('coffeeButton').disabled=true;
+    tipAmounts.forEach(amount=>{$(`tip${amount}`).disabled=true;});
     document.body.style.overflow=previousOverflow;
     const target=supportHidden?$('settingsButton'):supportReturnFocus;
     if(target)target.focus();
@@ -460,12 +463,16 @@
   $('hideSupport').onchange=()=>setSupportHidden($('hideSupport').checked);
   $('showSupport').onchange=()=>setSupportHidden(!$('showSupport').checked);
   $('supportMathAnswer').oninput=updateSupportPayment;
-  $('coffeeButton').onclick=()=>{
-    if($('supportOverlay').hidden || !donationUrl || !supportAnswerIsCorrect())return;
-    window.open(donationUrl,'_blank','noopener,noreferrer');
-    analyticsEvent('donation_click',{language});
-    closeSupport();
-  };
+  tipAmounts.forEach(amount=>{
+    $(`tip${amount}`).onclick=()=>{
+      if($('supportOverlay').hidden || !donationUrl || !supportAnswerIsCorrect())return;
+      const checkout=new URL(donationUrl);
+      checkout.searchParams.set('prefilled_amount',String(amount*100));
+      window.open(checkout.href,'_blank','noopener,noreferrer');
+      analyticsEvent('donation_click',{language});
+      closeSupport();
+    };
+  });
   $('dashboard').addEventListener('touchstart',e=>{touchStart={x:e.changedTouches[0].screenX,y:e.changedTouches[0].screenY};},{passive:true});
   $('dashboard').addEventListener('touchend',e=>{if(!touchStart)return;const dx=e.changedTouches[0].screenX-touchStart.x,dy=e.changedTouches[0].screenY-touchStart.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5)changeDay(dx<0?1:-1);touchStart=null;},{passive:true});
   document.addEventListener('keydown',e=>{if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('languageOverlay').hidden)return;if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
