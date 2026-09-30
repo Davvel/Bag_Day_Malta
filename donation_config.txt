@@ -9,4 +9,4 @@ Donation_Detail=Help us keep developing Bag Day.
 Donation_Detail_MT=Għinna nkomplu niżviluppaw Bag Day.
 Donation_Button=Support
 Donation_Button_MT=Appoġġ
-Donation_Link=https://buy.stripe.com/14A3cv6yGbINgZDdEg6sw00
+Donation_Link=https://buy.stripe.com/9B6dR9bT08wB6kZ7fS6sw01

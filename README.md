@@ -32,7 +32,7 @@ Donation_Detail=Help us keep developing Bag Day.
 Donation_Detail_MT=Għinna nkomplu niżviluppaw Bag Day.
 Donation_Button=Support
 Donation_Button_MT=Appoġġ
-Donation_Link=https://buy.stripe.com/14A3cv6yGbINgZDdEg6sw00
+Donation_Link=https://buy.stripe.com/9B6dR9bT08wB6kZ7fS6sw01
 ```
 
 `Donation_Visible` is case-insensitive. When it is false, the whole support strip is absent. The visible strip opens the support panel. Device preferences can also hide it. UTF-8/Unicode text is supported.
