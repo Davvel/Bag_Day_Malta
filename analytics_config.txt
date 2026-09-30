@@ -1,0 +1,7 @@
+# Bag Day Malta Google Analytics configuration
+# Google Analytics 4 works with GitHub Pages; Firebase Hosting is not required.
+# Create a GA4 web data stream and paste its Measurement ID below (example: G-ABC1234567).
+# Leave Analytics_Enabled=false until you are ready.
+
+Analytics_Enabled=false
+Measurement_ID=G-XXXXXXXXXX

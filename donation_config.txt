@@ -1,0 +1,8 @@
+# Bag Day Malta donation configuration
+# Change Donation_Visible to true when you are ready to show the support strip.
+# Values true/false are case-insensitive.
+# This file is fetched fresh and is deliberately NOT stored in the PWA cache.
+
+Donation_Visible=false
+Donation_Text=❤️ Enjoying Bag Day Malta? Buy us a coffee ☕ — it will make our day.
+Donation_Link=https://www.paypal.com/

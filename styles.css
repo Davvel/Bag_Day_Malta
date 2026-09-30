@@ -9,3 +9,22 @@
 .collection-figures .bag-figure{width:100%;height:145px;margin:0}
 .collection-figures .bag-figure svg,.collection-figures .bag-figure img{display:block;width:100%;max-width:135px;height:145px;object-fit:contain;filter:drop-shadow(0 9px 7px #152d4220)}
 .collection-item-label{font-size:clamp(.78rem,3.7vw,1rem);font-weight:750;line-height:1.2;color:#123453}
+
+/* Optional current-location mode */
+.location-mode-bar{align-self:center;display:flex;align-items:center;gap:8px;margin-top:10px;padding:7px 10px;border-radius:999px;background:#e7f3fb;color:#245c82;font-size:.76rem;line-height:1.2}
+.location-mode-bar button{border:0;background:transparent;color:#126db2;font:inherit;font-weight:800;padding:2px 4px;text-decoration:underline;text-underline-offset:2px}
+.location-behaviour{border:1px solid #dce7ef;border-radius:13px;padding:12px;margin:2px 0 18px;background:#f9fcfe}
+.behaviour-title{display:block;font-size:.85rem;font-weight:800;margin:0 0 9px;color:#345b77}
+.behaviour-option{display:flex!important;align-items:flex-start;gap:10px;padding:9px 7px;margin:0!important;border-radius:9px;cursor:pointer}
+.behaviour-option:hover{background:#eef6fb}
+.behaviour-option input{width:18px!important;height:18px!important;margin:2px 0 0;flex:none}
+.behaviour-option span{display:block;min-width:0}
+.behaviour-option strong{display:block;font-size:.9rem;color:#173f5c}
+.behaviour-option small{display:block;margin-top:2px;color:#688297;font-size:.76rem;line-height:1.35}
+
+/* Remotely configurable support strip. Entire row is one large tap target. */
+.donation-card{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:15px 0 0;padding:13px 15px;border:1px solid #d7e5ee;border-radius:14px;background:#fbfdff;color:#315a76;text-decoration:none;font-size:.83rem;line-height:1.4;box-shadow:0 5px 18px #12345308;transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}
+.donation-card:hover{transform:translateY(-1px);border-color:#aac7da;box-shadow:0 8px 22px #12345312}
+.donation-card:active{transform:translateY(0)}
+.donation-card #donationText{flex:1}
+.donation-arrow{font-size:1.45rem;line-height:1;color:#447897;font-weight:700}
