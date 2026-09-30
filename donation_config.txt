@@ -5,8 +5,8 @@
 Donation_Visible=true
 Donation_Text=Finding Bag Day useful?
 Donation_Text_MT=Bag Day qed jgħinek?
-Donation_Detail=Optional tip · Change the amount at checkout.
-Donation_Detail_MT=Appoġġ volontarju · Tista’ tibdel l-ammont fil-paġna tal-ħlas.
-Donation_Button=Support €2
-Donation_Button_MT=Appoġġ €2
+Donation_Detail=Help us keep developing Bag Day.
+Donation_Detail_MT=Għinna nkomplu niżviluppaw Bag Day.
+Donation_Button=Support
+Donation_Button_MT=Appoġġ
 Donation_Link=https://buy.stripe.com/14A3cv6yGbINgZDdEg6sw00

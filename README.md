@@ -28,14 +28,14 @@ Edit `donation_config.txt` only:
 Donation_Visible=true
 Donation_Text=Finding Bag Day useful?
 Donation_Text_MT=Bag Day qed jgħinek?
-Donation_Detail=Optional tip · Change the amount at checkout.
-Donation_Detail_MT=Appoġġ volontarju · Tista’ tibdel l-ammont fil-paġna tal-ħlas.
-Donation_Button=Support €2
-Donation_Button_MT=Appoġġ €2
+Donation_Detail=Help us keep developing Bag Day.
+Donation_Detail_MT=Għinna nkomplu niżviluppaw Bag Day.
+Donation_Button=Support
+Donation_Button_MT=Appoġġ
 Donation_Link=https://buy.stripe.com/14A3cv6yGbINgZDdEg6sw00
 ```
 
-`Donation_Visible` is case-insensitive. When it is false, the whole support strip is absent. The entire visible strip is clickable. UTF-8/Unicode text is supported.
+`Donation_Visible` is case-insensitive. When it is false, the whole support strip is absent. The visible strip opens the support panel. Device preferences can also hide it. UTF-8/Unicode text is supported.
 
 The configuration is deliberately fetched with a changing query string and `cache: no-store`, and the service worker never caches it, so changing the file on GitHub Pages does not require rebuilding the PWA. GitHub Pages/CDN propagation can still take a short time after a deployment.
 
@@ -59,14 +59,18 @@ No precise GPS coordinates, names, email addresses, or payment details are sent 
 - The Settings dialog remains scrollable and usable if the on-screen keyboard is opened manually.
 
 
-## v14 Stripe support update
-- A compact support strip opens the configured Stripe Payment Link directly in a new tab; there are no app popups or compulsory donations.
-- English and Maltese support wording updates when the language changes. The €2 label is a suggested amount, not a charge: payment happens only on Stripe after customer confirmation.
-- Stripe currently suggests €2 and permits €2–€20. Change these amounts in Stripe; if the preset changes, also update Donation_Button and Donation_Button_MT.
-- Existing donation_click analytics is preserved. Analytics remains disabled until you configure a real GA4 Measurement ID. Clicks measure interest, not successful payments, and GA4 itself processes browser/device data.
-- Config failure or offline access hides the strip; the cached waste timetable remains available.
-- Versioned shell assets and a v14 cache ensure installed PWAs receive the update. Language/locality preferences are preserved.
-- Stripe Managed Payments eligibility for optional tips still needs confirmation from Stripe. You can hide the strip using Donation_Visible=false while checking.
+## v17 optional support panel
+- The support strip opens a panel only after a tap. It never opens checkout directly or shows itself as a popup.
+- The panel thanks the user, explains voluntary support, and offers “Buy us a coffee”. It shows the suggested €2 amount and explains that Stripe requires a separate payment confirmation.
+- The coffee button requires both the unchecked cardholder/permission confirmation and the correct answer to a fresh addition sum. Each operand is 1–9, the operator is always +, and the previous pair is excluded each time the panel reopens. The sum stays unchanged while typing or changing language. The answer and permission reset each time the panel opens/closes. The explanation states this helps prevent accidental donations. Wrong or cleared answers immediately disable checkout, and the click handler also verifies both conditions. This reduces accidental taps; children who can solve the sum can still proceed. It does not verify age or identity and cannot guarantee child-proof payments.
+- “Hide the support message” saves a preference in localStorage on this browser/device. It can be reversed with “Show the support message” in Settings. These changes save immediately, even if locality settings are cancelled. Clearing browser data resets the preference. Contributions are not tracked or inferred.
+- English and Maltese text, Escape/backdrop dismissal, keyboard focus containment and focus restoration are included. Hiding does not require donating.
+- The configured Stripe link remains unchanged. Suggested amount, actual limits and checkout fields are managed in Stripe. If the preset changes, update supportPaymentNote in both language dictionaries in app.js.
+- donation_prompt_open measures panel opens; donation_click measures checkout opens, never successful payments. Analytics remains off by default.
+- Config failure/offline access hides the strip; the cached waste timetable remains available. Donation_Visible=false overrides all device preferences.
+- v17 shell/cache references preserve existing language, locality and location preferences while updating the installed PWA.
+- Strong customer authentication is controlled by Stripe/banks. Ask Stripe what authentication options apply to this Managed Payments link; app-side confirmation is not a substitute.
+- Stripe Managed Payments eligibility for optional tips still needs confirmation from Stripe. Hide the strip using Donation_Visible=false while checking if needed.
 
 ### Update on GitHub Pages
 Extract this ZIP into your existing project folder, replacing the matching files. Commit and push using GitHub Desktop. Once deployment finishes, reopen or refresh the app with internet access. No build step is needed.

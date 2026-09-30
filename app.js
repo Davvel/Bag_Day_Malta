@@ -22,6 +22,14 @@
   let locationFailed = false;
   let analyticsReady = false;
   let donationConfig = null;
+  const supportHiddenKey = 'bag-day-support-hidden-v1';
+  let supportHidden = localStorage.getItem(supportHiddenKey) === 'true';
+  let donationUrl = null;
+  let supportReturnFocus = null;
+  let previousOverflow = '';
+  let supportMathPair = null;
+  let supportMathFirst = 1;
+  let supportMathSecond = 1;
 
   function promptIsDismissed() {
     try {
@@ -51,7 +59,18 @@
       followTitle:'Segwi l-lokalità attwali awtomatikament',followHelp:'Meta l-GPS isib lokalità oħra, turi l-iskeda tagħha mingħajr ma tħassar il-lokalità ssejvjata.',
       following:place=>`📍 Qed issegwi l-lokalità attwali: ${place}`,
       viewing:place=>`📍 Qed tara temporanjament: ${place}`,
-      backHome:place=>`Lura għal ${place}`
+      backHome:place=>`Lura għal ${place}`,
+      supportTitle:'Bag Day qed jgħinek?',
+      supportIntro:'Ninsabu kuntenti li Bag Day qed jgħinek. Jekk tixtieq tappoġġja l-iżvilupp kontinwu tagħna, tista’ tixtrilna kafè. L-appoġġ huwa kompletament volontarju.',
+      hideSupport:'Diġà tajt kontribut, jew tippreferi ma tarax dan? Aħbi l-messaġġ tal-appoġġ.',
+      supportPreferenceNote:'Issejvjat fuq dan l-apparat. Tista’ terġa’ turi l-messaġġ mis-settings.',
+      showSupport:'Uri l-messaġġ tal-appoġġ',supportSettingNote:'Mhux obbligatorju. Il-bidliet jiġu ssejvjati minnufih fuq dan l-apparat.',
+      supportPaymentNote:'Appoġġ issuġġerit: €2. Tista’ tibdel l-ammont fil-paġna tal-ħlas.',
+      supportPermission:'Jiena sid il-karta jew għandi l-permess tiegħu, u nixtieq nagħmel kontribut volontarju.',
+      supportMathExplanation:'Biex ngħinu nevitaw kontributi bi żball, jekk jogħġbok wieġeb din is-somma sempliċi qabel tkompli.',
+      supportMathAnswer:(a,b)=>`It-tweġiba għal ${a} u ${b} flimkien`,supportMathCorrect:'Tajjeb. Ikkonferma l-permess tiegħek hawn fuq biex tkompli.',supportMathReady:'Tajjeb. Issa tista’ tkompli għal Stripe.',supportMathIncorrect:'Jekk jogħġbok iċċekkja t-tweġiba tiegħek.',
+      coffee:'Ixtrilna kafè ↗',supportCheckoutNote:'Tiftaħ il-paġna tal-ħlas ta’ Stripe. Hawn ma jsir ebda ħlas; iċċekkja l-ammont u kkonferma l-ħlas fuq Stripe.',
+      dismissSupport:'Forsi aktar tard',closeSupport:'Agħlaq il-panel tal-appoġġ' 
     },
     en: {
       eyebrow:'HOUSEHOLD KERBSIDE COLLECTION', previous:'Previous day', next:'Next day',
@@ -73,7 +92,18 @@
       followTitle:'Follow my current location automatically',followHelp:'When GPS detects another locality, show its schedule without replacing your saved locality.',
       following:place=>`📍 Following current location: ${place}`,
       viewing:place=>`📍 Temporarily viewing: ${place}`,
-      backHome:place=>`Back to ${place}`
+      backHome:place=>`Back to ${place}`,
+      supportTitle:'Finding Bag Day useful?',
+      supportIntro:'We’re glad Bag Day is useful to you. If you’d like to support our ongoing development, you can buy us a coffee. Support is entirely optional.',
+      hideSupport:'Already contributed, or prefer not to see this? Hide the support message.',
+      supportPreferenceNote:'Saved on this device. You can show the message again in Settings.',
+      showSupport:'Show the support message',supportSettingNote:'Optional. Changes are saved immediately on this device.',
+      supportPaymentNote:'Suggested support: €2. You can change the amount at checkout.',
+      supportPermission:'I’m the cardholder or have their permission, and I want to make a voluntary contribution.',
+      supportMathExplanation:'To help prevent accidental donations, please solve this quick sum before continuing.',
+      supportMathAnswer:(a,b)=>`Answer to ${a} plus ${b}`,supportMathCorrect:'Correct. Confirm your permission above to continue.',supportMathReady:'Correct. You can now continue to Stripe.',supportMathIncorrect:'Please check your answer.',
+      coffee:'Buy us a coffee ↗',supportCheckoutNote:'Opens Stripe checkout. No payment is made here; review the amount and confirm payment on Stripe.',
+      dismissSupport:'Maybe later',closeSupport:'Close support panel' 
     }
   };
   const t = () => copy[language];
@@ -149,7 +179,8 @@
     const card=$('donationCard');
     const cfg=donationConfig;
     card.hidden=true;
-    card.removeAttribute('href');
+    donationUrl=null;
+    $('coffeeButton').disabled=true;
     if(!cfg || String(cfg.Donation_Visible||'').toLowerCase()!=='true') return;
     const text=String((language==='mt' && cfg.Donation_Text_MT) || cfg.Donation_Text || '').trim();
     const link=String(cfg.Donation_Link||'').trim();
@@ -162,9 +193,84 @@
     $('donationDetail').textContent=detail;
     $('donationDetail').hidden=!detail;
     $('donationButton').textContent=label;
-    card.href=url.href;
+    donationUrl=url.href;
+    updateSupportPayment();
     card.setAttribute('aria-label',`${text}. ${label}. ${detail}`);
-    card.hidden=false;
+    card.hidden=supportHidden;
+  }
+
+  function newSupportSum(){
+    // Choose from all 81 ordered pairs; exclude the previous pair on reopen.
+    let pair=Math.floor(Math.random()*(supportMathPair===null?81:80));
+    if(supportMathPair!==null && pair>=supportMathPair)pair++;
+    supportMathPair=pair;
+    supportMathFirst=Math.floor(pair/9)+1;
+    supportMathSecond=pair%9+1;
+  }
+
+  function supportAnswerIsCorrect(){
+    return $('supportMathAnswer').value.trim()===String(supportMathFirst+supportMathSecond);
+  }
+
+  function updateSupportPayment(){
+    const answer=$('supportMathAnswer');
+    const correct=supportAnswerIsCorrect();
+    const permitted=$('supportPermission').checked;
+    $('coffeeButton').disabled=!donationUrl || !correct || !permitted;
+    answer.setAttribute('aria-invalid',String(answer.value.trim()!==''&&!correct));
+    $('supportMathStatus').textContent=answer.value.trim()===''?'':correct?(permitted?t().supportMathReady:t().supportMathCorrect):t().supportMathIncorrect;
+  }
+
+  function renderSupport(){
+    const c=t();
+    for(const [id,key] of Object.entries({supportTitle:'supportTitle',supportIntro:'supportIntro',hideSupportLabel:'hideSupport',supportPreferenceNote:'supportPreferenceNote',showSupportLabel:'showSupport',supportSettingNote:'supportSettingNote',supportPaymentNote:'supportPaymentNote',supportPermissionLabel:'supportPermission',coffeeButton:'coffee',supportCheckoutNote:'supportCheckoutNote',dismissSupport:'dismissSupport',supportMathExplanation:'supportMathExplanation'})) $(id).textContent=c[key];
+    $('supportMathFirst').textContent=String(supportMathFirst);
+    $('supportMathSecond').textContent=String(supportMathSecond);
+    $('supportMathAnswer').setAttribute('aria-label',c.supportMathAnswer(supportMathFirst,supportMathSecond));
+    updateSupportPayment();
+    $('closeSupport').setAttribute('aria-label',c.closeSupport);
+    $('hideSupport').checked=supportHidden;
+    $('showSupport').checked=!supportHidden;
+  }
+
+  function setSupportHidden(value){
+    supportHidden=value;
+    localStorage.setItem(supportHiddenKey,String(value));
+    renderSupport();renderDonation();
+  }
+
+  function openSupport(){
+    if(!donationUrl || $('donationCard').hidden)return;
+    supportReturnFocus=document.activeElement;
+    newSupportSum();
+    previousOverflow=document.body.style.overflow;
+    document.body.style.overflow='hidden';
+    $('supportPermission').checked=false;
+    $('supportMathAnswer').value='';
+    renderSupport();renderDonation();
+    $('supportOverlay').hidden=false;
+    $('closeSupport').focus();
+    analyticsEvent('donation_prompt_open',{language});
+  }
+
+  function closeSupport(){
+    if($('supportOverlay').hidden)return;
+    $('supportOverlay').hidden=true;
+    $('supportPermission').checked=false;
+    $('supportMathAnswer').value='';
+    $('coffeeButton').disabled=true;
+    document.body.style.overflow=previousOverflow;
+    const target=supportHidden?$('settingsButton'):supportReturnFocus;
+    if(target)target.focus();
+  }
+
+  function supportKeydown(e){
+    if(e.key==='Escape'){e.preventDefault();closeSupport();return;}
+    if(e.key!=='Tab')return;
+    const items=Array.from($('supportDialog').querySelectorAll('button:not([disabled]),input:not([disabled])'));
+    const first=items[0],last=items[items.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   }
 
   async function loadDonation(){
@@ -176,7 +282,7 @@
 
   function renderStaticText() {
     const c=t();
-    renderDonation();
+    renderSupport();renderDonation();
     document.documentElement.lang=language;
     $('langMt').setAttribute('aria-pressed',String(language==='mt'));
     $('langEn').setAttribute('aria-pressed',String(language==='en'));
@@ -374,10 +480,23 @@
   $('localitySearch').oninput=()=>{pending=null;$('saveSettings').disabled=true;listOptions();};
   $('prevDay').onclick=()=>changeDay(-1);
   $('nextDay').onclick=()=>changeDay(1);
-  $('donationCard').addEventListener('click',()=>analyticsEvent('donation_click',{language}));
+  $('donationCard').addEventListener('click',openSupport);
+  $('closeSupport').onclick=closeSupport;
+  $('dismissSupport').onclick=closeSupport;
+  $('supportOverlay').onclick=e=>{if(e.target===$('supportOverlay'))closeSupport();};
+  $('hideSupport').onchange=()=>setSupportHidden($('hideSupport').checked);
+  $('showSupport').onchange=()=>setSupportHidden(!$('showSupport').checked);
+  $('supportPermission').onchange=updateSupportPayment;
+  $('supportMathAnswer').oninput=updateSupportPayment;
+  $('coffeeButton').onclick=()=>{
+    if($('supportOverlay').hidden || !donationUrl || !$('supportPermission').checked || !supportAnswerIsCorrect())return;
+    window.open(donationUrl,'_blank','noopener,noreferrer');
+    analyticsEvent('donation_click',{language});
+    closeSupport();
+  };
   $('dashboard').addEventListener('touchstart',e=>{touchStart={x:e.changedTouches[0].screenX,y:e.changedTouches[0].screenY};},{passive:true});
   $('dashboard').addEventListener('touchend',e=>{if(!touchStart)return;const dx=e.changedTouches[0].screenX-touchStart.x,dy=e.changedTouches[0].screenY-touchStart.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5)changeDay(dx<0?1:-1);touchStart=null;},{passive:true});
-  document.addEventListener('keydown',e=>{if(!$('languageOverlay').hidden)return;if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
+  document.addEventListener('keydown',e=>{if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('languageOverlay').hidden)return;if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadDonation();if($('languageOverlay').hidden)detectLocation();}});
   setInterval(()=>{if(dayOffset===0)render();},60000);
   render();
