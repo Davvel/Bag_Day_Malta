@@ -28,3 +28,37 @@
 .donation-card:active{transform:translateY(0)}
 .donation-card #donationText{flex:1}
 .donation-arrow{font-size:1.45rem;line-height:1;color:#447897;font-weight:700}
+
+
+/* v13 mobile settings hardening: keep the dialog usable when the virtual keyboard changes the viewport. */
+@media (max-width: 600px), (pointer: coarse) {
+  .overlay {
+    align-items:flex-start;
+    overflow-y:auto;
+    padding:max(10px, env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
+  }
+  .settings {
+    width:100%;
+    max-height:none;
+    margin:8px 0 16px;
+    padding:22px 18px;
+    overflow:visible;
+  }
+  .settings h2 {font-size:1.72rem;}
+  .location-behaviour {padding:10px;margin-bottom:16px;}
+  .behaviour-option {
+    display:grid!important;
+    grid-template-columns:22px minmax(0,1fr);
+    align-items:start;
+    gap:10px;
+    padding:10px 6px;
+  }
+  .behaviour-option input {
+    width:18px!important;
+    height:18px!important;
+    margin:2px 0 0!important;
+    padding:0!important;
+  }
+  .behaviour-option strong,.behaviour-option small {text-align:left;}
+  #localitySearch {font-size:16px;}
+}

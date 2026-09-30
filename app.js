@@ -276,7 +276,15 @@
     $('cancelSettings').hidden=!selected;
     $('saveSettings').disabled=!pending;
     renderStaticText();listOptions();
-    $('localitySearch').focus();
+    // Do not force the on-screen keyboard open on phones/tablets.
+    // Desktop users still get the convenience of immediate typing.
+    const mobileLike = window.matchMedia('(pointer: coarse)').matches || window.innerWidth <= 600;
+    if (mobileLike) {
+      $('localitySearch').blur();
+      $('.settings')?.scrollTo?.({top:0,behavior:'instant'});
+    } else {
+      $('localitySearch').focus({preventScroll:true});
+    }
   }
   function closeSettings(){if(selected){$('settingsOverlay').hidden=true;pending=null;}}
 

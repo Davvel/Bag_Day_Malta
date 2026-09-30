@@ -45,3 +45,10 @@ Measurement_ID=G-XXXXXXXXXX
 Google Analytics 4 works on GitHub Pages; Firebase Hosting is not required. Once enabled with a valid GA4 Measurement ID, the app records these custom events: `donation_click`, `locality_changed`, `gps_used`, `follow_location_enabled`, `current_locality_viewed`, and `language_changed`.
 
 No precise GPS coordinates, names, email addresses, or PayPal details are sent as custom analytics event parameters by Bag Day Malta.
+
+
+## v13 mobile cache/layout fix
+- CSS and JavaScript are referenced with a release version so installed PWAs do not mix old and new files.
+- The service-worker cache was bumped to v13 and old caches are deleted on activation.
+- Mobile devices no longer auto-focus the locality search field when Settings opens, avoiding an unwanted keyboard popup.
+- The Settings dialog remains scrollable and usable if the on-screen keyboard is opened manually.
