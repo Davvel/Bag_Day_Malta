@@ -25,9 +25,14 @@ When follow mode is off and another locality is detected, the prompt can tempora
 Edit `donation_config.txt` only:
 
 ```text
-Donation_Visible=false
-Donation_Text=❤️ Enjoying Bag Day Malta? Buy us a coffee ☕ — it will make our day.
-Donation_Link=https://www.paypal.com/
+Donation_Visible=true
+Donation_Text=Finding Bag Day useful?
+Donation_Text_MT=Bag Day qed jgħinek?
+Donation_Detail=Optional tip · Change the amount at checkout.
+Donation_Detail_MT=Appoġġ volontarju · Tista’ tibdel l-ammont fil-paġna tal-ħlas.
+Donation_Button=Support €2
+Donation_Button_MT=Appoġġ €2
+Donation_Link=https://buy.stripe.com/14A3cv6yGbINgZDdEg6sw00
 ```
 
 `Donation_Visible` is case-insensitive. When it is false, the whole support strip is absent. The entire visible strip is clickable. UTF-8/Unicode text is supported.
@@ -44,7 +49,7 @@ Measurement_ID=G-XXXXXXXXXX
 
 Google Analytics 4 works on GitHub Pages; Firebase Hosting is not required. Once enabled with a valid GA4 Measurement ID, the app records these custom events: `donation_click`, `locality_changed`, `gps_used`, `follow_location_enabled`, `current_locality_viewed`, and `language_changed`.
 
-No precise GPS coordinates, names, email addresses, or PayPal details are sent as custom analytics event parameters by Bag Day Malta.
+No precise GPS coordinates, names, email addresses, or payment details are sent as custom analytics event parameters by Bag Day Malta.
 
 
 ## v13 mobile cache/layout fix
@@ -52,3 +57,16 @@ No precise GPS coordinates, names, email addresses, or PayPal details are sent a
 - The service-worker cache was bumped to v13 and old caches are deleted on activation.
 - Mobile devices no longer auto-focus the locality search field when Settings opens, avoiding an unwanted keyboard popup.
 - The Settings dialog remains scrollable and usable if the on-screen keyboard is opened manually.
+
+
+## v14 Stripe support update
+- A compact support strip opens the configured Stripe Payment Link directly in a new tab; there are no app popups or compulsory donations.
+- English and Maltese support wording updates when the language changes. The €2 label is a suggested amount, not a charge: payment happens only on Stripe after customer confirmation.
+- Stripe currently suggests €2 and permits €2–€20. Change these amounts in Stripe; if the preset changes, also update Donation_Button and Donation_Button_MT.
+- Existing donation_click analytics is preserved. Analytics remains disabled until you configure a real GA4 Measurement ID. Clicks measure interest, not successful payments, and GA4 itself processes browser/device data.
+- Config failure or offline access hides the strip; the cached waste timetable remains available.
+- Versioned shell assets and a v14 cache ensure installed PWAs receive the update. Language/locality preferences are preserved.
+- Stripe Managed Payments eligibility for optional tips still needs confirmation from Stripe. You can hide the strip using Donation_Visible=false while checking.
+
+### Update on GitHub Pages
+Extract this ZIP into your existing project folder, replacing the matching files. Commit and push using GitHub Desktop. Once deployment finishes, reopen or refresh the app with internet access. No build step is needed.

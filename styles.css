@@ -62,3 +62,11 @@
   .behaviour-option strong,.behaviour-option small {text-align:left;}
   #localitySearch {font-size:16px;}
 }
+
+/* v14: one direct, unobtrusive support link below the timetable. */
+.donation-card{min-height:64px;padding:12px 14px;gap:10px}
+.donation-copy{flex:1;min-width:0}
+.donation-copy #donationText{display:block;font-weight:650;font-size:.85rem}
+.donation-copy small{display:block;margin-top:3px;color:#617c91;font-size:.74rem;line-height:1.35}
+.donation-button{flex:none;padding:10px 12px;border-radius:10px;background:#123453;color:#fff;font-size:.8rem;font-weight:750;text-align:center;max-width:45%;overflow-wrap:anywhere}
+@media(max-width:360px){.donation-card{padding:11px;gap:8px}.donation-button{padding:10px;font-size:.76rem}}

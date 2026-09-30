@@ -1,8 +1,12 @@
-# Bag Day Malta donation configuration
-# Change Donation_Visible to true when you are ready to show the support strip.
-# Values true/false are case-insensitive.
-# This file is fetched fresh and is deliberately NOT stored in the PWA cache.
-
-Donation_Visible=false
-Donation_Text=❤️ Enjoying Bag Day Malta? Buy us a coffee ☕ — it will make our day.
-Donation_Link=https://www.paypal.com/
+# Bag Day Malta support configuration (UTF-8)
+# Set Donation_Visible=false to hide the entire strip.
+# Fetched fresh online; never stored in the PWA cache.
+# This link opens Stripe directly. No payment details are collected by the app.
+Donation_Visible=true
+Donation_Text=Finding Bag Day useful?
+Donation_Text_MT=Bag Day qed jgħinek?
+Donation_Detail=Optional tip · Change the amount at checkout.
+Donation_Detail_MT=Appoġġ volontarju · Tista’ tibdel l-ammont fil-paġna tal-ħlas.
+Donation_Button=Support €2
+Donation_Button_MT=Appoġġ €2
+Donation_Link=https://buy.stripe.com/14A3cv6yGbINgZDdEg6sw00

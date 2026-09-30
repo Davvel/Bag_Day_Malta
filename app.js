@@ -21,6 +21,7 @@
   let touchStart = null;
   let locationFailed = false;
   let analyticsReady = false;
+  let donationConfig = null;
 
   function promptIsDismissed() {
     try {
@@ -144,24 +145,38 @@
     }catch(_){ /* analytics is optional */ }
   }
 
-  async function loadDonation(){
+  function renderDonation(){
     const card=$('donationCard');
+    const cfg=donationConfig;
     card.hidden=true;
     card.removeAttribute('href');
+    if(!cfg || String(cfg.Donation_Visible||'').toLowerCase()!=='true') return;
+    const text=String((language==='mt' && cfg.Donation_Text_MT) || cfg.Donation_Text || '').trim();
+    const link=String(cfg.Donation_Link||'').trim();
+    let url;
+    try{url=new URL(link);}catch(_){return;}
+    if(!text || url.protocol!=='https:') return;
+    const detail=String((language==='mt' && cfg.Donation_Detail_MT) || cfg.Donation_Detail || '').trim();
+    const label=String((language==='mt' && cfg.Donation_Button_MT) || cfg.Donation_Button || (language==='mt'?'Appoġġ':'Support')).trim();
+    $('donationText').textContent=text;
+    $('donationDetail').textContent=detail;
+    $('donationDetail').hidden=!detail;
+    $('donationButton').textContent=label;
+    card.href=url.href;
+    card.setAttribute('aria-label',`${text}. ${label}. ${detail}`);
+    card.hidden=false;
+  }
+
+  async function loadDonation(){
     try{
-      const cfg=await fetchLiveConfig('./donation_config.txt');
-      if(String(cfg.Donation_Visible||'').toLowerCase()!=='true') return;
-      const text=String(cfg.Donation_Text||'').trim();
-      const link=String(cfg.Donation_Link||'').trim();
-      if(!text || !/^https:\/\//i.test(link)) return;
-      $('donationText').textContent=text;
-      card.href=link;
-      card.hidden=false;
-    }catch(_){ card.hidden=true; }
+      donationConfig=await fetchLiveConfig('./donation_config.txt');
+    }catch(_){donationConfig=null;}
+    renderDonation();
   }
 
   function renderStaticText() {
     const c=t();
+    renderDonation();
     document.documentElement.lang=language;
     $('langMt').setAttribute('aria-pressed',String(language==='mt'));
     $('langEn').setAttribute('aria-pressed',String(language==='en'));
