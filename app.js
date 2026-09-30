@@ -47,14 +47,14 @@
       noCollection:'Illum ma jinġabarx skart',swipe:'Żerżaq biex tara jum ieħor ↔',
       notice:place=>`Jidher li bħalissa tinsab f’${place}.`,noticeQuestion:'Trid tara l-iskeda ta’ hemm mingħajr ma tibdel il-lokalità tiegħek?',yes:'Ara',
       source:'Skeda uffiċjali ↗',sourceNote:'Il-ħinijiet jistgħu jinbidlu. Iċċekkja s-sit uffiċjali.',
-      settings:'Is-settings',schedule:'L-ISKEDA TIEGĦEK',choose:'Agħżel il-lokalità tiegħek',
+      settings:'Is-settings',schedule:'BAG DAY MALTA',choose:'Agħżel il-lokalità tiegħek',
       nearby:place=>`Lokalità misjuba: ${place}. Ikkonferma jew agħżel oħra.`,
       chooseBelow:'Agħżel lokalità hawn taħt.',locating:'Qed infittxu l-lokalità tiegħek…',
       unavailable:'Ma stajniex insibu l-lokalità. Agħżilha hawn taħt.',
       locality:'Lokalità',search:'Fittex lokalità',localities:'Lokalitajiet',empty:'Ma nstabet l-ebda lokalità',
-      cancel:'Ikkanċella',save:'Uża din il-lokalità',
-      settingsNote:'Il-lokalità magħżula tibqa’ ssejvjata. Il-mod awtomatiku juża l-lokalità attwali biss meta jkun mixgħul.',
-      locationBehaviour:'IMĠIBA TAL-LOKALITÀ',
+      cancel:'Ikkanċella',save:'Issejvja bħala l-lokalità tad-dar',done:'Lest',homeLocalityTitle:'Il-lokalità tad-dar',homeLocalityHelp:'Agħżel il-lokalità li trid iżżomm bħala d-dar għall-iskeda tal-ġbir.',savedHome:place=>`Lokalità tad-dar issejvjata: ${place}`,noSavedHome:'Għad m’hemmx lokalità tad-dar issejvjata.',locationModeNote:'Agħżel liema skeda tara meta tivvjaġġa. Il-bidliet jiġu ssejvjati minnufih.',supportSettingsTitle:'Appoġġ għal Bag Day',
+      settingsNote:'Agħżel lokalità u agħfas “Issejvja bħala l-lokalità tad-dar” biex tissejvjaha.',
+      locationBehaviour:'Il-lokalità meta tivvjaġġa',
       keepTitle:'Żomm il-lokalità magħżula',keepHelp:'Default. Il-PWA ma tibdilx il-lokalità waħedha meta tivvjaġġa.',
       followTitle:'Segwi l-lokalità attwali awtomatikament',followHelp:'Meta l-GPS isib lokalità oħra, turi l-iskeda tagħha mingħajr ma tħassar il-lokalità ssejvjata.',
       following:place=>`📍 Qed issegwi l-lokalità attwali: ${place}`,
@@ -64,7 +64,7 @@
       supportIntro:'Ninsabu kuntenti li Bag Day qed jgħinek. Jekk tixtieq tappoġġja l-iżvilupp kontinwu tagħna, tista’ tixtrilna kafè. L-appoġġ huwa kompletament volontarju.',
       hideSupport:'Diġà tajt kontribut, jew tippreferi ma tarax dan? Aħbi l-messaġġ tal-appoġġ.',
       supportPreferenceNote:'Issejvjat fuq dan l-apparat. Tista’ terġa’ turi l-messaġġ mis-settings.',
-      showSupport:'Uri l-messaġġ tal-appoġġ',supportSettingNote:'Mhux obbligatorju. Il-bidliet jiġu ssejvjati minnufih fuq dan l-apparat.',
+      showSupport:'Uri l-buttuna Agħti kontribut/Appoġġjana',supportSettingNote:'Turi l-buttuna tal-appoġġ volontarju taħt l-iskeda. Il-bidliet jiġu ssejvjati minnufih fuq dan l-apparat.',
       supportPaymentNote:'Appoġġ issuġġerit: €2. Tista’ tibdel l-ammont fil-paġna tal-ħlas.',
       supportPermission:'Jiena sid il-karta jew għandi l-permess tiegħu, u nixtieq nagħmel kontribut volontarju.',
       supportMathExplanation:'Biex ngħinu nevitaw kontributi bi żball, jekk jogħġbok wieġeb din is-somma sempliċi qabel tkompli.',
@@ -80,14 +80,14 @@
       noCollection:'No collection today',swipe:'Swipe to see another day ↔',
       notice:place=>`You seem to be in ${place} now.`,noticeQuestion:'View its schedule without changing your saved locality?',yes:'View',
       source:'Official schedule ↗',sourceNote:'Times may change. Check the official site.',
-      settings:'Settings',schedule:'YOUR SCHEDULE',choose:'Choose your locality',
+      settings:'Settings',schedule:'BAG DAY MALTA',choose:'Choose your locality',
       nearby:place=>`Detected nearby: ${place}. Confirm or choose another.`,
       chooseBelow:'Choose a locality below.',locating:'Finding your locality…',
       unavailable:'Could not detect your locality. Choose it below.',
       locality:'Locality',search:'Search a locality',localities:'Localities',empty:'No locality found',
-      cancel:'Cancel',save:'Use this locality',
-      settingsNote:'Your chosen locality stays saved. Automatic mode only follows your current locality while that option is enabled.',
-      locationBehaviour:'LOCATION BEHAVIOUR',
+      cancel:'Cancel',save:'Set as my home locality',done:'Done',homeLocalityTitle:'Home locality',homeLocalityHelp:'Choose the locality whose collection schedule you want to keep as your home.',savedHome:place=>`Saved home: ${place}`,noSavedHome:'No home locality saved yet.',locationModeNote:'Choose what to show when you travel. Changes save immediately.',supportSettingsTitle:'Support Bag Day',
+      settingsNote:'Select a locality, then tap “Set as my home locality” to save it.',
+      locationBehaviour:'Location when travelling',
       keepTitle:'Keep my chosen locality',keepHelp:'Default. The PWA does not silently switch locality when you travel.',
       followTitle:'Follow my current location automatically',followHelp:'When GPS detects another locality, show its schedule without replacing your saved locality.',
       following:place=>`📍 Following current location: ${place}`,
@@ -97,7 +97,7 @@
       supportIntro:'We’re glad Bag Day is useful to you. If you’d like to support our ongoing development, you can buy us a coffee. Support is entirely optional.',
       hideSupport:'Already contributed, or prefer not to see this? Hide the support message.',
       supportPreferenceNote:'Saved on this device. You can show the message again in Settings.',
-      showSupport:'Show the support message',supportSettingNote:'Optional. Changes are saved immediately on this device.',
+      showSupport:'Show the Donate/Support us button',supportSettingNote:'Shows the optional support button below your schedule. Changes save immediately on this device.',
       supportPaymentNote:'Suggested support: €2. You can change the amount at checkout.',
       supportPermission:'I’m the cardholder or have their permission, and I want to make a voluntary contribution.',
       supportMathExplanation:'To help prevent accidental donations, please solve this quick sum before continuing.',
@@ -297,12 +297,17 @@
     $('sourceLink').textContent=c.source;
     $('sourceNote').textContent=c.sourceNote;
     $('settingsEyebrow').textContent=c.schedule;
-    $('settingsTitle').textContent=c.choose;
+    $('settingsTitle').textContent=selected?c.settings:c.choose;
+    $('homeLocalityTitle').textContent=c.homeLocalityTitle;
+    $('homeLocalityHelp').textContent=c.homeLocalityHelp;
+    $('savedHomeLocality').textContent=selected?c.savedHome(selected):c.noSavedHome;
+    $('locationModeNote').textContent=c.locationModeNote;
+    $('supportSettingsTitle').textContent=c.supportSettingsTitle;
     $('closeSettings').setAttribute('aria-label',c.cancel);
     $('localityLabel').textContent=c.locality;
     $('localitySearch').placeholder=c.search;
     $('localityList').setAttribute('aria-label',c.localities);
-    $('cancelSettings').textContent=c.cancel;
+    $('cancelSettings').textContent=c.done;
     $('saveSettings').textContent=c.save;
     $('settingsNote').textContent=c.settingsNote;
     $('locationBehaviourLabel').textContent=c.locationBehaviour;
@@ -402,7 +407,7 @@
     const mobileLike = window.matchMedia('(pointer: coarse)').matches || window.innerWidth <= 600;
     if (mobileLike) {
       $('localitySearch').blur();
-      $('.settings')?.scrollTo?.({top:0,behavior:'instant'});
+      $('settingsDialog')?.scrollTo?.({top:0,behavior:'instant'});
     } else {
       $('localitySearch').focus({preventScroll:true});
     }

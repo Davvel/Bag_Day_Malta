@@ -59,7 +59,8 @@ No precise GPS coordinates, names, email addresses, or payment details are sent 
 - The Settings dialog remains scrollable and usable if the on-screen keyboard is opened manually.
 
 
-## v17 optional support panel
+## v18 settings and optional support panel
+- Settings has distinct Home locality, Location when travelling and Support Bag Day sections. The saved home locality is shown separately from the candidate being searched. The home-save button is in the home section; travel and support choices save immediately. The support checkbox is labelled “Show the Donate/Support us button”.
 - The support strip opens a panel only after a tap. It never opens checkout directly or shows itself as a popup.
 - The panel thanks the user, explains voluntary support, and offers “Buy us a coffee”. It shows the suggested €2 amount and explains that Stripe requires a separate payment confirmation.
 - The coffee button requires both the unchecked cardholder/permission confirmation and the correct answer to a fresh addition sum. Each operand is 1–9, the operator is always +, and the previous pair is excluded each time the panel reopens. The sum stays unchanged while typing or changing language. The answer and permission reset each time the panel opens/closes. The explanation states this helps prevent accidental donations. Wrong or cleared answers immediately disable checkout, and the click handler also verifies both conditions. This reduces accidental taps; children who can solve the sum can still proceed. It does not verify age or identity and cannot guarantee child-proof payments.
@@ -68,7 +69,7 @@ No precise GPS coordinates, names, email addresses, or payment details are sent 
 - The configured Stripe link remains unchanged. Suggested amount, actual limits and checkout fields are managed in Stripe. If the preset changes, update supportPaymentNote in both language dictionaries in app.js.
 - donation_prompt_open measures panel opens; donation_click measures checkout opens, never successful payments. Analytics remains off by default.
 - Config failure/offline access hides the strip; the cached waste timetable remains available. Donation_Visible=false overrides all device preferences.
-- v17 shell/cache references preserve existing language, locality and location preferences while updating the installed PWA.
+- v18 shell/cache references preserve existing language, locality and location preferences while updating the installed PWA.
 - Strong customer authentication is controlled by Stripe/banks. Ask Stripe what authentication options apply to this Managed Payments link; app-side confirmation is not a substitute.
 - Stripe Managed Payments eligibility for optional tips still needs confirmation from Stripe. Hide the strip using Donation_Visible=false while checking if needed.
 

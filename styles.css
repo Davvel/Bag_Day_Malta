@@ -95,3 +95,20 @@ button.donation-card{width:100%;font-family:inherit;text-align:left;cursor:point
 .support-sum input[aria-invalid="true"]{border-color:#a63b32}
 #supportMathStatus{min-height:1.5em}
 @media(max-width:360px){.support-sum{gap:7px}.sum-number,.support-sum input{width:46px!important}}
+
+/* v18: settings grouped by purpose, with locality saving scoped to its section. */
+.organised-settings .settings-section{border:1px solid #dce7ef;border-radius:15px;padding:16px;margin-top:16px;background:#fbfdff}
+.organised-settings h3{font-size:1rem;line-height:1.3;margin:0 0 8px;color:#123453;letter-spacing:-.015em}
+.organised-settings .section-help{font-size:.8rem;font-weight:400;color:#617c91;line-height:1.45;margin:0 0 12px}
+.organised-settings .saved-home{font-size:.88rem;font-weight:750;padding:10px 12px;background:#e8f2fa;border-radius:9px;margin:12px 0}
+.organised-settings .gps-status{font-size:.8rem;min-height:0;margin:10px 0 14px}
+.organised-settings .locality-list{max-height:170px;background:white}
+.organised-settings .home-save{width:100%;min-height:44px;margin-top:12px}
+.organised-settings .settings-note{margin-top:9px}
+.organised-settings .location-behaviour{border:0;background:transparent;margin:0;padding:0}
+.organised-settings .behaviour-option{margin:0;padding:10px 0}
+.organised-settings .behaviour-option+.behaviour-option{border-top:1px solid #e3ecf3}
+.organised-settings .support-check{margin:12px 0 8px;font-weight:650}
+.organised-settings .section-help:last-child{margin-bottom:0}
+.organised-settings .settings-done{width:100%;min-height:44px;margin-top:18px}
+@media(max-width:440px){.organised-settings .settings-section{padding:13px}.organised-settings .saved-home{overflow-wrap:anywhere}}
