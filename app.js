@@ -2,38 +2,48 @@
   'use strict';
   const data = window.WASTE_DATA;
   const $ = id => document.getElementById(id);
-  // Start the splash timer before loading settings or live configuration.
+  // Show once per tab session; refreshes go directly to the app.
   const splash = $('splashScreen');
   const appContent = $('appContent');
-  const splashSeenKey = 'bag-day-splash-seen-v1';
+  const splashSeenKey = 'bag-day-splash-session-v1';
   let splashSeen = false;
-  try { splashSeen = localStorage.getItem(splashSeenKey) === 'true'; } catch (_) {}
-  appContent.inert = true;
-  let splashDismissed = false;
-  let splashTimer;
-  function dismissSplash() {
-    if (splashDismissed) return;
-    splashDismissed = true;
-    clearTimeout(splashTimer);
-    try { localStorage.setItem(splashSeenKey, 'true'); } catch (_) {}
-    splash.classList.add('splash-leaving');
-    const finish = () => {
-      splash.hidden = true;
-      appContent.inert = false;
-      if (document.activeElement === splash) {
-        const target = !$('settingsOverlay').hidden ? $('homeLocalitySelect') : $('settingsButton');
-        target.focus({preventScroll:true});
-      }
-    };
-    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (reducedMotion) finish();
-    else setTimeout(finish, 400);
+  try {
+    splashSeen = sessionStorage.getItem(splashSeenKey) === 'true';
+    sessionStorage.setItem(splashSeenKey, 'true');
+  } catch (_) {
+    // Retain refresh behaviour if browser storage is unavailable.
+    splashSeen = window.performance?.getEntriesByType('navigation')[0]?.type === 'reload';
   }
-  splash.addEventListener('click', dismissSplash);
+  let splashTimer;
+  let splashFadeTimer;
+  let splashFading = false;
+  function finishSplash() {
+    clearTimeout(splashTimer);
+    clearTimeout(splashFadeTimer);
+    splash.hidden = true;
+    appContent.inert = false;
+    if (document.activeElement === splash) {
+      const target = !$('settingsOverlay').hidden ? $('homeLocalitySelect') : $('settingsButton');
+      target.focus({preventScroll:true});
+    }
+  }
+  function fadeSplash() {
+    if (splash.hidden || splashFading) return;
+    splashFading = true;
+    splash.classList.add('splash-leaving');
+    splashFadeTimer = setTimeout(finishSplash, 600);
+  }
+  splash.addEventListener('pointerdown', e => { e.preventDefault(); finishSplash(); });
+  splash.addEventListener('click', finishSplash);
   splash.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { e.preventDefault(); dismissSplash(); }
+    if (e.key === 'Escape') { e.preventDefault(); finishSplash(); }
   });
-  splashTimer = setTimeout(dismissSplash, splashSeen ? 1000 : 3000);
+  if (!splashSeen) {
+    splash.hidden = false;
+    appContent.inert = true;
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    splashTimer = setTimeout(reducedMotion ? finishSplash : fadeSplash, reducedMotion ? 3000 : 2400);
+  }
 
   const localityKey = 'bag-day-locality-v1';
   const locationPromptKey = 'bag-day-location-prompt-v1';

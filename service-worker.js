@@ -1,5 +1,5 @@
-const CACHE='bag-day-malta-2026-10-v25';
-const ASSETS=['./','./index.html','./styles.css?v=25','./data.js?v=25','./app.js?v=25','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/glass-carrier.svg'];
+const CACHE='bag-day-malta-2026-10-v26';
+const ASSETS=['./','./index.html','./styles.css?v=26','./data.js?v=26','./app.js?v=26','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/glass-carrier.svg'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{
@@ -17,4 +17,4 @@ self.addEventListener('fetch',event=>{
   }).catch(()=>caches.match(event.request)));
 });
 
-// v25: versioned shell assets prevent old installed PWAs from mixing HTML with stale JS/CSS.
+// v26: versioned shell assets prevent old installed PWAs from mixing HTML with stale JS/CSS.
