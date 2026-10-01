@@ -4,9 +4,6 @@
 # This link opens Stripe directly. No payment details are collected by the app.
 Donation_Visible=true
 Donation_Text=Finding Bag Day useful?
-Donation_Text_MT=Bag Day qed jgħinek?
 Donation_Detail=Help us keep developing Bag Day.
-Donation_Detail_MT=Għinna nkomplu niżviluppaw Bag Day.
 Donation_Button=Support
-Donation_Button_MT=Appoġġ
 Donation_Link=https://buy.stripe.com/9B6dR9bT08wB6kZ7fS6sw01

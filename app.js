@@ -3,14 +3,13 @@
   const data = window.WASTE_DATA;
   const $ = id => document.getElementById(id);
   const localityKey = 'bag-day-locality-v1';
-  const languageKey = 'bag-day-language-v1';
   const locationPromptKey = 'bag-day-location-prompt-v1';
   const followLocationKey = 'bag-day-follow-location-v1';
   const promptCooldownMs = 24*60*60*1000;
   const maxDaysAhead = 30;
   const names = data.localities.map(row => row[0]);
   let selected = names.includes(localStorage.getItem(localityKey)) ? localStorage.getItem(localityKey) : null;
-  let language = localStorage.getItem(languageKey) === 'mt' ? 'mt' : 'en';
+  const language = 'en';
   let followLocation = (localStorage.getItem(followLocationKey) || '').toLowerCase() === 'true';
   let temporaryView = null;
   let detected = null;
@@ -39,38 +38,6 @@
   }
 
   const copy = {
-    mt: {
-      eyebrow:'ĠBIR TAL-ISKART MILL-BIEB', previous:'Jum ta’ qabel', next:'Jum ta’ wara',
-      morning:'Filgħodu',afternoon:'Wara nofsinhar',evening:'Filgħaxija',
-      organic:'Skart organiku',mixed:'Skart imħallat',recycle:'Materjal riċiklabbli',
-      collection:'Ħin tal-ġbir',putOut:time=>`Oħroġ minn ${time}`,glass:'Il-ħġieġ ukoll f’kontenitur li jerġa’ jintuża',glassBottles:'Fliexken tal-ħġieġ',
-      noCollection:'Illum ma jinġabarx skart',swipe:'Żerżaq biex tara jum ieħor ↔',
-      notice:place=>`Jidher li bħalissa tinsab f’${place}.`,noticeQuestion:'Trid tara l-iskeda ta’ hemm mingħajr ma tibdel il-lokalità tiegħek?',yes:'Ara',
-      source:'Skeda uffiċjali ↗',sourceNote:'Il-ħinijiet jistgħu jinbidlu. Iċċekkja s-sit uffiċjali.',
-      settings:'Is-settings',schedule:'BAG DAY MALTA',choose:'Agħżel il-lokalità tiegħek',
-      nearby:place=>`Lokalità misjuba: ${place}`,
-      chooseBelow:'Agħżel lokalità hawn taħt.',locating:'Qed infittxu l-lokalità tiegħek…',
-      unavailable:'Ma stajniex insibu l-lokalità. Agħżilha hawn taħt.',
-      locality:'Lokalità',search:'Fittex lokalità',localities:'Lokalitajiet',empty:'Ma nstabet l-ebda lokalità',
-      cancel:'Ikkanċella',save:'Issejvja bħala l-lokalità tad-dar',done:'Lest',homeLocalityTitle:'Il-lokalità tad-dar',homeLocalityHelp:'Agħżel il-lokalità li trid iżżomm bħala d-dar għall-iskeda tal-ġbir.',savedHome:place=>`Lokalità tad-dar issejvjata: ${place}`,noSavedHome:'Għad m’hemmx lokalità tad-dar issejvjata.',locationModeNote:'Agħżel liema skeda tara meta tivvjaġġa. Il-bidliet jiġu ssejvjati minnufih.',supportSettingsTitle:'Appoġġ għal Bag Day',
-      settingsNote:'Agħżel lokalità u agħfas “Issejvja bħala l-lokalità tad-dar” biex tissejvjaha.',
-      locationBehaviour:'Il-lokalità meta tivvjaġġa',
-      keepTitle:'Żomm il-lokalità tad-dar',keepHelp:'Default. Il-PWA ma tibdilx il-lokalità waħedha meta tivvjaġġa.',
-      followTitle:'Segwi l-lokalità attwali awtomatikament',followHelp:'Meta l-GPS isib lokalità oħra, turi l-iskeda tagħha mingħajr ma tħassar il-lokalità ssejvjata.',
-      following:place=>`📍 Qed issegwi l-lokalità attwali: ${place}`,
-      viewing:place=>`📍 Qed tara temporanjament: ${place}`,
-      backHome:place=>`Lura għal ${place}`,
-      supportTitle:'Ferħanin li sibt din l-app utli.',
-      supportIntro:'Ixtrilna kafè',
-      hideSupport:'Aħbi l-buttuna tal-kontribut',
-
-      showSupport:'Uri l-buttuna Agħti kontribut/Appoġġjana',supportSettingNote:'Turi l-buttuna tal-appoġġ volontarju taħt l-iskeda. Il-bidliet jiġu ssejvjati minnufih fuq dan l-apparat.',
-
-      supportMathExplanation:'Biex nevitaw kontributi bi żball, jekk jogħġbok wieġeb is-somma sempliċi hawn taħt.',
-      supportMathAnswer:(a,b)=>`It-tweġiba għal ${a} u ${b} flimkien`,supportMathReady:'Tajjeb.',supportMathIncorrect:'Jekk jogħġbok iċċekkja t-tweġiba tiegħek.',
-      tipThanks:'Grazzi tal-kontribut tiegħek.',tipAmountLabel:amount=>`Agħti kontribut ta’ €${amount} — tiftaħ il-paġna tal-ħlas ta’ Stripe`,tipAmountsLabel:'Agħżel ammont għall-kontribut',
-      dismissSupport:'Forsi aktar tard',closeSupport:'Agħlaq il-panel tal-appoġġ' 
-    },
     en: {
       eyebrow:'HOUSEHOLD KERBSIDE COLLECTION', previous:'Previous day', next:'Next day',
       morning:'Morning',afternoon:'Afternoon',evening:'Evening',today:'TODAY',tomorrow:'TOMORROW',days:n=>`IN ${n} DAYS`,
@@ -105,8 +72,6 @@
     }
   };
   const t = () => copy[language];
-  const malteseDays=['Il-Ħadd','It-Tnejn','It-Tlieta','L-Erbgħa','Il-Ħamis','Il-Ġimgħa','Is-Sibt'];
-  const malteseMonths=['Jannar','Frar','Marzu','April','Mejju','Ġunju','Lulju','Awwissu','Settembru','Ottubru','Novembru','Diċembru'];
   const timeOfDay = time => {const hour=Number(time.slice(0,2));return hour<12?t().morning:hour<18?t().afternoon:t().evening;};
   const normal = s => (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[ħĦ]/g,'h').replace(/[’']/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
   const rowFor = name => data.localities.find(row => row[0] === name);
@@ -180,13 +145,13 @@
     donationUrl=null;
     tipAmounts.forEach(amount=>{$(`tip${amount}`).disabled=true;});
     if(!cfg || String(cfg.Donation_Visible||'').toLowerCase()!=='true') return;
-    const text=String((language==='mt' && cfg.Donation_Text_MT) || cfg.Donation_Text || '').trim();
+    const text=String(cfg.Donation_Text || '').trim();
     const link=String(cfg.Donation_Link||'').trim();
     let url;
     try{url=new URL(link);}catch(_){return;}
     if(!text || url.protocol!=='https:') return;
-    const detail=String((language==='mt' && cfg.Donation_Detail_MT) || cfg.Donation_Detail || '').trim();
-    const label=String((language==='mt' && cfg.Donation_Button_MT) || cfg.Donation_Button || (language==='mt'?'Appoġġ':'Support')).trim();
+    const detail=String(cfg.Donation_Detail || '').trim();
+    const label=String(cfg.Donation_Button || 'Support').trim();
     $('donationText').textContent=text;
     $('donationDetail').textContent=detail;
     $('donationDetail').hidden=!detail;
@@ -281,8 +246,6 @@
     const c=t();
     renderSupport();renderDonation();
     document.documentElement.lang=language;
-    $('langMt').setAttribute('aria-pressed',String(language==='mt'));
-    $('langEn').setAttribute('aria-pressed',String(language==='en'));
     $('settingsButton').setAttribute('aria-label',c.settings);
     $('settingsButton').title=c.settings;
     $('eyebrow').textContent=c.eyebrow;
@@ -325,12 +288,12 @@
     $('dashboard').hidden=!locality;
     if(!locality)return;
     const c=t(),date=shownDate();
-    const day=language==='mt'?malteseDays[date.getUTCDay()]:new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date);
+    const day=new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date);
     $('title').textContent=locality;
-    const fullDate=language==='mt'?`${date.getUTCDate()} ta’ ${malteseMonths[date.getUTCMonth()]} ${date.getUTCFullYear()}`:new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(date);
+    const fullDate=new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(date);
     $('date').textContent=`${day}, ${fullDate}`;
-    $('todayPill').hidden=language==='mt';
-    if(language==='en')$('todayPill').textContent=dayOffset===0?c.today:dayOffset===1?c.tomorrow:c.days(dayOffset);
+    $('todayPill').hidden=false;
+    $('todayPill').textContent=dayOffset===0?c.today:dayOffset===1?c.tomorrow:c.days(dayOffset);
     renderLocationMode();
     $('prevDay').disabled=dayOffset===0;
     $('nextDay').disabled=dayOffset===maxDaysAhead;
@@ -349,12 +312,6 @@
     if(different)$('noticeText').textContent=c.notice(detected);
   }
 
-  function setLanguage(value) {
-    language=value;
-    localStorage.setItem(languageKey,value);
-    analyticsEvent('language_changed',{language:value});
-    render();
-  }
 
   function changeDay(delta) {
     dayOffset=Math.max(0,Math.min(maxDaysAhead,dayOffset+delta));render();
@@ -429,11 +386,6 @@
     },detectionUnavailable,{enableHighAccuracy:false,timeout:10000,maximumAge:300000});
   }
 
-  $('langMt').onclick=()=>setLanguage('mt');
-  $('langEn').onclick=()=>setLanguage('en');
-  function finishLanguage(value){setLanguage(value);$('languageOverlay').hidden=true;if(!selected)openSettings();detectLocation();}
-  $('chooseMt').onclick=()=>finishLanguage('mt');
-  $('chooseEn').onclick=()=>finishLanguage('en');
   $('settingsButton').onclick=()=>openSettings();
   $('switchButton').onclick=()=>{
     if(!detected)return;
@@ -475,8 +427,8 @@
   });
   $('dashboard').addEventListener('touchstart',e=>{touchStart={x:e.changedTouches[0].screenX,y:e.changedTouches[0].screenY};},{passive:true});
   $('dashboard').addEventListener('touchend',e=>{if(!touchStart)return;const dx=e.changedTouches[0].screenX-touchStart.x,dy=e.changedTouches[0].screenY-touchStart.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5)changeDay(dx<0?1:-1);touchStart=null;},{passive:true});
-  document.addEventListener('keydown',e=>{if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('languageOverlay').hidden)return;if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadDonation();if($('languageOverlay').hidden)detectLocation();}});
+  document.addEventListener('keydown',e=>{if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadDonation();detectLocation();}});
   setInterval(()=>{if(dayOffset===0)render();},60000);
   render();
   loadDonation();
