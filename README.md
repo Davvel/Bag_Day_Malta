@@ -88,3 +88,7 @@ The splash uses a dark navy background, a prominent blue border and thick light 
 Original SVG bag illustrations show common contents on the splash and homepage. The white bag shows food scraps, the grey bag shows packaging, and a printed example panel on the opaque black bag shows residual waste. Tap any scheduled bag or glass container for an animated, scrollable sorting guide. Close with the cross, a tap outside or Escape. The close button remains visible during scrolling. Keyboard focus stays in the dialog and returns to the bag on close.
 
 Common examples are summarised from https://www.wsm.com.mt/en/newguide and checked on 1 October 2026. The lists are not exhaustive; the popup links to WasteServ’s full current guidance. All guide data and illustrations are precached for offline use.
+
+## v29 simpler artwork — app version 1.0.4
+
+Each bag now has one large illustration drawn directly onto its surface: a yellow banana peel on the white bag, a plastic bottle on the grey bag and a nappy on the black bag. No inset panel or cutaway. Glass collection shows one glass bottle in a reusable container. Splash, homepage and sorting panels use the same updated assets.

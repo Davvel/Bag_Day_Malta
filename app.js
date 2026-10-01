@@ -127,7 +127,7 @@
   };
   const shownDate = () => { const date=maltaToday();date.setUTCDate(date.getUTCDate()+dayOffset);return date; };
   const formatTime = time => {const [h,m]=time.split(':').map(Number);return `${String((h+20)%24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;};
-  const bagSvg = type => `<img src="icons/bag-${type}.svg" alt="${t()[type]} bag with examples of its contents">`;
+  const bagSvg = type => `<img src="icons/bag-${type}.svg" alt="${t()[type]} bag with a painted contents symbol">`;
   const bagButton = (type, label) => `<button type="button" class="bag-figure bag-button" data-waste-type="${type}" aria-label="What goes in ${label.toLowerCase()}?" aria-haspopup="dialog" aria-controls="wasteOverlay">${type==='glass'?'<img src="icons/glass-carrier.svg" alt="Glass bottles and jars in a reusable container">':bagSvg(type)}</button>`;
 
   let wasteReturnFocus = null;
