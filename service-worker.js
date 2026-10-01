@@ -1,5 +1,5 @@
-const CACHE='bag-day-malta-2026-10-v29';
-const ASSETS=['./','./index.html','./styles.css?v=29','./data.js?v=29','./app.js?v=29','./waste-guide.js?v=29','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/glass-carrier.svg'];
+const CACHE='bag-day-malta-2026-10-v30';
+const ASSETS=['./','./index.html','./styles.css?v=30','./data.js?v=30','./app.js?v=30','./waste-guide.js?v=30','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/glass-carrier.svg'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{
@@ -17,4 +17,4 @@ self.addEventListener('fetch',event=>{
   }).catch(()=>caches.match(event.request)));
 });
 
-// v29: versioned shell assets prevent old installed PWAs from mixing HTML with stale JS/CSS.
+// v30: versioned shell assets prevent old installed PWAs from mixing HTML with stale JS/CSS.

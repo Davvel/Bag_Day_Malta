@@ -92,3 +92,9 @@ Common examples are summarised from https://www.wsm.com.mt/en/newguide and check
 ## v29 simpler artwork — app version 1.0.4
 
 Each bag now has one large illustration drawn directly onto its surface: a yellow banana peel on the white bag, a plastic bottle on the grey bag and a nappy on the black bag. No inset panel or cutaway. Glass collection shows one glass bottle in a reusable container. Splash, homepage and sorting panels use the same updated assets.
+
+## v30 rounded bags and full lists — app version 1.0.5
+
+Rounder bag silhouettes. Large green recycling arrows on the grey bag. A visibly dirty takeaway carton on the black bag, because clean milk and juice cartons are recyclable. The deeper reusable glass container holds three intact bottles; broken glass is excluded from that collection. The organic bag retains the yellow banana peel.
+
+The sorting panels include every item from the four waste-type lists at https://www.wastecollection.mt/, grouped for reading. Duplicate plastic bottle and sanitary item entries appear once. Food-soiled paper wording follows WasteServ’s guidance. Lists checked 1 October 2026.
