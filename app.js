@@ -2,6 +2,39 @@
   'use strict';
   const data = window.WASTE_DATA;
   const $ = id => document.getElementById(id);
+  // Start the splash timer before loading settings or live configuration.
+  const splash = $('splashScreen');
+  const appContent = $('appContent');
+  const splashSeenKey = 'bag-day-splash-seen-v1';
+  let splashSeen = false;
+  try { splashSeen = localStorage.getItem(splashSeenKey) === 'true'; } catch (_) {}
+  appContent.inert = true;
+  let splashDismissed = false;
+  let splashTimer;
+  function dismissSplash() {
+    if (splashDismissed) return;
+    splashDismissed = true;
+    clearTimeout(splashTimer);
+    try { localStorage.setItem(splashSeenKey, 'true'); } catch (_) {}
+    splash.classList.add('splash-leaving');
+    const finish = () => {
+      splash.hidden = true;
+      appContent.inert = false;
+      if (document.activeElement === splash) {
+        const target = !$('settingsOverlay').hidden ? $('homeLocalitySelect') : $('settingsButton');
+        target.focus({preventScroll:true});
+      }
+    };
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) finish();
+    else setTimeout(finish, 400);
+  }
+  splash.addEventListener('click', dismissSplash);
+  splash.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); dismissSplash(); }
+  });
+  splashTimer = setTimeout(dismissSplash, splashSeen ? 1000 : 3000);
+
   const localityKey = 'bag-day-locality-v1';
   const locationPromptKey = 'bag-day-location-prompt-v1';
   const followLocationKey = 'bag-day-follow-location-v1';
@@ -427,7 +460,7 @@
   });
   $('dashboard').addEventListener('touchstart',e=>{touchStart={x:e.changedTouches[0].screenX,y:e.changedTouches[0].screenY};},{passive:true});
   $('dashboard').addEventListener('touchend',e=>{if(!touchStart)return;const dx=e.changedTouches[0].screenX-touchStart.x,dy=e.changedTouches[0].screenY-touchStart.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5)changeDay(dx<0?1:-1);touchStart=null;},{passive:true});
-  document.addEventListener('keydown',e=>{if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
+  document.addEventListener('keydown',e=>{if(!splash.hidden)return;if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadDonation();detectLocation();}});
   setInterval(()=>{if(dayOffset===0)render();},60000);
   render();

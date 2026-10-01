@@ -78,3 +78,7 @@ Extract this ZIP into your existing project folder, replacing the matching files
 - All interface text and dates use English, including for visitors who previously selected Maltese.
 - Removed both language flags, the language picker, Maltese interface translations and unused flag assets.
 - Updated offline cache and shell asset versions consistently to v24.
+
+## v25 introductory splash — app version 1.0.0
+
+Three bags introduce “Which bag should I put out today?” with “Your locality’s waste collection schedule.” The splash displays v 1.0.0. It stays for 3 seconds on the first visit and 1 second on later launches, then fades out over 0.4 seconds. Tap or press Escape to dismiss early. Reduced-motion preferences disable entrance and fade animations. The splash runs offline and uses no external images or fonts.

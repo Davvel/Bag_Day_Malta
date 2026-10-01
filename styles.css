@@ -132,3 +132,20 @@ button.donation-card{width:100%;font-family:inherit;text-align:left;cursor:point
 .tip-circle:focus-visible{outline:3px solid #258ebd;outline-offset:3px}
 .tip-thanks{text-align:center;font-size:.88rem;color:#617c91;margin:12px 0 0}
 @media(max-width:360px){.tip-amounts{gap:9px}.tip-circle{width:50px;height:50px;font-size:.98rem}}
+
+/* v25: introductory splash, with a quiet entrance and fade to the app. */
+.splash-screen{position:fixed;inset:0;z-index:100;width:100%;height:100%;border:0;margin:0;padding:24px;background:#fff;color:#123453;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:1;transition:opacity .4s ease;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.splash-screen.splash-leaving{opacity:0;pointer-events:none}
+.splash-content{display:flex;flex-direction:column;align-items:center;max-width:460px;animation:splash-rise .45s ease both}
+.splash-bags{display:flex;align-items:flex-end;justify-content:center;gap:5px;margin-bottom:32px}
+.splash-bag{width:clamp(70px,22vw,100px);height:auto;filter:drop-shadow(0 9px 8px #12345318);animation:splash-bag-in .6s cubic-bezier(.2,.8,.2,1) both}
+.splash-bag-black{animation-delay:.08s}.splash-bag-grey{animation-delay:.16s}
+.splash-question{font-size:clamp(1.7rem,6.6vw,2.4rem);font-weight:800;letter-spacing:-.045em;line-height:1.18}
+.splash-description{font-size:clamp(.9rem,3.7vw,1.05rem);line-height:1.5;color:#59738b;margin-top:17px;max-width:310px}
+.splash-brand{font-size:1rem;font-weight:750;margin-top:34px;letter-spacing:-.02em}
+.splash-version{font-size:.8rem;font-variant-numeric:tabular-nums;color:#607b90;margin-top:9px}
+.splash-hint{position:absolute;bottom:calc(25px + env(safe-area-inset-bottom));font-size:.75rem;color:#7890a1}
+@keyframes splash-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes splash-bag-in{from{opacity:0;transform:translateY(15px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-height:500px){.splash-bags{margin-bottom:12px}.splash-bag{width:60px}.splash-question{font-size:1.5rem}.splash-description{margin-top:10px}.splash-brand{margin-top:14px}.splash-hint{bottom:10px}}
+@media(prefers-reduced-motion:reduce){.splash-content,.splash-bag{animation:none}.splash-screen{transition:none}}
