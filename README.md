@@ -79,6 +79,6 @@ Extract this ZIP into your existing project folder, replacing the matching files
 - Removed both language flags, the language picker, Maltese interface translations and unused flag assets.
 - Updated offline cache and shell asset versions consistently to v24.
 
-## v26 splash — app version 1.0.1
+## v27 splash — app version 1.0.2
 
-The splash uses a dark navy background, a prominent blue border and thick light outlines on all three bags. It displays for 3 seconds in total, including a 0.6-second fade with a gentle zoom and blur. Touch/click dismisses it instantly, including during the fade. It appears only once per browser tab session; refreshing goes straight to the app. Opening a new tab/session shows it again. Reduced-motion preferences disable animation.
+The splash uses a dark navy background, a prominent blue border and thick light outlines on all three bags. The larger, shorter text asks “Which waste bag goes out today?” and explains “See your locality’s collection time.” It displays for 6 seconds in total, including a 0.6-second fade with a gentle zoom and blur. Touch/click dismisses it instantly, including during the fade. It appears only once per browser tab session; refreshing goes straight to the app. Opening a new tab/session shows it again. Reduced-motion preferences disable animation.

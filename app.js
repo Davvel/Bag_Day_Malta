@@ -42,7 +42,7 @@
     splash.hidden = false;
     appContent.inert = true;
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    splashTimer = setTimeout(reducedMotion ? finishSplash : fadeSplash, reducedMotion ? 3000 : 2400);
+    splashTimer = setTimeout(reducedMotion ? finishSplash : fadeSplash, reducedMotion ? 6000 : 5400);
   }
 
   const localityKey = 'bag-day-locality-v1';
