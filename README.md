@@ -82,3 +82,9 @@ Extract this ZIP into your existing project folder, replacing the matching files
 ## v27 splash — app version 1.0.2
 
 The splash uses a dark navy background, a prominent blue border and thick light outlines on all three bags. The larger, shorter text asks “Which waste bag goes out today?” and explains “See your locality’s collection time.” It displays for 6 seconds in total, including a 0.6-second fade with a gentle zoom and blur. Touch/click dismisses it instantly, including during the fade. It appears only once per browser tab session; refreshing goes straight to the app. Opening a new tab/session shows it again. Reduced-motion preferences disable animation.
+
+## v28 illustrated bags — app version 1.0.3
+
+Original SVG bag illustrations show common contents on the splash and homepage. The white bag shows food scraps, the grey bag shows packaging, and a printed example panel on the opaque black bag shows residual waste. Tap any scheduled bag or glass container for an animated, scrollable sorting guide. Close with the cross, a tap outside or Escape. The close button remains visible during scrolling. Keyboard focus stays in the dialog and returns to the bag on close.
+
+Common examples are summarised from https://www.wsm.com.mt/en/newguide and checked on 1 October 2026. The lists are not exhaustive; the popup links to WasteServ’s full current guidance. All guide data and illustrations are precached for offline use.

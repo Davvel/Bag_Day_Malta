@@ -127,10 +127,62 @@
   };
   const shownDate = () => { const date=maltaToday();date.setUTCDate(date.getUTCDate()+dayOffset);return date; };
   const formatTime = time => {const [h,m]=time.split(':').map(Number);return `${String((h+20)%24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;};
-  const bagSvg = type => {
-    const p={organic:['#f6f9fa','#d0dce4','#8496a1'],mixed:['#273341','#101c2a','#475a6c'],recycle:['#a5acb0','#707c83','#5a6871']}[type];
-    return `<svg viewBox="0 0 150 160" role="img" aria-label="${t()[type]}"><defs><linearGradient id="bagFill" x1="0" x2="1"><stop stop-color="${p[0]}"/><stop offset=".58" stop-color="${p[1]}"/><stop offset="1" stop-color="${p[0]}"/></linearGradient></defs><path d="M56 25 47 11l14 7 14-10 14 10 14-7-9 14-4 14 15 17 20 81q3 14-12 17H37q-15-3-12-17l20-81 15-17Z" fill="url(#bagFill)" stroke="${p[2]}" stroke-width="2"/><path d="M56 40q19 9 38 0M61 49q15 6 28 0" fill="none" stroke="${p[2]}" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M48 74q-9 32-11 55" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" opacity=".22"/></svg>`;
-  };
+  const bagSvg = type => `<img src="icons/bag-${type}.svg" alt="${t()[type]} bag with examples of its contents">`;
+  const bagButton = (type, label) => `<button type="button" class="bag-figure bag-button" data-waste-type="${type}" aria-label="What goes in ${label.toLowerCase()}?" aria-haspopup="dialog" aria-controls="wasteOverlay">${type==='glass'?'<img src="icons/glass-carrier.svg" alt="Glass bottles and jars in a reusable container">':bagSvg(type)}</button>`;
+
+  let wasteReturnFocus = null;
+  let wastePreviousOverflow = '';
+  let wasteCloseTimer = null;
+  let wasteAppWasInert = false;
+  function openWasteGuide(type, trigger) {
+    const info=window.WASTE_GUIDE[type];
+    if(!info)return;
+    clearTimeout(wasteCloseTimer);
+    wasteReturnFocus=trigger;
+    wastePreviousOverflow=document.body.style.overflow;
+    wasteAppWasInert=appContent.inert;
+    document.body.style.overflow='hidden';
+    appContent.inert=true;
+    $('wasteOverlay').classList.remove('waste-closing');
+    $('wasteColour').textContent=info.colour;
+    $('wasteTitle').textContent=info.title;
+    $('wasteSummary').textContent=info.summary;
+    $('wasteNote').textContent=info.note;
+    $('wasteKeepOut').textContent=info.keepOut;
+    $('wastePreview').innerHTML=type==='glass'?'<img src="icons/glass-carrier.svg" alt="">':bagSvg(type);
+    $('wasteItems').replaceChildren();
+    for(const [heading,items] of info.groups){
+      const section=document.createElement('section');
+      const title=document.createElement('h3');title.textContent=heading;section.append(title);
+      const list=document.createElement('ul');
+      for(const text of items){const item=document.createElement('li');item.textContent=text;list.append(item);}
+      section.append(list);$('wasteItems').append(section);
+    }
+    $('wasteOverlay').hidden=false;
+    $('wasteScroll').scrollTop=0;
+    $('closeWaste').focus({preventScroll:true});
+  }
+  function closeWasteGuide() {
+    if($('wasteOverlay').hidden || $('wasteOverlay').classList.contains('waste-closing'))return;
+    const finish=()=>{
+      $('wasteOverlay').hidden=true;
+      $('wasteOverlay').classList.remove('waste-closing');
+      document.body.style.overflow=wastePreviousOverflow;
+      appContent.inert=wasteAppWasInert;
+      if(wasteReturnFocus?.isConnected)wasteReturnFocus.focus({preventScroll:true});
+      else $('settingsButton').focus({preventScroll:true});
+    };
+    if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)finish();
+    else {$('wasteOverlay').classList.add('waste-closing');wasteCloseTimer=setTimeout(finish,150);}
+  }
+  function wasteKeydown(e){
+    if(e.key==='Escape'){e.preventDefault();closeWasteGuide();return;}
+    if(e.key!=='Tab')return;
+    const items=Array.from($('wasteDialog').querySelectorAll('button,a[href],[tabindex="0"]'));
+    const first=items[0],last=items[items.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  }
 
   function scheduleFor(date) {
     const weekday=date.getUTCDay();
@@ -326,6 +378,7 @@
   }
 
   function render() {
+    if(!$('wasteOverlay').hidden)return;
     renderStaticText();
     const locality=activeLocality();
     $('dashboard').hidden=!locality;
@@ -346,9 +399,9 @@
     }else{
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
       const figures=schedule.glass
-        ? `<div class="collection-figures"><div class="collection-item"><div class="bag-figure">${bagSvg(schedule.bag)}</div><span class="collection-item-label">${c[schedule.bag]}</span></div><div class="collection-item"><div class="bag-figure"><img src="icons/glass-carrier.svg" alt="${c.glassBottles}"></div><span class="collection-item-label">${c.glassBottles}</span></div></div>`
-        : `<div class="bag-figure">${bagSvg(schedule.bag)}</div><div class="bag-name">${c[schedule.bag]}</div>`;
-      $('bagArea').innerHTML=`<div class="collection-card">${figures}<div class="time-box"><div class="time-label">${c.collection}</div><div class="time-value"><span>${time}</span><span class="time-period">(${timeOfDay(time)})</span></div><div class="put-out">${c.putOut(formatTime(time))}</div></div>${schedule.glass?`<div class="glass-note">${c.glass}</div>`:''}</div>`;
+        ? `<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="collection-item-label">${c[schedule.bag]}</span></div><div class="collection-item">${bagButton("glass",c.glassBottles)}<span class="collection-item-label">${c.glassBottles}</span></div></div>`
+        : `${bagButton(schedule.bag,c[schedule.bag])}<div class="bag-name">${c[schedule.bag]}</div>`;
+      $('bagArea').innerHTML=`<div class="collection-card">${figures}<p class="bag-tap-hint">Tap a bag to see what goes inside</p><div class="time-box"><div class="time-label">${c.collection}</div><div class="time-value"><span>${time}</span><span class="time-period">(${timeOfDay(time)})</span></div><div class="put-out">${c.putOut(formatTime(time))}</div></div>${schedule.glass?`<div class="glass-note">${c.glass}</div>`:''}</div>`;
     }
     const different=!followLocation && !temporaryView && detected&&detected!==selected&&!promptIsDismissed();
     $('locationNotice').hidden=!different;
@@ -429,6 +482,12 @@
     },detectionUnavailable,{enableHighAccuracy:false,timeout:10000,maximumAge:300000});
   }
 
+  $('bagArea').addEventListener('click',e=>{
+    const trigger=e.target.closest('[data-waste-type]');
+    if(trigger && $('bagArea').contains(trigger))openWasteGuide(trigger.dataset.wasteType,trigger);
+  });
+  $('closeWaste').onclick=closeWasteGuide;
+  $('wasteOverlay').addEventListener('click',e=>{if(e.target===$('wasteOverlay'))closeWasteGuide();});
   $('settingsButton').onclick=()=>openSettings();
   $('switchButton').onclick=()=>{
     if(!detected)return;
@@ -470,7 +529,7 @@
   });
   $('dashboard').addEventListener('touchstart',e=>{touchStart={x:e.changedTouches[0].screenX,y:e.changedTouches[0].screenY};},{passive:true});
   $('dashboard').addEventListener('touchend',e=>{if(!touchStart)return;const dx=e.changedTouches[0].screenX-touchStart.x,dy=e.changedTouches[0].screenY-touchStart.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5)changeDay(dx<0?1:-1);touchStart=null;},{passive:true});
-  document.addEventListener('keydown',e=>{if(!splash.hidden)return;if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
+  document.addEventListener('keydown',e=>{if(!splash.hidden)return;if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadDonation();detectLocation();}});
   setInterval(()=>{if(dayOffset===0)render();},60000);
   render();

@@ -149,3 +149,37 @@ button.donation-card{width:100%;font-family:inherit;text-align:left;cursor:point
 @keyframes splash-bag-in{from{opacity:0;transform:translateY(15px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-height:500px){.splash-bags{margin-bottom:12px}.splash-bag{width:60px}.splash-question{font-size:1.9rem}.splash-description{font-size:1.1rem;margin-top:10px}.splash-brand{margin-top:14px}.splash-hint{bottom:10px}}
 @media(prefers-reduced-motion:reduce){.splash-content,.splash-bag{animation:none}.splash-screen{transition:none}.splash-screen.splash-leaving{transform:none;filter:none}}
+
+/* v28: illustrated bags and accessible sorting guide. */
+.bag-button{border:0;background:transparent;padding:0;border-radius:18px;cursor:pointer;transition:transform .18s ease,background .18s ease}
+.bag-button:hover{background:#eef6fa;transform:translateY(-3px)}.bag-button:active{transform:scale(.96)}
+.bag-button img{display:block;width:150px;height:165px;object-fit:contain;filter:drop-shadow(0 6px 5px #152d4214)}
+.bag-figure.bag-button{height:168px;width:150px;margin-bottom:4px}
+.collection-figures .bag-figure.bag-button{height:155px;width:100%}
+.collection-figures .bag-button img{height:155px;max-width:135px}
+.bag-tap-hint{margin:9px 0 15px;color:#54738e;font-size:.76rem}
+.splash-bag{width:clamp(82px,25vw,118px)}.splash-bags{gap:0;margin-bottom:23px}
+.waste-overlay{z-index:20;background:#08263b9c;backdrop-filter:blur(4px);animation:waste-backdrop-in .2s ease both}
+.waste-dialog{display:flex;flex-direction:column;background:#fff;width:min(100%,480px);max-height:min(88dvh,730px);border:1px solid #dbe8ee;border-radius:25px;overflow:hidden;box-shadow:0 26px 80px #001c3450;animation:waste-panel-in .25s cubic-bezier(.2,.8,.2,1) both}
+.waste-head{display:flex;align-items:center;gap:13px;padding:17px 20px;background:#f4f8fb;border-bottom:1px solid #e0eaf0;flex-shrink:0}
+.waste-preview{width:57px;flex:none}.waste-preview img{display:block;width:57px;height:68px;object-fit:contain}
+.waste-heading{flex:1;min-width:0}.waste-heading .small-label{font-size:.66rem;letter-spacing:.06em}.waste-heading h2{font-size:1.3rem;letter-spacing:-.035em;line-height:1.15;margin:6px 0 0}
+.waste-head .close-button{width:42px;height:42px;flex:none;border:1px solid #d6e3eb;background:#fff}
+.waste-scroll{overflow-y:auto;overscroll-behavior:contain;padding:20px 24px 24px;-webkit-overflow-scrolling:touch;min-height:0}
+.waste-summary{font-size:1.03rem;color:#214961;line-height:1.4;margin:0 0 12px;font-weight:650}
+.waste-note{border-radius:11px;background:#eaf5ef;color:#38664d;font-size:.87rem;line-height:1.45;padding:11px 13px;margin:0 0 23px}
+.waste-list-label{text-transform:uppercase;letter-spacing:.08em;font-size:.69rem;font-weight:800;color:#617b8e;margin:0 0 12px}
+.waste-items section{padding:0 0 13px;margin:0 0 13px;border-bottom:1px solid #e7eef3}
+.waste-items h3,.waste-exclusions h3{font-size:.95rem;margin:0 0 10px;font-weight:800}
+.waste-items ul{list-style:none;padding:0;margin:0;display:grid;gap:9px}
+.waste-items li{position:relative;padding-left:24px;font-size:.93rem;line-height:1.5;color:#375a71}
+.waste-items li::before{content:'✓';position:absolute;left:0;top:0;color:#448362;font-weight:800}
+.waste-exclusions{border-radius:12px;background:#fff4ee;padding:13px 15px;color:#89523b;margin:5px 0 19px}
+.waste-exclusions p{font-size:.87rem;line-height:1.5;margin:0}
+.waste-source{font-size:.85rem;font-weight:750;color:#216390;text-decoration:none}.waste-source:hover{text-decoration:underline}
+.waste-checked{font-size:.7rem;color:#7890a1;margin:8px 0 0}
+.waste-closing{animation:waste-backdrop-out .15s ease both}.waste-closing .waste-dialog{animation:waste-panel-out .15s ease both}
+@keyframes waste-backdrop-in{from{opacity:0}to{opacity:1}}@keyframes waste-panel-in{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes waste-backdrop-out{to{opacity:0}}@keyframes waste-panel-out{to{opacity:0;transform:translateY(9px) scale(.985)}}
+@media(prefers-reduced-motion:reduce){.waste-overlay,.waste-dialog,.waste-closing,.waste-closing .waste-dialog{animation:none}.bag-button{transition:none}}
+@media(max-width:360px){.waste-head{padding:14px 15px;gap:9px}.waste-scroll{padding:17px 19px}.waste-heading h2{font-size:1.15rem}}
