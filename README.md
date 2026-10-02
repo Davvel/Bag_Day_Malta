@@ -121,3 +121,14 @@ Collection time, AM/PM and earliest put-out time share one line. Tap the circled
 - Six-second, once-per-tab splash and existing sorting guides retained.
 
 Replace the app files in your GitHub Pages repository and retain your existing CNAME file for bagdaymalta.eu.
+
+## v34 support update — app version 1.0.9
+
+- The support panel automatically opens once per 30 days when the app is used, after the splash and locality setup. Manual opening also starts a fresh 30-day reminder period.
+- Settings → Support button and monthly reminder: turning this off hides both for 30 days. The date they return is displayed. Turning it on clears the pause immediately and allows the reminder again after Settings closes.
+- The previous permanent hide preference becomes a 30-day pause on update.
+- No maths question or hide option appears in the support modal.
+- €2 / €5 / €10 / €20 buttons open an animated confirmation panel. Drag the slider handle fully right and release to open Stripe with that amount. A partial drag resets; tapping the track does not confirm.
+- Cancel, the X, tapping outside, or Escape closes the panel and returns home.
+- Keyboard access: focus the slider, use arrow keys to move it, and press Enter at the end.
+- Preferences and reminder dates are saved on this device/browser. Existing bag guides, gestures, and once-per-tab splash remain.
