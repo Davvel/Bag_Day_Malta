@@ -108,3 +108,16 @@ The mixed-waste bag uses the requested milk-carton symbol. Sorting lists retain 
 The homepage uses the available viewport height and scales the collection artwork to fit. Locality, Home/Auto mode, abbreviated date and Today share a compact row. Long locality names shorten visually, with the full name available in Settings and the time-info popup. All bag labels remain visible. A circled i on each bag opens its full guide.
 
 Collection time, AM/PM and earliest put-out time share one line. Tap the circled i beside the time for full-date information, the four-hour rule, notices and the official schedule link. Glass-container guidance stays in the glass popup. Navigation arrows and a gentle nudge every 30 seconds replace swipe instructions. The nudge is suppressed while a dialog is open and for reduced-motion users. Settings contains © 2026 ZejtunSoft and the version.
+
+## v33 gestures — app version 1.0.8
+
+- Closely grouped pictures, “Click Bag for Info”, and waste labels; bag info badges removed.
+- Larger responsive locality, mode, date and day badge.
+- Every ten seconds the bags jiggle and a drawn hand taps the first picture. Reduced motion disables this cue.
+- Drag the white day panel sideways to navigate. Short drags spring back, and Today / day 30 resist further dragging.
+- Pull down about 100–150 pixels on the homepage to open Settings; a coloured Settings cue appears during the pull.
+- Settings slides down on opening. A substantial swipe on its header dismisses it upward or downward. The body scrolls normally; pulling outward at either scroll boundary also dismisses it.
+- Settings keeps its X / Done controls and keyboard focus handling.
+- Six-second, once-per-tab splash and existing sorting guides retained.
+
+Replace the app files in your GitHub Pages repository and retain your existing CNAME file for bagdaymalta.eu.

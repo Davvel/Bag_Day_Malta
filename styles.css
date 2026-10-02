@@ -232,3 +232,34 @@ html,body{height:100%;overflow:hidden}
 @media(max-height:550px){.app{gap:7px;padding-top:calc(6px + env(safe-area-inset-top));padding-bottom:calc(7px + env(safe-area-inset-bottom))}.dashboard{gap:7px}.topbar{height:38px;min-height:38px}.icon-button{height:36px;width:36px}.overview-line{min-height:27px}.collection-card{padding-top:6px;padding-bottom:7px}.collection-item-label{font-size:.78rem;padding:3px 0 6px}.compact-time-line{padding-top:7px}.donation-card{padding:8px 11px}.donation-copy #donationDetail{font-size:.62rem}.bag-info-badge{width:20px;height:20px;font-size:.77rem}}
 @media(max-height:360px){.topbar{height:30px;min-height:30px}.brand{font-size:.92rem}.brand-mark{width:24px;height:24px}.icon-button{width:29px;height:29px}.app,.dashboard{gap:5px}.overview-line{min-height:23px}.collection-item-label{font-size:.7rem;padding-bottom:4px}.compact-time-line{padding-top:5px}.collection-time-button>span:first-of-type{font-size:1.25rem}.collection-time-button>svg{width:15px;height:15px}.donation-copy #donationDetail{display:none}.donation-card{padding:5px 10px}.donation-button{padding:6px 10px}.location-notice{padding:4px 8px}}
 @media(prefers-reduced-motion:reduce){.swipe-nudge{animation:none}.bag-button:hover,.bag-button:active{transform:none}}
+/* v33: compact picture groups and direct manipulation. */
+.overview-line{gap:9px;min-height:39px}
+#title{font-size:clamp(1.2rem,5.2vw,1.55rem)}
+.mode-chip{font-size:clamp(.73rem,2.9vw,.86rem);padding:6px 7px}
+#date{font-size:clamp(.85rem,3.4vw,1rem)}
+.today-pill{font-size:clamp(.76rem,3vw,.9rem);padding:6px 8px}
+.collection-stage{overflow:hidden;border-radius:23px;touch-action:none}
+.bag-area{will-change:transform}
+.collection-card{overflow:hidden}
+.collection-item{justify-content:center;gap:0}
+.bag-figure.bag-button,.collection-figures .bag-figure.bag-button{flex:0 1 auto;height:min(230px,32dvh);max-height:calc(100% - 54px);min-height:0;aspect-ratio:1/1.1;align-self:center}
+.bag-button img,.collection-figures .bag-button img{max-width:210px;height:100%;object-fit:contain}
+.bag-click-hint{font-size:clamp(.72rem,2.9vw,.86rem);color:#59778d;line-height:1.3;flex:none;margin:5px 0 3px}
+.collection-item-label{padding:0 0 5px;font-size:clamp(.85rem,3.7vw,1.1rem);line-height:1.25}
+.tap-hand{position:absolute;bottom:13%;left:58%;width:36px;height:43px;opacity:0;pointer-events:none;filter:drop-shadow(0 3px 3px #12345330);transform:translateY(16px) rotate(-12deg)}
+.tap-hand svg{width:100%;height:100%}
+.tap-demo .bag-button img{animation:bag-jiggle 1.3s ease both}
+.tap-demo .collection-item:first-child .tap-hand{animation:hand-tap 1.8s ease both}
+@keyframes bag-jiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}45%{transform:rotate(3deg)}65%{transform:rotate(-2deg)}80%{transform:rotate(1deg)}}
+@keyframes hand-tap{0%{opacity:0;transform:translateY(16px) rotate(-12deg)}20%,45%{opacity:1;transform:translateY(0) rotate(-12deg)}32%,60%{opacity:1;transform:translateY(-6px) scale(.92) rotate(-12deg)}75%{opacity:1;transform:translateY(0) rotate(-12deg)}100%{opacity:0;transform:translateY(12px) rotate(-12deg)}}
+.settings-pull{position:fixed;left:50%;top:0;z-index:4;display:flex;gap:9px;align-items:center;padding:12px 24px;background:#123453;color:white;box-shadow:0 8px 25px #12345330;border-radius:0 0 19px 19px;font-size:.9rem;font-weight:750;transform:translate(-50%,-45px);opacity:0;pointer-events:none;transition:background .15s}
+.settings-pull span{font-size:1.4rem}.settings-pull.pull-ready{background:#126db2}
+#settingsOverlay{overflow:hidden;align-items:flex-start;overscroll-behavior:none;padding:12px}
+#settingsDialog{max-height:calc(var(--app-height,100dvh) - 24px);overflow-y:auto;overscroll-behavior:none;margin:0 auto;padding-top:12px;will-change:transform;-webkit-overflow-scrolling:touch}
+.settings-grip{width:42px;height:5px;border-radius:9px;background:#bccedb;margin:0 auto 14px}
+@media(max-width:360px){.overview-line{gap:5px}#title{font-size:1.2rem}.mode-chip{font-size:.68rem;padding:5px}#date{font-size:.8rem}.today-pill{font-size:.7rem;padding:5px}.collection-item-label{font-size:.84rem}.bag-click-hint{font-size:.7rem}}
+@media(max-height:550px){.overview-line{min-height:32px}.bag-figure.bag-button,.collection-figures .bag-figure.bag-button{height:min(200px,30dvh)}.bag-click-hint{margin:2px 0;font-size:.69rem}.collection-item-label{font-size:.8rem;padding-bottom:3px}}
+@media(max-height:360px){.overview-line{min-height:27px}#title{font-size:1.15rem}.bag-figure.bag-button,.collection-figures .bag-figure.bag-button{height:24dvh}.bag-click-hint{font-size:.61rem;margin:1px 0}.collection-item-label{font-size:.7rem}.collection-card{padding-top:3px}.tap-hand{width:24px;height:29px}}
+@media(prefers-reduced-motion:reduce){.tap-demo .bag-button img,.tap-demo .tap-hand{animation:none}.settings-pull{transition:none}}
+@media(min-height:551px){.bag-figure.bag-button,.collection-figures .bag-figure.bag-button{height:min(230px,32dvh,calc((100vw - 90px)*.56));width:min(100%,210px)}.collection-item:only-child .bag-figure.bag-button{height:min(230px,32dvh)}}
+.dashboard{touch-action:none}
