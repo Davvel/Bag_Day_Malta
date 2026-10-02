@@ -63,6 +63,29 @@
 
   let locationFailed = false;
   let analyticsReady = false;
+  const analyticsConsentKey='bag-day-analytics-consent-v1';
+  let analyticsLoading=false,analyticsId='';
+  function analyticsAllowed(){return localStorage.getItem(analyticsConsentKey)==='granted';}
+  function setAnalyticsChoice(allowed){
+    localStorage.setItem(analyticsConsentKey,allowed?'granted':'denied');
+    $('analyticsConsent').hidden=true;
+    $('allowAnalytics').checked=allowed;
+    if(allowed){loadAnalytics();return;}
+    analyticsReady=false;
+    if(analyticsId)window['ga-disable-'+analyticsId]=true;
+    // Remove existing Analytics cookies after withdrawal.
+    document.cookie.split(';').forEach(pair=>{
+      const name=pair.trim().split('=')[0];if(!/^_ga($|_)/.test(name))return;
+      const parts=location.hostname.split('.');
+      document.cookie=name+'=; Max-Age=0; path=/';
+      for(let i=0;i<parts.length-1;i++)document.cookie=name+'=; Max-Age=0; path=/; domain=.'+parts.slice(i).join('.');
+    });
+    if(analyticsId)location.reload();
+  }
+  $('acceptAnalytics').onclick=()=>setAnalyticsChoice(true);
+  $('declineAnalytics').onclick=()=>setAnalyticsChoice(false);
+  $('allowAnalytics').checked=analyticsAllowed();
+  $('allowAnalytics').onchange=e=>setAnalyticsChoice(e.target.checked);
   let donationConfig = null;
   const supportHiddenKey='bag-day-support-hidden-until-v2';
   const supportLastShownKey='bag-day-support-last-shown-v2';
@@ -217,23 +240,32 @@
   }
 
   function analyticsEvent(name,params={}){
-    if(!analyticsReady || typeof window.gtag!=='function') return;
+    if(!analyticsAllowed() || !analyticsReady || typeof window.gtag!=='function') return;
     window.gtag('event',name,params);
   }
 
   async function loadAnalytics(){
+    if(analyticsLoading||analyticsReady)return;
     try{
       const cfg=await fetchLiveConfig('./analytics_config.txt');
       if(String(cfg.Analytics_Enabled||'').toLowerCase()!=='true') return;
       const id=String(cfg.Measurement_ID||'').trim();
       if(!/^G-[A-Z0-9]+$/i.test(id) || id==='G-XXXXXXXXXX') return;
+      if(!analyticsAllowed()){
+        $('analyticsConsent').hidden=localStorage.getItem(analyticsConsentKey)==='denied';
+        return;
+      }
+      analyticsLoading=true;analyticsId=id;window['ga-disable-'+id]=false;
       window.dataLayer=window.dataLayer||[];
       window.gtag=function(){window.dataLayer.push(arguments);};
+      window.gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
+      window.gtag('consent','update',{analytics_storage:'granted'});
       window.gtag('js',new Date());
       window.gtag('config',id,{anonymize_ip:true,allow_google_signals:false,allow_ad_personalization_signals:false});
       const script=document.createElement('script');
       script.async=true; script.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
-      script.onload=()=>{analyticsReady=true;};
+      script.onload=()=>{analyticsLoading=false;analyticsReady=analyticsAllowed();};
+      script.onerror=()=>{analyticsLoading=false;};
       document.head.appendChild(script);
     }catch(_){ /* analytics is optional */ }
   }

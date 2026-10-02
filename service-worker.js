@@ -1,5 +1,5 @@
-const CACHE='bag-day-malta-2026-10-v34';
-const ASSETS=['./','./index.html','./styles.css?v=34','./data.js?v=34','./app.js?v=34','./waste-guide.js?v=34','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/glass-carrier.svg'];
+const CACHE='bag-day-malta-2026-10-v35';
+const ASSETS=['./','./index.html','./styles.css?v=35','./data.js?v=35','./app.js?v=35','./waste-guide.js?v=35','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/glass-carrier.svg'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{

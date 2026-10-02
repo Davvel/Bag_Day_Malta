@@ -287,3 +287,15 @@ html,body{height:100%;overflow:hidden}
 @media(max-width:360px){#supportDialog{padding:20px 17px}.tip-amounts{gap:10px}.tip-circle{width:53px;height:53px;font-size:1rem}}
 @media(max-height:480px){#supportDialog{padding:16px 20px}#supportDialog h2{margin:8px 0;font-size:1.5rem}#supportDialog .coffee-invitation{margin:10px 0}.tip-amounts{margin-top:14px}.donation-confirm-amount{margin-top:10px}.donation-confirm-note{margin-bottom:12px}#dismissSupport,#cancelDonation{margin-top:12px}}
 @media(prefers-reduced-motion:reduce){#supportOverlay,#supportDialog,#supportConfirm:not([hidden]){animation:none}.slider-thumb,.slider-fill{transition:none}}
+
+/* v35: centred cross icons and single-line support heading. */
+.close-button{padding:0;line-height:1;flex:none}
+.close-button svg{display:block;width:20px;height:20px}
+.support-brand{display:inline-flex;align-items:center;gap:8px}
+.support-brand svg{display:block;width:24px;height:24px;flex:none}
+#supportDialog{container-type:inline-size}
+#supportDialog h2{white-space:nowrap;font-size:clamp(13px,5.4cqw,24px);letter-spacing:-.04em;line-height:1.25}
+
+.analytics-consent{position:fixed;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(440px,calc(100% - 24px));padding:16px;background:#fff;border:1px solid #c6d5e0;border-radius:16px;box-shadow:0 8px 32px #12345330;z-index:4;font-size:.85rem}
+.analytics-consent p{line-height:1.45;margin:8px 0 12px;color:#526b7e}.analytics-consent a{color:#26618d}
+.analytics-consent div{display:flex;gap:10px}.analytics-consent button{flex:1;padding:10px 8px;border:1px solid #b9cddb;border-radius:9px;background:#eff5fa;color:#123453;font-weight:650}

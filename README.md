@@ -132,3 +132,11 @@ Replace the app files in your GitHub Pages repository and retain your existing C
 - Cancel, the X, tapping outside, or Escape closes the panel and returns home.
 - Keyboard access: focus the slider, use arrow keys to move it, and press Enter at the end.
 - Preferences and reminder dates are saved on this device/browser. Existing bag guides, gestures, and once-per-tab splash remain.
+
+
+## v35 — app version 1.0.10
+- Centred SVG close crosses in all panels.
+- The full support heading stays on one line with a font size matched to the panel width.
+- Added a small code icon beside ZejtunSoft in both support steps.
+
+- Configured GA4 Measurement ID G-2P58GJJQT8. Optional Google Analytics consent blocks tag loading before acceptance and after decline. Revoke from Settings; withdrawal clears Analytics cookies and reloads. Google Signals and ads personalization are disabled. GPS coordinates, locality names and payment details are not sent by custom events. Donation events measure intent, not successful Stripe payment.
