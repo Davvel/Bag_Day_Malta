@@ -98,3 +98,7 @@ Each bag now has one large illustration drawn directly onto its surface: a yello
 Rounder bag silhouettes. Large green recycling arrows on the grey bag. A visibly dirty takeaway carton on the black bag, because clean milk and juice cartons are recyclable. The deeper reusable glass container holds three intact bottles; broken glass is excluded from that collection. The organic bag retains the yellow banana peel.
 
 The sorting panels include every item from the four waste-type lists at https://www.wastecollection.mt/, grouped for reading. Duplicate plastic bottle and sanitary item entries appear once. Food-soiled paper wording follows WasteServ’s guidance. Lists checked 1 October 2026.
+
+## v31 milk-carton artwork — app version 1.0.6
+
+The mixed-waste bag uses the requested milk-carton symbol. Sorting lists retain the official classification: milk and juice cartons belong in recycling.
