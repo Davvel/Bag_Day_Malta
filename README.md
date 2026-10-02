@@ -140,3 +140,8 @@ Replace the app files in your GitHub Pages repository and retain your existing C
 - Added a small code icon beside ZejtunSoft in both support steps.
 
 - Configured GA4 Measurement ID G-2P58GJJQT8. Optional Google Analytics consent blocks tag loading before acceptance and after decline. Revoke from Settings; withdrawal clears Analytics cookies and reloads. Google Signals and ads personalization are disabled. GPS coordinates, locality names and payment details are not sent by custom events. Donation events measure intent, not successful Stripe payment.
+
+
+## v36 — app version 1.0.11
+- Use the supplied original ZejtunSoft artwork as a compact icon before the name. CSS frames the Z portion; the source artwork is unchanged.
+- Centre the single-line support heading in both donation steps.

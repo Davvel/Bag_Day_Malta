@@ -299,3 +299,9 @@ html,body{height:100%;overflow:hidden}
 .analytics-consent{position:fixed;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(440px,calc(100% - 24px));padding:16px;background:#fff;border:1px solid #c6d5e0;border-radius:16px;box-shadow:0 8px 32px #12345330;z-index:4;font-size:.85rem}
 .analytics-consent p{line-height:1.45;margin:8px 0 12px;color:#526b7e}.analytics-consent a{color:#26618d}
 .analytics-consent div{display:flex;gap:10px}.analytics-consent button{flex:1;padding:10px 8px;border:1px solid #b9cddb;border-radius:9px;background:#eff5fa;color:#123453;font-weight:650}
+
+/* v36: original ZejtunSoft artwork and centred support heading. */
+#supportDialog h2{text-align:center}
+.support-brand{gap:9px;font-size:.85rem;letter-spacing:.04em}
+.support-brand-logo{position:relative;display:block;width:34px;height:34px;border-radius:10px;overflow:hidden;flex:none;background:#001641}
+.support-brand-logo img{position:absolute;display:block;width:200%;height:200%;max-width:none;left:-50%;top:-34%;object-fit:fill}
