@@ -128,7 +128,7 @@
   const shownDate = () => { const date=maltaToday();date.setUTCDate(date.getUTCDate()+dayOffset);return date; };
   const formatTime = time => {const [h,m]=time.split(':').map(Number);return `${String((h+20)%24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;};
   const bagSvg = type => `<img src="icons/bag-${type}.svg" alt="${t()[type]} bag with a large waste sorting symbol">`;
-  const bagButton = (type, label) => `<button type="button" class="bag-figure bag-button" data-waste-type="${type}" aria-label="What goes in ${label.toLowerCase()}?" aria-haspopup="dialog" aria-controls="wasteOverlay">${type==='glass'?'<img src="icons/glass-carrier.svg" alt="Glass bottles and jars in a reusable container">':bagSvg(type)}</button>`;
+  const bagButton = (type, label) => `<button type="button" class="bag-figure bag-button" data-waste-type="${type}" aria-label="What goes in ${label.toLowerCase()}?" aria-haspopup="dialog" aria-controls="wasteOverlay">${type==='glass'?'<img src="icons/glass-carrier.svg" alt="Glass bottles and jars in a reusable container">':bagSvg(type)}<span class="bag-info-badge" aria-hidden="true">i</span></button>`;
 
   let wasteReturnFocus = null;
   let wastePreviousOverflow = '';
@@ -343,14 +343,9 @@
     document.documentElement.lang=language;
     $('settingsButton').setAttribute('aria-label',c.settings);
     $('settingsButton').title=c.settings;
-    $('eyebrow').textContent=c.eyebrow;
     $('prevDay').setAttribute('aria-label',c.previous);
     $('nextDay').setAttribute('aria-label',c.next);
-    $('swipeHint').textContent=c.swipe;
-    $('noticeQuestion').textContent=c.noticeQuestion;
     $('switchButton').textContent=c.yes;
-    $('sourceLink').textContent=c.source;
-    $('sourceNote').textContent=c.sourceNote;
     $('settingsEyebrow').textContent=c.schedule;
     $('settingsTitle').textContent=c.settings;
     $('homeLocalityTitle').textContent=c.homeLocalityTitle;
@@ -366,30 +361,63 @@
   }
 
   function renderLocationMode(){
-    const bar=$('locationModeBar'), text=$('locationModeText'), back=$('returnHomeButton');
-    const current=activeLocality();
-    if(followLocation && detected){
-      bar.hidden=false; text.textContent=t().following(detected); back.hidden=true; return;
-    }
-    if(temporaryView && temporaryView!==selected){
-      bar.hidden=false; text.textContent=t().viewing(temporaryView); back.hidden=false; back.textContent=t().backHome(selected); return;
-    }
-    bar.hidden=true; back.hidden=true;
+    const chip=$('locationModeChip');
+    const away=temporaryView && temporaryView!==selected;
+    const mode=followLocation?'Auto':away?'Away':'Home';
+    chip.textContent=`(${mode})`;
+    chip.dataset.mode=mode.toLowerCase();
+    chip.title=away?`Return to ${selected}`:followLocation?'Following your current location. Tap for settings.':'Saved home locality. Tap for settings.';
+    chip.setAttribute('aria-label',chip.title);
+  }
+  const compactTime = value => {
+    const [hour,minute]=value.split(':').map(Number);
+    return {text:`${hour%12||12}:${String(minute).padStart(2,'0')}`,period:hour<12?'AM':'PM'};
+  };
+  const timeMarkup = value => {const time=compactTime(value);return `${time.text}<small>${time.period}</small>`;};
+  const clockIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>';
+  let timeReturnFocus=null;
+  function openTimeInfo(trigger){
+    timeReturnFocus=trigger;
+    const locality=activeLocality(), date=shownDate();
+    const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
+    const collection=compactTime(time),out=compactTime(formatTime(time));
+    $('timeInfoDate').textContent=`${locality} — ${new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(date)}`;
+    $('timeInfoDetails').textContent=`Collection: ${collection.text} ${collection.period}. Earliest put-out time: ${out.text} ${out.period}.`;
+    appContent.inert=true;
+    $('timeOverlay').hidden=false;
+    $('timeInfoScroll').scrollTop=0;
+    $('closeTimeInfo').focus({preventScroll:true});
+  }
+  function closeTimeInfo(){
+    $('timeOverlay').hidden=true;appContent.inert=false;
+    if(timeReturnFocus?.isConnected)timeReturnFocus.focus({preventScroll:true});
+    else $('settingsButton').focus({preventScroll:true});
+  }
+  function timeInfoKeydown(e){
+    if(e.key==='Escape'){e.preventDefault();closeTimeInfo();return;}
+    if(e.key!=='Tab')return;
+    const items=Array.from($('timeDialog').querySelectorAll('button,a[href],[tabindex="0"]'));
+    const first=items[0],last=items[items.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   }
 
   function render() {
-    if(!$('wasteOverlay').hidden)return;
+    if(!$('wasteOverlay').hidden || !$('timeOverlay').hidden)return;
     renderStaticText();
     const locality=activeLocality();
     $('dashboard').hidden=!locality;
     if(!locality)return;
     const c=t(),date=shownDate();
-    const day=new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date);
     $('title').textContent=locality;
-    const fullDate=new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(date);
-    $('date').textContent=`${day}, ${fullDate}`;
+    $('title').title=locality;
+    const fullDate=new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(date);
+    $('date').textContent=new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}).format(date);
+    $('date').title=fullDate;$('date').setAttribute('aria-label',fullDate);
+    $('date').setAttribute('datetime',date.toISOString().slice(0,10));
     $('todayPill').hidden=false;
-    $('todayPill').textContent=dayOffset===0?c.today:dayOffset===1?c.tomorrow:c.days(dayOffset);
+    $('todayPill').textContent=dayOffset===0?'Today':dayOffset===1?'Tomorrow':`+${dayOffset}d`;
+    $('todayPill').setAttribute('aria-label',dayOffset===0?'Today':dayOffset===1?'Tomorrow':`In ${dayOffset} days`);
     renderLocationMode();
     $('prevDay').disabled=dayOffset===0;
     $('nextDay').disabled=dayOffset===maxDaysAhead;
@@ -398,14 +426,13 @@
       $('bagArea').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">${c.noCollection}</div></div>`;
     }else{
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
-      const figures=schedule.glass
-        ? `<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="collection-item-label">${c[schedule.bag]}</span></div><div class="collection-item">${bagButton("glass",c.glassBottles)}<span class="collection-item-label">${c.glassBottles}</span></div></div>`
-        : `${bagButton(schedule.bag,c[schedule.bag])}<div class="bag-name">${c[schedule.bag]}</div>`;
-      $('bagArea').innerHTML=`<div class="collection-card">${figures}<p class="bag-tap-hint">Tap a bag to see what goes inside</p><div class="time-box"><div class="time-label">${c.collection}</div><div class="time-value"><span>${time}</span><span class="time-period">(${timeOfDay(time)})</span></div><div class="put-out">${c.putOut(formatTime(time))}</div></div>${schedule.glass?`<div class="glass-note">${c.glass}</div>`:''}</div>`;
+      const figures=`<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="collection-item-label">${c[schedule.bag]}</span></div>${schedule.glass?`<div class="collection-item">${bagButton('glass',c.glassBottles)}<span class="collection-item-label">${c.glassBottles}</span></div>`:''}</div>`;
+      $('bagArea').innerHTML=`<div class="collection-card">${figures}<div class="compact-time-line"><button type="button" class="collection-time-button" data-time-info aria-label="Collection time ${time}. More information">${clockIcon}<span>${timeMarkup(time)}</span><span class="info-circle" aria-hidden="true">i</span></button><span class="time-divider" aria-hidden="true">·</span><span class="earliest-time" aria-label="Put bags out from ${formatTime(time)}"><span class="earliest-label">Out from</span> ${timeMarkup(formatTime(time))}</span></div></div>`;
+
     }
     const different=!followLocation && !temporaryView && detected&&detected!==selected&&!promptIsDismissed();
     $('locationNotice').hidden=!different;
-    if(different)$('noticeText').textContent=c.notice(detected);
+    if(different)$('noticeText').textContent=`Nearby: ${detected}`;
   }
 
 
@@ -483,6 +510,8 @@
   }
 
   $('bagArea').addEventListener('click',e=>{
+    const timeTrigger=e.target.closest('[data-time-info]');
+    if(timeTrigger){openTimeInfo(timeTrigger);return;}
     const trigger=e.target.closest('[data-waste-type]');
     if(trigger && $('bagArea').contains(trigger))openWasteGuide(trigger.dataset.wasteType,trigger);
   });
@@ -496,7 +525,9 @@
     analyticsEvent('current_locality_viewed');
     dayOffset=0;render();
   };
-  $('returnHomeButton').onclick=()=>{temporaryView=null;dayOffset=0;render();};
+  $('locationModeChip').onclick=()=>{if(temporaryView&&!followLocation){temporaryView=null;dayOffset=0;render();}else openSettings();};
+  $('closeTimeInfo').onclick=closeTimeInfo;
+  $('timeOverlay').onclick=e=>{if(e.target===$('timeOverlay'))closeTimeInfo();};
   $('keepLocalityMode').onchange=()=>{
     if(!$('keepLocalityMode').checked)return;
     followLocation=false;temporaryView=null;localStorage.setItem(followLocationKey,'false');render();
@@ -529,9 +560,23 @@
   });
   $('dashboard').addEventListener('touchstart',e=>{touchStart={x:e.changedTouches[0].screenX,y:e.changedTouches[0].screenY};},{passive:true});
   $('dashboard').addEventListener('touchend',e=>{if(!touchStart)return;const dx=e.changedTouches[0].screenX-touchStart.x,dy=e.changedTouches[0].screenY-touchStart.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5)changeDay(dx<0?1:-1);touchStart=null;},{passive:true});
-  document.addEventListener('keydown',e=>{if(!splash.hidden)return;if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
+  document.addEventListener('keydown',e=>{if(!splash.hidden)return;if(!$('timeOverlay').hidden){timeInfoKeydown(e);return;}if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadDonation();detectLocation();}});
   setInterval(()=>{if(dayOffset===0)render();},60000);
+  setInterval(()=>{
+    if(document.hidden||!splash.hidden||!$('settingsOverlay').hidden||!$('supportOverlay').hidden||!$('wasteOverlay').hidden||!$('timeOverlay').hidden)return;
+    if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+    $('collectionStage').classList.remove('swipe-nudge');
+    void $('collectionStage').offsetWidth;
+    $('collectionStage').classList.add('swipe-nudge');
+  },30000);
+  function syncViewport(){
+    const height=window.visualViewport?.height||window.innerHeight;
+    if(height)document.documentElement.style.setProperty('--app-height',`${height}px`);
+  }
+  syncViewport();
+  window.addEventListener('resize',syncViewport);
+  window.visualViewport?.addEventListener('resize',syncViewport);
   render();
   loadDonation();
   loadAnalytics();

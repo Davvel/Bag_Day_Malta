@@ -102,3 +102,9 @@ The sorting panels include every item from the four waste-type lists at https://
 ## v31 milk-carton artwork — app version 1.0.6
 
 The mixed-waste bag uses the requested milk-carton symbol. Sorting lists retain the official classification: milk and juice cartons belong in recycling.
+
+## v32 compact homepage — app version 1.0.7
+
+The homepage uses the available viewport height and scales the collection artwork to fit. Locality, Home/Auto mode, abbreviated date and Today share a compact row. Long locality names shorten visually, with the full name available in Settings and the time-info popup. All bag labels remain visible. A circled i on each bag opens its full guide.
+
+Collection time, AM/PM and earliest put-out time share one line. Tap the circled i beside the time for full-date information, the four-hour rule, notices and the official schedule link. Glass-container guidance stays in the glass popup. Navigation arrows and a gentle nudge every 30 seconds replace swipe instructions. The nudge is suppressed while a dialog is open and for reduced-motion users. Settings contains © 2026 ZejtunSoft and the version.

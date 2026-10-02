@@ -183,3 +183,52 @@ button.donation-card{width:100%;font-family:inherit;text-align:left;cursor:point
 @keyframes waste-backdrop-out{to{opacity:0}}@keyframes waste-panel-out{to{opacity:0;transform:translateY(9px) scale(.985)}}
 @media(prefers-reduced-motion:reduce){.waste-overlay,.waste-dialog,.waste-closing,.waste-closing .waste-dialog{animation:none}.bag-button{transition:none}}
 @media(max-width:360px){.waste-head{padding:14px 15px;gap:9px}.waste-scroll{padding:17px 19px}.waste-heading h2{font-size:1.15rem}}
+/* v32: a viewport-sized homepage; details belong in the dialogs. */
+html,body{height:100%;overflow:hidden}
+#appContent{height:var(--app-height,100dvh)}
+.app{height:var(--app-height,100dvh);min-height:0;max-height:var(--app-height,100dvh);padding:calc(10px + env(safe-area-inset-top)) 18px calc(12px + env(safe-area-inset-bottom));gap:10px}
+.topbar{height:44px;min-height:44px;flex-shrink:0}.brand{font-size:1.08rem}.brand-mark{width:29px;height:29px}.icon-button{width:40px;height:40px}
+.dashboard{min-height:0;flex:1;padding:0;gap:10px}
+.overview-line{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;text-align:left;min-height:32px;flex-shrink:0}
+.locality-heading{display:flex;align-items:center;gap:5px;min-width:0}
+#title{font-size:1.1rem;line-height:1.25;letter-spacing:-.03em;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;min-width:0}
+.mode-chip{border:0;border-radius:7px;background:#dceaf3;color:#436984;font-size:.63rem;font-weight:750;padding:5px 6px;flex:none;line-height:1.1}
+.mode-chip[data-mode=auto]{background:#d9eee4;color:#376b51}
+.mode-chip[data-mode=away]{background:#fff0d9;color:#866534}
+#date{width:auto;margin:0;font-size:.72rem;line-height:1.3;white-space:nowrap;color:#58738a}
+.today-pill{align-self:auto;margin:0;font-size:.61rem;line-height:1.2;padding:5px 7px;letter-spacing:.025em;background:#d7eafa;color:#215679;white-space:nowrap}
+.collection-stage{position:relative;display:flex;flex:1;min-height:0}
+.bag-area{flex:1;width:100%;height:100%;margin:0;min-height:0}
+.collection-card{height:100%;min-height:0;max-height:100%;width:100%;padding:12px 20px 10px;border-radius:23px;overflow:visible;animation:none}
+.collection-figures{flex:1;display:flex;align-items:stretch;justify-content:center;gap:8px;width:100%;min-height:0;margin:0}
+.collection-item{min-height:0;max-width:210px;justify-content:center;flex:1 1 0}
+.bag-figure.bag-button,.collection-figures .bag-figure.bag-button{position:relative;width:100%;height:auto;flex:1;min-height:0;max-height:min(300px,48dvh);margin:0;display:flex;align-items:center;justify-content:center;overflow:visible}
+.bag-button img,.collection-figures .bag-button img{display:block;width:100%;height:100%;max-height:100%;max-width:185px;min-height:0;object-fit:contain;filter:drop-shadow(0 4px 4px #152d4214)}
+.collection-item-label{flex:none;font-size:clamp(.8rem,3.3vw,1rem);line-height:1.25;padding:6px 0 10px;font-weight:750}
+.bag-info-badge,.info-circle{display:inline-grid;place-items:center;flex:none;font-family:Georgia,serif;font-weight:700;border:1.6px solid #5d8199;border-radius:50%;color:#426a85;background:#f9fcfe;line-height:1;font-style:normal}
+.bag-info-badge{position:absolute;right:3%;top:28%;width:23px;height:23px;font-size:.9rem;box-shadow:0 2px 7px #12345315}
+.compact-time-line{display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;width:100%;padding:11px 0 2px;border-top:1px solid #e5edf4;white-space:nowrap}
+.collection-time-button{border:0;background:transparent;display:flex;align-items:center;gap:6px;color:#153b58;padding:3px 0;border-radius:7px;white-space:nowrap}
+.collection-time-button>svg{width:18px;height:18px;stroke:#608299;stroke-width:1.8;fill:none;flex:none}
+.collection-time-button>span:first-of-type{font-size:1.6rem;font-weight:800;line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.collection-time-button small{font-size:.65rem;font-weight:750;letter-spacing:0;margin-left:4px}
+.info-circle{width:18px;height:18px;font-size:.74rem}
+.time-divider{font-size:1rem;color:#8aa1b2}
+.earliest-time{font-size:.9rem;color:#365c76;font-weight:750;font-variant-numeric:tabular-nums}
+.earliest-time small{font-size:.6rem;margin-left:3px}.earliest-label{font-size:.65rem;font-weight:500;color:#698295;margin-right:3px}
+.card-prev,.card-next{position:absolute;top:45%;width:30px;height:38px;border-radius:10px;font-size:1.7rem;background:#f0f6fbdd;box-shadow:none;border:1px solid #dae7f0;transform:translateY(-50%);z-index:1}
+.card-prev{left:-10px}.card-next{right:-10px}.card-prev:disabled,.card-next:disabled{opacity:.2}
+.location-notice{min-height:0;flex:none;padding:8px 10px;margin:0;align-items:center;gap:8px;border-radius:12px}
+.location-notice .notice-icon{width:20px;height:20px;flex:none;border:0;padding:0;clip-path:none}
+.notice-copy{flex:1;min-width:0}.location-notice strong{display:block;font-size:.75rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.switch-button{font-size:.72rem;padding:7px 10px}
+.donation-card{flex:none;min-height:0;margin:0;padding:10px 12px;border-radius:16px;gap:10px}
+.donation-copy{min-width:0}.donation-copy #donationText{font-size:.84rem;line-height:1.25}.donation-copy #donationDetail{font-size:.69rem;line-height:1.3;margin-top:3px}.donation-button{font-size:.78rem;padding:9px 12px;border-radius:10px;white-space:nowrap}
+.settings-credit{font-size:.73rem;color:#7890a1;text-align:center;margin:22px 0 12px}
+.time-info-dialog{max-width:430px}.time-info-dialog .waste-head{justify-content:space-between;gap:10px}.time-info-dialog h2{font-size:1.15rem;letter-spacing:-.03em;margin:0}.time-info-dialog .waste-scroll p{font-size:.9rem;line-height:1.55;color:#45687f}.time-info-dialog .waste-scroll .waste-summary{font-weight:750}
+.swipe-nudge{animation:card-nudge .7s ease-in-out both}
+@keyframes card-nudge{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}65%{transform:translateX(4px)}}
+@media(max-width:360px){.app{padding-left:14px;padding-right:14px;gap:8px}.dashboard{gap:8px}.overview-line{gap:5px}#title{font-size:1rem}.mode-chip{font-size:.58rem;padding:4px}#date{font-size:.68rem}.today-pill{font-size:.58rem;padding:4px 5px}.collection-card{padding:9px 14px}.compact-time-line{gap:5px}.collection-time-button{gap:4px}.collection-time-button>span:first-of-type{font-size:1.4rem}.collection-time-button>svg{width:15px;height:15px}.earliest-time{font-size:.8rem}.earliest-label{font-size:.6rem}.bag-info-badge{width:21px;height:21px;font-size:.82rem}}
+@media(max-height:550px){.app{gap:7px;padding-top:calc(6px + env(safe-area-inset-top));padding-bottom:calc(7px + env(safe-area-inset-bottom))}.dashboard{gap:7px}.topbar{height:38px;min-height:38px}.icon-button{height:36px;width:36px}.overview-line{min-height:27px}.collection-card{padding-top:6px;padding-bottom:7px}.collection-item-label{font-size:.78rem;padding:3px 0 6px}.compact-time-line{padding-top:7px}.donation-card{padding:8px 11px}.donation-copy #donationDetail{font-size:.62rem}.bag-info-badge{width:20px;height:20px;font-size:.77rem}}
+@media(max-height:360px){.topbar{height:30px;min-height:30px}.brand{font-size:.92rem}.brand-mark{width:24px;height:24px}.icon-button{width:29px;height:29px}.app,.dashboard{gap:5px}.overview-line{min-height:23px}.collection-item-label{font-size:.7rem;padding-bottom:4px}.compact-time-line{padding-top:5px}.collection-time-button>span:first-of-type{font-size:1.25rem}.collection-time-button>svg{width:15px;height:15px}.donation-copy #donationDetail{display:none}.donation-card{padding:5px 10px}.donation-button{padding:6px 10px}.location-notice{padding:4px 8px}}
+@media(prefers-reduced-motion:reduce){.swipe-nudge{animation:none}.bag-button:hover,.bag-button:active{transform:none}}
