@@ -79,19 +79,18 @@
     localStorage.setItem(welcomeDraftKey,JSON.stringify(welcomeDraft));
   }
   let welcomeBusy=false,welcomeReadyTimer;
-  let welcomeChoiceTimer=null,welcomeChoiceAnimation=null,welcomeChoiceCueShown=false;
+  let welcomeChoiceTimer=null,welcomeChoiceAnimation=null;
   function stopWelcomeChoiceCue(){
     clearTimeout(welcomeChoiceTimer);welcomeChoiceTimer=null;
     welcomeChoiceAnimation?.cancel();welcomeChoiceAnimation=null;
     $('welcomeChoiceHand').hidden=true;
   }
-  function queueWelcomeChoiceCue(){
+  function queueWelcomeChoiceCue(delay=3000){
     if(!welcomeNeeded || welcomeDraft.step!==2 || welcomeDraft.mode || welcomeBusy || document.hidden || $('welcomeOverlay').hidden){stopWelcomeChoiceCue();return;}
-    if(welcomeChoiceTimer || welcomeChoiceCueShown)return;
+    if(welcomeChoiceTimer || welcomeChoiceAnimation || !$('welcomeChoiceHand').hidden)return;
     welcomeChoiceTimer=setTimeout(()=>{
       welcomeChoiceTimer=null;
       if(!welcomeNeeded || welcomeDraft.step!==2 || welcomeDraft.mode || document.hidden)return;
-      welcomeChoiceCueShown=true;
       const hand=$('welcomeChoiceHand');hand.hidden=false;
       hand.classList.toggle('still-hand',!!reducedMotion());
       if(reducedMotion()){hand.style.left='';hand.style.top='';return;}
@@ -111,11 +110,16 @@
         {opacity:1,transform:`translateY(${distance}px)`,offset:.82},
         {opacity:0,transform:`translateY(${distance+12}px)`,offset:1}
       ],{duration:2600,easing:'ease-in-out',fill:'forwards'});
-      welcomeChoiceAnimation.finished.then(()=>{hand.hidden=true;welcomeChoiceAnimation=null;}).catch(()=>{});
-    },3000);
+      const animation=welcomeChoiceAnimation;
+      animation.finished.then(()=>{
+        if(welcomeChoiceAnimation!==animation)return;
+        animation.cancel();hand.hidden=true;welcomeChoiceAnimation=null;
+        queueWelcomeChoiceCue(5000);
+      }).catch(()=>{});
+    },delay);
   }
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopWelcomeChoiceCue();else queueWelcomeChoiceCue();});
-  window.addEventListener('resize',stopWelcomeChoiceCue);
+  window.addEventListener('resize',()=>{stopWelcomeChoiceCue();queueWelcomeChoiceCue();});
 
   function saveWelcomeDraft(){localStorage.setItem(welcomeDraftKey,JSON.stringify(welcomeDraft));}
   function welcomeFocus(){
