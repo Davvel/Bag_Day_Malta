@@ -464,3 +464,93 @@ html,body{height:100%;overflow:hidden}
 .locality-choice:hover,.locality-choice:active{background:#f0f6fc}
 .locality-choice:focus-visible{outline:3px solid #126db2;outline-offset:-3px}
 @media(max-height:450px){.locality-dialog{padding:18px}.locality-dialog h2{margin-top:6px}.locality-choices{max-height:32dvh}}
+
+/* v1.0.28: the surface, border and shadow travel with the entire day card. */
+:root{--page:#edf3f9;--page-glow:#d6eafa;--card:#fff;--surface:#edf5fc;--raised:#e4eff9;--border:#ccdae6;--ink:#123453;--secondary:#526f86;--muted:#7890a1;--accent:#126db2;--hover:#d5e6f5;--card-shadow:0 8px 28px #12345312,0 2px 5px #12345308;color-scheme:light}
+:root[data-theme=dark]{--page:#0b1421;--page-glow:#15273b;--card:#1c2a3b;--surface:#24354a;--raised:#2c4158;--border:#3a4b60;--ink:#f3f4f6;--secondary:#b0c3d6;--muted:#91a8be;--accent:#8ac8ff;--hover:#34516b;--card-shadow:0 12px 32px #00000045,0 2px 6px #00000030;color-scheme:dark}
+:root{background:var(--page);color:var(--ink)}
+body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 40%),var(--page);overflow-x:clip}
+.collection-stage{overflow:visible;border:0;border-radius:0;background:transparent;box-shadow:none}
+.bag-area{background:var(--card);border:1px solid var(--border);border-radius:28px;box-shadow:var(--card-shadow);overflow:hidden;isolation:isolate}
+.collection-card{background:transparent;border-radius:0;box-shadow:none}
+.day-navigation-moving .nav-button{visibility:visible;pointer-events:none}
+.day-navigation-moving{pointer-events:none}
+#appearanceSelect{width:100%;min-height:46px;font:inherit;font-size:16px;color:var(--ink);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer}
+
+/* Dark surfaces retain the original waste illustrations and their colours. */
+[data-theme=dark] .brand-sub,[data-theme=dark] .welcome-brand>span{color:var(--secondary)}
+[data-theme=dark] .brand-mark{background:var(--raised)}
+[data-theme=dark] .icon-button,[data-theme=dark] .close-button{background:var(--surface);color:var(--ink);border-color:var(--border)}
+[data-theme=dark] .collection-date .today-pill,[data-theme=dark] .collection-time-button,[data-theme=dark] .collection-item-label,[data-theme=dark] .bag-name{color:var(--ink)}
+[data-theme=dark] .day-navigation{background:var(--surface);border-color:var(--border)}
+[data-theme=dark] .day-navigation .nav-button{background:var(--raised);border-color:#506985;color:var(--ink);box-shadow:0 2px 4px #00000025}
+[data-theme=dark] .day-navigation .nav-button:not(:disabled):hover,[data-theme=dark] .day-navigation .nav-button:not(:disabled):active{background:var(--hover);border-color:#7392b3}
+[data-theme=dark] .day-navigation .nav-button:disabled{background:var(--surface);border-color:var(--border);color:var(--muted);opacity:.6;box-shadow:none}
+[data-theme=dark] .date-button{background:var(--card);border-color:#506985;color:var(--secondary);box-shadow:0 1px 3px #00000025}
+[data-theme=dark] .collection-date #date{color:var(--secondary)}
+[data-theme=dark] .put-out-instruction{background:var(--surface);color:var(--ink)}
+[data-theme=dark] .collection-timing,[data-theme=dark] .compact-time-line{border-color:var(--border)}
+[data-theme=dark] .put-out-instruction>span,[data-theme=dark] .collection-timing .collection-time-button>.collection-start-label,[data-theme=dark] .bag-click-hint{color:var(--secondary)}
+[data-theme=dark] .collection-time-button>svg{stroke:var(--secondary)}
+[data-theme=dark] .info-circle,[data-theme=dark] .bag-info-badge{background:var(--surface);color:var(--secondary);border-color:#839eb8}
+[data-theme=dark] .mode-chip{background:#31475d;color:#c6def4}
+[data-theme=dark] .mode-chip[data-mode=auto]{background:#214d40;color:#afe1c9}
+[data-theme=dark] .mode-chip[data-mode=away]{background:#594423;color:#f7d79b}
+[data-theme=dark] #localityButton:active,[data-theme=dark] .bag-button:hover{background:var(--surface)}
+[data-theme=dark] .rest-icon{color:var(--muted)}
+[data-theme=dark] .donation-card{background:var(--card);border-color:var(--border);color:var(--secondary);box-shadow:var(--card-shadow)}
+[data-theme=dark] .donation-card #donationText{color:var(--ink)}
+[data-theme=dark] .donation-card #donationDetail{color:var(--secondary)}
+[data-theme=dark] .donation-button{background:#285783;color:#fff}
+[data-theme=dark] .settings,[data-theme=dark] .calendar-dialog,[data-theme=dark] .welcome-dialog,[data-theme=dark] .waste-dialog{background:var(--card);color:var(--ink);border-color:var(--border)}
+[data-theme=dark] .organised-settings .settings-section{background:var(--surface);border-color:var(--border)}
+[data-theme=dark] .organised-settings h3,[data-theme=dark] .organised-settings .behaviour-option strong{color:var(--ink)}
+[data-theme=dark] .section-help,[data-theme=dark] .organised-settings .section-help,[data-theme=dark] .settings-credit,[data-theme=dark] .small-label,[data-theme=dark] .welcome-progress,[data-theme=dark] .welcome-dialog p{color:var(--secondary)}
+[data-theme=dark] #homeLocalitySelect,[data-theme=dark] .settings input[type=search],[data-theme=dark] .welcome-dialog select{background:var(--card);color:var(--ink);border-color:#506985}
+[data-theme=dark] .behaviour-option:hover{background:var(--raised)}
+[data-theme=dark] .organised-settings .behaviour-option+.behaviour-option{border-color:var(--border)}
+[data-theme=dark] .settings-grip{background:#506985}
+[data-theme=dark] .cancel-button,[data-theme=dark] .welcome-secondary,[data-theme=dark] .welcome-consent button{background:var(--surface);color:var(--ink);border-color:#506985}
+[data-theme=dark] .locality-choices{border-color:var(--border)}
+[data-theme=dark] .locality-choice{background:var(--card);color:var(--ink);border-color:var(--border)}
+[data-theme=dark] .locality-choice[aria-pressed=true]{background:var(--raised);box-shadow:inset 4px 0 var(--accent)}
+[data-theme=dark] .locality-choice:hover,[data-theme=dark] .locality-choice:active{background:var(--hover)}
+[data-theme=dark] .calendar-month-navigation button,[data-theme=dark] .calendar-days button{background:var(--surface);color:var(--ink)}
+[data-theme=dark] .calendar-days button:disabled{background:#192536;color:#667c92}
+[data-theme=dark] .calendar-days button[aria-current=date]{border-color:var(--accent)}
+[data-theme=dark] .calendar-days button[aria-pressed=true]{background:#1c68aa;color:#fff}
+[data-theme=dark] .calendar-weekdays,[data-theme=dark] .calendar-footer span{color:var(--secondary)}
+[data-theme=dark] .calendar-footer #calendarToday{background:#1c68aa;border-color:#1c68aa;color:#fff}
+[data-theme=dark] .waste-head{background:var(--surface);border-color:var(--border)}
+[data-theme=dark] .waste-head .close-button{background:var(--raised);border-color:#506985}
+[data-theme=dark] .waste-summary,[data-theme=dark] .time-info-dialog .waste-scroll p,[data-theme=dark] .waste-items li{color:var(--secondary)}
+[data-theme=dark] .waste-list-label,[data-theme=dark] .waste-checked{color:var(--muted)}
+[data-theme=dark] .waste-items section{border-color:var(--border)}
+[data-theme=dark] .waste-note{background:#214437;color:#bfdfce}
+[data-theme=dark] .waste-exclusions{background:#473429;color:#f0c8ac}
+[data-theme=dark] .waste-items li::before{color:#94d5af}
+[data-theme=dark] .waste-source,[data-theme=dark] .settings a,[data-theme=dark] .welcome-help a,[data-theme=dark] .welcome-link{color:var(--accent)}
+[data-theme=dark] .support-modal .coffee-invitation,[data-theme=dark] .support-modal .tip-thanks,[data-theme=dark] .donation-confirm-note,[data-theme=dark] .slider-status{color:var(--secondary)}
+[data-theme=dark] .donation-confirm-amount{color:var(--ink)}
+[data-theme=dark] .donation-slider{background:var(--surface);border-color:#506985}
+[data-theme=dark] .slider-label{color:var(--secondary)}
+[data-theme=dark] .slider-fill{background:#214d40}
+[data-theme=dark] .slider-thumb{background:#285783}
+[data-theme=dark] .slider-ready .slider-thumb{background:#28714e}
+[data-theme=dark] .welcome-mode{background:var(--surface);border-color:#506985;color:var(--secondary)}
+[data-theme=dark] .welcome-mode[aria-pressed=true]{background:var(--raised);border-color:var(--accent)}
+[data-theme=dark] .welcome-choice-mark{background:var(--card);border-color:#839eb8}
+[data-theme=dark] .welcome-mode[aria-pressed=true] .welcome-choice-mark{background:#1c68aa;border-color:var(--accent)}
+[data-theme=dark] .welcome-icon{background:var(--surface);color:#afe1c9}
+[data-theme=dark] .welcome-icon svg{stroke:var(--secondary)}
+[data-theme=dark] .welcome-dialog #welcomeReady .welcome-icon{background:#214d40}
+[data-theme=dark] .welcome-dots i{background:#506985}
+[data-theme=dark] .welcome-dots i.active{background:var(--accent)}
+[data-theme=dark] .welcome-dots i.done{background:#94d5af}
+[data-theme=dark] .welcome-primary,[data-theme=dark] .tip-circle{background:#1c68aa;border-color:#1c68aa;color:#fff}
+[data-theme=dark] .tip-circle:not(:disabled):hover{background:#285783}
+[data-theme=dark] .location-notice{background:#402b2c;border-color:#805152}
+[data-theme=dark] .location-notice strong,[data-theme=dark] .notice-icon{color:#f2b8b5}
+[data-theme=dark] .collection-start-label strong{color:var(--ink)}
+[data-theme=dark] #calendarHelp{color:var(--secondary)}
+[data-theme=dark] input::placeholder{color:var(--secondary);opacity:1}

@@ -2,6 +2,20 @@
   'use strict';
   const data = window.WASTE_DATA;
   const $ = id => document.getElementById(id);
+  const appearanceKey='bag-day-appearance-v1';
+  const darkPreference=window.matchMedia('(prefers-color-scheme: dark)');
+  function applyAppearance(){
+    const saved=localStorage.getItem(appearanceKey);
+    const preference=['light','dark'].includes(saved)?saved:'system';
+    const dark=preference==='dark' || (preference==='system' && darkPreference.matches);
+    document.documentElement.dataset.theme=dark?'dark':'light';
+    document.querySelector('meta[name="theme-color"]').content=dark?'#0b1421':'#edf3f9';
+    $('appearanceSelect').value=preference;
+  }
+  $('appearanceSelect').onchange=()=>{localStorage.setItem(appearanceKey,$('appearanceSelect').value);applyAppearance();};
+  darkPreference.addEventListener('change',applyAppearance);
+  window.addEventListener('storage',e=>{if(e.key===appearanceKey)applyAppearance();});
+  applyAppearance();
   // Show once per tab session; refreshes go directly to the app.
   const splash = $('splashScreen');
   const appContent = $('appContent');
@@ -672,9 +686,10 @@
 
   function setDayNavigationMoving(moving){
     $('dayNavigation').classList.toggle('day-navigation-moving',moving);
-    $('prevDay').disabled=moving || dayOffset===0;
-    $('nextDay').disabled=moving || dayOffset===maxDaysAhead;
+    $('prevDay').disabled=dayOffset===0;
+    $('nextDay').disabled=dayOffset===maxDaysAhead;
     $('dateButton').disabled=moving;
+    $('bagArea').setAttribute('aria-busy',String(moving));
   }
   let calendarMonthIndex=0,calendarWasInert=false;
   const addDays=(date,days)=>{const copy=new Date(date);copy.setUTCDate(copy.getUTCDate()+days);return copy;};
@@ -751,15 +766,20 @@
     if(changingDay || !$('welcomeOverlay').hidden)return;
     const previousOffset=dayOffset;
     const next=Math.max(0,Math.min(maxDaysAhead,dayOffset+delta));
-    const area=$('bagArea'),width=area.clientWidth;
+    const area=$('bagArea'),distance=area.clientWidth+24;
     changingDay=true;setDayNavigationMoving(true);
     if(next===dayOffset){
-      await area.animate([{transform:area.style.transform||'translateX(0)'},{transform:'translateX(0)'}],{duration:reducedMotion()?0:360,easing:'cubic-bezier(.2,.9,.3,1.2)'}).finished;
+      await area.animate([{transform:area.style.transform||'translateX(0)'},{transform:'translateX(0)'}],{duration:reducedMotion()?0:300,easing:'cubic-bezier(.2,.8,.2,1)'}).finished;
+    }else if(reducedMotion()){
+      area.style.transform='';
+      await area.animate([{opacity:1},{opacity:0}],{duration:90,easing:'ease-out'}).finished;
+      dayOffset=next;render();
+      await area.animate([{opacity:0},{opacity:1}],{duration:120,easing:'ease-in'}).finished;
     }else{
-      await area.animate([{transform:area.style.transform||'translateX(0)',opacity:1},{transform:`translateX(${-Math.sign(delta)*width}px)`,opacity:.3}],{duration:reducedMotion()?0:180,easing:'ease-in'}).finished;
+      await area.animate([{transform:area.style.transform||'translateX(0)'},{transform:`translateX(${-Math.sign(delta)*distance}px)`}],{duration:180,easing:'ease-in'}).finished;
       area.style.transform='';dayOffset=next;
       render();
-      await area.animate([{transform:`translateX(${Math.sign(delta)*width}px)`,opacity:.3},{transform:'translateX(0)',opacity:1}],{duration:reducedMotion()?0:260,easing:'cubic-bezier(.2,.8,.2,1)'}).finished;
+      await area.animate([{transform:`translateX(${Math.sign(delta)*distance}px)`},{transform:'translateX(0)'}],{duration:280,easing:'cubic-bezier(.2,.8,.2,1)'}).finished;
     }
     area.style.transform='';changingDay=false;setDayNavigationMoving(false);syncDayNavigationLayout();
     if(previousOffset>0&&dayOffset===0)queueSupportInvitation();
@@ -997,7 +1017,7 @@
       setDayNavigationMoving(true);
       const atEnd=(g.dx>0&&dayOffset===0)||(g.dx<0&&dayOffset===maxDaysAhead);
       const shift=atEnd?Math.sign(g.dx)*Math.min(65,Math.abs(g.dx)*.25):g.dx;
-      $('bagArea').style.transform=`translateX(${shift}px)`;
+      if(!reducedMotion())$('bagArea').style.transform=`translateX(${shift}px)`;
     }else if(g.dy>0){
       const distance=Math.min(g.dy*.6,130);
       pull.style.transform=`translate(-50%,${distance-45}px)`;pull.style.opacity=Math.min(1,g.dy/70);
