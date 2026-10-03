@@ -160,3 +160,8 @@ The home-locality picker now lists all Malta and Gozo localities together in alp
 
 ## Version 1.0.16 — larger locality headings
 Locality headings are another 25% larger than v1.0.15. Long names fit the available width beside the unchanged Home/Auto/Away chip, with font size reduced only when needed to prevent clipping. The title refits when the locality or viewport changes. All other text sizes remain unchanged. Offline cache and assets use v41.
+
+## Version 1.0.17 — complete cumulative release
+This ZIP contains the entire project, including all illustrated icons, timetable and sorting-guide data, live donation and analytics configuration, and the offline service worker. Includes alphabetical localities, the dirty pizza box, larger text and locality headings, the sliding locality/day/date heading, and the collection window wording with the existing information popup. The splash screen, Settings credit, shell asset URLs, offline cache and ZIP filename all identify version 1.0.17.
+
+To install this release: extract the ZIP, copy all files and the icons folder into the existing repository root, and replace existing files. Commit and push with GitHub Desktop. After GitHub Pages completes deployment, reopen or refresh the app.
