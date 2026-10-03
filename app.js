@@ -23,6 +23,7 @@
     splash.hidden = true;
     
     appContent.inert = false;
+    if(welcomeNeeded){openWelcome();return;}
     if (document.activeElement === splash) {
       const target = !$('settingsOverlay').hidden ? $('homeLocalitySelect') : $('settingsButton');
       target.focus({preventScroll:true});
@@ -63,6 +64,105 @@
   let lastGpsAttempt = 0;
 
   let locationFailed = false;
+  // Saved drafts distinguish interrupted first-use setup from existing installs.
+  const welcomeDraftKey='bag-day-welcome-draft-v1';
+  const welcomeCompleteKey='bag-day-welcome-complete-v1';
+  let welcomeDraft=null;
+  try{welcomeDraft=JSON.parse(localStorage.getItem(welcomeDraftKey)||'null');}catch(_){}
+  if(!welcomeDraft || typeof welcomeDraft!=='object' || Array.isArray(welcomeDraft))welcomeDraft=null;
+  let welcomeNeeded=localStorage.getItem(welcomeCompleteKey)!=='true' && (!!welcomeDraft || !selected);
+  if(!welcomeNeeded && selected){localStorage.setItem(welcomeCompleteKey,'true');localStorage.removeItem(welcomeDraftKey);}
+  if(welcomeNeeded){
+    welcomeDraft={step:Math.min(3,Math.max(1,Number(welcomeDraft?.step)||1)),locality:names.includes(welcomeDraft?.locality)?welcomeDraft.locality:'',mode:['auto','home'].includes(welcomeDraft?.mode)?welcomeDraft.mode:null};
+    if(!welcomeDraft.locality)welcomeDraft.step=1;
+    else if(!welcomeDraft.mode && welcomeDraft.step===3)welcomeDraft.step=2;
+    localStorage.setItem(welcomeDraftKey,JSON.stringify(welcomeDraft));
+  }
+  let welcomeBusy=false,welcomeReadyTimer;
+  function saveWelcomeDraft(){localStorage.setItem(welcomeDraftKey,JSON.stringify(welcomeDraft));}
+  function welcomeFocus(){
+    const step=welcomeNeeded?welcomeDraft.step:4;
+    const target=step===1?$('welcomeLocality'):step===2?$('welcomeAuto'):step===3?$('welcomeTitle3'):$('welcomeStart');
+    target.focus({preventScroll:true});
+    $('welcomeDialog').scrollTop=0;
+  }
+  function renderWelcome(){
+    const step=welcomeNeeded?welcomeDraft.step:4;
+    ['welcomeStep1','welcomeStep2','welcomeStep3','welcomeReady'].forEach((id,i)=>$(id).hidden=i+1!==step);
+    $('welcomeDialog').setAttribute('aria-labelledby',['welcomeTitle','welcomeTitle2','welcomeTitle3','welcomeTitle4'][step-1]);
+    $('welcomeProgress').hidden=step===4;
+    $('welcomeStepLabel').textContent=`Step ${step} of 3`;
+    [...document.querySelectorAll('.welcome-dots i')].forEach((dot,i)=>{dot.classList.toggle('active',i+1===step);dot.classList.toggle('done',i+1<step);});
+    $('welcomeNavigation').hidden=step===4;
+    $('welcomeBack').hidden=step===1;
+    $('welcomeNext').hidden=step>=3;
+    $('welcomeNext').disabled=step===1?!welcomeDraft.locality:!welcomeDraft.mode;
+    if(welcomeNeeded){
+      $('welcomeLocality').value=welcomeDraft.locality;
+      $('welcomeAuto').setAttribute('aria-pressed',String(welcomeDraft.mode==='auto'));
+      $('welcomeHome').setAttribute('aria-pressed',String(welcomeDraft.mode==='home'));
+    }
+  }
+  function openWelcome(){
+    if(!welcomeNeeded || !splash.hidden || !$('welcomeOverlay').hidden)return;
+    for(const name of names){const option=document.createElement('option');option.value=name;option.textContent=name;$('welcomeLocality').append(option);}
+    $('analyticsConsent').hidden=true;
+    $('welcomeOverlay').hidden=false;appContent.inert=true;
+    renderWelcome();
+    $('welcomeDialog').animate([{transform:'translateY(22px)',opacity:0},{transform:'translateY(0)',opacity:1}],{duration:reducedMotion()?0:320,easing:'ease-out'});
+    welcomeFocus();detectLocation();
+  }
+  async function moveWelcome(step){
+    if(welcomeBusy || !welcomeNeeded)return;
+    welcomeBusy=true;
+    const direction=step>welcomeDraft.step?1:-1;
+    const body=$('welcomeBody');
+    await body.animate([{opacity:1,transform:'translateX(0)'},{opacity:0,transform:`translateX(${-direction*18}px)`}],{duration:reducedMotion()?0:120}).finished;
+    welcomeDraft.step=step;saveWelcomeDraft();renderWelcome();
+    await body.animate([{opacity:0,transform:`translateX(${direction*18}px)`},{opacity:1,transform:'translateX(0)'}],{duration:reducedMotion()?0:180,easing:'ease-out'}).finished;
+    welcomeBusy=false;welcomeFocus();
+  }
+  function suggestWelcomeLocality(){
+    if(!welcomeNeeded)return;
+    if(!welcomeDraft.locality && detected){welcomeDraft.locality=detected;saveWelcomeDraft();renderWelcome();}
+    $('welcomeGps').textContent=detected?`Your location suggests ${detected}. Choose the locality you call home.`:'Location is unavailable. Choose your home from the list.';
+  }
+  function finishWelcome(allow){
+    if(welcomeBusy || !welcomeNeeded || welcomeDraft.step!==3)return;
+    saveHomeLocality(welcomeDraft.locality);
+    followLocation=welcomeDraft.mode==='auto';temporaryView=null;
+    localStorage.setItem(followLocationKey,String(followLocation));
+    localStorage.setItem(welcomeCompleteKey,'true');localStorage.removeItem(welcomeDraftKey);
+    welcomeNeeded=false;
+    setAnalyticsChoice(allow);render();
+    $('welcomeSummary').textContent=`Home: ${selected} · ${followLocation?'Auto':'Home'} mode. You can change your choices in Settings.`;
+    renderWelcome();welcomeFocus();
+    welcomeReadyTimer=setTimeout(closeWelcome,1800);
+  }
+  function closeWelcome(){
+    if(welcomeNeeded)return;
+    clearTimeout(welcomeReadyTimer);$('welcomeOverlay').hidden=true;appContent.inert=false;$('settingsButton').focus({preventScroll:true});
+  }
+  $('welcomeLocality').onchange=()=>{welcomeDraft.locality=$('welcomeLocality').value;saveWelcomeDraft();renderWelcome();};
+  $('welcomeLocate').onclick=()=>{lastGpsAttempt=0;$('welcomeGps').textContent='Finding your locality…';detectLocation();};
+  for(const mode of ['auto','home'])$(mode==='auto'?'welcomeAuto':'welcomeHome').onclick=()=>{welcomeDraft.mode=mode;saveWelcomeDraft();renderWelcome();};
+  $('welcomeNext').onclick=()=>{
+    if(welcomeDraft.step===1&&welcomeDraft.locality){saveHomeLocality(welcomeDraft.locality);moveWelcome(2);}
+    else if(welcomeDraft.step===2&&welcomeDraft.mode){followLocation=welcomeDraft.mode==='auto';localStorage.setItem(followLocationKey,String(followLocation));moveWelcome(3);}
+  };
+  $('welcomeBack').onclick=()=>moveWelcome(welcomeDraft.step-1);
+  $('welcomeAllow').onclick=()=>finishWelcome(true);
+  $('welcomeDecline').onclick=()=>finishWelcome(false);
+  $('welcomeStart').onclick=closeWelcome;
+  $('welcomeOverlay').addEventListener('keydown',e=>{
+    if(e.key==='Escape'){e.preventDefault();if(!welcomeNeeded)closeWelcome();return;}
+    if(e.key!=='Tab')return;
+    const nodes=[...$('welcomeDialog').querySelectorAll('button,select,a[href]')].filter(n=>!n.disabled&&n.getClientRects().length);
+    const first=nodes[0],last=nodes[nodes.length-1];
+    if(e.shiftKey&&(document.activeElement===first || !nodes.includes(document.activeElement))){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  });
+
   let analyticsReady = false;
   const analyticsConsentKey='bag-day-analytics-consent-v1';
   let analyticsLoading=false,analyticsId='';
@@ -283,7 +383,7 @@
       const id=String(cfg.Measurement_ID||'').trim();
       if(!/^G-[A-Z0-9]+$/i.test(id) || id==='G-XXXXXXXXXX') return;
       if(!analyticsAllowed()){
-        $('analyticsConsent').hidden=localStorage.getItem(analyticsConsentKey)==='denied';
+        $('analyticsConsent').hidden=welcomeNeeded || localStorage.getItem(analyticsConsentKey)==='denied';
         return;
       }
       analyticsLoading=true;analyticsId=id;window['ga-disable-'+id]=false;
@@ -347,7 +447,7 @@
   }
   function supportCanOpen(){
     return selected&&donationUrl&&!supportIsHidden()&&splash.hidden&&!document.hidden&&
-      ['settingsOverlay','supportOverlay','wasteOverlay','timeOverlay'].every(id=>$(id).hidden);
+      ['settingsOverlay','supportOverlay','wasteOverlay','timeOverlay','welcomeOverlay'].every(id=>$(id).hidden);
   }
   function maybeShowSupport(){
     supportInvitationTimer=null;
@@ -540,7 +640,7 @@
   const reducedMotion=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   let changingDay=false, suppressTapUntil=0;
   async function changeDay(delta) {
-    if(changingDay)return;
+    if(changingDay || !$('welcomeOverlay').hidden)return;
     const previousOffset=dayOffset;
     const next=Math.max(0,Math.min(maxDaysAhead,dayOffset+delta));
     const area=$('bagArea'),width=area.clientWidth;
@@ -581,7 +681,7 @@
 
   let settingsClosing=false, settingsOpener=null;
   function openSettings(){
-    if(settingsClosing||!$('settingsOverlay').hidden)return;
+    if(welcomeNeeded || !$('welcomeOverlay').hidden || settingsClosing||!$('settingsOverlay').hidden)return;
     settingsOpener=document.activeElement;
     $('settingsOverlay').hidden=false;
     document.querySelector('main.app').inert=true;
@@ -618,7 +718,7 @@
     return null;
   }
 
-  function detectionUnavailable() {locationFailed=true;}
+  function detectionUnavailable() {locationFailed=true;suggestWelcomeLocality();}
   function detectLocation() {
     if(!navigator.geolocation){detectionUnavailable();return;}
     if(Date.now()-lastGpsAttempt<60000)return;
@@ -638,7 +738,8 @@
         locationFailed=false;
         // GPS may establish a home only before a home has been saved.
         // A manual choice made while GPS was pending always wins.
-        if(!selected)saveHomeLocality(detected);
+        if(welcomeNeeded)suggestWelcomeLocality();
+        else if(!selected)saveHomeLocality(detected);
         render();
       }catch(_){detectionUnavailable();}
     },detectionUnavailable,{enableHighAccuracy:false,timeout:10000,maximumAge:300000});
@@ -769,11 +870,11 @@
   }
   panel.addEventListener('touchend',()=>finishSettingsGesture(),{passive:true});
   panel.addEventListener('touchcancel',()=>finishSettingsGesture(true),{passive:true});
-  document.addEventListener('keydown',e=>{if(!splash.hidden)return;if(!$('timeOverlay').hidden){timeInfoKeydown(e);return;}if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();if(e.key==='Tab'){const nodes=[...$('settingsDialog').querySelectorAll('button:not([hidden]),select,input')].filter(n=>!n.disabled);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
+  document.addEventListener('keydown',e=>{if(!splash.hidden || !$('welcomeOverlay').hidden)return;if(!$('timeOverlay').hidden){timeInfoKeydown(e);return;}if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();if(e.key==='Tab'){const nodes=[...$('settingsDialog').querySelectorAll('button:not([hidden]),select,input')].filter(n=>!n.disabled);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadDonation();detectLocation();}});
   setInterval(()=>{if(dayOffset===0&&!homeGesture&&!changingDay)render();},60000);
   setInterval(()=>{
-    if(homeGesture||changingDay||document.hidden||!splash.hidden||!$('settingsOverlay').hidden||!$('supportOverlay').hidden||!$('wasteOverlay').hidden||!$('timeOverlay').hidden||reducedMotion())return;
+    if(homeGesture||changingDay||document.hidden||!splash.hidden||!$('settingsOverlay').hidden||!$('supportOverlay').hidden||!$('wasteOverlay').hidden||!$('timeOverlay').hidden||!$('welcomeOverlay').hidden||reducedMotion())return;
     const figures=document.querySelector('.collection-figures');if(!figures)return;
     figures.classList.remove('tap-demo');void figures.offsetWidth;figures.classList.add('tap-demo');
   },10000);
@@ -788,6 +889,7 @@
   render();
   loadDonation();
   loadAnalytics();
-  if(!selected)openSettings();detectLocation();
+  if(welcomeNeeded){if(splash.hidden)openWelcome();}
+  else detectLocation();
   if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 })();

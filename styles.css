@@ -362,3 +362,22 @@ html,body{height:100%;overflow:hidden}
 .collection-card{padding-top:160px}
 @media(max-height:650px){.collection-date #title{font-size:1.75rem}.collection-card{padding-top:119px}}
 @media(max-height:360px){.collection-date #title{font-size:1.484375rem}.collection-card{padding-top:91px}}
+
+/* First-use welcome wizard */
+.welcome-overlay{z-index:25;display:grid;place-items:center;padding:20px;background:#12345375;backdrop-filter:blur(8px);overflow:auto}
+.welcome-dialog{width:min(100%,460px);max-height:calc(100dvh - 40px);overflow:auto;background:#fff;border-radius:28px;padding:28px;box-shadow:0 24px 80px #12345338}
+.welcome-brand{font-weight:850;font-size:1.05rem}.welcome-brand>span{font-weight:500;color:#59738b}
+.welcome-progress{display:flex;align-items:center;justify-content:space-between;margin:22px 0;color:#54738e;font-size:.8rem;font-weight:750}
+.welcome-dots{display:flex;gap:7px}.welcome-dots i{width:8px;height:8px;border-radius:99px;background:#dceaf3;transition:background .2s,width .2s}.welcome-dots i.active{background:#126db2;width:24px}.welcome-dots i.done{background:#376b51}
+.welcome-icon{display:grid;place-items:center;width:62px;height:62px;border-radius:20px;background:#edf5fc;font-size:2rem;margin-bottom:18px;color:#376b51}
+.welcome-dialog h2{font-size:1.8rem;line-height:1.13;letter-spacing:-.035em;margin:0 0 12px}.welcome-dialog p{line-height:1.55;color:#526b7e;margin:0 0 20px}
+.welcome-field{display:block;font-size:.84rem;font-weight:750;margin:22px 0 8px}.welcome-dialog select{font:inherit;width:100%;padding:14px 12px;border:1px solid #cbdce9;border-radius:12px;background:#f6f9fc;color:#123453}
+.welcome-dialog .welcome-help{font-size:.8rem;margin:14px 0;line-height:1.5}.welcome-help a,.welcome-link{color:#126db2}.welcome-link{border:0;background:transparent;padding:5px 0;font-weight:750;text-decoration:underline;text-underline-offset:3px}
+.welcome-navigation{display:flex;gap:12px;margin-top:26px}.welcome-primary,.welcome-secondary,.welcome-consent button{border:1px solid #126db2;border-radius:12px;padding:13px 18px;font-weight:750;min-height:48px}.welcome-primary{background:#126db2;color:#fff;flex:1}.welcome-primary:disabled{opacity:.4;cursor:default}.welcome-secondary{background:white;color:#126db2}
+.welcome-modes{display:grid;gap:12px}.welcome-mode{display:flex;align-items:center;gap:14px;text-align:left;border:2px solid #e3edf5;border-radius:16px;padding:16px;background:#f9fbfd;color:#526b7e;font-size:.9rem;line-height:1.4}.welcome-mode[aria-pressed=true]{border-color:#126db2;background:#edf5fc}.welcome-mode .mode-chip{font-size:.825rem;padding:5px 7px}
+.welcome-consent{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}.welcome-consent button{background:#edf5fc;color:#126db2}.welcome-dialog #welcomeReady{text-align:center}.welcome-dialog #welcomeReady .welcome-icon{margin:20px auto;background:#d9eee4}
+@media(max-width:360px){.welcome-overlay{padding:12px}.welcome-dialog{padding:22px;max-height:calc(100dvh - 24px)}.welcome-dialog h2{font-size:1.6rem}.welcome-mode .mode-chip{font-size:.737rem}.welcome-consent button{padding:12px 8px;font-size:.88rem}}
+@media(prefers-reduced-motion:reduce){.welcome-dots i{transition:none}}
+.welcome-icon svg{width:30px;height:30px;fill:none;stroke:#436984;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media(max-height:650px){.welcome-dialog{padding:20px}.welcome-progress{margin:14px 0}.welcome-icon{width:44px;height:44px;margin-bottom:12px;border-radius:14px}.welcome-icon svg{width:25px;height:25px}.welcome-dialog h2{font-size:1.45rem}.welcome-dialog p{font-size:.88rem;line-height:1.4;margin-bottom:14px}.welcome-dialog .welcome-help{font-size:.75rem;line-height:1.4;margin:12px 0}.welcome-navigation{margin-top:16px}.welcome-consent{margin-top:16px}.welcome-mode{padding:12px}.welcome-dialog #welcomeReady .welcome-icon{margin-top:12px}}
+@media(max-height:600px){#welcomeStep3>.welcome-icon{display:none}}
