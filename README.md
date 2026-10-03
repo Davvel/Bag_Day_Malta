@@ -151,3 +151,6 @@ Mixed-waste artwork now shows a grease-stained pizza box. The day and date are c
 
 ## Version 1.0.13 — a single sliding card
 Locality and location-mode chip are centred inside the card above the day and date. The whole heading moves with the bag and collection times during touch swipes and day transitions. The location-mode chip remains interactive. The app header, navigation arrows and support banner stay fixed. Offline assets use cache v38.
+
+## Version 1.0.14 — larger, clearer text
+Compared with v1.0.13, locality text increases 25%; the location chip, day, date, put-out instruction, collection line and information icon increase 10%; the permitted time window increases 15%. Waste label, bag artwork and support banner stay the same. The hint now reads “Tap bag for info”. Compact screen sizes receive the same proportional increases. The heading still moves with the card and the existing information popup remains available. Offline cache and shell assets use v39.

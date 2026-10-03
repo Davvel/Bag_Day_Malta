@@ -1,5 +1,5 @@
-const CACHE='bag-day-malta-2026-10-v38';
-const ASSETS=['./','./index.html','./styles.css?v=38','./data.js?v=38','./app.js?v=38','./waste-guide.js?v=38','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/glass-carrier.svg','./icons/zejtunsoft-profile.png'];
+const CACHE='bag-day-malta-2026-10-v39';
+const ASSETS=['./','./index.html','./styles.css?v=39','./data.js?v=39','./app.js?v=39','./waste-guide.js?v=39','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/glass-carrier.svg','./icons/zejtunsoft-profile.png'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{

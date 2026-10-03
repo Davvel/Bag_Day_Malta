@@ -343,3 +343,16 @@ html,body{height:100%;overflow:hidden}
 .collection-card{padding-top:134px}
 @media(max-height:650px){.collection-date{top:12px;gap:4px}.collection-date .locality-heading{margin-bottom:0}.collection-date #title{font-size:1.12rem}.collection-date .mode-chip{font-size:.67rem;padding:4px 5px}.collection-card{padding-top:98px}}
 @media(max-height:360px){.collection-date{top:7px;gap:2px}.collection-date #title{font-size:.95rem}.collection-date .mode-chip{font-size:.6rem;padding:3px 4px}.collection-card{padding-top:74px}}
+
+/* v39: user-selected increases from the v38 font sizes. */
+.collection-date #title{font-size:clamp(1.4375rem,6.25vw,1.875rem)}
+.collection-date .mode-chip{font-size:.825rem}
+.collection-date .today-pill{font-size:clamp(1.595rem,6.6vw,2.09rem)}
+.collection-date #date{font-size:clamp(1.045rem,4.18vw,1.265rem)}
+.collection-card{padding-top:150px}
+.put-out-instruction>span{font-size:.968rem}
+.put-out-instruction>strong{font-size:clamp(1.0005rem,4.14vw,1.265rem)}
+.collection-timing .collection-time-button>.collection-start-label{font-size:clamp(.858rem,3.63vw,1.078rem)}
+.collection-timing .info-circle{width:23.1px;height:23.1px;font-size:.902rem}
+@media(max-height:650px){.collection-date #title{font-size:1.4rem}.collection-date .mode-chip{font-size:.737rem}.collection-date .today-pill{font-size:1.375rem}.collection-date #date{font-size:.935rem}.collection-card{padding-top:111px}.put-out-instruction>span{font-size:.825rem}.put-out-instruction>strong{font-size:.989rem}.collection-timing .collection-time-button>.collection-start-label{font-size:.836rem}}
+@media(max-height:360px){.collection-date #title{font-size:1.1875rem}.collection-date .mode-chip{font-size:.66rem}.collection-date .today-pill{font-size:1.1rem}.collection-date #date{font-size:.825rem}.collection-card{padding-top:85px}.put-out-instruction>span{font-size:.715rem}.put-out-instruction>strong{font-size:.8625rem}.collection-timing .collection-time-button>.collection-start-label{font-size:.715rem}.collection-timing .info-circle{width:18.7px;height:18.7px;font-size:.77rem}}
