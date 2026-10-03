@@ -1,0 +1,3 @@
+# Optional game switch. Change true to false, then commit and push this file.
+# The collection app remains independent; /game/ can subsequently be deleted.
+Game_Enabled=true

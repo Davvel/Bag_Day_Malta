@@ -264,7 +264,7 @@
     recordSupportUsage();
     const now=performance.now();
     if(supportActiveStamp!==null)supportActiveElapsed+=Math.max(0,now-supportActiveStamp);
-    const active=selected && !welcomeNeeded && splash.hidden && !document.hidden && supportInvitationEligible();
+    const active=selected && !welcomeNeeded && splash.hidden && !appContent.inert && !document.hidden && supportInvitationEligible();
     supportActiveStamp=active?now:null;
     if(!supportInvitationEligible())supportActiveElapsed=0;
     if(active && supportActiveElapsed>=60000)maybeShowSupport();
@@ -473,7 +473,7 @@
     $('closeSupport').setAttribute('aria-label',c.closeSupport);
   }
   function supportCanOpen(){
-    return selected&&donationUrl&&splash.hidden&&!document.hidden&&
+    return selected&&donationUrl&&splash.hidden&&!appContent.inert&&!document.hidden&&
       ['settingsOverlay','supportOverlay','wasteOverlay','timeOverlay','welcomeOverlay','calendarOverlay','localityOverlay'].every(id=>$(id).hidden);
   }
   function maybeShowSupport(){
