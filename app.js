@@ -488,6 +488,9 @@
     document.body.style.overflow='hidden';
     chosenTip=null;checkoutOpening=false;resetSlider();
     $('supportChoice').hidden=false;$('supportConfirm').hidden=true;
+    $('supportTitle').hidden=false;$('supportCoffee').hidden=false;
+    $('supportDialog').setAttribute('aria-labelledby','supportTitle');
+    $('supportDialog').setAttribute('aria-describedby','supportIntro');
     renderSupport();renderDonation();
     $('supportOverlay').hidden=false;document.querySelector('main.app').inert=true;
     if(automatic)localStorage.setItem(supportLastShownKey,String(Date.now()));
@@ -516,7 +519,7 @@
     slider.style.setProperty('--slider-x',`${travel*sliderValue/100}px`);
     slider.style.setProperty('--slider-progress',`${sliderValue}%`);
     slider.setAttribute('aria-valuenow',String(Math.round(sliderValue)));
-    slider.setAttribute('aria-valuetext',sliderValue>=95?'Ready. Release to open Stripe.':`${Math.round(sliderValue)} percent`);
+    slider.setAttribute('aria-valuetext',sliderValue>=95?'Ready. Release to open the card payment page.':`${Math.round(sliderValue)} percent`);
     slider.classList.toggle('slider-ready',sliderValue>=95);
   }
   function resetSlider(){
@@ -527,9 +530,12 @@
     if($('supportOverlay').hidden||!donationUrl)return;
     chosenTip=amount;resetSlider();
     $('supportChoice').hidden=true;$('supportConfirm').hidden=false;
+    $('supportTitle').hidden=true;$('supportCoffee').hidden=true;
+    $('supportDialog').setAttribute('aria-labelledby','confirmAmount');
+    $('supportDialog').setAttribute('aria-describedby','donationConfirmNote');
     $('confirmAmount').textContent=`Your tip: €${amount}`;
-    $('sliderLabel').textContent=`Slide to continue · €${amount}`;
-    $('donationSlider').setAttribute('aria-label',`Slide to continue to Stripe for a €${amount} donation`);
+    $('sliderLabel').textContent='Slide to go to card payment page';
+    $('donationSlider').setAttribute('aria-label','Slide to go to card payment page');
     $('donationSlider').focus({preventScroll:true});
     analyticsEvent('donation_amount_selected',{language,amount});
   }
@@ -962,7 +968,6 @@
   $('donationCard').addEventListener('click',()=>openSupport());
   $('closeSupport').onclick=closeSupport;
   $('dismissSupport').onclick=closeSupport;
-  $('cancelDonation').onclick=closeSupport;
   $('supportOverlay').onclick=e=>{if(e.target===$('supportOverlay'))closeSupport();};
   tipAmounts.forEach(amount=>$(`tip${amount}`).onclick=()=>chooseTip(amount));
   const slider=$('donationSlider');
@@ -988,7 +993,7 @@
     else if(e.key==='Home'){e.preventDefault();resetSlider();}
     else if(e.key==='End'){e.preventDefault();setSlider(100);}
     else if((e.key==='Enter'||e.key===' ')&&sliderValue>=95){e.preventDefault();completeDonation();}
-    $('sliderStatus').textContent=sliderValue>=95?'Press Enter to continue to Stripe.':'';
+    $('sliderStatus').textContent=sliderValue>=95?'Press Enter to open the card payment page.':'';
   });
   window.addEventListener('resize',()=>{if(!$('supportConfirm').hidden)resetSlider();});
   window.addEventListener('storage',e=>{
