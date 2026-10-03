@@ -554,3 +554,6 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 [data-theme=dark] .collection-start-label strong{color:var(--ink)}
 [data-theme=dark] #calendarHelp{color:var(--secondary)}
 [data-theme=dark] input::placeholder{color:var(--secondary);opacity:1}
+
+/* v1.0.29: clearer dark modal surfaces, retaining both existing backdrops and light styling. */
+:root[data-theme=dark] .overlay > :is(.settings,.calendar-dialog,.welcome-dialog,.waste-dialog){background:#2a3b50;border:1px solid #637b94;box-shadow:0 24px 72px #00000070,0 6px 18px #00000040}

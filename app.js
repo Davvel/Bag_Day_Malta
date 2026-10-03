@@ -3,17 +3,15 @@
   const data = window.WASTE_DATA;
   const $ = id => document.getElementById(id);
   const appearanceKey='bag-day-appearance-v1';
-  const darkPreference=window.matchMedia('(prefers-color-scheme: dark)');
   function applyAppearance(){
     const saved=localStorage.getItem(appearanceKey);
-    const preference=['light','dark'].includes(saved)?saved:'system';
-    const dark=preference==='dark' || (preference==='system' && darkPreference.matches);
+    const preference=saved==='light'?'light':'dark';
+    const dark=preference==='dark';
     document.documentElement.dataset.theme=dark?'dark':'light';
     document.querySelector('meta[name="theme-color"]').content=dark?'#0b1421':'#edf3f9';
     $('appearanceSelect').value=preference;
   }
   $('appearanceSelect').onchange=()=>{localStorage.setItem(appearanceKey,$('appearanceSelect').value);applyAppearance();};
-  darkPreference.addEventListener('change',applyAppearance);
   window.addEventListener('storage',e=>{if(e.key===appearanceKey)applyAppearance();});
   applyAppearance();
   // Show once per tab session; refreshes go directly to the app.
