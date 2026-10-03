@@ -177,3 +177,6 @@ New installs use a three-step animated modal: confirm home locality (GPS suggest
 
 ## Version 1.0.21 — one analytics consent prompt
 Removed the old analytics consent banner, its click handlers and its styles. First-use analytics consent is requested only in step 3 of the welcome wizard. No thanks appears on the left and Allow analytics on the right, with equal visual prominence. Either answer is saved and remains editable in Settings. No separate analytics migration prompt is shown. Splash, Settings, cache and shell URLs identify 1.0.21.
+
+## Version 1.0.22 — clearer day navigation
+Navigation buttons now sit beneath the date and show the full names of the neighbouring weekdays, alongside directional arrows. Their accessible labels include the destination date. Today and the 30-day limit remain enforced. A first-use callout highlights the next-day button and explains how to see tomorrow’s bag; the first successful day change by button, swipe or keyboard dismisses it permanently in local storage. It appears after the welcome wizard or splash, and honours reduced-motion preferences. Header spacing is measured to avoid overlap; short landscape screens show the heading and navigation beside the bag. Splash, Settings, cache and shell URLs identify 1.0.22.

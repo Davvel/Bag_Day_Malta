@@ -2,6 +2,7 @@
   'use strict';
   const data = window.WASTE_DATA;
   const $ = id => document.getElementById(id);
+  const dayNavigationSeenKey='bag-day-navigation-used-v1';
   // Show once per tab session; refreshes go directly to the app.
   const splash = $('splashScreen');
   const appContent = $('appContent');
@@ -23,6 +24,7 @@
     splash.hidden = true;
     
     appContent.inert = false;
+    renderDayNavigationHint();
     if(welcomeNeeded){openWelcome();return;}
     if (document.activeElement === splash) {
       const target = !$('settingsOverlay').hidden ? $('homeLocalitySelect') : $('settingsButton');
@@ -140,7 +142,7 @@
   }
   function closeWelcome(){
     if(welcomeNeeded)return;
-    clearTimeout(welcomeReadyTimer);$('welcomeOverlay').hidden=true;appContent.inert=false;$('settingsButton').focus({preventScroll:true});
+    clearTimeout(welcomeReadyTimer);$('welcomeOverlay').hidden=true;appContent.inert=false;$('settingsButton').focus({preventScroll:true});renderDayNavigationHint();
   }
   $('welcomeLocality').onchange=()=>{welcomeDraft.locality=$('welcomeLocality').value;saveWelcomeDraft();renderWelcome();};
   $('welcomeLocate').onclick=()=>{lastGpsAttempt=0;$('welcomeGps').textContent='Finding your locality…';detectLocation();};
@@ -615,6 +617,16 @@
     fitLocalityTitle();
     $('prevDay').disabled=dayOffset===0;
     $('nextDay').disabled=dayOffset===maxDaysAhead;
+    for(const [delta,id,label] of [[-1,'previousDayName','Previous day'],[1,'nextDayName','Next day']]){
+      const neighbour=new Date(date);neighbour.setUTCDate(neighbour.getUTCDate()+delta);
+      const weekday=new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(neighbour);
+      $(id).textContent=weekday;
+      const button=$(delta<0?'prevDay':'nextDay');
+      button.setAttribute('aria-label',`${label}: ${new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(neighbour)}`);
+      button.title=button.disabled?(delta<0?'You are viewing Today':'You can look up to 30 days ahead'):button.getAttribute('aria-label');
+    }
+    renderDayNavigationHint();
+    requestAnimationFrame(syncDayNavigationLayout);
     const schedule=scheduleFor(date);
     if(!schedule.bag){
       $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">${c.noCollection}</div></div>`;
@@ -630,6 +642,21 @@
   }
 
 
+  function renderDayNavigationHint(){
+    const show=!welcomeNeeded && $('welcomeOverlay').hidden && splash.hidden && dayOffset===0 && !localStorage.getItem(dayNavigationSeenKey);
+    $('dayNavigationHint').hidden=!show;
+    $('nextDay').classList.toggle('navigation-coach',show);
+    if(show)$('nextDay').setAttribute('aria-describedby','dayNavigationHint');
+    else $('nextDay').removeAttribute('aria-describedby');
+  }
+  function syncDayNavigationLayout(){
+    const heading=document.querySelector('.collection-date');
+    if($('dashboard').hidden)return;
+    const top=heading.offsetTop+heading.offsetHeight+8;
+    $('collectionStage').style.setProperty('--day-navigation-top',`${top}px`);
+    $('collectionStage').style.setProperty('--day-card-heading-space',`${top+54}px`);
+  }
+
   const reducedMotion=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   let changingDay=false, suppressTapUntil=0;
   async function changeDay(delta) {
@@ -642,7 +669,8 @@
       await area.animate([{transform:area.style.transform||'translateX(0)'},{transform:'translateX(0)'}],{duration:reducedMotion()?0:360,easing:'cubic-bezier(.2,.9,.3,1.2)'}).finished;
     }else{
       await area.animate([{transform:area.style.transform||'translateX(0)',opacity:1},{transform:`translateX(${-delta*width}px)`,opacity:.3}],{duration:reducedMotion()?0:180,easing:'ease-in'}).finished;
-      area.style.transform='';dayOffset=next;render();
+      area.style.transform='';dayOffset=next;
+      localStorage.setItem(dayNavigationSeenKey,'true');render();
       await area.animate([{transform:`translateX(${delta*width}px)`,opacity:.3},{transform:'translateX(0)',opacity:1}],{duration:reducedMotion()?0:260,easing:'cubic-bezier(.2,.8,.2,1)'}).finished;
     }
     area.style.transform='';changingDay=false;
@@ -873,7 +901,7 @@
   },10000);
   function syncViewport(){
     const height=window.visualViewport?.height||window.innerHeight;
-    requestAnimationFrame(fitLocalityTitle);
+    requestAnimationFrame(()=>{fitLocalityTitle();syncDayNavigationLayout();});
     if(height)document.documentElement.style.setProperty('--app-height',`${height}px`);
   }
   syncViewport();
