@@ -79,6 +79,44 @@
     localStorage.setItem(welcomeDraftKey,JSON.stringify(welcomeDraft));
   }
   let welcomeBusy=false,welcomeReadyTimer;
+  let welcomeChoiceTimer=null,welcomeChoiceAnimation=null,welcomeChoiceCueShown=false;
+  function stopWelcomeChoiceCue(){
+    clearTimeout(welcomeChoiceTimer);welcomeChoiceTimer=null;
+    welcomeChoiceAnimation?.cancel();welcomeChoiceAnimation=null;
+    $('welcomeChoiceHand').hidden=true;
+  }
+  function queueWelcomeChoiceCue(){
+    if(!welcomeNeeded || welcomeDraft.step!==2 || welcomeDraft.mode || welcomeBusy || document.hidden || $('welcomeOverlay').hidden){stopWelcomeChoiceCue();return;}
+    if(welcomeChoiceTimer || welcomeChoiceCueShown)return;
+    welcomeChoiceTimer=setTimeout(()=>{
+      welcomeChoiceTimer=null;
+      if(!welcomeNeeded || welcomeDraft.step!==2 || welcomeDraft.mode || document.hidden)return;
+      welcomeChoiceCueShown=true;
+      const hand=$('welcomeChoiceHand');hand.hidden=false;
+      hand.classList.toggle('still-hand',!!reducedMotion());
+      if(reducedMotion()){hand.style.left='';hand.style.top='';return;}
+      const group=$('welcomeModes').getBoundingClientRect();
+      const auto=$('welcomeAuto').querySelector('.welcome-choice-mark').getBoundingClientRect();
+      const home=$('welcomeHome').querySelector('.welcome-choice-mark').getBoundingClientRect();
+      hand.style.left=`${auto.left-group.left+auto.width/2-17}px`;
+      hand.style.top=`${auto.top-group.top+auto.height/2-8}px`;
+      const distance=home.top-auto.top;
+      welcomeChoiceAnimation=hand.animate([
+        {opacity:0,transform:'translateY(12px)',offset:0},
+        {opacity:1,transform:'translateY(0)',offset:.12},
+        {opacity:1,transform:'translateY(-5px) scale(.92)',offset:.24},
+        {opacity:1,transform:'translateY(0)',offset:.34},
+        {opacity:1,transform:`translateY(${distance}px)`,offset:.60},
+        {opacity:1,transform:`translateY(${distance-5}px) scale(.92)`,offset:.72},
+        {opacity:1,transform:`translateY(${distance}px)`,offset:.82},
+        {opacity:0,transform:`translateY(${distance+12}px)`,offset:1}
+      ],{duration:2600,easing:'ease-in-out',fill:'forwards'});
+      welcomeChoiceAnimation.finished.then(()=>{hand.hidden=true;welcomeChoiceAnimation=null;}).catch(()=>{});
+    },3000);
+  }
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopWelcomeChoiceCue();else queueWelcomeChoiceCue();});
+  window.addEventListener('resize',stopWelcomeChoiceCue);
+
   function saveWelcomeDraft(){localStorage.setItem(welcomeDraftKey,JSON.stringify(welcomeDraft));}
   function welcomeFocus(){
     const step=welcomeNeeded?welcomeDraft.step:4;
@@ -102,6 +140,7 @@
       $('welcomeAuto').setAttribute('aria-pressed',String(welcomeDraft.mode==='auto'));
       $('welcomeHome').setAttribute('aria-pressed',String(welcomeDraft.mode==='home'));
     }
+    queueWelcomeChoiceCue();
   }
   function openWelcome(){
     if(!welcomeNeeded || !splash.hidden || !$('welcomeOverlay').hidden)return;
@@ -113,13 +152,13 @@
   }
   async function moveWelcome(step){
     if(welcomeBusy || !welcomeNeeded)return;
-    welcomeBusy=true;
+    welcomeBusy=true;stopWelcomeChoiceCue();
     const direction=step>welcomeDraft.step?1:-1;
     const body=$('welcomeBody');
     await body.animate([{opacity:1,transform:'translateX(0)'},{opacity:0,transform:`translateX(${-direction*18}px)`}],{duration:reducedMotion()?0:120}).finished;
     welcomeDraft.step=step;saveWelcomeDraft();renderWelcome();
     await body.animate([{opacity:0,transform:`translateX(${direction*18}px)`},{opacity:1,transform:'translateX(0)'}],{duration:reducedMotion()?0:180,easing:'ease-out'}).finished;
-    welcomeBusy=false;welcomeFocus();
+    welcomeBusy=false;welcomeFocus();queueWelcomeChoiceCue();
   }
   function suggestWelcomeLocality(){
     if(!welcomeNeeded)return;
@@ -611,9 +650,8 @@
     $('date').setAttribute('datetime',date.toISOString().slice(0,10));
     $('todayPill').hidden=false;
     const weekday=new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date);
-    $('todayPill').innerHTML=`${dayOffset<2?`<small>${dayOffset===0?'Today':'Tomorrow'}</small>`:''}<span>${weekday}</span>`;
-    $('backToToday').hidden=dayOffset===0;
-    $('todayPill').setAttribute('aria-label',`${dayOffset===0?'Today':dayOffset===1?'Tomorrow':`In ${dayOffset} days`}, ${weekday}`);
+    $('todayPill').textContent=dayOffset===0?'Today':weekday;
+    $('todayPill').setAttribute('aria-label',dayOffset===0?'Today':weekday);
     renderLocationMode();
     fitLocalityTitle();
     $('prevDay').disabled=dayOffset===0;
@@ -629,7 +667,7 @@
     requestAnimationFrame(syncDayNavigationLayout);
     const schedule=scheduleFor(date);
     if(!schedule.bag){
-      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">${c.noCollection}</div></div>`;
+      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div></div>`;
     }else{
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
       const figures=`<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="bag-click-hint">Tap bag for info</span><span class="collection-item-label">${c[schedule.bag]}</span></div>${schedule.glass?`<div class="collection-item">${bagButton('glass',c.glassBottles)}<span class="bag-click-hint">Tap bag for info</span><span class="collection-item-label">${c.glassBottles}</span></div>`:''}</div>`;
@@ -654,7 +692,6 @@
     $('prevDay').disabled=moving || dayOffset===0;
     $('nextDay').disabled=moving || dayOffset===maxDaysAhead;
     $('dateButton').disabled=moving;
-    $('backToToday').disabled=moving;
   }
   let calendarMonthIndex=0,calendarWasInert=false;
   const addDays=(date,days)=>{const copy=new Date(date);copy.setUTCDate(copy.getUTCDate()+days);return copy;};
@@ -864,7 +901,6 @@
   $('closeSettings').onclick=closeSettings;
   $('cancelSettings').onclick=closeSettings;
   $('homeLocalitySelect').onchange=()=>saveHomeLocality($('homeLocalitySelect').value);
-  $('backToToday').onclick=()=>changeDay(-dayOffset);
   $('prevDay').onclick=()=>changeDay(-1);
   $('nextDay').onclick=()=>changeDay(1);
   $('donationCard').addEventListener('click',()=>openSupport());
