@@ -428,7 +428,7 @@
     return {text:`${hour%12||12}:${String(minute).padStart(2,'0')}`,period:hour<12?'AM':'PM'};
   };
   const timeMarkup = value => {const time=compactTime(value);return `${time.text}<small>${time.period}</small>`;};
-  const clockIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>';
+  const truckIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h11v12H3zM14 9h4l3 4v4h-7"/><path d="M18 9v4h3"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>';
   let timeReturnFocus=null;
   function openTimeInfo(trigger){
     timeReturnFocus=trigger;
@@ -466,11 +466,11 @@
     $('title').textContent=locality;
     $('title').title=locality;
     const fullDate=new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(date);
-    $('date').textContent=new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}).format(date);
+    $('date').textContent=new Intl.DateTimeFormat('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}).format(date);
     $('date').title=fullDate;$('date').setAttribute('aria-label',fullDate);
     $('date').setAttribute('datetime',date.toISOString().slice(0,10));
     $('todayPill').hidden=false;
-    $('todayPill').textContent=dayOffset===0?'Today':dayOffset===1?'Tomorrow':`+${dayOffset}d`;
+    $('todayPill').textContent=dayOffset===0?'Today':dayOffset===1?'Tomorrow':new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date);
     $('todayPill').setAttribute('aria-label',dayOffset===0?'Today':dayOffset===1?'Tomorrow':`In ${dayOffset} days`);
     renderLocationMode();
     $('prevDay').disabled=dayOffset===0;
@@ -481,7 +481,7 @@
     }else{
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
       const figures=`<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="bag-click-hint">Click Bag for Info</span><span class="collection-item-label">${c[schedule.bag]}</span></div>${schedule.glass?`<div class="collection-item">${bagButton('glass',c.glassBottles)}<span class="bag-click-hint">Click Bag for Info</span><span class="collection-item-label">${c.glassBottles}</span></div>`:''}</div>`;
-      $('bagArea').innerHTML=`<div class="collection-card">${figures}<div class="compact-time-line"><button type="button" class="collection-time-button" data-time-info aria-label="Collection time ${time}. More information">${clockIcon}<span>${timeMarkup(time)}</span><span class="info-circle" aria-hidden="true">i</span></button><span class="time-divider" aria-hidden="true">·</span><span class="earliest-time" aria-label="Put bags out from ${formatTime(time)}"><span class="earliest-label">Out from</span> ${timeMarkup(formatTime(time))}</span></div></div>`;
+      $('bagArea').innerHTML=`<div class="collection-card">${figures}<div class="collection-timing"><div class="put-out-instruction"><span>Put your bag outside</span><strong>between <span class="time-value">${timeMarkup(formatTime(time))}</span> and <span class="time-value">${timeMarkup(time)}</span></strong></div><button type="button" class="collection-time-button" data-time-info aria-label="Collection starts at ${compactTime(time).text} ${compactTime(time).period}. More information">${truckIcon}<span class="collection-start-label">Collection starts at <strong>${timeMarkup(time)}</strong></span><span class="info-circle" aria-hidden="true">i</span></button></div></div>`;
 
     }
     const different=!followLocation && !temporaryView && detected&&detected!==selected&&!promptIsDismissed();

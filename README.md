@@ -145,3 +145,6 @@ Replace the app files in your GitHub Pages repository and retain your existing C
 ## v36 — app version 1.0.11
 - Use the supplied original ZejtunSoft artwork as a compact icon before the name. CSS frames the Z portion; the source artwork is unchanged.
 - Centre the single-line support heading in both donation steps.
+
+## Version 1.0.12 — clearer collection instructions
+Mixed-waste artwork now shows a grease-stained pizza box. The day and date are centred above the bag. The bottom panel reads “Put your bag outside between [earliest time] and [collection time]”, then “Collection starts at [time]”. Times continue to use the locality timetable, including Saturday overrides and the existing four-hour window. The existing collection information popup remains available. Assets and the offline cache are updated to v37.
