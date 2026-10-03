@@ -21,7 +21,7 @@
     clearTimeout(splashTimer);
     clearTimeout(splashFadeTimer);
     splash.hidden = true;
-    setTimeout(maybeShowSupport,400);
+    
     appContent.inert = false;
     if (document.activeElement === splash) {
       const target = !$('settingsOverlay').hidden ? $('homeLocalitySelect') : $('settingsButton');
@@ -88,19 +88,48 @@
   $('allowAnalytics').checked=analyticsAllowed();
   $('allowAnalytics').onchange=e=>setAnalyticsChoice(e.target.checked);
   let donationConfig = null;
-  const supportHiddenKey='bag-day-support-hidden-until-v2';
+  const supportHiddenKey='bag-day-support-disabled-v3';
   const supportLastShownKey='bag-day-support-last-shown-v2';
+  const supportPauseKey='bag-day-support-popup-until-v3';
+  const supportFirstUseKey='bag-day-first-use-v3';
+  const supportUsageDaysKey='bag-day-usage-days-v3';
   const supportPeriod=30*24*60*60*1000;
-  // Convert the previous permanent hide preference to a 30-day pause once.
-  if(localStorage.getItem('bag-day-support-hidden-v1')==='true'&&!localStorage.getItem(supportHiddenKey))localStorage.setItem(supportHiddenKey,String(Date.now()+supportPeriod));
-  localStorage.removeItem('bag-day-support-hidden-v1');
+  const supportGracePeriod=72*60*60*1000;
+  // Honour an active earlier hide preference when moving to explicit settings.
+  if(localStorage.getItem(supportHiddenKey)===null){
+    const previouslyHidden=localStorage.getItem('bag-day-support-hidden-v1')==='true'||Number(localStorage.getItem('bag-day-support-hidden-until-v2'))>Date.now();
+    if(previouslyHidden)localStorage.setItem(supportHiddenKey,'true');
+  }
   let supportHidden=false,donationUrl=null,supportReturnFocus=null,previousOverflow='';
+  let supportInvitationTimer=null;
+  function recordSupportUsage(){
+    if(!selected||document.hidden)return;
+    if(!localStorage.getItem(supportFirstUseKey))localStorage.setItem(supportFirstUseKey,String(Date.now()));
+    const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    let days;
+    try{days=JSON.parse(localStorage.getItem(supportUsageDaysKey)||'[]');}catch(_){days=[];}
+    if(!Array.isArray(days))days=[];
+    days=[...new Set(days.filter(day=>typeof day==='string'))];
+    if(days.length<3&&!days.includes(date)){days.push(date);localStorage.setItem(supportUsageDaysKey,JSON.stringify(days));}
+  }
+  function supportInvitationEligible(){
+    const first=Number(localStorage.getItem(supportFirstUseKey));
+    let days;
+    try{days=JSON.parse(localStorage.getItem(supportUsageDaysKey)||'[]');}catch(_){return false;}
+    const pause=Math.max(Number(localStorage.getItem(supportPauseKey))||0,(Number(localStorage.getItem(supportLastShownKey))||0)+supportPeriod);
+    return first>0&&Date.now()-first>=supportGracePeriod&&Array.isArray(days)&&new Set(days).size>=3&&Date.now()>=pause;
+  }
+  function pauseSupportInvitation(){localStorage.setItem(supportPauseKey,String(Date.now()+supportPeriod));}
+  function queueSupportInvitation(){
+    recordSupportUsage();
+    if(!supportInvitationEligible())return;
+    clearTimeout(supportInvitationTimer);
+    supportInvitationTimer=setTimeout(maybeShowSupport,2000);
+  }
   const tipAmounts=[2,5,10,20];
   let chosenTip=null,sliderValue=0,sliderDrag=null,checkoutOpening=false;
   function supportIsHidden(){
-    const until=Number(localStorage.getItem(supportHiddenKey))||0;
-    supportHidden=until>Date.now();
-    if(until&&!supportHidden)localStorage.removeItem(supportHiddenKey);
+    supportHidden=localStorage.getItem(supportHiddenKey)==='true';
     return supportHidden;
   }
 
@@ -200,6 +229,7 @@
       appContent.inert=wasteAppWasInert;
       if(wasteReturnFocus?.isConnected)wasteReturnFocus.focus({preventScroll:true});
       else $('settingsButton').focus({preventScroll:true});
+      queueSupportInvitation();
     };
     if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)finish();
     else {$('wasteOverlay').classList.add('waste-closing');wasteCloseTimer=setTimeout(finish,150);}
@@ -306,12 +336,11 @@
     tipAmounts.forEach(amount=>$(`tip${amount}`).setAttribute('aria-label',c.tipAmountLabel(amount)));
     $('closeSupport').setAttribute('aria-label',c.closeSupport);
     $('showSupport').checked=!supportIsHidden();
-    $('supportHiddenUntil').hidden=!supportHidden;
-    if(supportHidden)$('supportHiddenUntil').textContent=`Hidden until ${new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'Europe/Malta'}).format(Number(localStorage.getItem(supportHiddenKey)))}.`;
+    $('supportHiddenUntil').hidden=true;
   }
   function setSupportHidden(value){
-    if(value)localStorage.setItem(supportHiddenKey,String(Date.now()+supportPeriod));
-    else {localStorage.removeItem(supportHiddenKey);localStorage.removeItem(supportLastShownKey);}
+    localStorage.setItem(supportHiddenKey,String(value));
+    clearTimeout(supportInvitationTimer);
     renderSupport();renderDonation();
   }
   function supportCanOpen(){
@@ -319,12 +348,13 @@
       ['settingsOverlay','supportOverlay','wasteOverlay','timeOverlay'].every(id=>$(id).hidden);
   }
   function maybeShowSupport(){
-    if(!supportCanOpen()||homeGesture||changingDay)return;
-    const last=Number(localStorage.getItem(supportLastShownKey))||0;
-    if(!last||Date.now()-last>=supportPeriod)openSupport(true);
+    supportInvitationTimer=null;
+    if(!supportInvitationEligible()||!supportCanOpen()||homeGesture||changingDay)return;
+    openSupport(true);
   }
   function openSupport(automatic=false){
     if(!supportCanOpen())return;
+    clearTimeout(supportInvitationTimer);
     supportReturnFocus=document.activeElement;
     previousOverflow=document.body.style.overflow;
     document.body.style.overflow='hidden';
@@ -332,7 +362,7 @@
     $('supportChoice').hidden=false;$('supportConfirm').hidden=true;
     renderSupport();renderDonation();
     $('supportOverlay').hidden=false;document.querySelector('main.app').inert=true;
-    localStorage.setItem(supportLastShownKey,String(Date.now()));
+    if(automatic){localStorage.setItem(supportLastShownKey,String(Date.now()));pauseSupportInvitation();}
     $('closeSupport').focus({preventScroll:true});
     analyticsEvent('donation_prompt_open',{language,automatic:automatic===true});
   }
@@ -380,6 +410,7 @@
     checkoutOpening=true;
     const amount=chosenTip,checkout=new URL(donationUrl);
     checkout.searchParams.set('prefilled_amount',String(amount*100));
+    pauseSupportInvitation();
     analyticsEvent('donation_click',{language,amount});
     closeSupport();
     const popup=window.open(checkout.href,'_blank');
@@ -389,7 +420,7 @@
     try{
       donationConfig=await fetchLiveConfig('./donation_config.txt');
     }catch(_){donationConfig=null;}
-    renderDonation();setTimeout(maybeShowSupport,600);
+    renderDonation();
   }
 
   function renderStaticText() {
@@ -474,6 +505,7 @@
     const locality=activeLocality();
     $('dashboard').hidden=!locality;
     if(!locality)return;
+    recordSupportUsage();
     const c=t(),date=shownDate();
     $('title').textContent=locality;
     $('title').title=locality;
@@ -507,6 +539,7 @@
   let changingDay=false, suppressTapUntil=0;
   async function changeDay(delta) {
     if(changingDay)return;
+    const previousOffset=dayOffset;
     const next=Math.max(0,Math.min(maxDaysAhead,dayOffset+delta));
     const area=$('bagArea'),width=area.clientWidth;
     changingDay=true;
@@ -518,6 +551,7 @@
       await area.animate([{transform:`translateX(${delta*width}px)`,opacity:.3},{transform:'translateX(0)',opacity:1}],{duration:reducedMotion()?0:260,easing:'cubic-bezier(.2,.8,.2,1)'}).finished;
     }
     area.style.transform='';changingDay=false;
+    if(previousOffset>0&&dayOffset===0)queueSupportInvitation();
     clearTimeout(returnTimer);
     if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=0;render();},60000);
   }
@@ -567,7 +601,7 @@
     panel.style.transform='';$('settingsOverlay').hidden=true;
     document.querySelector('main.app').inert=false;settingsClosing=false;
     settingsOpener?.focus?.({preventScroll:true});
-    setTimeout(maybeShowSupport,400);
+    
   }
 
   function identifyPlace(address,latitude) {
@@ -676,7 +710,7 @@
   window.addEventListener('storage',e=>{
     if(e.key===supportHiddenKey){renderSupport();renderDonation();if(supportIsHidden())closeSupport();}
   });
-  setInterval(()=>{renderSupport();renderDonation();maybeShowSupport();},15000);
+  setInterval(()=>{recordSupportUsage();renderSupport();renderDonation();},15000);
   // One gesture owner locks the axis after a small intentional movement.
   let homeGesture=null;
   const pull=$('settingsPull');
