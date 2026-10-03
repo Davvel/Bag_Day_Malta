@@ -154,3 +154,9 @@ Locality and location-mode chip are centred inside the card above the day and da
 
 ## Version 1.0.14 — larger, clearer text
 Compared with v1.0.13, locality text increases 25%; the location chip, day, date, put-out instruction, collection line and information icon increase 10%; the permitted time window increases 15%. Waste label, bag artwork and support banner stay the same. The hint now reads “Tap bag for info”. Compact screen sizes receive the same proportional increases. The heading still moves with the card and the existing information popup remains available. Offline cache and shell assets use v39.
+
+## Version 1.0.15 — alphabetical locality picker
+The home-locality picker now lists all Malta and Gozo localities together in alphabetical order, using accent-insensitive sorting for Maltese characters. Stored selections and locality timetable rows remain unchanged. Offline cache and shell assets use v40.
+
+## Version 1.0.16 — larger locality headings
+Locality headings are another 25% larger than v1.0.15. Long names fit the available width beside the unchanged Home/Auto/Away chip, with font size reduced only when needed to prevent clipping. The title refits when the locality or viewport changes. All other text sizes remain unchanged. Offline cache and assets use v41.
