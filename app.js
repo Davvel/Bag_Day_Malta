@@ -339,7 +339,9 @@
     $('supportHiddenUntil').hidden=true;
   }
   function setSupportHidden(value){
+    const wasHidden=supportIsHidden();
     localStorage.setItem(supportHiddenKey,String(value));
+    if(wasHidden!==value) analyticsEvent(value?'support_disabled':'support_enabled',{language});
     clearTimeout(supportInvitationTimer);
     renderSupport();renderDonation();
   }
