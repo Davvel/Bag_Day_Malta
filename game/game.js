@@ -52,7 +52,7 @@
    if(mode==='running' && (send||item.y>=1))accept(item);
   };
   node.onpointercancel=()=>{if(drag?.item===item){drag=null;hideHint();}};
-  node.onlostpointercapture=()=>{if(drag?.item===item){drag=null;hideHint();}};
+  node.onlostpointercapture=event=>{if(activePointers.delete(event.pointerId))recordObjectInteraction();if(drag?.item===item){drag=null;hideHint();}};
   node.onkeydown=event=>{
    if(mode!=='running')return;
    if(['ArrowLeft','ArrowRight','ArrowDown'].includes(event.key)){event.preventDefault();selectItem(item);if(event.key==='ArrowDown'){accept(item);return;}item.lane=Math.max(0,Math.min(2,item.lane+(event.key==='ArrowLeft'?-1:1)));item.node.setAttribute('aria-label',`${info.name}. In ${bagNames[item.lane]} lane. Select to sort.`);position(item);bags.forEach((bag,index)=>bag.classList.toggle('target',index===item.lane));}
@@ -95,7 +95,7 @@
   const seconds=Math.max(0,Math.ceil(60-elapsed));byId('timeLeft').textContent=practice?'∞':`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
   if(now>feedbackUntil)byId('feedback').classList.remove('shown');
   const middleItem=items.find(item=>item.lane===1);
-  if(!drag && !activePointers.size && middleItem && now-lastInput>8000 && !reduced.matches)showHint(middleItem);else hideHint();
+  if(!drag && !activePointers.size && middleItem && now-lastInput>6000 && !reduced.matches)showHint(middleItem);else hideHint();
   if(!practice && elapsed>=60){finishRound();return;}raf=requestAnimationFrame(tick);
  }
  function startRound(next=Number(byId('levelChoice').value),isPractice=byId('practiceChoice').checked){
@@ -126,14 +126,16 @@
  byId('endPractice').onclick=finishRound;byId('quitRound').onclick=()=>{byId('gamePlay').inert=false;renderMenu();byId('startGame').focus();};
  byId('nextLevel').onclick=()=>startRound(level+1,false);byId('replayLevel').onclick=()=>startRound(level,practice);byId('chooseLevel').onclick=()=>{renderMenu();byId('startGame').focus();};
  byId('resetProgress').onclick=()=>{byId('resetConfirm').hidden=false;byId('confirmReset').focus();};byId('cancelReset').onclick=()=>{byId('resetConfirm').hidden=true;byId('resetProgress').focus();};byId('confirmReset').onclick=()=>{storage.write(10);unlocked=10;level=1;rememberLevel(1);renderMenu();byId('levelChoice').focus();};
- // Any touch/click, key or scroll restarts the eight-second idle cue delay.
- function recordInteraction(){lastInput=performance.now();hideHint();}
- document.addEventListener('pointerdown',event=>{activePointers.add(event.pointerId);recordInteraction();},true);
- document.addEventListener('pointerup',event=>{activePointers.delete(event.pointerId);recordInteraction();},true);
- document.addEventListener('pointercancel',event=>{activePointers.delete(event.pointerId);recordInteraction();},true);
- document.addEventListener('pointermove',event=>{if(event.buttons)recordInteraction();},true);
- document.addEventListener('keydown',recordInteraction,true);
- document.addEventListener('wheel',recordInteraction,{capture:true,passive:true});
+ // Only interaction with falling objects resets the six-second help delay.
+ function recordObjectInteraction(){lastInput=performance.now();hideHint();}
+ document.addEventListener('pointerdown',event=>{
+  if(mode==='running' && event.isPrimary && event.button===0 && event.target.closest('.falling-item')){activePointers.add(event.pointerId);recordObjectInteraction();}
+ },true);
+ function endObjectTouch(event){if(activePointers.delete(event.pointerId))recordObjectInteraction();}
+ document.addEventListener('pointerup',endObjectTouch,true);
+ document.addEventListener('pointercancel',endObjectTouch,true);
+ document.addEventListener('pointermove',event=>{if(activePointers.has(event.pointerId))recordObjectInteraction();},true);
+ document.addEventListener('keydown',event=>{if(mode==='running' && event.target.closest('.falling-item'))recordObjectInteraction();},true);
  document.addEventListener('visibilitychange',()=>{if(document.hidden){activePointers.clear();pause();}});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();if(mode==='running')pause();else if(mode==='paused')resume();}if(mode==='paused'&&event.key==='Tab'){const nodes=[byId('resumeGame'),byId('endPractice'),byId('quitRound')].filter(node=>!node.hidden);if(event.shiftKey&&document.activeElement===nodes[0]){event.preventDefault();nodes.at(-1).focus();}else if(!event.shiftKey&&document.activeElement===nodes.at(-1)){event.preventDefault();nodes[0].focus();}}});
  window.addEventListener('resize',()=>{if(mode==='running')pause();for(const item of items)position(item);});
