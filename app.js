@@ -106,7 +106,6 @@
   function openWelcome(){
     if(!welcomeNeeded || !splash.hidden || !$('welcomeOverlay').hidden)return;
     for(const name of names){const option=document.createElement('option');option.value=name;option.textContent=name;$('welcomeLocality').append(option);}
-    $('analyticsConsent').hidden=true;
     $('welcomeOverlay').hidden=false;appContent.inert=true;
     renderWelcome();
     $('welcomeDialog').animate([{transform:'translateY(22px)',opacity:0},{transform:'translateY(0)',opacity:1}],{duration:reducedMotion()?0:320,easing:'ease-out'});
@@ -169,7 +168,6 @@
   function analyticsAllowed(){return localStorage.getItem(analyticsConsentKey)==='granted';}
   function setAnalyticsChoice(allowed){
     localStorage.setItem(analyticsConsentKey,allowed?'granted':'denied');
-    $('analyticsConsent').hidden=true;
     $('allowAnalytics').checked=allowed;
     if(allowed){loadAnalytics();return;}
     analyticsReady=false;
@@ -183,8 +181,6 @@
     });
     if(analyticsId)location.reload();
   }
-  $('acceptAnalytics').onclick=()=>setAnalyticsChoice(true);
-  $('declineAnalytics').onclick=()=>setAnalyticsChoice(false);
   $('allowAnalytics').checked=analyticsAllowed();
   $('allowAnalytics').onchange=e=>setAnalyticsChoice(e.target.checked);
   let donationConfig = null;
@@ -382,10 +378,7 @@
       if(String(cfg.Analytics_Enabled||'').toLowerCase()!=='true') return;
       const id=String(cfg.Measurement_ID||'').trim();
       if(!/^G-[A-Z0-9]+$/i.test(id) || id==='G-XXXXXXXXXX') return;
-      if(!analyticsAllowed()){
-        $('analyticsConsent').hidden=welcomeNeeded || localStorage.getItem(analyticsConsentKey)==='denied';
-        return;
-      }
+      if(!analyticsAllowed())return;
       analyticsLoading=true;analyticsId=id;window['ga-disable-'+id]=false;
       window.dataLayer=window.dataLayer||[];
       window.gtag=function(){window.dataLayer.push(arguments);};
