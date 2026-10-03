@@ -408,3 +408,23 @@ html,body{height:100%;overflow:hidden}
 @media(max-width:360px){.calendar-dialog{padding:16px}.calendar-days,.calendar-weekdays{gap:2px}.calendar-days button{min-height:40px}}
 @media(max-width:360px){.day-navigation{grid-template-columns:minmax(0,1fr) minmax(0,1.65fr) minmax(0,1fr)}.day-navigation .nav-button{flex-direction:column;gap:1px;padding:4px 1px}.day-navigation .nav-button>span[aria-hidden]{order:-1;font-size:1.3rem}}
 @media(min-width:361px) and (max-width:480px), (max-height:450px) and (min-width:600px){.day-navigation{grid-template-columns:minmax(0,1.1fr) minmax(0,1.65fr) minmax(0,1.1fr)}.day-navigation .nav-button{flex-direction:column;gap:1px;padding:4px 1px}.day-navigation .nav-button>span[aria-hidden]{order:-1;font-size:1.3rem}}
+
+/* Clearer date controls and softly raised cards. */
+.collection-stage{border:1px solid #ccdae6;border-radius:28px;background:#fff;box-shadow:0 8px 28px #12345312,0 2px 5px #12345308}
+.collection-card{border-radius:27px;box-shadow:none}
+.donation-card{border-color:#d2dfe9;border-radius:20px;box-shadow:0 4px 15px #12345308}
+.viewed-day-row{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;pointer-events:auto;flex-wrap:wrap}
+.collection-date .today-pill{display:flex;flex-direction:column;gap:2px;align-items:center}.today-pill small{font-size:.72rem;font-weight:650;letter-spacing:.03em;color:#698092;line-height:1.1}
+.back-to-today{border:1px solid #cbdfea;background:#f1f7fc;color:#245c82;border-radius:10px;padding:7px 10px;min-height:44px;font-size:.75rem;font-weight:750;white-space:nowrap}
+.date-button{border:1px solid #ccdeec;background:#fff;box-shadow:0 1px 3px #12345308;min-height:50px}
+.date-button svg{width:18px;height:18px}.collection-date .date-button #date{font-size:1rem;font-weight:650}
+.day-navigation{grid-template-columns:minmax(0,1.18fr) minmax(0,1.65fr) minmax(0,1.18fr)}
+.day-navigation .nav-button{font-size:.96rem}.day-navigation .nav-button>span[aria-hidden]{font-size:1.5rem}
+@media(max-width:480px){.day-navigation .nav-button{font-size:.96rem;flex-direction:column;padding:4px 1px;gap:1px}.day-navigation .nav-button>span[aria-hidden]{order:-1}.date-button{gap:4px;padding:6px 3px}.collection-date .date-button #date{font-size:.95rem}.date-button svg{width:16px;height:16px}}
+@media(max-width:360px){.day-navigation .nav-button{font-size:.828rem}.collection-date .date-button #date{font-size:.8rem}.date-button svg{width:14px;height:14px}.viewed-day-row{gap:8px}.back-to-today{padding:6px 8px;font-size:.7rem}}
+@media(min-height:651px){.collection-item{transform:translateY(-12px)}}
+@media(max-height:450px) and (min-width:600px){.day-navigation .nav-button{font-size:.864rem;flex-direction:column;padding:4px 1px}.day-navigation .nav-button>span[aria-hidden]{order:-1}.collection-date .date-button #date{font-size:.8rem}.date-button svg{width:14px;height:14px}.viewed-day-row{gap:6px}.back-to-today{padding:6px;font-size:.65rem}.collection-date .today-pill{font-size:1.25rem}}
+@media(max-width:360px){.day-navigation{grid-template-columns:minmax(0,1.3fr) minmax(0,1.4fr) minmax(0,1.3fr)}}
+@media(max-width:360px){.date-button{flex-direction:column;gap:3px}.collection-date .date-button #date{font-size:.85rem}}
+@media(min-width:361px) and (max-width:480px){.day-navigation{grid-template-columns:minmax(0,1.3fr) minmax(0,1.4fr) minmax(0,1.3fr)}}
+@media(min-width:361px) and (max-width:480px){.date-button{flex-direction:column;gap:3px}}

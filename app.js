@@ -605,13 +605,15 @@
     $('title').textContent=locality;
     $('title').title=locality;
     const fullDate=new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(date);
-    $('date').innerHTML=`<span>${new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date)}</span><span>${new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',timeZone:'UTC'}).format(date)}</span>`;
+    $('date').textContent=new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',timeZone:'UTC'}).format(date);
     $('dateButton').setAttribute('aria-label',`${fullDate}. Choose a date`);
     $('date').title=fullDate;$('date').setAttribute('aria-label',fullDate);
     $('date').setAttribute('datetime',date.toISOString().slice(0,10));
     $('todayPill').hidden=false;
-    $('todayPill').textContent=dayOffset===0?'Today':dayOffset===1?'Tomorrow':new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date);
-    $('todayPill').setAttribute('aria-label',dayOffset===0?'Today':dayOffset===1?'Tomorrow':`In ${dayOffset} days`);
+    const weekday=new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date);
+    $('todayPill').innerHTML=`${dayOffset<2?`<small>${dayOffset===0?'Today':'Tomorrow'}</small>`:''}<span>${weekday}</span>`;
+    $('backToToday').hidden=dayOffset===0;
+    $('todayPill').setAttribute('aria-label',`${dayOffset===0?'Today':dayOffset===1?'Tomorrow':`In ${dayOffset} days`}, ${weekday}`);
     renderLocationMode();
     fitLocalityTitle();
     $('prevDay').disabled=dayOffset===0;
@@ -652,6 +654,7 @@
     $('prevDay').disabled=moving || dayOffset===0;
     $('nextDay').disabled=moving || dayOffset===maxDaysAhead;
     $('dateButton').disabled=moving;
+    $('backToToday').disabled=moving;
   }
   let calendarMonthIndex=0,calendarWasInert=false;
   const addDays=(date,days)=>{const copy=new Date(date);copy.setUTCDate(copy.getUTCDate()+days);return copy;};
@@ -861,6 +864,7 @@
   $('closeSettings').onclick=closeSettings;
   $('cancelSettings').onclick=closeSettings;
   $('homeLocalitySelect').onchange=()=>saveHomeLocality($('homeLocalitySelect').value);
+  $('backToToday').onclick=()=>changeDay(-dayOffset);
   $('prevDay').onclick=()=>changeDay(-1);
   $('nextDay').onclick=()=>changeDay(1);
   $('donationCard').addEventListener('click',()=>openSupport());
