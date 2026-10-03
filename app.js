@@ -477,11 +477,11 @@
     $('nextDay').disabled=dayOffset===maxDaysAhead;
     const schedule=scheduleFor(date);
     if(!schedule.bag){
-      $('bagArea').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">${c.noCollection}</div></div>`;
+      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">${c.noCollection}</div></div>`;
     }else{
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
       const figures=`<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="bag-click-hint">Click Bag for Info</span><span class="collection-item-label">${c[schedule.bag]}</span></div>${schedule.glass?`<div class="collection-item">${bagButton('glass',c.glassBottles)}<span class="bag-click-hint">Click Bag for Info</span><span class="collection-item-label">${c.glassBottles}</span></div>`:''}</div>`;
-      $('bagArea').innerHTML=`<div class="collection-card">${figures}<div class="collection-timing"><div class="put-out-instruction"><span>Put your bag outside</span><strong>between <span class="time-value">${timeMarkup(formatTime(time))}</span> and <span class="time-value">${timeMarkup(time)}</span></strong></div><button type="button" class="collection-time-button" data-time-info aria-label="Collection starts at ${compactTime(time).text} ${compactTime(time).period}. More information">${truckIcon}<span class="collection-start-label">Collection starts at <strong>${timeMarkup(time)}</strong></span><span class="info-circle" aria-hidden="true">i</span></button></div></div>`;
+      $('collectionCardBody').innerHTML=`<div class="collection-card">${figures}<div class="collection-timing"><div class="put-out-instruction"><span>Put your bag outside</span><strong>between <span class="time-value">${timeMarkup(formatTime(time))}</span> and <span class="time-value">${timeMarkup(time)}</span></strong></div><button type="button" class="collection-time-button" data-time-info aria-label="Collection starts at ${compactTime(time).text} ${compactTime(time).period}. More information">${truckIcon}<span class="collection-start-label">Collection starts at <strong>${timeMarkup(time)}</strong></span><span class="info-circle" aria-hidden="true">i</span></button></div></div>`;
 
     }
     const different=!followLocation && !temporaryView && detected&&detected!==selected&&!promptIsDismissed();
@@ -611,7 +611,7 @@
     analyticsEvent('current_locality_viewed');
     dayOffset=0;render();
   };
-  $('locationModeChip').onclick=()=>{if(temporaryView&&!followLocation){temporaryView=null;dayOffset=0;render();}else openSettings();};
+  $('locationModeChip').onclick=()=>{if(changingDay||performance.now()<suppressTapUntil)return;if(temporaryView&&!followLocation){temporaryView=null;dayOffset=0;render();}else openSettings();};
   $('closeTimeInfo').onclick=closeTimeInfo;
   $('timeOverlay').onclick=e=>{if(e.target===$('timeOverlay'))closeTimeInfo();};
   $('keepLocalityMode').onchange=()=>{

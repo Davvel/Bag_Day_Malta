@@ -148,3 +148,6 @@ Replace the app files in your GitHub Pages repository and retain your existing C
 
 ## Version 1.0.12 — clearer collection instructions
 Mixed-waste artwork now shows a grease-stained pizza box. The day and date are centred above the bag. The bottom panel reads “Put your bag outside between [earliest time] and [collection time]”, then “Collection starts at [time]”. Times continue to use the locality timetable, including Saturday overrides and the existing four-hour window. The existing collection information popup remains available. Assets and the offline cache are updated to v37.
+
+## Version 1.0.13 — a single sliding card
+Locality and location-mode chip are centred inside the card above the day and date. The whole heading moves with the bag and collection times during touch swipes and day transitions. The location-mode chip remains interactive. The app header, navigation arrows and support banner stay fixed. Offline assets use cache v38.
