@@ -227,50 +227,38 @@
   $('allowAnalytics').checked=analyticsAllowed();
   $('allowAnalytics').onchange=e=>setAnalyticsChoice(e.target.checked);
   let donationConfig = null;
-  const supportHiddenKey='bag-day-support-disabled-v3';
   const supportLastShownKey='bag-day-support-last-shown-v2';
-  const supportPauseKey='bag-day-support-popup-until-v3';
   const supportFirstUseKey='bag-day-first-use-v3';
-  const supportUsageDaysKey='bag-day-usage-days-v3';
-  const supportPeriod=30*24*60*60*1000;
-  const supportGracePeriod=72*60*60*1000;
-  // Honour an active earlier hide preference when moving to explicit settings.
-  if(localStorage.getItem(supportHiddenKey)===null){
-    const previouslyHidden=localStorage.getItem('bag-day-support-hidden-v1')==='true'||Number(localStorage.getItem('bag-day-support-hidden-until-v2'))>Date.now();
-    if(previouslyHidden)localStorage.setItem(supportHiddenKey,'true');
-  }
-  let supportHidden=false,donationUrl=null,supportReturnFocus=null,previousOverflow='';
-  let supportInvitationTimer=null;
+  const supportInteractionKey='bag-day-support-last-open-v4';
+  const supportDonationAttemptKey='bag-day-support-donation-attempt-v4';
+  const supportDay=24*60*60*1000;
+  let donationUrl=null,supportReturnFocus=null,previousOverflow='';
+  let supportActiveElapsed=0,supportActiveStamp=null;
   function recordSupportUsage(){
-    if(!selected||document.hidden)return;
-    if(!localStorage.getItem(supportFirstUseKey))localStorage.setItem(supportFirstUseKey,String(Date.now()));
-    const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-    let days;
-    try{days=JSON.parse(localStorage.getItem(supportUsageDaysKey)||'[]');}catch(_){days=[];}
-    if(!Array.isArray(days))days=[];
-    days=[...new Set(days.filter(day=>typeof day==='string'))];
-    if(days.length<3&&!days.includes(date)){days.push(date);localStorage.setItem(supportUsageDaysKey,JSON.stringify(days));}
+    if(selected && !document.hidden && !localStorage.getItem(supportFirstUseKey))
+      localStorage.setItem(supportFirstUseKey,String(Date.now()));
   }
   function supportInvitationEligible(){
     const first=Number(localStorage.getItem(supportFirstUseKey));
-    let days;
-    try{days=JSON.parse(localStorage.getItem(supportUsageDaysKey)||'[]');}catch(_){return false;}
-    const pause=Math.max(Number(localStorage.getItem(supportPauseKey))||0,(Number(localStorage.getItem(supportLastShownKey))||0)+supportPeriod);
-    return first>0&&Date.now()-first>=supportGracePeriod&&Array.isArray(days)&&new Set(days).size>=3&&Date.now()>=pause;
+    const anchor=Math.max(first||0,Number(localStorage.getItem(supportLastShownKey))||0,Number(localStorage.getItem(supportInteractionKey))||0);
+    const days=localStorage.getItem(supportDonationAttemptKey)==='true'?30:5;
+    return first>0 && Date.now()-anchor>=days*supportDay;
   }
-  function pauseSupportInvitation(){localStorage.setItem(supportPauseKey,String(Date.now()+supportPeriod));}
+  function resetSupportCountdown(){
+    localStorage.setItem(supportInteractionKey,String(Date.now()));
+    supportActiveElapsed=0;supportActiveStamp=null;
+  }
   function queueSupportInvitation(){
     recordSupportUsage();
-    if(!supportInvitationEligible())return;
-    clearTimeout(supportInvitationTimer);
-    supportInvitationTimer=setTimeout(maybeShowSupport,2000);
+    const now=performance.now();
+    if(supportActiveStamp!==null)supportActiveElapsed+=Math.max(0,now-supportActiveStamp);
+    const active=selected && !welcomeNeeded && splash.hidden && !document.hidden && supportInvitationEligible();
+    supportActiveStamp=active?now:null;
+    if(!supportInvitationEligible())supportActiveElapsed=0;
+    if(active && supportActiveElapsed>=60000)maybeShowSupport();
   }
   const tipAmounts=[2,5,10,20];
   let chosenTip=null,sliderValue=0,sliderDrag=null,checkoutOpening=false;
-  function supportIsHidden(){
-    supportHidden=localStorage.getItem(supportHiddenKey)==='true';
-    return supportHidden;
-  }
 
   function promptIsDismissed() {
     try {
@@ -293,7 +281,7 @@
       chooseBelow:'Choose a locality below.',locating:'Finding your locality…',
       unavailable:'Could not detect your locality. Choose it below.',
       locality:'Locality',search:'Search a locality',localities:'Localities',empty:'No locality found',
-      cancel:'Cancel',save:'Set as my home locality',done:'Done',homeLocalityTitle:'Home locality',homeLocalityHelp:'Choose the locality whose collection schedule you want to keep as your home.',savedHome:place=>`Saved home: ${place}`,noSavedHome:'No home locality saved yet.',locationModeNote:'Choose what to show when you travel. Changes save immediately.',supportSettingsTitle:'Support Bag Day',
+      cancel:'Cancel',save:'Set as my home locality',done:'Done',homeLocalityTitle:'Home locality',homeLocalityHelp:'Choose the locality whose collection schedule you want to keep as your home.',savedHome:place=>`Saved home: ${place}`,noSavedHome:'No home locality saved yet.',locationModeNote:'Choose what to show when you travel. Changes save immediately.',
       settingsNote:'Select a locality, then tap “Set as my home locality” to save it.',
       locationBehaviour:'Location when travelling',
       keepTitle:'Keep my home locality',keepHelp:'Default. The PWA does not silently switch locality when you travel.',
@@ -305,7 +293,7 @@
       supportIntro:'Buy us a Coffee',
 
 
-      showSupport:'Support button and monthly reminder',
+
 
       tipThanks:'Thank you for your tip.',tipAmountLabel:amount=>`Choose €${amount} — slide to confirm`,tipAmountsLabel:'Choose a tip amount',
       dismissSupport:'Maybe later',closeSupport:'Close support panel' 
@@ -315,7 +303,7 @@
   const timeOfDay = time => {const hour=Number(time.slice(0,2));return hour<12?t().morning:hour<18?t().afternoon:t().evening;};
   const normal = s => (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[ħĦ]/g,'h').replace(/[’']/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
   const rowFor = name => data.localities.find(row => row[0] === name);
-  const activeLocality = () => (followLocation && detected) ? detected : (temporaryView || selected);
+  const activeLocality = () => temporaryView || ((followLocation && detected) ? detected : selected);
 
   const maltaToday = () => {
     const parts = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
@@ -458,7 +446,7 @@
     donationUrl=url.href;
     updateSupportPayment();
     card.setAttribute('aria-label',`${text}. ${label}. ${detail}`);
-    card.hidden=supportIsHidden();
+    card.hidden=false;
   }
 
   function updateSupportPayment(){
@@ -466,33 +454,23 @@
   }
   function renderSupport(){
     const c=t();
-    for(const [id,key] of Object.entries({supportTitle:'supportTitle',supportIntro:'supportIntro',showSupportLabel:'showSupport',tipThanks:'tipThanks',dismissSupport:'dismissSupport'}))$(id).textContent=c[key];
+    for(const [id,key] of Object.entries({supportTitle:'supportTitle',supportIntro:'supportIntro',tipThanks:'tipThanks',dismissSupport:'dismissSupport'}))$(id).textContent=c[key];
     updateSupportPayment();
     $('tipAmounts').setAttribute('aria-label',c.tipAmountsLabel);
     tipAmounts.forEach(amount=>$(`tip${amount}`).setAttribute('aria-label',c.tipAmountLabel(amount)));
     $('closeSupport').setAttribute('aria-label',c.closeSupport);
-    $('showSupport').checked=!supportIsHidden();
-    $('supportHiddenUntil').hidden=true;
-  }
-  function setSupportHidden(value){
-    const wasHidden=supportIsHidden();
-    localStorage.setItem(supportHiddenKey,String(value));
-    if(wasHidden!==value) analyticsEvent(value?'support_disabled':'support_enabled',{language});
-    clearTimeout(supportInvitationTimer);
-    renderSupport();renderDonation();
   }
   function supportCanOpen(){
-    return selected&&donationUrl&&!supportIsHidden()&&splash.hidden&&!document.hidden&&
-      ['settingsOverlay','supportOverlay','wasteOverlay','timeOverlay','welcomeOverlay','calendarOverlay'].every(id=>$(id).hidden);
+    return selected&&donationUrl&&splash.hidden&&!document.hidden&&
+      ['settingsOverlay','supportOverlay','wasteOverlay','timeOverlay','welcomeOverlay','calendarOverlay','localityOverlay'].every(id=>$(id).hidden);
   }
   function maybeShowSupport(){
-    supportInvitationTimer=null;
     if(!supportInvitationEligible()||!supportCanOpen()||homeGesture||changingDay)return;
     openSupport(true);
   }
   function openSupport(automatic=false){
     if(!supportCanOpen())return;
-    clearTimeout(supportInvitationTimer);
+    resetSupportCountdown();
     supportReturnFocus=document.activeElement;
     previousOverflow=document.body.style.overflow;
     document.body.style.overflow='hidden';
@@ -500,7 +478,7 @@
     $('supportChoice').hidden=false;$('supportConfirm').hidden=true;
     renderSupport();renderDonation();
     $('supportOverlay').hidden=false;document.querySelector('main.app').inert=true;
-    if(automatic){localStorage.setItem(supportLastShownKey,String(Date.now()));pauseSupportInvitation();}
+    if(automatic)localStorage.setItem(supportLastShownKey,String(Date.now()));
     $('closeSupport').focus({preventScroll:true});
     analyticsEvent('donation_prompt_open',{language,automatic:automatic===true});
   }
@@ -509,7 +487,7 @@
     $('supportOverlay').hidden=true;chosenTip=null;resetSlider();
     document.querySelector('main.app').inert=false;
     document.body.style.overflow=previousOverflow;
-    const target=supportIsHidden()||!supportReturnFocus?.isConnected?$('settingsButton'):supportReturnFocus;
+    const target=!supportReturnFocus?.isConnected?$('settingsButton'):supportReturnFocus;
     target?.focus?.({preventScroll:true});
   }
   function supportKeydown(e){
@@ -548,7 +526,8 @@
     checkoutOpening=true;
     const amount=chosenTip,checkout=new URL(donationUrl);
     checkout.searchParams.set('prefilled_amount',String(amount*100));
-    pauseSupportInvitation();
+    localStorage.setItem(supportDonationAttemptKey,'true');
+    resetSupportCountdown();
     analyticsEvent('donation_click',{language,amount});
     closeSupport();
     const popup=window.open(checkout.href,'_blank');
@@ -573,7 +552,6 @@
     $('settingsEyebrow').textContent=c.schedule;
     $('settingsTitle').textContent=c.settings;
     $('homeLocalityTitle').textContent=c.homeLocalityTitle;
-    $('supportSettingsTitle').textContent=c.supportSettingsTitle;
     $('closeSettings').setAttribute('aria-label',c.cancel);
     renderHomeLocality();
     $('cancelSettings').textContent=c.done;
@@ -589,19 +567,20 @@
     title.style.fontSize='';
     if(!title.clientWidth)return;
     // Start at the full heading size; reduce only when the name would be clipped.
+    const button=$('localityButton');
     let size=parseFloat(getComputedStyle(title).fontSize);
-    for(let attempt=0;attempt<3&&title.scrollWidth>title.clientWidth+1;attempt++){
-      size=Math.max(12,size*title.clientWidth/title.scrollWidth-.2);
+    for(let attempt=0;attempt<3&&button.scrollWidth>button.clientWidth+1;attempt++){
+      size=Math.max(12,size*button.clientWidth/button.scrollWidth-.2);
       title.style.fontSize=`${size}px`;
     }
   }
   function renderLocationMode(){
     const chip=$('locationModeChip');
-    const away=temporaryView && temporaryView!==selected;
-    const mode=followLocation?'Auto':away?'Away':'Home';
+    const locality=activeLocality();
+    const mode=locality===selected?'Home':locality===detected?'Auto':'Away';
     chip.textContent=`(${mode})`;
     chip.dataset.mode=mode.toLowerCase();
-    chip.title=away?`Return to ${selected}`:followLocation?'Following your current location. Tap for settings.':'Saved home locality. Tap for settings.';
+    chip.title=temporaryView?`Return to ${followLocation?'automatic location':selected}`:followLocation?'Following your current location. Tap for settings.':'Saved home locality. Tap for settings.';
     chip.setAttribute('aria-label',chip.title);
   }
   const compactTime = value => {
@@ -638,15 +617,15 @@
   }
 
   function render() {
-    if(!$('wasteOverlay').hidden || !$('timeOverlay').hidden || !$('supportOverlay').hidden || !$('calendarOverlay').hidden)return;
+    if(!$('localityOverlay').hidden || !$('wasteOverlay').hidden || !$('timeOverlay').hidden || !$('supportOverlay').hidden || !$('calendarOverlay').hidden)return;
     renderStaticText();
     const locality=activeLocality();
     $('dashboard').hidden=!locality;
     if(!locality)return;
     recordSupportUsage();
     const c=t(),date=shownDate();
-    $('title').textContent=locality;
-    $('title').title=locality;
+    $('localityName').textContent=locality;
+    $('localityButton').setAttribute('aria-label',`${locality}. Choose a locality`);
     const fullDate=new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(date);
     $('date').textContent=new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',timeZone:'UTC'}).format(date);
     $('dateButton').setAttribute('aria-label',`${fullDate}. Choose a date`);
@@ -809,6 +788,62 @@
     dayOffset=0;render();
   }
 
+  let localityReturnFocus=null;
+  function renderLocalityChoices(){
+    const list=$('localityChoices'),query=normal($('localitySearch').value);
+    list.replaceChildren();
+    const matches=names.filter(name=>normal(name).includes(query));
+    for(const name of matches){
+      const button=document.createElement('button');
+      button.type='button';button.className='locality-choice';
+      button.setAttribute('aria-pressed',String(name===activeLocality()));
+      const label=document.createElement('span');label.textContent=name;button.append(label);
+      if(name===selected || name===detected){
+        const mode=name===selected?'Home':'Auto';
+        const chip=document.createElement('span');chip.className='mode-chip';chip.dataset.mode=mode.toLowerCase();chip.textContent=mode;button.append(chip);
+      }
+      button.onclick=()=>{
+        temporaryView=name;
+        analyticsEvent('locality_view_changed');
+        closeLocalityPicker();render();
+      };
+      list.append(button);
+    }
+    $('localityEmpty').hidden=matches.length>0;
+  }
+  function openLocalityPicker(){
+    if(changingDay || performance.now()<suppressTapUntil || welcomeNeeded || !localityModalFree())return;
+    clearTimeout(returnTimer);localityReturnFocus=document.activeElement;
+    $('localitySearch').value='';
+    $('localityHomeNote').textContent=`Your saved home: ${selected}`;
+    $('localityOverlay').hidden=false;appContent.inert=true;
+    renderLocalityChoices();
+    $('localityDialog').animate([{opacity:0,transform:'translateY(16px)'},{opacity:1,transform:'translateY(0)'}],{duration:reducedMotion()?0:220,easing:'ease-out'});
+    $('closeLocality').focus({preventScroll:true});
+    requestAnimationFrame(()=>$('localityChoices').querySelector('[aria-pressed=true]')?.scrollIntoView({block:'nearest'}));
+  }
+  function localityModalFree(){
+    return ['settingsOverlay','supportOverlay','wasteOverlay','timeOverlay','welcomeOverlay','calendarOverlay','localityOverlay'].every(id=>$(id).hidden);
+  }
+  function closeLocalityPicker(){
+    if($('localityOverlay').hidden)return;
+    $('localityOverlay').hidden=true;appContent.inert=false;
+    (localityReturnFocus?.isConnected?localityReturnFocus:$('localityButton')).focus({preventScroll:true});
+    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=0;render();},60000);
+  }
+  function localityKeydown(e){
+    if(e.key==='Escape'){e.preventDefault();closeLocalityPicker();return;}
+    if(e.key!=='Tab')return;
+    const nodes=[...$('localityDialog').querySelectorAll('button,input')].filter(node=>node.getClientRects().length);
+    const first=nodes[0],last=nodes[nodes.length-1];
+    if(e.shiftKey && document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first.focus();}
+  }
+  $('localityButton').onclick=openLocalityPicker;
+  $('closeLocality').onclick=closeLocalityPicker;
+  $('localitySearch').oninput=renderLocalityChoices;
+  $('localityOverlay').onclick=e=>{if(e.target===$('localityOverlay'))closeLocalityPicker();};
+
   let settingsClosing=false, settingsOpener=null;
   function openSettings(){
     if(welcomeNeeded || !$('welcomeOverlay').hidden || settingsClosing||!$('settingsOverlay').hidden)return;
@@ -863,7 +898,6 @@
         if(!response.ok){detectionUnavailable();return;}
         const newlyDetected=identifyPlace((await response.json()).address||{},latitude);
         if(!newlyDetected){detectionUnavailable();return;}
-        if(detected && newlyDetected!==detected && temporaryView) temporaryView=null;
         detected=newlyDetected;
         locationFailed=false;
         // GPS may establish a home only before a home has been saved.
@@ -891,7 +925,7 @@
     analyticsEvent('current_locality_viewed');
     dayOffset=0;render();
   };
-  $('locationModeChip').onclick=()=>{if(changingDay||performance.now()<suppressTapUntil)return;if(temporaryView&&!followLocation){temporaryView=null;dayOffset=0;render();}else openSettings();};
+  $('locationModeChip').onclick=()=>{if(changingDay||performance.now()<suppressTapUntil)return;if(temporaryView){temporaryView=null;dayOffset=0;render();}else openSettings();};
   $('closeTimeInfo').onclick=closeTimeInfo;
   $('timeOverlay').onclick=e=>{if(e.target===$('timeOverlay'))closeTimeInfo();};
   $('keepLocalityMode').onchange=()=>{
@@ -912,7 +946,6 @@
   $('dismissSupport').onclick=closeSupport;
   $('cancelDonation').onclick=closeSupport;
   $('supportOverlay').onclick=e=>{if(e.target===$('supportOverlay'))closeSupport();};
-  $('showSupport').onchange=()=>setSupportHidden(!$('showSupport').checked);
   tipAmounts.forEach(amount=>$(`tip${amount}`).onclick=()=>chooseTip(amount));
   const slider=$('donationSlider');
   slider.addEventListener('pointerdown',e=>{
@@ -941,9 +974,11 @@
   });
   window.addEventListener('resize',()=>{if(!$('supportConfirm').hidden)resetSlider();});
   window.addEventListener('storage',e=>{
-    if(e.key===supportHiddenKey){renderSupport();renderDonation();if(supportIsHidden())closeSupport();}
+    if([supportInteractionKey,supportLastShownKey,supportDonationAttemptKey].includes(e.key)){
+      supportActiveElapsed=0;supportActiveStamp=null;
+    }
   });
-  setInterval(()=>{recordSupportUsage();renderSupport();renderDonation();},15000);
+  setInterval(queueSupportInvitation,1000);
   // One gesture owner locks the axis after a small intentional movement.
   let homeGesture=null;
   const pull=$('settingsPull');
@@ -1001,11 +1036,11 @@
   }
   panel.addEventListener('touchend',()=>finishSettingsGesture(),{passive:true});
   panel.addEventListener('touchcancel',()=>finishSettingsGesture(true),{passive:true});
-  document.addEventListener('keydown',e=>{if(!splash.hidden || !$('welcomeOverlay').hidden)return;if(!$('calendarOverlay').hidden){calendarKeydown(e);return;}if(!$('timeOverlay').hidden){timeInfoKeydown(e);return;}if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();if(e.key==='Tab'){const nodes=[...$('settingsDialog').querySelectorAll('button:not([hidden]),select,input')].filter(n=>!n.disabled);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadDonation();detectLocation();}});
+  document.addEventListener('keydown',e=>{if(!splash.hidden || !$('welcomeOverlay').hidden)return;if(!$('localityOverlay').hidden){localityKeydown(e);return;}if(!$('calendarOverlay').hidden){calendarKeydown(e);return;}if(!$('timeOverlay').hidden){timeInfoKeydown(e);return;}if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();if(e.key==='Tab'){const nodes=[...$('settingsDialog').querySelectorAll('button:not([hidden]),select,input')].filter(n=>!n.disabled);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
+  document.addEventListener('visibilitychange',()=>{queueSupportInvitation();if(!document.hidden){render();loadDonation();detectLocation();}});
   setInterval(()=>{if(dayOffset===0&&!homeGesture&&!changingDay)render();},60000);
   setInterval(()=>{
-    if(homeGesture||changingDay||document.hidden||!splash.hidden||!$('settingsOverlay').hidden||!$('supportOverlay').hidden||!$('wasteOverlay').hidden||!$('timeOverlay').hidden||!$('welcomeOverlay').hidden||!$('calendarOverlay').hidden||reducedMotion())return;
+    if(homeGesture||changingDay||document.hidden||!splash.hidden||!$('settingsOverlay').hidden||!$('supportOverlay').hidden||!$('wasteOverlay').hidden||!$('timeOverlay').hidden||!$('welcomeOverlay').hidden||!$('calendarOverlay').hidden||!$('localityOverlay').hidden||reducedMotion())return;
     const figures=document.querySelector('.collection-figures');if(!figures)return;
     figures.classList.remove('tap-demo');void figures.offsetWidth;figures.classList.add('tap-demo');
   },10000);

@@ -448,3 +448,19 @@ html,body{height:100%;overflow:hidden}
 @media(max-width:480px){.day-navigation{grid-template-columns:minmax(0,1.35fr) minmax(0,1.3fr) minmax(0,1.35fr)}}
 @media(max-width:360px){.date-button{padding-left:1px;padding-right:1px}}
 @media(max-width:360px){.collection-date .date-button #date{font-size:.8rem;max-width:100%}}
+
+/* v1.0.27: tap the locality to view another collection schedule. */
+#localityButton{display:block;width:100%;min-height:44px;padding:0 2px;border:0;background:transparent;box-shadow:none;font:inherit;letter-spacing:inherit;line-height:inherit;color:inherit;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;border-radius:9px}
+#localityButton:active{background:#e7f0f8}
+#localityButton:focus-visible{outline:3px solid #126db2;outline-offset:-3px}
+.locality-overlay{z-index:20;background:#12345375;backdrop-filter:blur(6px)}
+.locality-dialog{width:min(440px,100%)}
+.locality-dialog h2{font-size:1.6rem;margin-bottom:6px}
+.locality-dialog #localitySearch{font-size:16px;margin-bottom:12px}
+.locality-choices{max-height:min(350px,45dvh);overflow:auto;border:1px solid #dce7ef;border-radius:14px;overscroll-behavior:contain}
+.locality-choice{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;text-align:left;padding:12px 14px;border:0;border-bottom:1px solid #e7eef4;background:white;color:#123453;font:inherit;font-weight:600;box-shadow:none;border-radius:0}
+.locality-choice:last-child{border-bottom:0}
+.locality-choice[aria-pressed=true]{background:#e8f3fc;box-shadow:inset 4px 0 #126db2}
+.locality-choice:hover,.locality-choice:active{background:#f0f6fc}
+.locality-choice:focus-visible{outline:3px solid #126db2;outline-offset:-3px}
+@media(max-height:450px){.locality-dialog{padding:18px}.locality-dialog h2{margin-top:6px}.locality-choices{max-height:32dvh}}
