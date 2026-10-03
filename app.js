@@ -2,7 +2,6 @@
   'use strict';
   const data = window.WASTE_DATA;
   const $ = id => document.getElementById(id);
-  const dayNavigationSeenKey='bag-day-navigation-used-v1';
   // Show once per tab session; refreshes go directly to the app.
   const splash = $('splashScreen');
   const appContent = $('appContent');
@@ -24,7 +23,6 @@
     splash.hidden = true;
     
     appContent.inert = false;
-    renderDayNavigationHint();
     if(welcomeNeeded){openWelcome();return;}
     if (document.activeElement === splash) {
       const target = !$('settingsOverlay').hidden ? $('homeLocalitySelect') : $('settingsButton');
@@ -142,7 +140,7 @@
   }
   function closeWelcome(){
     if(welcomeNeeded)return;
-    clearTimeout(welcomeReadyTimer);$('welcomeOverlay').hidden=true;appContent.inert=false;$('settingsButton').focus({preventScroll:true});renderDayNavigationHint();
+    clearTimeout(welcomeReadyTimer);$('welcomeOverlay').hidden=true;appContent.inert=false;$('settingsButton').focus({preventScroll:true});
   }
   $('welcomeLocality').onchange=()=>{welcomeDraft.locality=$('welcomeLocality').value;saveWelcomeDraft();renderWelcome();};
   $('welcomeLocate').onclick=()=>{lastGpsAttempt=0;$('welcomeGps').textContent='Finding your locality…';detectLocation();};
@@ -442,7 +440,7 @@
   }
   function supportCanOpen(){
     return selected&&donationUrl&&!supportIsHidden()&&splash.hidden&&!document.hidden&&
-      ['settingsOverlay','supportOverlay','wasteOverlay','timeOverlay','welcomeOverlay'].every(id=>$(id).hidden);
+      ['settingsOverlay','supportOverlay','wasteOverlay','timeOverlay','welcomeOverlay','calendarOverlay'].every(id=>$(id).hidden);
   }
   function maybeShowSupport(){
     supportInvitationTimer=null;
@@ -597,7 +595,7 @@
   }
 
   function render() {
-    if(!$('wasteOverlay').hidden || !$('timeOverlay').hidden || !$('supportOverlay').hidden)return;
+    if(!$('wasteOverlay').hidden || !$('timeOverlay').hidden || !$('supportOverlay').hidden || !$('calendarOverlay').hidden)return;
     renderStaticText();
     const locality=activeLocality();
     $('dashboard').hidden=!locality;
@@ -607,7 +605,8 @@
     $('title').textContent=locality;
     $('title').title=locality;
     const fullDate=new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(date);
-    $('date').textContent=new Intl.DateTimeFormat('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}).format(date);
+    $('date').innerHTML=`<span>${new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date)}</span><span>${new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',timeZone:'UTC'}).format(date)}</span>`;
+    $('dateButton').setAttribute('aria-label',`${fullDate}. Choose a date`);
     $('date').title=fullDate;$('date').setAttribute('aria-label',fullDate);
     $('date').setAttribute('datetime',date.toISOString().slice(0,10));
     $('todayPill').hidden=false;
@@ -625,7 +624,6 @@
       button.setAttribute('aria-label',`${label}: ${new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(neighbour)}`);
       button.title=button.disabled?(delta<0?'You are viewing Today':'You can look up to 30 days ahead'):button.getAttribute('aria-label');
     }
-    renderDayNavigationHint();
     requestAnimationFrame(syncDayNavigationLayout);
     const schedule=scheduleFor(date);
     if(!schedule.bag){
@@ -642,20 +640,87 @@
   }
 
 
-  function renderDayNavigationHint(){
-    const show=!welcomeNeeded && $('welcomeOverlay').hidden && splash.hidden && dayOffset===0 && !localStorage.getItem(dayNavigationSeenKey);
-    $('dayNavigationHint').hidden=!show;
-    $('nextDay').classList.toggle('navigation-coach',show);
-    if(show)$('nextDay').setAttribute('aria-describedby','dayNavigationHint');
-    else $('nextDay').removeAttribute('aria-describedby');
-  }
   function syncDayNavigationLayout(){
     const heading=document.querySelector('.collection-date');
     if($('dashboard').hidden)return;
     const top=heading.offsetTop+heading.offsetHeight+8;
-    $('collectionStage').style.setProperty('--day-navigation-top',`${top}px`);
-    $('collectionStage').style.setProperty('--day-card-heading-space',`${top+54}px`);
+    $('collectionStage').style.setProperty('--day-card-heading-space',`${top+4}px`);
   }
+
+  function setDayNavigationMoving(moving){
+    $('dayNavigation').classList.toggle('day-navigation-moving',moving);
+    $('prevDay').disabled=moving || dayOffset===0;
+    $('nextDay').disabled=moving || dayOffset===maxDaysAhead;
+    $('dateButton').disabled=moving;
+  }
+  let calendarMonthIndex=0,calendarWasInert=false;
+  const addDays=(date,days)=>{const copy=new Date(date);copy.setUTCDate(copy.getUTCDate()+days);return copy;};
+  const monthIndex=date=>date.getUTCFullYear()*12+date.getUTCMonth();
+  function renderCalendar(){
+    const today=maltaToday(),last=addDays(today,maxDaysAhead);
+    calendarMonthIndex=Math.max(monthIndex(today),Math.min(monthIndex(last),calendarMonthIndex));
+    const first=new Date(Date.UTC(Math.floor(calendarMonthIndex/12),calendarMonthIndex%12,1,12));
+    const length=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+1,0)).getUTCDate();
+    $('calendarMonth').textContent=new Intl.DateTimeFormat('en-GB',{month:'long',year:'numeric',timeZone:'UTC'}).format(first);
+    $('calendarPreviousMonth').disabled=calendarMonthIndex<=monthIndex(today);
+    $('calendarNextMonth').disabled=calendarMonthIndex>=monthIndex(last);
+    const grid=$('calendarDays');grid.replaceChildren();
+    for(let i=0;i<(first.getUTCDay()+6)%7;i++){const blank=document.createElement('span');blank.setAttribute('aria-hidden','true');grid.append(blank);}
+    const selectedIso=shownDate().toISOString().slice(0,10);
+    for(let day=1;day<=length;day++){
+      const date=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth(),day,12)),iso=date.toISOString().slice(0,10);
+      const button=document.createElement('button');button.type='button';button.textContent=String(day);button.dataset.date=iso;
+      button.disabled=date<today || date>last;
+      button.setAttribute('aria-label',new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(date));
+      button.setAttribute('aria-pressed',String(iso===selectedIso));
+      if(date.getTime()===today.getTime())button.setAttribute('aria-current','date');
+      button.onclick=()=>selectCalendarDate(iso);grid.append(button);
+    }
+  }
+  function openCalendar(){
+    if(changingDay || performance.now()<suppressTapUntil || welcomeNeeded || !$('calendarOverlay').hidden)return;
+    clearTimeout(returnTimer);
+    calendarMonthIndex=monthIndex(shownDate());calendarWasInert=appContent.inert;
+    $('calendarOverlay').hidden=false;appContent.inert=true;renderCalendar();
+    $('calendarDialog').animate([{opacity:0,transform:'translateY(16px)'},{opacity:1,transform:'translateY(0)'}],{duration:reducedMotion()?0:220,easing:'ease-out'});
+    ($('calendarDays').querySelector('[aria-pressed=true]:not(:disabled)') || $('calendarToday')).focus({preventScroll:true});
+  }
+  function closeCalendar(){
+    if($('calendarOverlay').hidden)return;
+    $('calendarOverlay').hidden=true;appContent.inert=calendarWasInert;
+    $('dateButton').focus({preventScroll:true});
+    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=0;render();},60000);
+  }
+  function selectCalendarDate(iso){
+    const offset=Math.round((new Date(`${iso}T12:00:00Z`)-maltaToday())/86400000);
+    if(!Number.isFinite(offset) || offset<0 || offset>maxDaysAhead){renderCalendar();return;}
+    closeCalendar();changeDay(offset-dayOffset);
+  }
+  function calendarKeydown(e){
+    if(e.key==='Escape'){e.preventDefault();closeCalendar();return;}
+    if(e.key==='Tab'){
+      const nodes=[...$('calendarDialog').querySelectorAll('button:not(:disabled)')];
+      const first=nodes[0],last=nodes[nodes.length-1];
+      if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+      else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+      return;
+    }
+    const active=document.activeElement;
+    if(!active.dataset.date)return;
+    const delta={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key];
+    if(delta===undefined)return;
+    e.preventDefault();
+    const target=addDays(new Date(`${active.dataset.date}T12:00:00Z`),delta),today=maltaToday();
+    if(target<today || target>addDays(today,maxDaysAhead))return;
+    calendarMonthIndex=monthIndex(target);renderCalendar();
+    $('calendarDays').querySelector(`[data-date="${target.toISOString().slice(0,10)}"]`)?.focus();
+  }
+  $('dateButton').onclick=openCalendar;
+  $('closeCalendar').onclick=closeCalendar;
+  $('calendarToday').onclick=()=>selectCalendarDate(maltaToday().toISOString().slice(0,10));
+  $('calendarPreviousMonth').onclick=()=>{calendarMonthIndex--;renderCalendar();};
+  $('calendarNextMonth').onclick=()=>{calendarMonthIndex++;renderCalendar();};
+  $('calendarOverlay').onclick=e=>{if(e.target===$('calendarOverlay'))closeCalendar();};
 
   const reducedMotion=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   let changingDay=false, suppressTapUntil=0;
@@ -664,16 +729,16 @@
     const previousOffset=dayOffset;
     const next=Math.max(0,Math.min(maxDaysAhead,dayOffset+delta));
     const area=$('bagArea'),width=area.clientWidth;
-    changingDay=true;
+    changingDay=true;setDayNavigationMoving(true);
     if(next===dayOffset){
       await area.animate([{transform:area.style.transform||'translateX(0)'},{transform:'translateX(0)'}],{duration:reducedMotion()?0:360,easing:'cubic-bezier(.2,.9,.3,1.2)'}).finished;
     }else{
-      await area.animate([{transform:area.style.transform||'translateX(0)',opacity:1},{transform:`translateX(${-delta*width}px)`,opacity:.3}],{duration:reducedMotion()?0:180,easing:'ease-in'}).finished;
+      await area.animate([{transform:area.style.transform||'translateX(0)',opacity:1},{transform:`translateX(${-Math.sign(delta)*width}px)`,opacity:.3}],{duration:reducedMotion()?0:180,easing:'ease-in'}).finished;
       area.style.transform='';dayOffset=next;
-      localStorage.setItem(dayNavigationSeenKey,'true');render();
-      await area.animate([{transform:`translateX(${delta*width}px)`,opacity:.3},{transform:'translateX(0)',opacity:1}],{duration:reducedMotion()?0:260,easing:'cubic-bezier(.2,.8,.2,1)'}).finished;
+      render();
+      await area.animate([{transform:`translateX(${Math.sign(delta)*width}px)`,opacity:.3},{transform:'translateX(0)',opacity:1}],{duration:reducedMotion()?0:260,easing:'cubic-bezier(.2,.8,.2,1)'}).finished;
     }
-    area.style.transform='';changingDay=false;
+    area.style.transform='';changingDay=false;setDayNavigationMoving(false);syncDayNavigationLayout();
     if(previousOffset>0&&dayOffset===0)queueSupportInvitation();
     clearTimeout(returnTimer);
     if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=0;render();},60000);
@@ -850,6 +915,7 @@
     if(!g.axis&&Math.max(Math.abs(g.dx),Math.abs(g.dy))>12)g.axis=Math.abs(g.dx)>Math.abs(g.dy)*1.15?'x':'y';
     if(!g.axis)return;e.preventDefault();
     if(g.axis==='x'){
+      setDayNavigationMoving(true);
       const atEnd=(g.dx>0&&dayOffset===0)||(g.dx<0&&dayOffset===maxDaysAhead);
       const shift=atEnd?Math.sign(g.dx)*Math.min(65,Math.abs(g.dx)*.25):g.dx;
       $('bagArea').style.transform=`translateX(${shift}px)`;
@@ -891,11 +957,11 @@
   }
   panel.addEventListener('touchend',()=>finishSettingsGesture(),{passive:true});
   panel.addEventListener('touchcancel',()=>finishSettingsGesture(true),{passive:true});
-  document.addEventListener('keydown',e=>{if(!splash.hidden || !$('welcomeOverlay').hidden)return;if(!$('timeOverlay').hidden){timeInfoKeydown(e);return;}if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();if(e.key==='Tab'){const nodes=[...$('settingsDialog').querySelectorAll('button:not([hidden]),select,input')].filter(n=>!n.disabled);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
+  document.addEventListener('keydown',e=>{if(!splash.hidden || !$('welcomeOverlay').hidden)return;if(!$('calendarOverlay').hidden){calendarKeydown(e);return;}if(!$('timeOverlay').hidden){timeInfoKeydown(e);return;}if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();if(e.key==='Tab'){const nodes=[...$('settingsDialog').querySelectorAll('button:not([hidden]),select,input')].filter(n=>!n.disabled);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadDonation();detectLocation();}});
   setInterval(()=>{if(dayOffset===0&&!homeGesture&&!changingDay)render();},60000);
   setInterval(()=>{
-    if(homeGesture||changingDay||document.hidden||!splash.hidden||!$('settingsOverlay').hidden||!$('supportOverlay').hidden||!$('wasteOverlay').hidden||!$('timeOverlay').hidden||!$('welcomeOverlay').hidden||reducedMotion())return;
+    if(homeGesture||changingDay||document.hidden||!splash.hidden||!$('settingsOverlay').hidden||!$('supportOverlay').hidden||!$('wasteOverlay').hidden||!$('timeOverlay').hidden||!$('welcomeOverlay').hidden||!$('calendarOverlay').hidden||reducedMotion())return;
     const figures=document.querySelector('.collection-figures');if(!figures)return;
     figures.classList.remove('tap-demo');void figures.offsetWidth;figures.classList.add('tap-demo');
   },10000);
