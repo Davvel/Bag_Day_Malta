@@ -226,10 +226,10 @@ Levels 1–10 are available immediately. Players can start at 10 and earn level 
 ## Version 1.0.34 — six-second object-only help timer
 The game glove waits six seconds without falling-object interaction, rather than resetting on every screen input. Empty-space taps, scrolling and unrelated key presses do not delay it. Touching an object immediately hides the glove; holding suppresses it and releasing/cancelling starts a fresh six-second wait. Play/resume also starts a fresh wait. The cue still requires a middle-lane item and demonstrates only its correct gesture without moving it. Main app logic/styles, level access and progress remain unchanged. Splash, Settings, shell URLs and cache versions identify 1.0.34.
 
-## Version 1.0.38 — green recycling app icon
-The installed app icon uses the approved green tied waste bag with white recycling arrows on an emerald background. Exports include 192px/512px standard icons, a dedicated 512px maskable icon with safe padding, a 180px Apple touch icon and 32px browser favicon. Versioned manifest/icon URLs and precache entries refresh the published assets. The legacy SVG path also contains the new artwork. Installed home-screen shortcuts can retain their old image until the browser updates the installation; removing and adding the shortcut again requests the new image. Main app and game behaviour are unchanged. Splash, Settings, shell/cache versions and the ZIP identify 1.0.38.
+## Version 1.0.35 — green recycling app icon
+The installed app icon uses the approved green tied waste bag with white recycling arrows on an emerald background. Exports include 192px/512px standard icons, a dedicated 512px maskable icon with safe padding, a 180px Apple touch icon and 32px browser favicon. Versioned manifest/icon URLs and precache entries refresh the published assets. The legacy SVG path also contains the new artwork. Installed home-screen shortcuts can retain their old image until the browser updates the installation; removing and adding the shortcut again requests the new image. Main app and game behaviour are unchanged. Splash, Settings, shell/cache versions and the ZIP identify 1.0.39.
 
-## Version 1.0.38
+## Version 1.0.37
 
 Settings removes the repeated brand heading and Done button, saves automatically, and fits a 320 × 568 viewport. The home game launcher follows the light/dark setting. Browser/mobile Back closes the top open settings, locality, calendar, waste, time or support panel. In the game, Back resumes a paused round first, then exits to Bag Day; at home normal browser Back remains available.
 
@@ -244,3 +244,9 @@ Splash is shown on the first two page openings. Levels 1–10 receive a glove hi
 The collection card now includes a coloured Current streak / Longest streak bar beneath the waste illustration(s), including no-collection days. Records use the independent local key `bag-day-usage-streak-v1`. A visible app opening, return from the background, or restored page counts once per Europe/Malta calendar date; repeated visits on that date do not increase the count. A missed date resets the current streak, and the longest streak is retained. These records begin with this version and do not require the sorting game or analytics consent.
 
 Clicking the enabled game icon sends the GA4 event `game_open` through the existing consent-gated analytics setup. The event represents an opening attempt, so it counts even if loading fails. A consented click while the Analytics script is loading is queued until it loads; clicks without consent are never queued or sent. No game score, app streak or locality is included in this event. View `game_open` in GA4's Events reports.
+
+## Version 1.0.39 — game celebrations and balanced layouts
+
+The home streak bar follows the same responsive width and side alignment as the date and collection-hours panels. On Sundays, the sun and no-collection message sit higher and the streak bar lower.
+
+The game home stacks four centred stats, followed by a matching-width Level selector, Play and the three bags. Its circular Close button sits inside the panel. Winning shows a Congratulations modal with a confetti burst, Play Next Level and Exit. Exit returns to the game home with refreshed records; mobile Back follows the same route, then closes the game to Bag Day. Losing retains same-level Try Again. Level 100 offers Exit without a nonexistent next level. Reduced-motion users receive the celebration without moving confetti.

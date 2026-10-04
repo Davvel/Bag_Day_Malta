@@ -678,7 +678,7 @@
     requestAnimationFrame(syncDayNavigationLayout);
     const schedule=scheduleFor(date);
     if(!schedule.bag){
-      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div>${usageStreakBar()}</div>`;
+      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="no-collection-message"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div></div>${usageStreakBar()}</div>`;
     }else{
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
       const figures=`<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="bag-click-hint">Tap bag for info</span><span class="collection-item-label">${c[schedule.bag]}</span></div>${schedule.glass?`<div class="collection-item">${bagButton('glass',c.glassBottles)}<span class="bag-click-hint">Tap bag for info</span><span class="collection-item-label">${c.glassBottles}</span></div>`:''}</div>`;

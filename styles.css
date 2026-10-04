@@ -573,3 +573,8 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 @media(max-height:650px){.usage-streak-bar{padding:6px 10px;margin-top:6px;gap:6px}.usage-streak-bar svg{width:19px;height:19px}.usage-streak-bar span{font-size:.7rem}.usage-streak-bar strong{font-size:.9rem}.collection-figures .bag-figure.bag-button{height:min(115px,21dvh)}}
 @media(max-width:360px){.usage-streak-bar{padding-left:8px;padding-right:8px}.usage-streak-bar>div{gap:5px}}
 @media(max-height:450px) and (min-width:600px){.usage-streak-bar{max-width:44%;margin-left:auto;margin-right:0;margin-top:3px}.usage-streak-bar span{font-size:.65rem}.usage-streak-bar strong{font-size:.8rem}}
+
+/* Collection panels use the same card inset at every portrait width. */
+.bag-area{--card-panel-inset:14px}.collection-date{padding-left:var(--card-panel-inset);padding-right:var(--card-panel-inset)}.collection-card{padding-left:var(--card-panel-inset);padding-right:var(--card-panel-inset)}.usage-streak-bar{max-width:none;width:100%;margin-left:0;margin-right:0}.put-out-instruction{width:100%}.collection-card.no-collection{justify-content:flex-start}.no-collection-message{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;transform:translateY(-14px)}.collection-card.no-collection .usage-streak-bar{margin-top:0;margin-bottom:clamp(24px,7dvh,64px)}
+@media(max-width:360px){.bag-area{--card-panel-inset:10px}}
+@media(max-height:450px) and (min-width:600px){.usage-streak-bar{width:100%;max-width:none;margin-left:0}.collection-card.no-collection{padding-left:var(--card-panel-inset)}.no-collection-message{margin-left:53%;transform:translateY(-4px)}.collection-card.no-collection .usage-streak-bar{margin-bottom:10px}}

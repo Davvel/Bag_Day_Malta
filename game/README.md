@@ -1,4 +1,4 @@
-# Sort & Learn — optional game, version 1.0.38
+# Sort & Learn — optional game, version 1.0.39
 
 This folder is a standalone game. It owns its HTML, JavaScript, CSS, item rules, SVG illustrations, progress key and service worker. It imports no Bag Day styles, methods, data or graphics. Bag Day does not import any game code.
 
@@ -15,7 +15,7 @@ The root `game-launcher.js`, `game-launcher.css`, hidden button/layer markup and
 
 Every root opening or refresh shows normal Bag Day. Clicking the game button creates an iframe. The circular Close control destroys it and restores focus; it never saves game mode in the URL or settings. Opening `game/index.html` directly redirects to Bag Day. Parent/child communication uses ready, close, pause-state and resume messages, checked against the iframe and origin. While the game is open, the main app is inert and its active-use Support reminder clock is paused.
 
-Game progress uses `sort-belt-highest-unlocked-v1`, `sort-belt-last-level-v1` and `sort-belt-records-v1` in local storage. No game analytics are added. The own worker, scoped to `game/`, uses `sort-belt-game-1.0.38`; it only caches this folder's runtime files and illustrations. Core and game workers delete only their own cache prefixes. Game entry requires the live switch check; do not promise game availability offline.
+Game progress uses `sort-belt-highest-unlocked-v1`, `sort-belt-last-level-v1` and `sort-belt-records-v1` in local storage. No game analytics are added. The own worker, scoped to `game/`, uses `sort-belt-game-1.0.39`; it only caches this folder's runtime files and illustrations. Core and game workers delete only their own cache prefixes. Game entry requires the live switch check; do not promise game availability offline.
 
 ## Gameplay
 
@@ -31,4 +31,4 @@ Version 1.0.33 makes levels 1–10 freely selectable. Passing level 10 unlocks 1
 
 Version 1.0.34 supersedes earlier glove timing: it waits six seconds after play begins/resumes or the last falling-object interaction. Tapping empty belt space, scrolling or using unrelated controls does not restart that wait. Touching/dragging/selecting a falling object hides the hint; while holding it, the hint remains suppressed, and release/cancel restarts the delay. Keyboard interaction with an object or sending a selected object to a bag also counts. If the middle lane is empty after the deadline, the cue waits and appears on the next middle-lane object without a new countdown.
 
-Version 1.0.38 replaces the older glove timing with two seconds of object inactivity, exclusively in levels 1–10. The menu shows local completed-level/best-round/streak records. A completed one-minute round counts towards the Malta-calendar-day streak whether passed or failed. Records begin with this version; historical correct-item counts and streaks are unavailable. Correct/error bag animations replace visible top feedback; short status announcements remain for screen readers. Pause has only a centred heading and Resume. Close circles and parent-coordinated browser Back return to Bag Day.
+Version 1.0.39 replaces the older glove timing with two seconds of object inactivity, exclusively in levels 1–10. The menu shows local completed-level/best-round/streak records. A completed one-minute round counts towards the Malta-calendar-day streak whether passed or failed. Records begin with this version; historical correct-item counts and streaks are unavailable. Correct/error bag animations replace visible top feedback; short status announcements remain for screen readers. Pause has only a centred heading and Resume. Close circles and parent-coordinated browser Back return to Bag Day.
