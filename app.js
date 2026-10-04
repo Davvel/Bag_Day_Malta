@@ -14,18 +14,15 @@
   $('appearanceSelect').onchange=()=>{localStorage.setItem(appearanceKey,$('appearanceSelect').value);applyAppearance();};
   window.addEventListener('storage',e=>{if(e.key===appearanceKey)applyAppearance();});
   applyAppearance();
-  // Show once per tab session; refreshes go directly to the app.
+  // Persist the first two application openings across sessions.
   const splash = $('splashScreen');
   const appContent = $('appContent');
-  const splashSeenKey = 'bag-day-splash-session-v1';
-  let splashSeen = false;
+  let splashSeen = true;
   try {
-    splashSeen = sessionStorage.getItem(splashSeenKey) === 'true';
-    sessionStorage.setItem(splashSeenKey, 'true');
-  } catch (_) {
-    // Retain refresh behaviour if browser storage is unavailable.
-    splashSeen = window.performance?.getEntriesByType('navigation')[0]?.type === 'reload';
-  }
+    const opens = Math.max(0, Number(localStorage.getItem('bag-day-open-count-v1')) || 0);
+    splashSeen = opens >= 2;
+    localStorage.setItem('bag-day-open-count-v1', String(Math.min(3, opens + 1)));
+  } catch (_) {}
   let splashTimer;
   let splashFadeTimer;
   let splashFading = false;
@@ -71,7 +68,12 @@
   let followLocation = (localStorage.getItem(followLocationKey) || '').toLowerCase() === 'true';
   let temporaryView = null;
   let detected = null;
-  let dayOffset = 0;
+  const defaultDayOffset = () => {
+    const parts = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date());
+    const value = type => Number(parts.find(part=>part.type===type).value);
+    return value('hour')*3600+value('minute')*60+value('second')>15*3600 ? 1 : 0;
+  };
+  let dayOffset = defaultDayOffset();
   let returnTimer = null;
   let lastGpsAttempt = 0;
 
@@ -651,8 +653,8 @@
     $('date').setAttribute('datetime',date.toISOString().slice(0,10));
     $('todayPill').hidden=false;
     const weekday=new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date);
-    $('todayPill').textContent=dayOffset===0?'Today':weekday;
-    $('todayPill').setAttribute('aria-label',dayOffset===0?'Today':weekday);
+    $('todayPill').textContent=dayOffset===0?'Today':dayOffset===1?`Tomorrow (${weekday})`:weekday;
+    $('todayPill').setAttribute('aria-label',dayOffset===0?'Today':dayOffset===1?`Tomorrow (${weekday})`:weekday);
     renderLocationMode();
     fitLocalityTitle();
     $('prevDay').disabled=dayOffset===0;
@@ -731,7 +733,7 @@
     if($('calendarOverlay').hidden)return;
     $('calendarOverlay').hidden=true;appContent.inert=calendarWasInert;
     $('dateButton').focus({preventScroll:true});
-    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=0;render();},60000);
+    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=defaultDayOffset();render();},60000);
   }
   function selectCalendarDate(iso){
     const offset=Math.round((new Date(`${iso}T12:00:00Z`)-maltaToday())/86400000);
@@ -788,7 +790,7 @@
     area.style.transform='';changingDay=false;setDayNavigationMoving(false);syncDayNavigationLayout();
     if(previousOffset>0&&dayOffset===0)queueSupportInvitation();
     clearTimeout(returnTimer);
-    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=0;render();},60000);
+    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=defaultDayOffset();render();},60000);
   }
 
   let homeOptionsReady=false;
@@ -809,7 +811,7 @@
     selected=name;temporaryView=null;
     localStorage.setItem(localityKey,selected);
     analyticsEvent('locality_changed');
-    dayOffset=0;render();
+    dayOffset=defaultDayOffset();render();
   }
 
   let localityReturnFocus=null;
@@ -853,7 +855,7 @@
     if($('localityOverlay').hidden)return;
     $('localityOverlay').hidden=true;appContent.inert=false;
     (localityReturnFocus?.isConnected?localityReturnFocus:$('localityButton')).focus({preventScroll:true});
-    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=0;render();},60000);
+    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=defaultDayOffset();render();},60000);
   }
   function localityKeydown(e){
     if(e.key==='Escape'){e.preventDefault();closeLocalityPicker();return;}
@@ -947,9 +949,9 @@
     temporaryView=detected;
     localStorage.setItem(locationPromptKey,JSON.stringify({selected,detected,until:Date.now()+promptCooldownMs}));
     analyticsEvent('current_locality_viewed');
-    dayOffset=0;render();
+    dayOffset=defaultDayOffset();render();
   };
-  $('locationModeChip').onclick=()=>{if(changingDay||performance.now()<suppressTapUntil)return;if(temporaryView){temporaryView=null;dayOffset=0;render();}else openSettings();};
+  $('locationModeChip').onclick=()=>{if(changingDay||performance.now()<suppressTapUntil)return;if(temporaryView){temporaryView=null;dayOffset=defaultDayOffset();render();}else openSettings();};
   $('closeTimeInfo').onclick=closeTimeInfo;
   $('timeOverlay').onclick=e=>{if(e.target===$('timeOverlay'))closeTimeInfo();};
   $('keepLocalityMode').onchange=()=>{

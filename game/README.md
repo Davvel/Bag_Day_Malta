@@ -1,4 +1,4 @@
-# Sort & Learn — optional game, version 1.0.35
+# Sort & Learn — optional game, version 1.0.36
 
 This folder is a standalone game. It owns its HTML, JavaScript, CSS, item rules, SVG illustrations, progress key and service worker. It imports no Bag Day styles, methods, data or graphics. Bag Day does not import any game code.
 
@@ -15,7 +15,7 @@ The root `game-launcher.js`, `game-launcher.css`, hidden button/layer markup and
 
 Every root opening or refresh shows normal Bag Day. Clicking the game button creates an iframe. Back to Bag Day destroys it and restores focus; it never saves game mode in the URL or settings. Opening `game/index.html` directly redirects to Bag Day. Parent/child communication consists only of ready and close messages, checked against the iframe and origin. While the game is open, the main app is inert and its active-use Support reminder clock is paused.
 
-Game progress uses only `sort-belt-highest-unlocked-v1` in local storage. No game analytics are added. The own worker, scoped to `game/`, uses `sort-belt-game-1.0.35`; it only caches this folder's runtime files and illustrations. Core and game workers delete only their own cache prefixes. Game entry requires the live switch check; do not promise game availability offline.
+Game progress uses only `sort-belt-highest-unlocked-v1` in local storage. No game analytics are added. The own worker, scoped to `game/`, uses `sort-belt-game-1.0.36`; it only caches this folder's runtime files and illustrations. Core and game workers delete only their own cache prefixes. Game entry requires the live switch check; do not promise game availability offline.
 
 ## Gameplay
 

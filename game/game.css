@@ -2,3 +2,5 @@
 
 .bag-feedback{font-size:1.2rem;font-weight:900;text-align:right;padding:4px 8px}.game-bags .good{border-color:#79d5a8;box-shadow:0 0 16px #46c38e55}.game-bags .bad{border-color:#efa999;box-shadow:0 0 16px #e5756355}
 .menu-panel #startGame{position:sticky;bottom:0;z-index:2;box-shadow:0 0 0 6px #1b2d40,0 -8px 18px #1b2d40}
+
+.menu-panel{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:24px}.menu-panel h1{margin:0}.level-row{margin:0;justify-content:center}.level-row select{flex:none;width:8ch;max-width:8ch;text-align:center}.menu-bags{width:100%;margin:8px 0;gap:4px}.menu-bags img{width:100%;max-width:140px;height:155px;object-fit:contain}.menu-panel #startGame{position:static;width:min(100%,220px);box-shadow:none}.results-panel h1,.results-panel #resultSummary{text-align:center}.result-actions{max-width:220px;margin:24px auto}.game-bags img{object-fit:contain}

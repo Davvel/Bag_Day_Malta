@@ -17,7 +17,7 @@
   cancelAnimationFrame(raf);raf=null;mode='menu';drag=null;selected=null;hideHint();byId('pausePanel').hidden=true;byId('gamePlay').classList.remove('running');itemsLayer.replaceChildren();items=[];
   unlocked=storage.read();level=Math.min(level,unlocked);const menu=byId('levelChoice');menu.replaceChildren();
   for(let n=1;n<=unlocked;n++){const option=document.createElement('option');option.value=n;option.textContent=String(n);menu.append(option);}menu.value=String(level);
-  byId('unlockedNote').textContent=`Levels 1–10 are available to everyone. Highest available: Level ${unlocked}.`;byId('resetConfirm').hidden=true;showOnly('gameMenu');
+  showOnly('gameMenu');
  }
  function fillDeck(){
   const count=Math.min(catalog.length,6+Math.floor((level-1)/2)*3);deck=catalog.slice(0,count).slice();
@@ -31,7 +31,7 @@
  }
  function clearSelection(){selected=null;bags.forEach(bag=>bag.classList.remove('target'));byId('controlHint').textContent='Push sideways to sort · push down to send';}
  function spawn(){
-  if(items.length>=5)return;if(!deck.length)fillDeck();const info=deck.pop(),node=document.createElement('button');node.type='button';node.className='falling-item';node.dataset.itemId=info.id;node.setAttribute('aria-label',`${info.name}. In Mixed lane. Select to sort.`);
+  if(!deck.length)fillDeck();const info=deck.pop(),node=document.createElement('button');node.type='button';node.className='falling-item';node.dataset.itemId=info.id;node.setAttribute('aria-label',`${info.name}. In Mixed lane. Select to sort.`);
   const img=document.createElement('img');img.src=`assets/${info.id}.svg`;img.alt='';img.draggable=false;const label=document.createElement('span');label.textContent=info.name;node.append(img,label);
   const item={info,node,lane:1,y:0,id:++serial};node.dataset.serial=String(item.id);items.push(item);itemsLayer.append(node);position(item);
   node.onclick=()=>{if(!drag && mode==='running')selectItem(item);};
@@ -57,6 +57,12 @@
    if(mode!=='running')return;
    if(['ArrowLeft','ArrowRight','ArrowDown'].includes(event.key)){event.preventDefault();selectItem(item);if(event.key==='ArrowDown'){accept(item);return;}item.lane=Math.max(0,Math.min(2,item.lane+(event.key==='ArrowLeft'?-1:1)));item.node.setAttribute('aria-label',`${info.name}. In ${bagNames[item.lane]} lane. Select to sort.`);position(item);bags.forEach((bag,index)=>bag.classList.toggle('target',index===item.lane));}
   };
+ }
+ // Keep the incoming lane filled, with at most one item-height between objects.
+ function ensureSupply(){
+  if(mode!=='running'||elapsed>=60)return;
+  const nearest=items.filter(item=>item.lane===1).sort((a,b)=>a.y-b.y)[0];
+  if(!nearest || nearest.y*heightFor(nearest)>=nearest.node.offsetHeight+12)spawn();
  }
  function position(item){item.node.style.left=`${(item.lane+.5)*100/3}%`;item.node.style.transform=`translate(-50%,${item.y*heightFor(item)}px)`;}
  function hideHint(){hand.hidden=true;hand.classList.remove('demo');hintItem=null;delete hand.dataset.itemSerial;delete hand.dataset.direction;}
@@ -84,21 +90,20 @@
   byId('feedback').textContent=correct?`✓ ${item.info.name} → ${bagNames[item.info.bag]}`:`✕ ${item.info.name} belongs in ${bagNames[item.info.bag]}`;
   byId('feedback').className=`feedback shown ${correct?'good':'bad'}`;feedbackUntil=performance.now()+1700;
   byId('hitCount').textContent=String(hits);byId('missCount').textContent=String(misses);
-  if(drag?.item===item)drag=null;if(selected===item)clearSelection();item.node.remove();items=items.filter(entry=>entry!==item);hideHint();
+  if(drag?.item===item)drag=null;if(selected===item)clearSelection();item.node.remove();items=items.filter(entry=>entry!==item);hideHint();if(elapsed<60)ensureSupply();
  }
  function tick(now){
   if(mode!=='running')return;const dt=Math.max(0,(now-lastFrame)/1000);lastFrame=now;elapsed+=dt;
   const settings=pace();
   for(const item of [...items]){item.y+=dt/settings.travel;position(item);if(item.y>=1)accept(item);}
-  // Every spawned item gets a full natural journey before the 60-second cutoff.
-  if((practice||elapsed<=60-settings.travel) && elapsed>=nextSpawn){spawn();nextSpawn=elapsed+settings.interval;}
+  if(elapsed<60)ensureSupply();
   const seconds=Math.max(0,Math.ceil(60-elapsed));byId('timeLeft').textContent=practice?'∞':`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
   if(now>feedbackUntil)byId('feedback').classList.remove('shown');
   const middleItem=items.find(item=>item.lane===1);
-  if(!drag && !activePointers.size && middleItem && now-lastInput>6000 && !reduced.matches)showHint(middleItem);else hideHint();
+  if(!drag && !activePointers.size && middleItem && level<=10 && now-lastInput>2000 && !reduced.matches)showHint(middleItem);else hideHint();
   if(!practice && elapsed>=60){finishRound();return;}raf=requestAnimationFrame(tick);
  }
- function startRound(next=Number(byId('levelChoice').value),isPractice=byId('practiceChoice').checked){
+ function startRound(next=Number(byId('levelChoice').value),isPractice=false){
   level=Math.max(1,Math.min(unlocked,Number(next)||1));rememberLevel(level);practice=isPractice;elapsed=0;hits=0;misses=0;items=[];mistakes=new Map();deck=[];nextSpawn=0;selected=null;drag=null;
   itemsLayer.replaceChildren();byId('pausePanel').hidden=true;byId('feedback').classList.remove('shown');bags.forEach(bag=>bag.classList.remove('target','good','bad'));hideHint();
   byId('playingLevel').textContent=String(level);byId('hitCount').textContent='0';byId('missCount').textContent='0';byId('timeLeft').textContent=practice?'∞':'1:00';byId('controlHint').textContent='Push sideways to sort · push down to send';showOnly('gamePlay');mode='running';byId('gamePlay').classList.add('running');lastFrame=performance.now();lastInput=lastFrame;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});
@@ -109,23 +114,21 @@
  function resume(){if(mode!=='paused')return;byId('pausePanel').hidden=true;byId('gamePlay').inert=false;mode='running';lastFrame=performance.now();lastInput=lastFrame;byId('gamePlay').classList.add('running');raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});}
  function finishRound(){
   cancelAnimationFrame(raf);raf=null;byId('gamePlay').classList.remove('running');byId('pausePanel').hidden=true;byId('gamePlay').inert=false;
-  if(!practice && mode==='running')for(const item of [...items])accept(item);
+
   mode='results';drag=null;hideHint();const total=hits+misses,accuracy=total?Math.round(hits/total*100):0,passed=!practice&&total>0&&hits*5>=total*4;
   if(passed){unlocked=Math.max(unlocked,Math.min(100,level+1));storage.write(unlocked);}
-  byId('resultsTitle').textContent=practice?'Practice complete':passed?'Level complete!':'Another try?';byId('resultSummary').textContent=`${hits} correct · ${misses} wrong · ${accuracy}% accuracy. ${practice?'Practice does not change unlocked levels.':passed?(level<10?`Ready for Level ${level+1}. Levels 1–10 are freely available.`:level<100?`Level ${level+1} is available.`:'You completed the highest level!'):'Reach 80% to unlock the next level.'}`;
-  byId('nextLevel').hidden=!passed || level>=100;byId('nextLevel').textContent=`Play Level ${Math.min(100,level+1)}`;
-  const review=byId('reviewList');review.replaceChildren();const heading=document.createElement('h2');heading.textContent=mistakes.size?'A few things to remember':'Nicely sorted!';review.append(heading);
-  for(const info of mistakes.values()){const row=document.createElement('div');row.className='review-item';const img=document.createElement('img');img.src=`assets/${info.id}.svg`;img.alt='';const text=document.createElement('div'),name=document.createElement('strong'),help=document.createElement('p');name.textContent=`${info.name} → ${bagNames[info.bag]}`;help.textContent=info.why;text.append(name,help);row.append(img,text);review.append(row);}
+  byId('resultsTitle').textContent='Try Again ?';byId('resultSummary').textContent=`${hits} correct · ${misses} wrong · ${accuracy}% accuracy` ;
+  const review=byId('reviewList');review.replaceChildren();const heading=document.createElement('h2');heading.textContent='Items in this level';review.append(heading);
+  for(const info of catalog.slice(0,Math.min(catalog.length,6+Math.floor((level-1)/2)*3))){const row=document.createElement('div');row.className='review-item';const img=document.createElement('img');img.src=`assets/${info.id}.svg`;img.alt='';const text=document.createElement('div'),name=document.createElement('strong'),help=document.createElement('p');name.textContent=`${info.name} → ${bagNames[info.bag]}`;help.textContent=info.why;text.append(name,help);row.append(img,text);review.append(row);}
   showOnly('gameResults');byId('gameResults').focus({preventScroll:true});
  }
  bags.forEach((bag,index)=>bag.onclick=()=>{if(selected && mode==='running'){selected.lane=index;accept(selected);lastInput=performance.now();}});
  byId('backToBagDay').onclick=()=>{pause();if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-close'},location.origin);else location.replace('../');};
  byId('levelChoice').onchange=()=>{level=Math.max(1,Math.min(unlocked,Number(byId('levelChoice').value)||1));rememberLevel(level);};
- byId('startGame').onclick=()=>startRound();byId('practiceChoice').onchange=()=>{byId('startGame').textContent=byId('practiceChoice').checked?'Start relaxed practice':'Play · 1 minute';};
+ byId('startGame').onclick=()=>startRound();
  byId('pauseGame').onclick=pause;byId('resumeGame').onclick=resume;
  byId('endPractice').onclick=finishRound;byId('quitRound').onclick=()=>{byId('gamePlay').inert=false;renderMenu();byId('startGame').focus();};
- byId('nextLevel').onclick=()=>startRound(level+1,false);byId('replayLevel').onclick=()=>startRound(level,practice);byId('chooseLevel').onclick=()=>{renderMenu();byId('startGame').focus();};
- byId('resetProgress').onclick=()=>{byId('resetConfirm').hidden=false;byId('confirmReset').focus();};byId('cancelReset').onclick=()=>{byId('resetConfirm').hidden=true;byId('resetProgress').focus();};byId('confirmReset').onclick=()=>{storage.write(10);unlocked=10;level=1;rememberLevel(1);renderMenu();byId('levelChoice').focus();};
+ byId('replayLevel').onclick=()=>startRound(level,false);
  // Only interaction with falling objects resets the six-second help delay.
  function recordObjectInteraction(){lastInput=performance.now();hideHint();}
  document.addEventListener('pointerdown',event=>{
