@@ -505,6 +505,15 @@
     $('closeSupport').focus({preventScroll:true});
     analyticsEvent('donation_prompt_open',{language,automatic:automatic===true});
   }
+  function backSupportStep(){
+    if($('supportConfirm').hidden){closeSupport();return;}
+    chosenTip=null;checkoutOpening=false;resetSlider();
+    $('supportChoice').hidden=false;$('supportConfirm').hidden=true;
+    $('supportTitle').hidden=false;$('supportCoffee').hidden=false;
+    $('supportDialog').setAttribute('aria-labelledby','supportTitle');
+    $('supportDialog').setAttribute('aria-describedby','supportIntro');
+    renderSupport();$('closeSupport').focus({preventScroll:true});
+  }
   function closeSupport(){
     if($('supportOverlay').hidden)return;
     $('supportOverlay').hidden=true;chosenTip=null;resetSlider();
@@ -514,7 +523,7 @@
     target?.focus?.({preventScroll:true});
   }
   function supportKeydown(e){
-    if(e.key==='Escape'){e.preventDefault();closeSupport();return;}
+    if(e.key==='Escape'){e.preventDefault();backSupportStep();return;}
     if(e.key!=='Tab')return;
     const items=Array.from($('supportDialog').querySelectorAll('button:not([disabled]),[tabindex="0"]')).filter(el=>el.getClientRects().length);
     const first=items[0],last=items[items.length-1];
@@ -976,9 +985,9 @@
   $('prevDay').onclick=()=>changeDay(-1);
   $('nextDay').onclick=()=>changeDay(1);
   $('donationCard').addEventListener('click',()=>openSupport());
-  $('closeSupport').onclick=closeSupport;
+  $('closeSupport').onclick=backSupportStep;
   $('dismissSupport').onclick=closeSupport;
-  $('supportOverlay').onclick=e=>{if(e.target===$('supportOverlay'))closeSupport();};
+  $('supportOverlay').onclick=e=>{if(e.target===$('supportOverlay'))backSupportStep();};
   tipAmounts.forEach(amount=>$(`tip${amount}`).onclick=()=>chooseTip(amount));
   const slider=$('donationSlider');
   slider.addEventListener('pointerdown',e=>{
@@ -1095,4 +1104,5 @@
   for(const [id,close] of [['settingsOverlay',closeSettings],['supportOverlay',closeSupport],['wasteOverlay',closeWasteGuide],['timeOverlay',closeTimeInfo],['calendarOverlay',closeCalendar],['localityOverlay',closeLocalityPicker]]){
     window.BAG_DAY_BACK?.register(id,{isOpen:()=>!$(id).hidden,close});
   }
+  window.BAG_DAY_BACK?.register('supportConfirmation',{isOpen:()=>!$('supportOverlay').hidden&&!$('supportConfirm').hidden,close:backSupportStep});
 })();

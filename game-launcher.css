@@ -9,3 +9,5 @@
 #gameLaunchBack{font:inherit;cursor:pointer;min-height:44px;border:1px solid #567086;border-radius:12px;padding:10px 16px;background:#243b50;color:#eff6fb}
 
 [data-theme=light] #gameModeButton{background:#fff;color:#123453;border-color:#c4d5e2;box-shadow:0 2px 8px #12345312}
+
+#gameLaunchStatus{position:relative;padding-top:76px}#gameLaunchBack{position:absolute;top:16px;right:16px;width:44px;height:44px;padding:0;border-radius:50%;background:#233d55;color:#eff6fb;border:1px solid #567086}#gameLaunchBack svg{width:22px;height:22px}

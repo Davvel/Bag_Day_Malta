@@ -584,3 +584,8 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 #usageStreakArea .usage-streak-bar{width:100%;max-width:none;margin:0;padding:10px 14px;border-radius:18px;min-height:56px}
 #usageStreakArea+.donation-card{margin-top:10px}
 @media(max-height:650px){#usageStreakArea{margin-top:8px}#usageStreakArea .usage-streak-bar{min-height:46px;padding:7px 10px}#usageStreakArea+.donation-card{margin-top:8px}}
+
+/* Shared circular close affordance, including information dialogs. */
+.close-button{width:44px!important;height:44px!important;min-width:44px;min-height:44px;flex:none;padding:0!important;border-radius:50%!important;display:grid;place-items:center;border:1px solid #a8becf!important;background:#eff5fa;color:#123453}
+.close-button svg{display:block;width:22px!important;height:22px!important}
+[data-theme=dark] .close-button{background:#233d55;color:#eff6fb;border-color:#567086!important}

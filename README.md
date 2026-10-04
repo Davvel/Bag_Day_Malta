@@ -258,3 +258,11 @@ The lobby uses a centred content group with responsive gaps and bag sizes, consi
 ## Version 1.0.41 — stationary usage streak and roomier game home
 
 App usage streaks sit outside the swiping collection card, immediately above Support. The game home has larger stat labels and values, a higher title, and two-stat-height gaps above and below the records on tall screens. Short screens reduce the gaps and allow scrolling. Winning confetti bursts out, then flutters down over 4.5–6.5 seconds and gradually fades. Reduced-motion behavior is retained.
+
+## Version 1.0.42 — accuracy stars and consistent close controls
+
+Winning awards three gold stars at 95–100% displayed accuracy, two at 90–94%, and one at 80–89%, with a soft shadow. Screens and information dialogs use a 44px circular X. The celebration X returns to game home; the pause X resumes the round. Support confirmation X and mobile Back return to amount selection before closing Support. Browser/mobile Back follows the same close actions.
+
+## Version 1.0.43 — conveyor placement, collisions and game Back
+
+Downward dragging places an item on the conveyor rather than sorting it by gesture distance. Releasing inside a destination bag sorts it; tapping a bag and keyboard sorting remain available. Held items stop while being dragged and resume belt motion when released. Items queue with an 8px clearance and cannot move through another item in the same lane or change into an occupied lane. New supply waits for space. Back/Close from gameplay or results returns to game home; another Back/Close returns to Bag Day. Back from pause resumes first.

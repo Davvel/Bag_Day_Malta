@@ -18,13 +18,17 @@
   cancelAnimationFrame(raf);raf=null;mode='menu';drag=null;selected=null;hideHint();byId('pausePanel').hidden=true;byId('gamePlay').classList.remove('running');itemsLayer.replaceChildren();items=[];
   unlocked=storage.read();level=Math.min(level,unlocked);const menu=byId('levelChoice');menu.replaceChildren();
   for(let n=1;n<=unlocked;n++){const option=document.createElement('option');option.value=n;option.textContent=String(n);menu.append(option);}menu.value=String(level);
-  renderRecords();showOnly('gameMenu');
+  renderRecords();showOnly('gameMenu');notifyPause();notifyRound();
  }
  function renderRecords(){const records=window.SORTING_STATS.snapshot();for(const name of ['highestLevel','bestRound','currentStreak','longestStreak'])byId(name).textContent=String(records[name]);}
+ function notifyRound(){if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-round',open:mode!=='menu'&&mode!=='closed'},location.origin);}
  function notifyPause(){if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-pause',paused:mode==='paused'},location.origin);}
  function notifyWin(){if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-win',open:!byId('winPanel').hidden},location.origin);}
  function celebrate(accuracy){
   showOnly('gamePlay');mode='won';byId('gamePlay').inert=true;byId('winPanel').hidden=false;
+  const stars=accuracy>=95?3:accuracy>=90?2:1;
+  byId('winStars').textContent='★'.repeat(stars);
+  byId('winStars').setAttribute('aria-label',`${stars} ${stars===1?'star':'stars'} earned`);
   byId('winSummary').textContent=`Level ${level} complete · ${accuracy}% accuracy`;
   byId('playNextLevel').hidden=level>=100;
   const confetti=byId('confetti');confetti.replaceChildren();
@@ -55,9 +59,9 @@
   if(mode!=='running'||!items.includes(item))return;selected=item;lastInput=performance.now();hideHint();
   for(const entry of items)entry.node.classList.toggle('selected',entry===item);
   bags.forEach((bag,index)=>bag.classList.toggle('target',index===item.lane));
-  byId('controlHint').textContent=`${item.info.name} · tap a bag, or push sideways/down`;
+  byId('controlHint').textContent=`${item.info.name} · tap a bag, or drag on the belt or into a bag`;
  }
- function clearSelection(){selected=null;bags.forEach(bag=>bag.classList.remove('target'));byId('controlHint').textContent='Push sideways to sort · push down to send';}
+ function clearSelection(){selected=null;bags.forEach(bag=>bag.classList.remove('target'));byId('controlHint').textContent='Drag to move · drop into a bag';}
  function spawn(){
   if(!deck.length)fillDeck();const info=deck.pop(),node=document.createElement('button');node.type='button';node.className='falling-item';node.dataset.itemId=info.id;node.setAttribute('aria-label',`${info.name}. In Mixed lane. Select to sort.`);
   const img=document.createElement('img');img.src=`assets/${info.id}.svg`;img.alt='';img.draggable=false;const label=document.createElement('span');label.textContent=info.name;node.append(img,label);
@@ -71,19 +75,22 @@
   node.onpointermove=event=>{
    if(!drag||drag.item!==item||drag.id!==event.pointerId||mode!=='running')return;
    const dx=event.clientX-drag.x,dy=event.clientY-drag.y;if(Math.abs(dx)>8||Math.abs(dy)>8)drag.moved=true;
-   item.lane=Math.max(0,Math.min(2,drag.lane+Math.round(dx/(belt.clientWidth/3))));
-   item.y=Math.max(item.y,Math.min(1,drag.progress+Math.max(0,dy)/heightFor(item)));
+   const lane=Math.max(0,Math.min(2,drag.lane+Math.round(dx/(belt.clientWidth/3))));
+   moveItem(item,lane,drag.progress+dy/heightFor(item));
    item.node.setAttribute('aria-label',`${info.name}. In ${bagNames[item.lane]} lane. Select to sort.`);position(item);bags.forEach((bag,index)=>bag.classList.toggle('target',index===item.lane));lastInput=performance.now();
   };
   node.onpointerup=event=>{
-   if(!drag||drag.item!==item||drag.id!==event.pointerId)return;const send=event.clientY-drag.y>45;drag=null;hideHint();lastInput=performance.now();
-   if(mode==='running' && (send||item.y>=1))accept(item);
+   if(!drag||drag.item!==item||drag.id!==event.pointerId)return;
+   const moved=drag.moved;drag=null;hideHint();lastInput=performance.now();
+   const destination=bags.findIndex(bag=>{const box=bag.getBoundingClientRect();return event.clientX>=box.left&&event.clientX<=box.right&&event.clientY>=box.top&&event.clientY<=box.bottom;});
+   if(mode==='running'&&moved&&destination>=0){item.lane=destination;accept(item);}
+
   };
   node.onpointercancel=()=>{if(drag?.item===item){drag=null;hideHint();}};
   node.onlostpointercapture=event=>{if(activePointers.delete(event.pointerId))recordObjectInteraction();if(drag?.item===item){drag=null;hideHint();}};
   node.onkeydown=event=>{
    if(mode!=='running')return;
-   if(['ArrowLeft','ArrowRight','ArrowDown'].includes(event.key)){event.preventDefault();selectItem(item);if(event.key==='ArrowDown'){accept(item);return;}item.lane=Math.max(0,Math.min(2,item.lane+(event.key==='ArrowLeft'?-1:1)));item.node.setAttribute('aria-label',`${info.name}. In ${bagNames[item.lane]} lane. Select to sort.`);position(item);bags.forEach((bag,index)=>bag.classList.toggle('target',index===item.lane));}
+   if(['ArrowLeft','ArrowRight','ArrowDown'].includes(event.key)){event.preventDefault();selectItem(item);if(event.key==='ArrowDown'){accept(item);return;}moveItem(item,Math.max(0,Math.min(2,item.lane+(event.key==='ArrowLeft'?-1:1))),item.y);item.node.setAttribute('aria-label',`${info.name}. In ${bagNames[item.lane]} lane. Select to sort.`);position(item);bags.forEach((bag,index)=>bag.classList.toggle('target',index===item.lane));}
   };
  }
  // Keep the incoming lane filled, with at most one item-height between objects.
@@ -91,6 +98,19 @@
   if(mode!=='running'||elapsed>=60)return;
   const nearest=items.filter(item=>item.lane===1).sort((a,b)=>a.y-b.y)[0];
   if(!nearest || nearest.y*heightFor(nearest)>=nearest.node.offsetHeight+12)spawn();
+ }
+ // Sweep a move against the items in its lane; never jump through a blocker.
+ function moveItem(item,lane,progress){
+  const top=item.y*heightFor(item),height=item.node.offsetHeight,gap=8;
+  if(lane!==item.lane&&items.some(other=>other!==item&&other.lane===lane&&top<other.y*heightFor(other)+other.node.offsetHeight+gap&&top+height+gap>other.y*heightFor(other)))lane=item.lane;
+  let target=Math.max(0,Math.min(1,progress))*heightFor(item);
+  for(const other of items){
+   if(other===item||other.lane!==lane)continue;
+   const otherTop=other.y*heightFor(other);
+   if(otherTop>=top)target=Math.min(target,otherTop-height-gap);
+   else target=Math.max(target,otherTop+other.node.offsetHeight+gap);
+  }
+  item.lane=lane;item.y=Math.max(0,Math.min(1,target/heightFor(item)));position(item);
  }
  function position(item){item.node.style.left=`${(item.lane+.5)*100/3}%`;item.node.style.transform=`translate(-50%,${item.y*heightFor(item)}px)`;}
  function hideHint(){hand.hidden=true;hand.classList.remove('demo');hintItem=null;delete hand.dataset.itemSerial;delete hand.dataset.direction;}
@@ -123,7 +143,7 @@
  function tick(now){
   if(mode!=='running')return;const dt=Math.max(0,(now-lastFrame)/1000);lastFrame=now;elapsed+=dt;
   const settings=pace();
-  for(const item of [...items]){item.y+=dt/settings.travel;position(item);if(item.y>=1)accept(item);}
+  for(const item of [...items].sort((a,b)=>b.y*heightFor(b)-a.y*heightFor(a))){if(drag?.item===item)continue;moveItem(item,item.lane,item.y+dt/settings.travel);if(item.y>=1)accept(item);}
   if(elapsed<60)ensureSupply();
   const seconds=Math.max(0,Math.ceil(60-elapsed));byId('timeLeft').textContent=practice?'∞':`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
 
@@ -135,7 +155,7 @@
   byId('winPanel').hidden=true;byId('gamePlay').inert=false;notifyWin();
   level=Math.max(1,Math.min(unlocked,Number(next)||1));rememberLevel(level);practice=isPractice;elapsed=0;hits=0;misses=0;items=[];mistakes=new Map();deck=[];nextSpawn=0;selected=null;drag=null;
   itemsLayer.replaceChildren();byId('pausePanel').hidden=true;byId('feedback').classList.remove('shown');bags.forEach(bag=>bag.classList.remove('target','good','bad'));hideHint();
-  byId('playingLevel').textContent=String(level);byId('hitCount').textContent='0';byId('missCount').textContent='0';byId('timeLeft').textContent=practice?'∞':'1:00';byId('controlHint').textContent='Push sideways to sort · push down to send';showOnly('gamePlay');mode='running';byId('gamePlay').classList.add('running');lastFrame=performance.now();lastInput=lastFrame;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});
+  byId('playingLevel').textContent=String(level);byId('hitCount').textContent='0';byId('missCount').textContent='0';byId('timeLeft').textContent=practice?'∞':'1:00';byId('controlHint').textContent='Drag to move · drop into a bag';showOnly('gamePlay');mode='running';notifyRound();byId('gamePlay').classList.add('running');lastFrame=performance.now();lastInput=lastFrame;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});
  }
  function pause(){
   if(mode!=='running')return;mode='paused';cancelAnimationFrame(raf);drag=null;hideHint();byId('gamePlay').classList.remove('running');byId('pausePanel').hidden=false;byId('gamePlay').inert=true;notifyPause();byId('resumeGame').focus({preventScroll:true});
@@ -154,11 +174,11 @@
   showOnly('gameResults');byId('gameResults').focus({preventScroll:true});
  }
  bags.forEach((bag,index)=>bag.onclick=()=>{if(selected && mode==='running'){selected.lane=index;accept(selected);lastInput=performance.now();}});
- for(const id of ['closeGameMenu','closeGamePlay','closeGameResults'])byId(id).onclick=closeGame;
+ byId('closeGameMenu').onclick=closeGame;for(const id of ['closeGamePlay','closeGameResults'])byId(id).onclick=()=>{renderMenu();byId('startGame').focus();};
  window.addEventListener('message',event=>{if(event.source===window.parent&&event.origin===location.origin&&event.data?.type==='bag-day-game-resume')resume();if(event.source===window.parent&&event.origin===location.origin&&event.data?.type==='bag-day-game-menu')renderMenu();});
  byId('levelChoice').onchange=()=>{level=Math.max(1,Math.min(unlocked,Number(byId('levelChoice').value)||1));rememberLevel(level);};
  byId('startGame').onclick=()=>startRound();
- byId('pauseGame').onclick=pause;byId('resumeGame').onclick=resume;
+ byId('pauseGame').onclick=pause;byId('resumeGame').onclick=resume;byId('closePause').onclick=resume;
  byId('playNextLevel').onclick=()=>startRound(level+1,false);byId('exitWin').onclick=()=>{renderMenu();byId('startGame').focus();};
  byId('replayLevel').onclick=()=>startRound(level,false);
  // Only interaction with falling objects resets the two-second help delay.
@@ -172,7 +192,7 @@
  document.addEventListener('pointermove',event=>{if(activePointers.has(event.pointerId))recordObjectInteraction();},true);
  document.addEventListener('keydown',event=>{if(mode==='running' && event.target.closest('.falling-item'))recordObjectInteraction();},true);
  document.addEventListener('visibilitychange',()=>{if(document.hidden){activePointers.clear();pause();}});
- document.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();if(mode==='running')pause();else if(mode==='paused')resume();else if(mode==='won')renderMenu();}if(mode==='won'&&event.key==='Tab'){const controls=[byId('playNextLevel'),byId('exitWin')].filter(n=>!n.hidden);if(event.shiftKey&&document.activeElement===controls[0]){event.preventDefault();controls.at(-1).focus();}else if(!event.shiftKey&&document.activeElement===controls.at(-1)){event.preventDefault();controls[0].focus();}}if(mode==='paused'&&event.key==='Tab'){const nodes=[byId('resumeGame')];if(event.shiftKey&&document.activeElement===nodes[0]){event.preventDefault();nodes.at(-1).focus();}else if(!event.shiftKey&&document.activeElement===nodes.at(-1)){event.preventDefault();nodes[0].focus();}}});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();if(mode==='running')pause();else if(mode==='paused')resume();else if(mode==='won')renderMenu();}if(mode==='won'&&event.key==='Tab'){const controls=[byId('playNextLevel'),byId('exitWin')].filter(n=>!n.hidden);if(event.shiftKey&&document.activeElement===controls[0]){event.preventDefault();controls.at(-1).focus();}else if(!event.shiftKey&&document.activeElement===controls.at(-1)){event.preventDefault();controls[0].focus();}}if(mode==='paused'&&event.key==='Tab'){const nodes=[byId('closePause'),byId('resumeGame')];if(event.shiftKey&&document.activeElement===nodes[0]){event.preventDefault();nodes.at(-1).focus();}else if(!event.shiftKey&&document.activeElement===nodes.at(-1)){event.preventDefault();nodes[0].focus();}}});
  window.addEventListener('resize',()=>{if(mode==='running')pause();for(const item of items)position(item);});
  if('ResizeObserver' in window){
   const record=document.querySelector('.record');

@@ -58,3 +58,10 @@
 @keyframes confetti-flight{0%{opacity:0;transform:translate(0,0)}3%{opacity:1}12%{transform:translate(calc(var(--burst-x) * .75),calc(var(--burst-y) * .8));animation-timing-function:cubic-bezier(.1,.5,.3,1)}22%{opacity:1;transform:translate(var(--burst-x),var(--burst-y));animation-timing-function:cubic-bezier(.4,0,.8,.7)}80%{opacity:1}100%{opacity:0;transform:translate(calc(var(--burst-x) + var(--drift)),var(--landing-y))}}
 @keyframes confetti-flutter{0%{transform:translateX(-9px) rotate(var(--spin)) rotateY(0deg)}100%{transform:translateX(9px) rotate(calc(var(--spin) + 150deg)) rotateY(160deg)}}
 @media(prefers-reduced-motion:reduce){.confetti-flight,.confetti i{animation:none}}
+
+/* One circular close control on every game panel. */
+.circle-control{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border-radius:50%}
+.circle-control svg{width:22px;height:22px;display:block}
+.win-dialog,.pause-overlay section{position:relative;padding-top:64px}
+.win-dialog .panel-close,.pause-overlay .panel-close{position:absolute;width:44px;height:44px;margin:0;padding:0;top:12px;right:12px}
+.win-medal{font-size:clamp(2.5rem,10vw,3.5rem);letter-spacing:.1em;line-height:1.15;color:#ffe089;text-shadow:0 7px 5px #0007,0 2px 0 #8a641c}
