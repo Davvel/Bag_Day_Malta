@@ -99,18 +99,11 @@
   const nearest=items.filter(item=>item.lane===1).sort((a,b)=>a.y-b.y)[0];
   if(!nearest || nearest.y*heightFor(nearest)>=nearest.node.offsetHeight+12)spawn();
  }
- // Sweep a move against the items in its lane; never jump through a blocker.
+ // Items move independently and may overlap like stacked cards.
  function moveItem(item,lane,progress){
-  const top=item.y*heightFor(item),height=item.node.offsetHeight,gap=8;
-  if(lane!==item.lane&&items.some(other=>other!==item&&other.lane===lane&&top<other.y*heightFor(other)+other.node.offsetHeight+gap&&top+height+gap>other.y*heightFor(other)))lane=item.lane;
-  let target=Math.max(0,Math.min(1,progress))*heightFor(item);
-  for(const other of items){
-   if(other===item||other.lane!==lane)continue;
-   const otherTop=other.y*heightFor(other);
-   if(otherTop>=top)target=Math.min(target,otherTop-height-gap);
-   else target=Math.max(target,otherTop+other.node.offsetHeight+gap);
-  }
-  item.lane=lane;item.y=Math.max(0,Math.min(1,target/heightFor(item)));position(item);
+  item.lane=Math.max(0,Math.min(2,lane));
+  item.y=Math.max(0,Math.min(1,progress));
+  position(item);
  }
  function position(item){item.node.style.left=`${(item.lane+.5)*100/3}%`;item.node.style.transform=`translate(-50%,${item.y*heightFor(item)}px)`;}
  function hideHint(){hand.hidden=true;hand.classList.remove('demo');hintItem=null;delete hand.dataset.itemSerial;delete hand.dataset.direction;}
@@ -143,7 +136,7 @@
  function tick(now){
   if(mode!=='running')return;const dt=Math.max(0,(now-lastFrame)/1000);lastFrame=now;elapsed+=dt;
   const settings=pace();
-  for(const item of [...items].sort((a,b)=>b.y*heightFor(b)-a.y*heightFor(a))){if(drag?.item===item)continue;moveItem(item,item.lane,item.y+dt/settings.travel);if(item.y>=1)accept(item);}
+  for(const item of [...items]){if(drag?.item===item)continue;moveItem(item,item.lane,item.y+dt/settings.travel);if(item.y>=1)accept(item);}
   if(elapsed<60)ensureSupply();
   const seconds=Math.max(0,Math.ceil(60-elapsed));byId('timeLeft').textContent=practice?'∞':`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
 
