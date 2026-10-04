@@ -250,3 +250,7 @@ Clicking the enabled game icon sends the GA4 event `game_open` through the exist
 The home streak bar follows the same responsive width and side alignment as the date and collection-hours panels. On Sundays, the sun and no-collection message sit higher and the streak bar lower.
 
 The game home stacks four centred stats, followed by a matching-width Level selector, Play and the three bags. Its circular Close button sits inside the panel. Winning shows a Congratulations modal with a confetti burst, Play Next Level and Exit. Exit returns to the game home with refreshed records; mobile Back follows the same route, then closes the game to Bag Day. Losing retains same-level Try Again. Level 100 offers Exit without a nonexistent next level. Reduced-motion users receive the celebration without moving confetti.
+
+## Version 1.0.40 — responsive sorting-game home
+
+The lobby uses a centred content group with responsive gaps and bag sizes, consistent stat columns, and a compact centred Level/dropdown pair. Four stats, the Level row and Play share one adaptive width. Short screens tighten spacing; landscape and larger text can scroll without hiding controls. The internal Close button keeps a 44px touch target and the outer game container retains device safe-area insets.
