@@ -41,3 +41,20 @@
 .win-overlay{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:#061421cc}.win-dialog{position:relative;width:min(100%,390px);padding:32px 24px;text-align:center;border:1px solid #88d4c2;border-radius:26px;background:radial-gradient(ellipse at top,#275767,#1b2d45 75%);box-shadow:0 20px 70px #0008}.win-dialog h2{font-size:clamp(1.45rem,6vw,1.8rem);margin:12px 0}.win-dialog button{width:100%;margin-top:12px;position:relative;z-index:2}.win-medal{color:#ffe089;font-size:3.5rem;text-shadow:0 0 22px #ffd75d70}.win-dialog p{margin:8px 0 18px}.confetti{position:absolute;inset:0;overflow:visible;pointer-events:none}.confetti i{position:absolute;left:50%;top:46%;width:8px;height:13px;background:var(--colour);border-radius:2px;opacity:0;animation:confetti-burst 1.8s var(--delay) cubic-bezier(.18,.75,.3,1) both}.confetti i:nth-child(3n){border-radius:50%;height:8px}@keyframes confetti-burst{0%{opacity:0;transform:translate(0,0) rotate(0)}8%{opacity:1}50%{opacity:1;transform:translate(var(--burst-x),var(--burst-y)) rotate(var(--spin))}100%{opacity:0;transform:translate(var(--burst-x),180px) rotate(var(--spin))}}
 @media(max-height:700px){.win-dialog{padding:24px 18px}}
 @media(prefers-reduced-motion:reduce){.confetti i{animation:none}}
+
+/* Larger records and two-record-height breathing room on tall screens. */
+.menu-panel{--lobby-width:min(100%,390px);--stat-height:52px;--stat-gap:calc(var(--stat-height) * 2);padding-top:64px;padding-bottom:28px}
+.lobby-content{margin-block:0}
+.menu-panel h1{margin-bottom:var(--stat-gap)}
+.record{min-height:52px;padding:11px 14px}
+.record small{font-size:1rem}
+.record strong{font-size:1.45rem}
+.record>span svg{width:24px;height:24px}
+.level-row{margin-top:var(--stat-gap)}
+@media(max-height:850px){.menu-panel{--stat-gap:clamp(16px,calc((100dvh - 620px) / 2),calc(var(--stat-height) * 2));padding-top:60px;padding-bottom:20px}.menu-bags img{height:clamp(80px,12dvh,115px)}}
+/* A short outward burst becomes a slow, independently fluttering descent. */
+.confetti i{left:0;top:0;opacity:1;animation:confetti-flutter var(--fall-duration) ease-in-out infinite alternate}
+.confetti-flight{position:absolute;left:50%;top:46%;width:8px;height:13px;opacity:0;animation:confetti-flight var(--duration) var(--delay) linear both}
+@keyframes confetti-flight{0%{opacity:0;transform:translate(0,0)}3%{opacity:1}12%{transform:translate(calc(var(--burst-x) * .75),calc(var(--burst-y) * .8));animation-timing-function:cubic-bezier(.1,.5,.3,1)}22%{opacity:1;transform:translate(var(--burst-x),var(--burst-y));animation-timing-function:cubic-bezier(.4,0,.8,.7)}80%{opacity:1}100%{opacity:0;transform:translate(calc(var(--burst-x) + var(--drift)),var(--landing-y))}}
+@keyframes confetti-flutter{0%{transform:translateX(-9px) rotate(var(--spin)) rotateY(0deg)}100%{transform:translateX(9px) rotate(calc(var(--spin) + 150deg)) rotateY(160deg)}}
+@media(prefers-reduced-motion:reduce){.confetti-flight,.confetti i{animation:none}}

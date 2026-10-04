@@ -578,3 +578,9 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 .bag-area{--card-panel-inset:14px}.collection-date{padding-left:var(--card-panel-inset);padding-right:var(--card-panel-inset)}.collection-card{padding-left:var(--card-panel-inset);padding-right:var(--card-panel-inset)}.usage-streak-bar{max-width:none;width:100%;margin-left:0;margin-right:0}.put-out-instruction{width:100%}.collection-card.no-collection{justify-content:flex-start}.no-collection-message{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;transform:translateY(-14px)}.collection-card.no-collection .usage-streak-bar{margin-top:0;margin-bottom:clamp(24px,7dvh,64px)}
 @media(max-width:360px){.bag-area{--card-panel-inset:10px}}
 @media(max-height:450px) and (min-width:600px){.usage-streak-bar{width:100%;max-width:none;margin-left:0}.collection-card.no-collection{padding-left:var(--card-panel-inset)}.no-collection-message{margin-left:53%;transform:translateY(-4px)}.collection-card.no-collection .usage-streak-bar{margin-bottom:10px}}
+
+/* App usage belongs to the stationary shell, independently of the viewed date. */
+#usageStreakArea{flex:none;width:100%;margin-top:12px}
+#usageStreakArea .usage-streak-bar{width:100%;max-width:none;margin:0;padding:10px 14px;border-radius:18px;min-height:56px}
+#usageStreakArea+.donation-card{margin-top:10px}
+@media(max-height:650px){#usageStreakArea{margin-top:8px}#usageStreakArea .usage-streak-bar{min-height:46px;padding:7px 10px}#usageStreakArea+.donation-card{margin-top:8px}}

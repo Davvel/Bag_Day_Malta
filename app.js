@@ -649,6 +649,8 @@
     renderStaticText();
     const locality=activeLocality();
     $('dashboard').hidden=!locality;
+    $('usageStreakArea').hidden=!locality;
+    if(locality)$('usageStreakArea').innerHTML=usageStreakBar();
     if(!locality)return;
     recordSupportUsage();
     const c=t(),date=shownDate();
@@ -678,11 +680,11 @@
     requestAnimationFrame(syncDayNavigationLayout);
     const schedule=scheduleFor(date);
     if(!schedule.bag){
-      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="no-collection-message"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div></div>${usageStreakBar()}</div>`;
+      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="no-collection-message"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div></div></div>`;
     }else{
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
       const figures=`<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="bag-click-hint">Tap bag for info</span><span class="collection-item-label">${c[schedule.bag]}</span></div>${schedule.glass?`<div class="collection-item">${bagButton('glass',c.glassBottles)}<span class="bag-click-hint">Tap bag for info</span><span class="collection-item-label">${c.glassBottles}</span></div>`:''}</div>`;
-      $('collectionCardBody').innerHTML=`<div class="collection-card">${figures}${usageStreakBar()}<div class="collection-timing"><div class="put-out-instruction"><span>Put your bag outside</span><strong>between <span class="time-value">${timeMarkup(formatTime(time))}</span> and <span class="time-value">${timeMarkup(time)}</span></strong></div><button type="button" class="collection-time-button" data-time-info aria-label="Collection starts at ${compactTime(time).text} ${compactTime(time).period}. More information">${truckIcon}<span class="collection-start-label">Collection starts at <strong>${timeMarkup(time)}</strong></span><span class="info-circle" aria-hidden="true">i</span></button></div></div>`;
+      $('collectionCardBody').innerHTML=`<div class="collection-card">${figures}<div class="collection-timing"><div class="put-out-instruction"><span>Put your bag outside</span><strong>between <span class="time-value">${timeMarkup(formatTime(time))}</span> and <span class="time-value">${timeMarkup(time)}</span></strong></div><button type="button" class="collection-time-button" data-time-info aria-label="Collection starts at ${compactTime(time).text} ${compactTime(time).period}. More information">${truckIcon}<span class="collection-start-label">Collection starts at <strong>${timeMarkup(time)}</strong></span><span class="info-circle" aria-hidden="true">i</span></button></div></div>`;
 
     }
     const different=!followLocation && !temporaryView && detected&&detected!==selected&&!promptIsDismissed();

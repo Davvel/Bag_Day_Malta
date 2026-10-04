@@ -254,3 +254,7 @@ The game home stacks four centred stats, followed by a matching-width Level sele
 ## Version 1.0.40 — responsive sorting-game home
 
 The lobby uses a centred content group with responsive gaps and bag sizes, consistent stat columns, and a compact centred Level/dropdown pair. Four stats, the Level row and Play share one adaptive width. Short screens tighten spacing; landscape and larger text can scroll without hiding controls. The internal Close button keeps a 44px touch target and the outer game container retains device safe-area insets.
+
+## Version 1.0.41 — stationary usage streak and roomier game home
+
+App usage streaks sit outside the swiping collection card, immediately above Support. The game home has larger stat labels and values, a higher title, and two-stat-height gaps above and below the records on tall screens. Short screens reduce the gaps and allow scrolling. Winning confetti bursts out, then flutters down over 4.5–6.5 seconds and gradually fades. Reduced-motion behavior is retained.
