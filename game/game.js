@@ -76,7 +76,7 @@
    if(!drag||drag.item!==item||drag.id!==event.pointerId||mode!=='running')return;
    const dx=event.clientX-drag.x,dy=event.clientY-drag.y;if(Math.abs(dx)>8||Math.abs(dy)>8)drag.moved=true;
    const lane=Math.max(0,Math.min(2,drag.lane+Math.round(dx/(belt.clientWidth/3))));
-   moveItem(item,lane,drag.progress+dy/heightFor(item));
+   moveItem(item,lane,drag.progress+dy/heightFor(item));ensureSupply();
    item.node.setAttribute('aria-label',`${info.name}. In ${bagNames[item.lane]} lane. Select to sort.`);position(item);bags.forEach((bag,index)=>bag.classList.toggle('target',index===item.lane));lastInput=performance.now();
   };
   node.onpointerup=event=>{
@@ -90,14 +90,15 @@
   node.onlostpointercapture=event=>{if(activePointers.delete(event.pointerId))recordObjectInteraction();if(drag?.item===item){drag=null;hideHint();}};
   node.onkeydown=event=>{
    if(mode!=='running')return;
-   if(['ArrowLeft','ArrowRight','ArrowDown'].includes(event.key)){event.preventDefault();selectItem(item);if(event.key==='ArrowDown'){accept(item);return;}moveItem(item,Math.max(0,Math.min(2,item.lane+(event.key==='ArrowLeft'?-1:1))),item.y);item.node.setAttribute('aria-label',`${info.name}. In ${bagNames[item.lane]} lane. Select to sort.`);position(item);bags.forEach((bag,index)=>bag.classList.toggle('target',index===item.lane));}
+   if(['ArrowLeft','ArrowRight','ArrowDown'].includes(event.key)){event.preventDefault();selectItem(item);if(event.key==='ArrowDown'){accept(item);return;}moveItem(item,Math.max(0,Math.min(2,item.lane+(event.key==='ArrowLeft'?-1:1))),item.y);ensureSupply();item.node.setAttribute('aria-label',`${info.name}. In ${bagNames[item.lane]} lane. Select to sort.`);position(item);bags.forEach((bag,index)=>bag.classList.toggle('target',index===item.lane));}
   };
  }
- // Keep the incoming lane filled, with at most one item-height between objects.
+ // Spawn as soon as the top-middle card footprint is clear.
  function ensureSupply(){
   if(mode!=='running'||elapsed>=60)return;
-  const nearest=items.filter(item=>item.lane===1).sort((a,b)=>a.y-b.y)[0];
-  if(!nearest || nearest.y*heightFor(nearest)>=nearest.node.offsetHeight+12)spawn();
+  const cardHeight=items[0]?.node.offsetHeight||0;
+  const occupied=items.some(item=>item.lane===1&&item.y*heightFor(item)+.01<cardHeight);
+  if(!occupied)spawn();
  }
  // Items move independently and may overlap like stacked cards.
  function moveItem(item,lane,progress){
@@ -148,7 +149,7 @@
   byId('winPanel').hidden=true;byId('gamePlay').inert=false;notifyWin();
   level=Math.max(1,Math.min(unlocked,Number(next)||1));rememberLevel(level);practice=isPractice;elapsed=0;hits=0;misses=0;items=[];mistakes=new Map();deck=[];nextSpawn=0;selected=null;drag=null;
   itemsLayer.replaceChildren();byId('pausePanel').hidden=true;byId('feedback').classList.remove('shown');bags.forEach(bag=>bag.classList.remove('target','good','bad'));hideHint();
-  byId('playingLevel').textContent=String(level);byId('hitCount').textContent='0';byId('missCount').textContent='0';byId('timeLeft').textContent=practice?'∞':'1:00';byId('controlHint').textContent='Drag to move · drop into a bag';showOnly('gamePlay');mode='running';notifyRound();byId('gamePlay').classList.add('running');lastFrame=performance.now();lastInput=lastFrame;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});
+  byId('playingLevel').textContent=String(level);byId('hitCount').textContent='0';byId('missCount').textContent='0';byId('timeLeft').textContent=practice?'∞':'1:00';byId('controlHint').textContent='Drag to move · drop into a bag';showOnly('gamePlay');mode='running';ensureSupply();notifyRound();byId('gamePlay').classList.add('running');lastFrame=performance.now();lastInput=lastFrame;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});
  }
  function pause(){
   if(mode!=='running')return;mode='paused';cancelAnimationFrame(raf);drag=null;hideHint();byId('gamePlay').classList.remove('running');byId('pausePanel').hidden=false;byId('gamePlay').inert=true;notifyPause();byId('resumeGame').focus({preventScroll:true});

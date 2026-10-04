@@ -271,3 +271,8 @@ Downward dragging places an item on the conveyor rather than sorting it by gestu
 ## Version 1.0.44 — overlapping conveyor cards
 
 Removed collisions between waste items. Items can be dragged over one another or into an occupied lane without blocking or pushing. The selected item appears above the others, including after release. Conveyor motion is independent for each item. Downward placement and release-inside-bag sorting remain unchanged, as does the two-step Back navigation.
+
+
+## Version 1.0.45 — immediate space-based spawning
+
+A new card appears immediately when the top-middle card footprint clears, including during dragging or keyboard lane changes. No new card is created while that footprint is occupied. Removed the extra 12px spawning gap. A round starts with its first card immediately; belt motion continues checking available space each frame. Items can still overlap freely elsewhere.
