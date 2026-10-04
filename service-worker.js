@@ -1,5 +1,5 @@
-const CACHE='bag-day-malta-1.0.36';
-const ASSETS=['./','./index.html','./styles.css?v=1.0.36','./data.js?v=1.0.36','./app.js?v=1.0.36','./waste-guide.js?v=1.0.36','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest?v=1.0.36','./icons/icon-192.png?v=1.0.36','./icons/icon-512.png?v=1.0.36','./icons/icon-maskable-512.png?v=1.0.36','./icons/apple-touch-icon.png?v=1.0.36','./icons/favicon-32.png?v=1.0.36','./icons/glass-carrier.svg','./icons/zejtunsoft-profile.png'];
+const CACHE='bag-day-malta-1.0.38';
+const ASSETS=['./usage-streak.js?v=1.0.38','./navigation.js?v=1.0.38','./','./index.html','./styles.css?v=1.0.38','./data.js?v=1.0.38','./app.js?v=1.0.38','./waste-guide.js?v=1.0.38','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest?v=1.0.38','./icons/icon-192.png?v=1.0.38','./icons/icon-512.png?v=1.0.38','./icons/icon-maskable-512.png?v=1.0.38','./icons/apple-touch-icon.png?v=1.0.38','./icons/favicon-32.png?v=1.0.38','./icons/glass-carrier.svg','./icons/zejtunsoft-profile.png'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('bag-day-malta-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{

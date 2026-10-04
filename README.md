@@ -2,11 +2,11 @@
 
 A static, installable PWA for Malta and Gozo household kerbside waste collection. Upload all files in this folder to any HTTPS web host; `index.html` must be accessible at the deployment URL. No build step, database server, or API key is required. The service worker and device location require HTTPS (localhost works for local development).
 
-On first use, the app starts in English and asks for location access to select an initial home locality when no home is saved. Manual selection always works. The app is English only. The chosen locality is kept in the browser. Open Settings (the cog) to change locality. The phone's GPS can suggest a change, but never changes the saved locality automatically. Offline, the saved timetable still displays. The app includes black bag PNG home-screen icons for Android and Apple devices.
+On first use, the app starts in English and asks for location access to select an initial home locality when no home is saved. Manual selection always works. The app is English only. The chosen locality is kept in the browser. Open Settings (the cog) to change locality. The phone's GPS can suggest a change, but never changes the saved locality automatically. Offline, the saved timetable still displays. The app includes green recycling home-screen icons for Android and Apple devices.
 
 If a different locality is detected with follow mode off, tapping View temporarily displays its schedule without changing home. The prompt is dismissed for 24 hours.
 
-Swipe or use the arrows to view up to 30 days ahead. The display returns to today after one minute without another day change. On the first and third Fridays, the card shows both the organic waste bag and a reusable carrier with glass bottles.
+Swipe or use the arrows to view up to 30 days ahead. The default day is today until 3pm Malta time, then tomorrow. After a minute of browsing inactivity the display returns to that default day. On the first and third Fridays, the card shows both the organic waste bag and a reusable carrier with glass bottles.
 
 Source: [Waste Collection Malta](https://www.wastecollection.mt/) national collection schedule and September 2026 locality timetable. `data.js` contains the transcribed times for 68 councils. Friday glass collection occurs on the first and third Friday of each month. Put bags out no earlier than four hours before the published collection time. Sunday has no national collection. Times are displayed in Malta time. The timetable is a snapshot: check the official source periodically and update `data.js`, then increase the cache name in `service-worker.js` when publishing changes. Special holiday arrangements or later council notices are not included.
 
@@ -226,5 +226,21 @@ Levels 1–10 are available immediately. Players can start at 10 and earn level 
 ## Version 1.0.34 — six-second object-only help timer
 The game glove waits six seconds without falling-object interaction, rather than resetting on every screen input. Empty-space taps, scrolling and unrelated key presses do not delay it. Touching an object immediately hides the glove; holding suppresses it and releasing/cancelling starts a fresh six-second wait. Play/resume also starts a fresh wait. The cue still requires a middle-lane item and demonstrates only its correct gesture without moving it. Main app logic/styles, level access and progress remain unchanged. Splash, Settings, shell URLs and cache versions identify 1.0.34.
 
-## Version 1.0.36 — green recycling app icon
-The installed app icon uses the approved green tied waste bag with white recycling arrows on an emerald background. Exports include 192px/512px standard icons, a dedicated 512px maskable icon with safe padding, a 180px Apple touch icon and 32px browser favicon. Versioned manifest/icon URLs and precache entries refresh the published assets. The legacy SVG path also contains the new artwork. Installed home-screen shortcuts can retain their old image until the browser updates the installation; removing and adding the shortcut again requests the new image. Main app and game behaviour are unchanged. Splash, Settings, shell/cache versions and the ZIP identify 1.0.36.
+## Version 1.0.38 — green recycling app icon
+The installed app icon uses the approved green tied waste bag with white recycling arrows on an emerald background. Exports include 192px/512px standard icons, a dedicated 512px maskable icon with safe padding, a 180px Apple touch icon and 32px browser favicon. Versioned manifest/icon URLs and precache entries refresh the published assets. The legacy SVG path also contains the new artwork. Installed home-screen shortcuts can retain their old image until the browser updates the installation; removing and adding the shortcut again requests the new image. Main app and game behaviour are unchanged. Splash, Settings, shell/cache versions and the ZIP identify 1.0.38.
+
+## Version 1.0.38
+
+Settings removes the repeated brand heading and Done button, saves automatically, and fits a 320 × 568 viewport. The home game launcher follows the light/dark setting. Browser/mobile Back closes the top open settings, locality, calendar, waste, time or support panel. In the game, Back resumes a paused round first, then exits to Bag Day; at home normal browser Back remains available.
+
+The game lobby has a compact labelled level selector, updated bag artwork, four local records, and Play. Correct placements glow green; wrong placements show red lightning, a shake and a cross without visible explanation text. Larger counters sit beside circular Pause and Close controls. The pause dialog contains a centred heading and Resume only. Game-menu/results Close controls return to Bag Day. No practice/reset controls are exposed.
+
+Record tracking starts with this version: highest completed level, best correct-item count in any completed one-minute round, current day streak and longest day streak. Completing a round counts whether won or lost. Days use Europe/Malta; repeated rounds count once, a missed day resets the current streak, and the longest streak is retained. Old level unlocks and last level remain saved.
+
+Splash is shown on the first two page openings. Levels 1–10 receive a glove hint after two seconds without object input; later levels do not. New items continue until the one-minute cutoff and appear immediately when the incoming lane empties. Unfinished objects are not forced into a bag at the cutoff. Results replay the same level and review only its item set.
+
+## Bag Day usage streaks and game-open analytics (1.0.38)
+
+The collection card now includes a coloured Current streak / Longest streak bar beneath the waste illustration(s), including no-collection days. Records use the independent local key `bag-day-usage-streak-v1`. A visible app opening, return from the background, or restored page counts once per Europe/Malta calendar date; repeated visits on that date do not increase the count. A missed date resets the current streak, and the longest streak is retained. These records begin with this version and do not require the sorting game or analytics consent.
+
+Clicking the enabled game icon sends the GA4 event `game_open` through the existing consent-gated analytics setup. The event represents an opening attempt, so it counts even if loading fails. A consented click while the Analytics script is loading is queued until it loads; clicks without consent are never queued or sent. No game score, app streak or locality is included in this event. View `game_open` in GA4's Events reports.

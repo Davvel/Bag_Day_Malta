@@ -219,7 +219,7 @@
     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   });
 
-  let analyticsReady = false;
+  let analyticsReady = false, pendingGameOpens=0;
   const analyticsConsentKey='bag-day-analytics-consent-v1';
   let analyticsLoading=false,analyticsId='';
   function analyticsAllowed(){return localStorage.getItem(analyticsConsentKey)==='granted';}
@@ -227,7 +227,7 @@
     localStorage.setItem(analyticsConsentKey,allowed?'granted':'denied');
     $('allowAnalytics').checked=allowed;
     if(allowed){loadAnalytics();return;}
-    analyticsReady=false;
+    analyticsReady=false;pendingGameOpens=0;
     if(analyticsId)window['ga-disable-'+analyticsId]=true;
     // Remove existing Analytics cookies after withdrawal.
     document.cookie.split(';').forEach(pair=>{
@@ -416,6 +416,12 @@
     window.gtag('event',name,params);
   }
 
+  $('gameModeButton').addEventListener('click',()=>{
+    if($('gameModeButton').hidden || appContent.inert || !splash.hidden || $('dashboard').hidden || !analyticsAllowed())return;
+    if(analyticsReady)analyticsEvent('game_open');
+    else{pendingGameOpens++;loadAnalytics();}
+  },true);
+
   async function loadAnalytics(){
     if(analyticsLoading||analyticsReady)return;
     try{
@@ -433,7 +439,7 @@
       window.gtag('config',id,{anonymize_ip:true,allow_google_signals:false,allow_ad_personalization_signals:false});
       const script=document.createElement('script');
       script.async=true; script.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
-      script.onload=()=>{analyticsLoading=false;analyticsReady=analyticsAllowed();};
+      script.onload=()=>{analyticsLoading=false;analyticsReady=analyticsAllowed();const clicks=pendingGameOpens;pendingGameOpens=0;if(analyticsReady)for(let n=0;n<clicks;n++)analyticsEvent('game_open');};
       script.onerror=()=>{analyticsLoading=false;};
       document.head.appendChild(script);
     }catch(_){ /* analytics is optional */ }
@@ -569,12 +575,10 @@
     $('prevDay').setAttribute('aria-label',c.previous);
     $('nextDay').setAttribute('aria-label',c.next);
     $('switchButton').textContent=c.yes;
-    $('settingsEyebrow').textContent=c.schedule;
     $('settingsTitle').textContent=c.settings;
     $('homeLocalityTitle').textContent=c.homeLocalityTitle;
     $('closeSettings').setAttribute('aria-label',c.cancel);
     renderHomeLocality();
-    $('cancelSettings').textContent=c.done;
     $('locationBehaviourLabel').textContent=c.locationBehaviour;
     $('keepLocalityTitle').textContent=c.keepTitle;
     $('followLocationTitle').textContent=c.followTitle;
@@ -636,6 +640,10 @@
     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   }
 
+  function usageStreakBar(){
+    const record=window.BAG_DAY_STREAK.snapshot(),days=value=>`${value} ${value===1?'day':'days'}`;
+    return `<div class="usage-streak-bar" aria-label="Bag Day app usage streaks"><div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2c1 6-5 7-4 12-2-1-2-3-2-4-5 6-2 12 5 12 8 0 10-8 6-13 0 3-2 4-3 4 2-4 0-8-2-11Z"/></svg><span>Current streak<strong>${days(record.current)}</strong></span></div><div><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0V3ZM7 5H3v2c0 4 2 5 5 5M17 5h4v2c0 4-2 5-5 5M12 14v6M7 21h10"/></svg><span>Longest streak<strong>${days(record.longest)}</strong></span></div></div>`;
+  }
   function render() {
     if(!$('localityOverlay').hidden || !$('wasteOverlay').hidden || !$('timeOverlay').hidden || !$('supportOverlay').hidden || !$('calendarOverlay').hidden)return;
     renderStaticText();
@@ -670,11 +678,11 @@
     requestAnimationFrame(syncDayNavigationLayout);
     const schedule=scheduleFor(date);
     if(!schedule.bag){
-      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div></div>`;
+      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div>${usageStreakBar()}</div>`;
     }else{
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
       const figures=`<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="bag-click-hint">Tap bag for info</span><span class="collection-item-label">${c[schedule.bag]}</span></div>${schedule.glass?`<div class="collection-item">${bagButton('glass',c.glassBottles)}<span class="bag-click-hint">Tap bag for info</span><span class="collection-item-label">${c.glassBottles}</span></div>`:''}</div>`;
-      $('collectionCardBody').innerHTML=`<div class="collection-card">${figures}<div class="collection-timing"><div class="put-out-instruction"><span>Put your bag outside</span><strong>between <span class="time-value">${timeMarkup(formatTime(time))}</span> and <span class="time-value">${timeMarkup(time)}</span></strong></div><button type="button" class="collection-time-button" data-time-info aria-label="Collection starts at ${compactTime(time).text} ${compactTime(time).period}. More information">${truckIcon}<span class="collection-start-label">Collection starts at <strong>${timeMarkup(time)}</strong></span><span class="info-circle" aria-hidden="true">i</span></button></div></div>`;
+      $('collectionCardBody').innerHTML=`<div class="collection-card">${figures}${usageStreakBar()}<div class="collection-timing"><div class="put-out-instruction"><span>Put your bag outside</span><strong>between <span class="time-value">${timeMarkup(formatTime(time))}</span> and <span class="time-value">${timeMarkup(time)}</span></strong></div><button type="button" class="collection-time-button" data-time-info aria-label="Collection starts at ${compactTime(time).text} ${compactTime(time).period}. More information">${truckIcon}<span class="collection-start-label">Collection starts at <strong>${timeMarkup(time)}</strong></span><span class="info-circle" aria-hidden="true">i</span></button></div></div>`;
 
     }
     const different=!followLocation && !temporaryView && detected&&detected!==selected&&!promptIsDismissed();
@@ -803,7 +811,6 @@
     $('homeLocalityPlaceholder').textContent=t().choose;
     menu.value=selected||'';
     $('closeSettings').hidden=!selected;
-    $('cancelSettings').hidden=!selected;
   }
 
   function saveHomeLocality(name){
@@ -963,7 +970,6 @@
     followLocation=true;temporaryView=null;localStorage.setItem(followLocationKey,'true');analyticsEvent('follow_location_enabled');detectLocation();render();
   };
   $('closeSettings').onclick=closeSettings;
-  $('cancelSettings').onclick=closeSettings;
   $('homeLocalitySelect').onchange=()=>saveHomeLocality($('homeLocalitySelect').value);
   $('prevDay').onclick=()=>changeDay(-1);
   $('nextDay').onclick=()=>changeDay(1);
@@ -1083,4 +1089,8 @@
   if(welcomeNeeded){if(splash.hidden)openWelcome();}
   else detectLocation();
   if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
+  // Hardware Back uses the same close routines as each panel's own controls.
+  for(const [id,close] of [['settingsOverlay',closeSettings],['supportOverlay',closeSupport],['wasteOverlay',closeWasteGuide],['timeOverlay',closeTimeInfo],['calendarOverlay',closeCalendar],['localityOverlay',closeLocalityPicker]]){
+    window.BAG_DAY_BACK?.register(id,{isOpen:()=>!$(id).hidden,close});
+  }
 })();

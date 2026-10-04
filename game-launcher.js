@@ -4,8 +4,10 @@
  'use strict';
  const button=document.getElementById('gameModeButton'),layer=document.getElementById('gameModeLayer'),content=document.getElementById('appContent'),status=document.getElementById('gameLaunchStatus'),message=document.getElementById('gameLaunchMessage'),back=document.getElementById('gameLaunchBack');
  if(!button||!layer||!content)return;
+ let gamePaused=false;
  let enabled=false,frame=null,launchTimer=null,opener=null,previousOverflow='',launchSerial=0,controller=null;
  function close(){
+  gamePaused=false;
   launchSerial++;controller?.abort();controller=null;clearTimeout(launchTimer);frame?.remove();frame=null;layer.hidden=true;content.inert=false;document.body.style.overflow=previousOverflow;
   if(opener?.isConnected && !opener.hidden)opener.focus({preventScroll:true});opener=null;
  }
@@ -31,8 +33,11 @@
  window.addEventListener('message',event=>{
   if(!frame||event.source!==frame.contentWindow||event.origin!==location.origin)return;
   if(event.data?.type==='bag-day-game-close')close();
+  else if(event.data?.type==='bag-day-game-pause'){gamePaused=event.data.paused===true;window.BAG_DAY_BACK?.sync();}
   else if(event.data?.type==='bag-day-game-ready'){clearTimeout(launchTimer);status.hidden=true;frame.focus();}
  });
  // Mode is never saved or encoded in the URL. Every new page starts with Bag Day.
+ window.BAG_DAY_BACK?.register('sortingGame',{isOpen:()=>!layer.hidden,close});
+ window.BAG_DAY_BACK?.register('sortingGamePause',{isOpen:()=>!layer.hidden&&gamePaused,close:()=>{gamePaused=false;frame?.contentWindow.postMessage({type:'bag-day-game-resume'},location.origin);}});
  layer.hidden=true;button.hidden=true;readSwitch();setInterval(readSwitch,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)readSwitch();});
 })();

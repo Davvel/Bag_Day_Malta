@@ -561,3 +561,15 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 /* v1.0.30: a concise confirmation step; the amount-selection screen is unchanged. */
 #supportDialog #confirmAmount{font-size:1.7rem;text-align:center;margin:22px 0 12px}
 #supportConfirm .slider-label{text-align:center;line-height:1.35;padding:6px 5px}
+
+/* Compact settings: one heading, automatic saving, no footer action. */
+#settingsDialog{padding:14px 18px;position:relative}#settingsDialog .settings-head{position:absolute;right:14px;top:12px}#settingsDialog h2{margin:8px 50px 12px 0}#settingsDialog .settings-section{margin-top:10px;padding:10px 12px}#settingsDialog h3{margin-bottom:6px}#settingsDialog .behaviour-option{padding:7px 0}#settingsDialog .support-check{margin:6px 0}#settingsDialog .section-help{font-size:.75rem;line-height:1.35}#settingsDialog .settings-credit{margin:12px 0 0}#settingsDialog select{min-height:42px;padding:8px 10px}
+@media(max-height:700px){#settingsDialog{padding:10px 14px}#settingsDialog .settings-section{padding:8px 10px;margin-top:7px}#settingsDialog h2{margin-top:4px;margin-bottom:8px}#settingsDialog .settings-grip{margin-bottom:4px}#settingsDialog .behaviour-option{padding:5px 0}}
+@media(max-height:700px){#settingsDialog{padding-top:8px;padding-bottom:8px}#settingsDialog .settings-credit{margin-top:6px}}
+
+/* Daily Bag Day usage records, distinct from game records. */
+.usage-streak-bar{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:420px;flex:none;margin:10px auto 0;padding:10px 14px;border-radius:14px;background:linear-gradient(110deg,#d9f3e9,#dcecff);color:#174b53}.usage-streak-bar>div{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0}.usage-streak-bar>div+div{border-left:1px solid #174b5330}.usage-streak-bar svg{width:22px;height:22px;flex:none;fill:#cc651e}.usage-streak-bar>div+div svg{fill:none;stroke:#876714;stroke-width:1.8}.usage-streak-bar span{font-size:.75rem;line-height:1.3;text-align:left}.usage-streak-bar strong{display:block;font-size:1rem;font-variant-numeric:tabular-nums;white-space:nowrap}.collection-card.no-collection .usage-streak-bar{margin-top:24px}
+[data-theme=dark] .usage-streak-bar{background:linear-gradient(110deg,#204d49,#283f60);color:#eefbf8}[data-theme=dark] .usage-streak-bar>div+div{border-color:#eefbf830}[data-theme=dark] .usage-streak-bar svg{fill:#ffb878}[data-theme=dark] .usage-streak-bar>div+div svg{fill:none;stroke:#ffda83}
+@media(max-height:650px){.usage-streak-bar{padding:6px 10px;margin-top:6px;gap:6px}.usage-streak-bar svg{width:19px;height:19px}.usage-streak-bar span{font-size:.7rem}.usage-streak-bar strong{font-size:.9rem}.collection-figures .bag-figure.bag-button{height:min(115px,21dvh)}}
+@media(max-width:360px){.usage-streak-bar{padding-left:8px;padding-right:8px}.usage-streak-bar>div{gap:5px}}
+@media(max-height:450px) and (min-width:600px){.usage-streak-bar{max-width:44%;margin-left:auto;margin-right:0;margin-top:3px}.usage-streak-bar span{font-size:.65rem}.usage-streak-bar strong{font-size:.8rem}}
