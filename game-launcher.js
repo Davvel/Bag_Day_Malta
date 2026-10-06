@@ -26,7 +26,7 @@
   try{
    const response=await fetch('./game/index.html',{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('Missing game');
    clearTimeout(launchTimer);if(serial!==launchSerial)return;
-   frame=document.createElement('iframe');frame.title='Sort & Learn game';frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');frame.allow='screen-wake-lock';frame.src='./game/index.html';layer.append(frame);
+   frame=document.createElement('iframe');frame.title='Sort & Learn game';frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');frame.allow='screen-wake-lock';frame.src='./game/index.html?theme='+encodeURIComponent(document.documentElement.dataset.theme||'dark');layer.append(frame);
    launchTimer=setTimeout(()=>{if(serial===launchSerial && !status.hidden){frame?.remove();frame=null;message.textContent='The game is unavailable. Bag Day is ready to use.';}},8000);
   }catch(_){if(serial===launchSerial){message.textContent='The game is unavailable. Bag Day is ready to use.';clearTimeout(launchTimer);}}
  });

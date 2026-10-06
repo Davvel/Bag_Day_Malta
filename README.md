@@ -273,10 +273,14 @@ Downward dragging places an item on the conveyor rather than sorting it by gestu
 Removed collisions between waste items. Items can be dragged over one another or into an occupied lane without blocking or pushing. The selected item appears above the others, including after release. Conveyor motion is independent for each item. Downward placement and release-inside-bag sorting remain unchanged, as does the two-step Back navigation.
 
 
-## Version 1.0.46 — immediate space-based spawning
+## Version 1.0.47 — immediate space-based spawning
 
 A new card appears immediately when the top-middle card footprint clears, including during dragging or keyboard lane changes. No new card is created while that footprint is occupied. Removed the extra 12px spawning gap. A round starts with its first card immediately; belt motion continues checking available space each frame. Items can still overlap freely elsewhere.
 
 
-## Version 1.0.46 — explanations and discovery
+## Version 1.0.47 — explanations and discovery
 Clickable usage/game records; shared bag information in home, lobby and gameplay; game pauses for information and resumes on closing. Information closes with circle X, Escape or browser/mobile Back. Screen Wake Lock requested while running (browser support and permissions apply). Home demonstrations on first two opens, navigation wiggles for 30 days and five-day game invitation for 60 days. Locality picker offers Follow my location and Set as my home. Prior streak records without a stored start date are labelled honestly. Streak records and hint schedules stay local to this device and reset if site data is cleared.
+
+
+## Version 1.0.47 — modal and hint refinements
+Missing streak start dates are omitted. Collection information is vertically centred. Locality actions use blue buttons with white text in both themes. Only Next day receives a glove-tap demonstration; navigating by button or horizontal card swipe permanently disables navigation hints on this device. Modal headings align with SVG circle-close controls. Game bag data and modal resources are self-contained copies with matching appearance.

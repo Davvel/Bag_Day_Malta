@@ -1,4 +1,5 @@
 (() => {
+ document.documentElement.dataset.theme=new URLSearchParams(location.search).get('theme')==='light'?'light':'dark';
  const root=document.createElement('div');root.className='info-overlay';root.hidden=true;
  root.innerHTML='<section class="info-dialog" role="dialog" aria-modal="true" aria-labelledby="infoTitle"><header class="info-titlebar"><h2 id="infoTitle"></h2><button class="info-close" aria-label="Close information"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="info-copy"></div></section>';document.body.append(root);
  let opener,callback,previous=[];const closeButton=root.querySelector('button');

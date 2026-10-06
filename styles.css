@@ -589,3 +589,9 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 .close-button{width:44px!important;height:44px!important;min-width:44px;min-height:44px;flex:none;padding:0!important;border-radius:50%!important;display:grid;place-items:center;border:1px solid #a8becf!important;background:#eff5fa;color:#123453}
 .close-button svg{display:block;width:22px!important;height:22px!important}
 [data-theme=dark] .close-button{background:#233d55;color:#eff6fb;border-color:#567086!important}
+
+/* Consistent title rows and vertically centred collection information. */
+#timeOverlay{align-items:center!important;justify-content:center!important}#timeDialog{margin:auto;align-self:center}
+.modal-titlebar,.calendar-head,.time-info-dialog .waste-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
+#settingsDialog .modal-titlebar{position:static;margin:0 0 12px}#settingsDialog .modal-titlebar h2,.settings .modal-titlebar h2{margin:0;flex:1;min-width:0;font-size:1.3rem;line-height:1.2;letter-spacing:-.025em}
+#supportDialog .support-brand{margin-top:14px}#supportDialog .modal-titlebar h2{white-space:normal}#nextDay{position:relative;overflow:visible}

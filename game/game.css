@@ -65,3 +65,8 @@
 .win-dialog,.pause-overlay section{position:relative;padding-top:64px}
 .win-dialog .panel-close,.pause-overlay .panel-close{position:absolute;width:44px;height:44px;margin:0;padding:0;top:12px;right:12px}
 .win-medal{font-size:clamp(2.5rem,10vw,3.5rem);letter-spacing:.1em;line-height:1.15;color:#ffe089;text-shadow:0 7px 5px #0007,0 2px 0 #8a641c}
+
+.game-titlebar{display:flex;align-items:center;justify-content:space-between;gap:14px;position:relative;z-index:2;width:100%;margin:0 0 16px;text-align:left;flex:none}
+.game-titlebar h1,.game-titlebar h2,.win-dialog .game-titlebar h2,.pause-overlay .game-titlebar h2{margin:0;font-size:1.3rem;line-height:1.2;letter-spacing:-.025em;text-align:left;flex:1;min-width:0}
+.game-titlebar .panel-close,.win-dialog .game-titlebar .panel-close,.pause-overlay .game-titlebar .panel-close{position:static;flex:0 0 44px;width:44px;height:44px;min-width:44px;padding:0;margin:0;display:grid;place-items:center}
+.win-dialog,.pause-overlay section{padding-top:20px}.menu-panel>.game-titlebar{margin-bottom:12px}
