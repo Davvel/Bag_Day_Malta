@@ -4,10 +4,11 @@
  'use strict';
  const button=document.getElementById('gameModeButton'),layer=document.getElementById('gameModeLayer'),content=document.getElementById('appContent'),status=document.getElementById('gameLaunchStatus'),message=document.getElementById('gameLaunchMessage'),back=document.getElementById('gameLaunchBack');
  if(!button||!layer||!content)return;
+ let gameInfo=false;
  let gamePaused=false,gameWon=false,gameRound=false;
  let enabled=false,frame=null,launchTimer=null,opener=null,previousOverflow='',launchSerial=0,controller=null;
  function close(){
-  gamePaused=false;gameWon=false;gameRound=false;
+  gameInfo=false;gamePaused=false;gameWon=false;gameRound=false;
   launchSerial++;controller?.abort();controller=null;clearTimeout(launchTimer);frame?.remove();frame=null;layer.hidden=true;content.inert=false;document.body.style.overflow=previousOverflow;
   if(opener?.isConnected && !opener.hidden)opener.focus({preventScroll:true});opener=null;
  }
@@ -25,14 +26,15 @@
   try{
    const response=await fetch('./game/index.html',{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('Missing game');
    clearTimeout(launchTimer);if(serial!==launchSerial)return;
-   frame=document.createElement('iframe');frame.title='Sort & Learn game';frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');frame.src='./game/index.html';layer.append(frame);
+   frame=document.createElement('iframe');frame.title='Sort & Learn game';frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');frame.allow='screen-wake-lock';frame.src='./game/index.html';layer.append(frame);
    launchTimer=setTimeout(()=>{if(serial===launchSerial && !status.hidden){frame?.remove();frame=null;message.textContent='The game is unavailable. Bag Day is ready to use.';}},8000);
   }catch(_){if(serial===launchSerial){message.textContent='The game is unavailable. Bag Day is ready to use.';clearTimeout(launchTimer);}}
  });
  back.onclick=close;
  window.addEventListener('message',event=>{
   if(!frame||event.source!==frame.contentWindow||event.origin!==location.origin)return;
-  if(event.data?.type==='bag-day-game-close')close();
+  if(event.data?.type==='bag-day-game-info'){gameInfo=event.data.open===true;window.BAG_DAY_BACK?.sync();}
+  else if(event.data?.type==='bag-day-game-close')close();
   else if(event.data?.type==='bag-day-game-round'){gameRound=event.data.open===true;window.BAG_DAY_BACK?.sync();}
   else if(event.data?.type==='bag-day-game-pause'){gamePaused=event.data.paused===true;window.BAG_DAY_BACK?.sync();}
   else if(event.data?.type==='bag-day-game-win'){gameWon=event.data.open===true;window.BAG_DAY_BACK?.sync();}
@@ -42,5 +44,6 @@
  window.BAG_DAY_BACK?.register('sortingGame',{isOpen:()=>!layer.hidden,close});
  window.BAG_DAY_BACK?.register('sortingGameRound',{isOpen:()=>!layer.hidden&&gameRound,close:()=>{gameRound=false;gameWon=false;frame?.contentWindow.postMessage({type:'bag-day-game-menu'},location.origin);}});
  window.BAG_DAY_BACK?.register('sortingGamePause',{isOpen:()=>!layer.hidden&&gamePaused,close:()=>{gamePaused=false;frame?.contentWindow.postMessage({type:'bag-day-game-resume'},location.origin);}});
+ window.BAG_DAY_BACK?.register('sortingGameInformation',{isOpen:()=>!layer.hidden&&gameInfo,close:()=>{gameInfo=false;frame?.contentWindow.postMessage({type:'bag-day-game-info-close'},location.origin);}});
  layer.hidden=true;button.hidden=true;readSwitch();setInterval(readSwitch,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)readSwitch();});
 })();

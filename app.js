@@ -74,6 +74,7 @@
     return value('hour')*3600+value('minute')*60+value('second')>15*3600 ? 1 : 0;
   };
   let dayOffset = defaultDayOffset();
+  try{if(JSON.parse(localStorage.getItem('bag-day-home-hints-v1')||'{}').launches<=2)dayOffset=0;}catch(_){}
   let returnTimer = null;
   let lastGpsAttempt = 0;
 
@@ -334,32 +335,7 @@
   let wasteCloseTimer = null;
   let wasteAppWasInert = false;
   function openWasteGuide(type, trigger) {
-    const info=window.WASTE_GUIDE[type];
-    if(!info)return;
-    clearTimeout(wasteCloseTimer);
-    wasteReturnFocus=trigger;
-    wastePreviousOverflow=document.body.style.overflow;
-    wasteAppWasInert=appContent.inert;
-    document.body.style.overflow='hidden';
-    appContent.inert=true;
-    $('wasteOverlay').classList.remove('waste-closing');
-    $('wasteColour').textContent=info.colour;
-    $('wasteTitle').textContent=info.title;
-    $('wasteSummary').textContent=info.summary;
-    $('wasteNote').textContent=info.note;
-    $('wasteKeepOut').textContent=info.keepOut;
-    $('wastePreview').innerHTML=type==='glass'?'<img src="icons/glass-carrier.svg" alt="">':bagSvg(type);
-    $('wasteItems').replaceChildren();
-    for(const [heading,items] of info.groups){
-      const section=document.createElement('section');
-      const title=document.createElement('h3');title.textContent=heading;section.append(title);
-      const list=document.createElement('ul');
-      for(const text of items){const item=document.createElement('li');item.textContent=text;list.append(item);}
-      section.append(list);$('wasteItems').append(section);
-    }
-    $('wasteOverlay').hidden=false;
-    $('wasteScroll').scrollTop=0;
-    $('closeWaste').focus({preventScroll:true});
+    window.BAG_INFO.bag(type);
   }
   function closeWasteGuide() {
     if($('wasteOverlay').hidden || $('wasteOverlay').classList.contains('waste-closing'))return;
@@ -654,6 +630,7 @@
     return `<div class="usage-streak-bar" aria-label="Bag Day app usage streaks"><div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2c1 6-5 7-4 12-2-1-2-3-2-4-5 6-2 12 5 12 8 0 10-8 6-13 0 3-2 4-3 4 2-4 0-8-2-11Z"/></svg><span>Current streak<strong>${days(record.current)}</strong></span></div><div><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0V3ZM7 5H3v2c0 4 2 5 5 5M17 5h4v2c0 4-2 5-5 5M12 14v6M7 21h10"/></svg><span>Longest streak<strong>${days(record.longest)}</strong></span></div></div>`;
   }
   function render() {
+    if(window.BAG_INFO?.isOpen())return;
     if(!$('localityOverlay').hidden || !$('wasteOverlay').hidden || !$('timeOverlay').hidden || !$('supportOverlay').hidden || !$('calendarOverlay').hidden)return;
     renderStaticText();
     const locality=activeLocality();
@@ -832,7 +809,9 @@
     dayOffset=defaultDayOffset();render();
   }
 
-  let localityReturnFocus=null;
+  let localityReturnFocus=null,pickerLocality=null;
+  $('localityFollow').onclick=()=>{followLocation=true;temporaryView=null;localStorage.setItem(followLocationKey,'true');closeLocalityPicker();detectLocation();render();};
+  $('localityHome').onclick=()=>{followLocation=false;localStorage.setItem(followLocationKey,'false');saveHomeLocality(pickerLocality||activeLocality());closeLocalityPicker();render();};
   function renderLocalityChoices(){
     const list=$('localityChoices'),query=normal($('localitySearch').value);
     list.replaceChildren();
@@ -840,16 +819,16 @@
     for(const name of matches){
       const button=document.createElement('button');
       button.type='button';button.className='locality-choice';
-      button.setAttribute('aria-pressed',String(name===activeLocality()));
+      button.setAttribute('aria-pressed',String(name===(pickerLocality||activeLocality())));
       const label=document.createElement('span');label.textContent=name;button.append(label);
       if(name===selected || name===detected){
         const mode=name===selected?'Home':'Auto';
         const chip=document.createElement('span');chip.className='mode-chip';chip.dataset.mode=mode.toLowerCase();chip.textContent=mode;button.append(chip);
       }
       button.onclick=()=>{
-        temporaryView=name;
+        pickerLocality=name;temporaryView=name;
         analyticsEvent('locality_view_changed');
-        closeLocalityPicker();render();
+        renderLocalityChoices();
       };
       list.append(button);
     }
@@ -858,7 +837,7 @@
   function openLocalityPicker(){
     if(changingDay || performance.now()<suppressTapUntil || welcomeNeeded || !localityModalFree())return;
     clearTimeout(returnTimer);localityReturnFocus=document.activeElement;
-    $('localitySearch').value='';
+    pickerLocality=activeLocality();$('localityFollow').setAttribute('aria-pressed',String(followLocation&&!temporaryView));$('localityHome').setAttribute('aria-pressed',String(!followLocation&&!temporaryView));$('localitySearch').value='';
     $('localityHomeNote').textContent=`Your saved home: ${selected}`;
     $('localityOverlay').hidden=false;appContent.inert=true;
     renderLocalityChoices();
@@ -883,6 +862,8 @@
     if(e.shiftKey && document.activeElement===first){e.preventDefault();last.focus();}
     else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first.focus();}
   }
+  $('usageStreakArea').onclick=()=>window.BAG_INFO.streak(window.BAG_DAY_STREAK.snapshot());
+  $('usageStreakArea').tabIndex=0;$('usageStreakArea').setAttribute('role','button');$('usageStreakArea').setAttribute('aria-label','Explain daily-use streak');$('usageStreakArea').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('usageStreakArea').click();}};
   $('localityButton').onclick=openLocalityPicker;
   $('closeLocality').onclick=closeLocalityPicker;
   $('localitySearch').oninput=renderLocalityChoices;

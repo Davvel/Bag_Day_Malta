@@ -1,0 +1,14 @@
+(() => {
+ const root=document.createElement('div');root.className='info-overlay';root.hidden=true;
+ root.innerHTML='<section class="info-dialog" role="dialog" aria-modal="true" aria-labelledby="infoTitle"><button class="info-close" aria-label="Close information">×</button><h2 id="infoTitle"></h2><div class="info-copy"></div></section>';document.body.append(root);
+ let opener,callback,previous=[];const closeButton=root.querySelector('button');
+ function close(){if(root.hidden)return;root.hidden=true;previous.forEach(([node,value])=>node.inert=value);previous=[];callback?.();callback=null;opener?.focus({preventScroll:true});notify(false);}
+ function notify(open){if(parent!==window)parent.postMessage({type:'bag-day-game-info',open},location.origin);}
+ function open(title,html,onClose){opener=document.activeElement;callback=onClose;root.querySelector('h2').textContent=title;root.querySelector('.info-copy').innerHTML=html;previous=[...document.body.children].filter(n=>n!==root&&n.tagName!=='SCRIPT').map(n=>[n,n.inert]);previous.forEach(([n])=>n.inert=true);root.hidden=false;closeButton.focus();notify(true);window.BAG_DAY_BACK?.sync();}
+ function bag(type,onClose){const info=window.WASTE_GUIDE[type];if(!info)return;open(info.title,`<p><strong>${info.colour}</strong></p><p>${info.summary}</p>${info.groups.map(([heading,items])=>`<h3>${heading}</h3><ul>${items.map(text=>`<li>${text}</li>`).join('')}</ul>`).join('')}<p>${info.note}</p><p><strong>${info.keepOut}</strong></p>`,onClose);}
+ function date(value){return value?new Intl.DateTimeFormat('en-GB',{dateStyle:'long',timeZone:'UTC'}).format(new Date(value+'T12:00:00Z')):null;}
+ function streak(record,game=false){const current=game?record.currentStreak:record.current,longest=game?record.longestStreak:record.longest;open(game?'Your game streak':'Your daily-use streak',`<p>${date(record.firstDay)?'Tracking began on '+date(record.firstDay)+'.':'Your earlier record has no saved start date.'}</p><p>You have ${game?'completed at least one round':'used Bag Day'} on <strong>${current} consecutive ${current===1?'day':'days'}</strong>.</p><p>Your longest streak is <strong>${longest} ${longest===1?'day':'days'}</strong>.</p><p>${game?'Complete a round':'Open the app'} each day to grow your streak. Missing a day resets the current streak; your longest record stays saved.</p>`);}
+ closeButton.onclick=close;root.onclick=e=>{if(e.target===root)close();};document.addEventListener('keydown',e=>{if(root.hidden)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();close();}if(e.key==='Tab'){e.preventDefault();closeButton.focus();}},true);
+ window.addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data?.type==='bag-day-game-info-close')close();});
+ window.BAG_DAY_BACK?.register('information',{isOpen:()=>!root.hidden,close});window.BAG_INFO={open,bag,streak,close,isOpen:()=>!root.hidden};
+})();
