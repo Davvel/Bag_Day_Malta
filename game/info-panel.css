@@ -10,3 +10,5 @@
 .next-day-glove{position:absolute;width:55px;height:65px;right:8px;top:55%;z-index:30;pointer-events:none;filter:drop-shadow(0 3px 4px #0005)}
 
 .info-copy p{margin:16px 0;font:400 16px/1.55 system-ui}.info-copy h3{margin:20px 0 8px;font:700 17px/1.3 system-ui}.info-copy ul{margin:8px 0 16px;padding-left:24px}.info-copy li{font:400 16px/1.55 system-ui;margin:3px 0}
+
+[data-theme=light] .info-titlebar{background:#285783;color:#fff;border-color:#628bb0}[data-theme=light] .info-titlebar h2{color:#fff}[data-theme=light] .info-titlebar .info-close{background:#1c4165;color:white;border-color:#9cb9d3}

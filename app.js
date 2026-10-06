@@ -222,12 +222,12 @@
 
   let analyticsReady = false, pendingGameOpens=0;
   const analyticsConsentKey='bag-day-analytics-consent-v1';
-  let analyticsLoading=false,analyticsId='';
+  let analyticsLoading=false,analyticsScriptLoaded=false,analyticsId='';
   function analyticsAllowed(){return localStorage.getItem(analyticsConsentKey)==='granted';}
   function setAnalyticsChoice(allowed){
     localStorage.setItem(analyticsConsentKey,allowed?'granted':'denied');
     $('allowAnalytics').checked=allowed;
-    if(allowed){loadAnalytics();return;}
+    if(allowed){if(analyticsId){window['ga-disable-'+analyticsId]=false;window.gtag?.('consent','update',{analytics_storage:'granted'});}if(analyticsScriptLoaded){analyticsReady=true;}else loadAnalytics();return;}
     analyticsReady=false;pendingGameOpens=0;
     if(analyticsId)window['ga-disable-'+analyticsId]=true;
     // Remove existing Analytics cookies after withdrawal.
@@ -237,7 +237,7 @@
       document.cookie=name+'=; Max-Age=0; path=/';
       for(let i=0;i<parts.length-1;i++)document.cookie=name+'=; Max-Age=0; path=/; domain=.'+parts.slice(i).join('.');
     });
-    if(analyticsId)location.reload();
+    window.gtag?.('consent','update',{analytics_storage:'denied'});
   }
   $('allowAnalytics').checked=analyticsAllowed();
   $('allowAnalytics').onchange=e=>setAnalyticsChoice(e.target.checked);
@@ -415,7 +415,7 @@
       window.gtag('config',id,{anonymize_ip:true,allow_google_signals:false,allow_ad_personalization_signals:false});
       const script=document.createElement('script');
       script.async=true; script.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
-      script.onload=()=>{analyticsLoading=false;analyticsReady=analyticsAllowed();const clicks=pendingGameOpens;pendingGameOpens=0;if(analyticsReady)for(let n=0;n<clicks;n++)analyticsEvent('game_open');};
+      script.onload=()=>{analyticsScriptLoaded=true;analyticsLoading=false;analyticsReady=analyticsAllowed();const clicks=pendingGameOpens;pendingGameOpens=0;if(analyticsReady)for(let n=0;n<clicks;n++)analyticsEvent('game_open');};
       script.onerror=()=>{analyticsLoading=false;};
       document.head.appendChild(script);
     }catch(_){ /* analytics is optional */ }
@@ -729,6 +729,7 @@
     if($('calendarOverlay').hidden)return;
     $('calendarOverlay').hidden=true;appContent.inert=calendarWasInert;
     $('dateButton').focus({preventScroll:true});
+    render();
     if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=defaultDayOffset();render();},60000);
   }
   function selectCalendarDate(iso){
@@ -810,8 +811,17 @@
   }
 
   let localityReturnFocus=null,pickerLocality=null;
-  $('localityFollow').onclick=()=>{followLocation=true;temporaryView=null;localStorage.setItem(followLocationKey,'true');closeLocalityPicker();detectLocation();render();};
-  $('localityHome').onclick=()=>{followLocation=false;localStorage.setItem(followLocationKey,'false');saveHomeLocality(pickerLocality||activeLocality());closeLocalityPicker();render();};
+  function syncPickerMode(){
+    $('localityFollow').checked=followLocation;$('localityHome').checked=!followLocation;
+    $('localityHomeNote').textContent=`Your saved home: ${selected}`;
+  }
+  function choosePickerMode(auto){
+    followLocation=auto;temporaryView=null;localStorage.setItem(followLocationKey,String(auto));
+    pickerLocality=selected;syncPickerMode();renderLocalityChoices();
+    if(auto){lastGpsAttempt=0;detectLocation();}
+  }
+  $('localityFollow').onchange=()=>{if($('localityFollow').checked)choosePickerMode(true);};
+  $('localityHome').onchange=()=>{if($('localityHome').checked)choosePickerMode(false);};
   function renderLocalityChoices(){
     const list=$('localityChoices'),query=normal($('localitySearch').value);
     list.replaceChildren();
@@ -826,9 +836,10 @@
         const chip=document.createElement('span');chip.className='mode-chip';chip.dataset.mode=mode.toLowerCase();chip.textContent=mode;button.append(chip);
       }
       button.onclick=()=>{
-        pickerLocality=name;temporaryView=name;
-        analyticsEvent('locality_view_changed');
-        renderLocalityChoices();
+        pickerLocality=name;
+        if(followLocation){temporaryView=name;analyticsEvent('locality_view_changed');}
+        else saveHomeLocality(name);
+        closeLocalityPicker();render();
       };
       list.append(button);
     }
@@ -837,7 +848,7 @@
   function openLocalityPicker(){
     if(changingDay || performance.now()<suppressTapUntil || welcomeNeeded || !localityModalFree())return;
     clearTimeout(returnTimer);localityReturnFocus=document.activeElement;
-    pickerLocality=activeLocality();$('localityFollow').setAttribute('aria-pressed',String(followLocation&&!temporaryView));$('localityHome').setAttribute('aria-pressed',String(!followLocation&&!temporaryView));$('localitySearch').value='';
+    pickerLocality=activeLocality();syncPickerMode();$('localitySearch').value='';
     $('localityHomeNote').textContent=`Your saved home: ${selected}`;
     $('localityOverlay').hidden=false;appContent.inert=true;
     renderLocalityChoices();

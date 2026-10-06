@@ -594,4 +594,17 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 #timeOverlay{align-items:center!important;justify-content:center!important}#timeDialog{margin:auto;align-self:center}
 .modal-titlebar,.calendar-head,.time-info-dialog .waste-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
 #settingsDialog .modal-titlebar{position:static;margin:0 0 12px}#settingsDialog .modal-titlebar h2,.settings .modal-titlebar h2{margin:0;flex:1;min-width:0;font-size:1.3rem;line-height:1.2;letter-spacing:-.025em}
-#supportDialog .support-brand{margin-top:14px}#supportDialog .modal-titlebar h2{white-space:normal}#nextDay{position:relative;overflow:visible}
+#supportDialog .support-brand{margin-top:14px}#supportDialog .modal-titlebar h2{white-space:normal}#nextDay{overflow:visible}
+
+/* v48: neutralise legacy floating-arrow offsets and centre the settings sheet. */
+#dayNavigation #prevDay,#dayNavigation #nextDay{position:relative;inset:auto;top:auto;right:auto;bottom:auto;left:auto;align-self:stretch;transform:none;margin:0}
+#settingsOverlay{align-items:center!important;justify-content:center;padding:16px}
+#settingsDialog{margin:0 auto;max-height:calc(var(--app-height,100dvh) - 32px);padding:0 18px 16px;align-self:center}
+#settingsDialog .settings-grip{display:none}#settingsDialog .modal-titlebar{position:sticky;top:0;z-index:2;margin:0 -18px 14px;padding:14px 18px;background:#233d55;border-bottom:1px solid #63809a;color:white;min-height:72px}
+#settingsDialog .modal-titlebar h2{margin:0;color:inherit}#settingsDialog .modal-titlebar .close-button{background:#294b6b;color:white;border-color:#87a3be!important}
+.locality-mode-options{border:0;padding:0;margin:14px 0 16px}.locality-mode-options legend{font-size:.8rem;font-weight:750;margin-bottom:8px;color:var(--secondary)}
+#localityDialog .locality-mode-radio{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:8px 0;border:1px solid #628bb0;border-radius:14px;background:#285783;color:#fff;cursor:pointer}
+#localityDialog .locality-mode-radio input{appearance:auto;width:22px;height:22px;min-width:22px;margin:0;padding:0;accent-color:#126db2;cursor:pointer}#localityDialog .locality-mode-radio small{display:block;margin-top:3px;color:white;font-weight:450;line-height:1.4}#localityDialog .locality-mode-radio:has(input:checked){outline:2px solid #9dcbf2;outline-offset:1px}
+[data-theme=light] .modal-titlebar,[data-theme=light] .calendar-head,[data-theme=light] .waste-head{background:#285783;color:#fff;border-color:#628bb0;padding:14px 16px;border-radius:12px}
+[data-theme=light] .modal-titlebar h2,[data-theme=light] .calendar-head h2,[data-theme=light] .waste-head h2{color:#fff}
+[data-theme=light] .modal-titlebar .close-button,[data-theme=light] .calendar-head .close-button,[data-theme=light] .waste-head .close-button{background:#1c4165;color:white;border-color:#9cb9d3!important}
