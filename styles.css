@@ -627,3 +627,5 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 #localityDialog .locality-mode-radio{min-height:40px;padding:7px 0;gap:10px}
 #localityDialog .locality-mode-radio strong{font-size:17px;line-height:1.25}
 #localityDialog .locality-mode-radio input{width:22px;height:22px;min-width:22px}
+
+.locality-settings-note{margin:12px 0 16px}.locality-settings-note p{font-size:14px;line-height:1.45;margin:0 0 9px;color:var(--secondary)}#localityOpenSettings{background:#285783;color:white;border:1px solid #628bb0;border-radius:9px;padding:8px 12px;font-size:14px;font-weight:700;min-height:36px}

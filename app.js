@@ -811,17 +811,12 @@
   }
 
   let localityReturnFocus=null,pickerLocality=null;
-  function syncPickerMode(){
-    $('localityFollow').checked=followLocation;$('localityHome').checked=!followLocation;
-    $('localityHomeNote').textContent=`Your saved home: ${selected}`;
-  }
-  function choosePickerMode(auto){
-    followLocation=auto;temporaryView=null;localStorage.setItem(followLocationKey,String(auto));
-    pickerLocality=selected;syncPickerMode();renderLocalityChoices();
-    if(auto){lastGpsAttempt=0;detectLocation();}
-  }
-  $('localityFollow').onchange=()=>{if($('localityFollow').checked)choosePickerMode(true);};
-  $('localityHome').onchange=()=>{if($('localityHome').checked)choosePickerMode(false);};
+  $('localityOpenSettings').onclick=()=>{
+    if(window.BAG_DAY_BACK){
+      window.addEventListener('popstate',()=>setTimeout(openSettings,0),{once:true});
+      closeLocalityPicker();
+    }else{closeLocalityPicker();openSettings();}
+  };
   function renderLocalityChoices(){
     const list=$('localityChoices'),query=normal($('localitySearch').value);
     list.replaceChildren();
@@ -836,9 +831,7 @@
         const chip=document.createElement('span');chip.className='mode-chip';chip.dataset.mode=mode.toLowerCase();chip.textContent=mode;button.append(chip);
       }
       button.onclick=()=>{
-        pickerLocality=name;
-        if(followLocation){temporaryView=name;analyticsEvent('locality_view_changed');}
-        else saveHomeLocality(name);
+        pickerLocality=name;temporaryView=name;analyticsEvent('locality_view_changed');
         closeLocalityPicker();render();
       };
       list.append(button);
@@ -848,7 +841,7 @@
   function openLocalityPicker(){
     if(changingDay || performance.now()<suppressTapUntil || welcomeNeeded || !localityModalFree())return;
     clearTimeout(returnTimer);localityReturnFocus=document.activeElement;
-    pickerLocality=activeLocality();syncPickerMode();$('localitySearch').value='';
+    pickerLocality=activeLocality();$('localitySearch').value='';
     $('localityHomeNote').textContent=`Your saved home: ${selected}`;
     $('localityOverlay').hidden=false;appContent.inert=true;
     renderLocalityChoices();
