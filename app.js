@@ -689,7 +689,7 @@
     if(!card)return;
     const outerHeight=node=>{if(!node)return 0;const style=getComputedStyle(node);return node.getBoundingClientRect().height+(parseFloat(style.marginTop)||0)+(parseFloat(style.marginBottom)||0);};
     const item=card.querySelector('.collection-item');
-    const figureHeight=item?Math.max(260,200+outerHeight(item.querySelector('.bag-click-hint'))+outerHeight(item.querySelector('.collection-item-label'))+24):260;
+    const figureHeight=item?Math.max(240,180+outerHeight(item.querySelector('.bag-click-hint'))+outerHeight(item.querySelector('.collection-item-label'))+24):240;
     const minimum=Math.ceil(top+4+figureHeight+outerHeight(card.querySelector('.collection-timing'))+parseFloat(getComputedStyle(card).paddingBottom)+2);
     stage.style.setProperty('--home-card-min-height',`${minimum}px`);
     const app=stage.closest('.app'),dashboard=$('dashboard');
@@ -704,7 +704,7 @@
       +(parseFloat(appStyle.paddingTop)||0)+(parseFloat(appStyle.paddingBottom)||0);
     app.style.setProperty('--home-min-height',`${Math.ceil(appMinimum)}px`);
     const extra=Math.max(0,stage.clientHeight-minimum);
-    stage.style.setProperty('--home-bag-height',`${Math.min(300,200+extra)}px`);
+    stage.style.setProperty('--home-bag-height',`${Math.min(300,180+extra)}px`);
   }
 
   function setDayNavigationMoving(moving){
