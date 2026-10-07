@@ -689,9 +689,22 @@
     if(!card)return;
     const outerHeight=node=>{if(!node)return 0;const style=getComputedStyle(node);return node.getBoundingClientRect().height+(parseFloat(style.marginTop)||0)+(parseFloat(style.marginBottom)||0);};
     const item=card.querySelector('.collection-item');
-    const figureHeight=item?Math.max(210,160+outerHeight(item.querySelector('.bag-click-hint'))+outerHeight(item.querySelector('.collection-item-label'))+24):210;
+    const figureHeight=item?Math.max(260,200+outerHeight(item.querySelector('.bag-click-hint'))+outerHeight(item.querySelector('.collection-item-label'))+24):260;
     const minimum=Math.ceil(top+4+figureHeight+outerHeight(card.querySelector('.collection-timing'))+parseFloat(getComputedStyle(card).paddingBottom)+2);
     stage.style.setProperty('--home-card-min-height',`${minimum}px`);
+    const app=stage.closest('.app'),dashboard=$('dashboard');
+    const appStyle=getComputedStyle(app),dashStyle=getComputedStyle(dashboard);
+    const visible=node=>getComputedStyle(node).display!=='none';
+    const siblings=[...app.children].filter(node=>node!==dashboard&&visible(node));
+    const dashboardExtras=[...dashboard.children].filter(node=>node!==stage&&visible(node));
+    const appMinimum=minimum+siblings.reduce((sum,node)=>sum+outerHeight(node),0)
+      +dashboardExtras.reduce((sum,node)=>sum+outerHeight(node),0)
+      +(parseFloat(appStyle.rowGap)||0)*siblings.length
+      +(parseFloat(dashStyle.rowGap)||0)*dashboardExtras.length
+      +(parseFloat(appStyle.paddingTop)||0)+(parseFloat(appStyle.paddingBottom)||0);
+    app.style.setProperty('--home-min-height',`${Math.ceil(appMinimum)}px`);
+    const extra=Math.max(0,stage.clientHeight-minimum);
+    stage.style.setProperty('--home-bag-height',`${Math.min(300,200+extra)}px`);
   }
 
   function setDayNavigationMoving(moving){
@@ -1082,6 +1095,9 @@
     requestAnimationFrame(()=>{fitLocalityTitle();syncDayNavigationLayout();});
     if(height)document.documentElement.style.setProperty('--app-height',`${height}px`);
   }
+  const homeSizeObserver=new ResizeObserver(()=>requestAnimationFrame(syncDayNavigationLayout));
+  for(const node of [document.querySelector('.topbar'),$('usageStreakArea'),$('donationCard'),document.querySelector('.collection-date'),$('locationNotice')])if(node)homeSizeObserver.observe(node);
+  document.fonts?.ready.then(syncDayNavigationLayout);
   syncViewport();
   window.addEventListener('resize',syncViewport);
   window.visualViewport?.addEventListener('resize',syncViewport);

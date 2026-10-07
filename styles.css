@@ -630,7 +630,7 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 
 .locality-settings-note{margin:12px 0 16px}.locality-settings-note p{font-size:14px;line-height:1.45;margin:0 0 9px;color:var(--secondary)}#localityOpenSettings{background:#285783;color:white;border:1px solid #628bb0;border-radius:9px;padding:8px 12px;font-size:14px;font-weight:700;min-height:36px}
 
-/* v1.0.54: preserve the bag; scroll when the measured card cannot fit. */
+/* v1.0.55: preserve the bag; scroll when the measured card cannot fit. */
 html{height:auto;min-height:100%;overflow-y:auto}
 body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
 #appContent{height:auto;min-height:var(--app-height,100dvh)}
@@ -645,3 +645,13 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
  .collection-figures{width:100%;margin-left:0}
  .collection-card.no-collection{padding-left:var(--card-panel-inset)}
 }
+
+/* v1.0.55: fill spare height, preserving the central bag and label. */
+.app{height:max(var(--app-height,100dvh),var(--home-min-height,0px));min-height:var(--app-height,100dvh);max-height:none}
+.collection-stage{flex:1;min-height:var(--home-card-min-height,560px)}
+.collection-card{min-height:var(--home-card-min-height,560px)}
+.collection-figures{min-height:260px}
+.collection-item{max-width:300px;transform:none}
+.bag-figure.bag-button,.collection-figures .bag-figure.bag-button{height:var(--home-bag-height,200px);min-height:200px;max-height:300px;width:min(100%,280px);flex:0 0 auto}
+.bag-button img,.collection-figures .bag-button img{max-width:280px}
+.collection-item-label{font-size:clamp(20px,4.5vw,24px);font-weight:800;line-height:1.3}
