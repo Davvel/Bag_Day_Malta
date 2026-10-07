@@ -683,7 +683,15 @@
     const heading=document.querySelector('.collection-date');
     if($('dashboard').hidden)return;
     const top=heading.offsetTop+heading.offsetHeight+8;
-    $('collectionStage').style.setProperty('--day-card-heading-space',`${top+4}px`);
+    const stage=$('collectionStage');
+    stage.style.setProperty('--day-card-heading-space',`${top+4}px`);
+    const card=$('collectionCardBody').querySelector('.collection-card');
+    if(!card)return;
+    const outerHeight=node=>{if(!node)return 0;const style=getComputedStyle(node);return node.getBoundingClientRect().height+(parseFloat(style.marginTop)||0)+(parseFloat(style.marginBottom)||0);};
+    const item=card.querySelector('.collection-item');
+    const figureHeight=item?Math.max(210,160+outerHeight(item.querySelector('.bag-click-hint'))+outerHeight(item.querySelector('.collection-item-label'))+24):210;
+    const minimum=Math.ceil(top+4+figureHeight+outerHeight(card.querySelector('.collection-timing'))+parseFloat(getComputedStyle(card).paddingBottom)+2);
+    stage.style.setProperty('--home-card-min-height',`${minimum}px`);
   }
 
   function setDayNavigationMoving(moving){
@@ -1019,7 +1027,10 @@
     if(e.touches.length!==1){finishHomeGesture(true);return;}
     const t=e.touches[0];g.dx=t.clientX-g.x;g.dy=t.clientY-g.y;
     if(!g.axis&&Math.max(Math.abs(g.dx),Math.abs(g.dy))>12)g.axis=Math.abs(g.dx)>Math.abs(g.dy)*1.15?'x':'y';
-    if(!g.axis)return;e.preventDefault();
+    if(!g.axis)return;
+    // On an overflowing home page vertical gestures belong to native scrolling.
+    if(g.axis==='y' && document.documentElement.scrollHeight>window.innerHeight+1){homeGesture=null;return;}
+    e.preventDefault();
     if(g.axis==='x'){
       setDayNavigationMoving(true);
       const atEnd=(g.dx>0&&dayOffset===0)||(g.dx<0&&dayOffset===maxDaysAhead);
