@@ -525,7 +525,7 @@
     $('supportChoice').hidden=true;$('supportConfirm').hidden=false;
     $('supportTitle').hidden=true;$('confirmAmount').hidden=false;$('supportCoffee').hidden=true;
     $('supportDialog').setAttribute('aria-labelledby','confirmAmount');
-    $('supportDialog').setAttribute('aria-describedby','donationConfirmNote');
+    $('supportDialog').setAttribute('aria-describedby','sliderKeyboardHint');
     $('confirmAmount').textContent=`Your tip: €${amount}`;
     $('sliderLabel').textContent='Slide to go to card payment page';
     $('donationSlider').setAttribute('aria-label','Slide to go to card payment page');
