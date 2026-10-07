@@ -630,7 +630,7 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 
 .locality-settings-note{margin:12px 0 16px}.locality-settings-note p{font-size:14px;line-height:1.45;margin:0 0 9px;color:var(--secondary)}#localityOpenSettings{background:#285783;color:white;border:1px solid #628bb0;border-radius:9px;padding:8px 12px;font-size:14px;font-weight:700;min-height:36px}
 
-/* v1.0.58: preserve the bag; scroll when the measured card cannot fit. */
+/* v1.0.59: preserve the bag; scroll when the measured card cannot fit. */
 html{height:auto;min-height:100%;overflow-y:auto}
 body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
 #appContent{height:auto;min-height:var(--app-height,100dvh)}
@@ -646,7 +646,7 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
  .collection-card.no-collection{padding-left:var(--card-panel-inset)}
 }
 
-/* v1.0.58: fill spare height, preserving the central bag and label. */
+/* v1.0.59: fill spare height, preserving the central bag and label. */
 .app{height:max(var(--app-height,100dvh),var(--home-min-height,0px));min-height:var(--app-height,100dvh);max-height:none}
 .collection-stage{flex:1;min-height:var(--home-card-min-height,560px)}
 .collection-card{min-height:var(--home-card-min-height,560px)}
@@ -656,7 +656,7 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
 .bag-button img,.collection-figures .bag-button img{max-width:280px}
 .collection-item-label{font-size:clamp(18px,4vw,22px);font-weight:800;line-height:1.3}
 
-/* v1.0.58: one-line date controls on screens with limited height. */
+/* v1.0.59: one-line date controls on screens with limited height. */
 @media(max-height:650px){
  .day-navigation{padding:3px;gap:4px}
  .day-navigation .nav-button{flex-direction:row;min-height:44px;height:44px;padding:4px 2px;white-space:nowrap}
@@ -667,14 +667,14 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
  .date-button #date>span+span::before{content:' '}
 }
 
-/* v1.0.58: group the day and put-out instructions below the bag. */
+/* v1.0.59: group the day and put-out instructions below the bag. */
 .viewed-day-row{display:none}
 .bag-day-label{flex:none;font-size:clamp(18px,4vw,22px);font-weight:800;line-height:1.3;text-align:center;margin:0 0 10px;color:var(--ink)}
 .put-out-end{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .put-out-info{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;padding:6px;border:0;background:transparent;color:inherit;border-radius:50%;cursor:pointer}
 .put-out-info .info-circle{width:21px;height:21px;font-size:14px}
 
-/* v1.0.58: balanced header with the locality in the centre. */
+/* v1.0.59: balanced header with the locality in the centre. */
 .topbar{display:grid;grid-template-columns:90px minmax(0,1fr) 90px;gap:6px;height:auto;min-height:60px;align-items:center}
 .topbar .brand{gap:5px;font-size:14px;line-height:1.15;letter-spacing:-.03em;min-width:0}
 .topbar .brand-mark{width:24px;height:28px;flex:none;font-size:18px}
@@ -690,3 +690,12 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
  .topbar .brand{font-size:12px;gap:4px}
  .topbar .icon-button,.topbar #gameModeButton{width:36px;height:36px;min-width:36px}
 }
+
+/* v1.0.59: consistent support and confirmation headers and branding. */
+#supportDialog .modal-titlebar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;padding:12px 16px;border-radius:12px;background:#233d55;color:white;border:1px solid #63809a}
+[data-theme=light] #supportDialog .modal-titlebar{background:#285783;border-color:#628bb0}
+#supportDialog .modal-titlebar h2{flex:1;margin:0;color:inherit;text-align:left;font-size:1.3rem;line-height:1.25}
+#supportDialog .modal-titlebar .close-button{flex:none;margin-left:auto;background:#294b6b;color:white;border-color:#87a3be!important}
+#supportDialog .support-brand{display:flex;width:100%;align-items:center;justify-content:center;margin:14px 0 12px;gap:9px}
+#supportCoffee{margin:12px 0 20px}
+#supportDialog .donation-confirm-note{margin:12px 0 20px;text-align:center;line-height:1.5;color:var(--secondary)}

@@ -472,7 +472,7 @@
     document.body.style.overflow='hidden';
     chosenTip=null;checkoutOpening=false;resetSlider();
     $('supportChoice').hidden=false;$('supportConfirm').hidden=true;
-    $('supportTitle').hidden=false;$('supportCoffee').hidden=false;
+    $('supportTitle').hidden=false;$('confirmAmount').hidden=true;$('supportCoffee').hidden=false;
     $('supportDialog').setAttribute('aria-labelledby','supportTitle');
     $('supportDialog').setAttribute('aria-describedby','supportIntro');
     renderSupport();renderDonation();
@@ -485,7 +485,7 @@
     if($('supportConfirm').hidden){closeSupport();return;}
     chosenTip=null;checkoutOpening=false;resetSlider();
     $('supportChoice').hidden=false;$('supportConfirm').hidden=true;
-    $('supportTitle').hidden=false;$('supportCoffee').hidden=false;
+    $('supportTitle').hidden=false;$('confirmAmount').hidden=true;$('supportCoffee').hidden=false;
     $('supportDialog').setAttribute('aria-labelledby','supportTitle');
     $('supportDialog').setAttribute('aria-describedby','supportIntro');
     renderSupport();$('closeSupport').focus({preventScroll:true});
@@ -523,7 +523,7 @@
     if($('supportOverlay').hidden||!donationUrl)return;
     chosenTip=amount;resetSlider();
     $('supportChoice').hidden=true;$('supportConfirm').hidden=false;
-    $('supportTitle').hidden=true;$('supportCoffee').hidden=true;
+    $('supportTitle').hidden=true;$('confirmAmount').hidden=false;$('supportCoffee').hidden=true;
     $('supportDialog').setAttribute('aria-labelledby','confirmAmount');
     $('supportDialog').setAttribute('aria-describedby','donationConfirmNote');
     $('confirmAmount').textContent=`Your tip: €${amount}`;
