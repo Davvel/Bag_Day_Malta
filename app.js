@@ -666,7 +666,7 @@
     requestAnimationFrame(syncDayNavigationLayout);
     const schedule=scheduleFor(date);
     if(!schedule.bag){
-      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="no-collection-message"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div><div class="bag-day-label">${$('todayPill').textContent}</div></div></div>`;
+      $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="no-collection-message"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div></div></div>`;
     }else{
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
       const figures=`<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="bag-click-hint">Tap bag for info</span><span class="collection-item-label">${c[schedule.bag]}</span></div>${schedule.glass?`<div class="collection-item">${bagButton('glass',c.glassBottles)}<span class="bag-click-hint">Tap bag for info</span><span class="collection-item-label">${c.glassBottles}</span></div>`:''}</div>`;
@@ -689,7 +689,9 @@
     if(!card)return;
     const outerHeight=node=>{if(!node)return 0;const style=getComputedStyle(node);return node.getBoundingClientRect().height+(parseFloat(style.marginTop)||0)+(parseFloat(style.marginBottom)||0);};
     const item=card.querySelector('.collection-item');
-    const figureHeight=item?Math.max(240,180+outerHeight(item.querySelector('.bag-click-hint'))+outerHeight(item.querySelector('.collection-item-label'))+24):240;
+    const noCollection=card.classList.contains('no-collection');
+    const message=card.querySelector('.no-collection-message');
+    const figureHeight=noCollection?outerHeight(message.querySelector('.rest-icon'))+outerHeight(message.querySelector('.bag-name'))+48:item?Math.max(240,180+outerHeight(item.querySelector('.bag-click-hint'))+outerHeight(item.querySelector('.collection-item-label'))+24):240;
     const minimum=Math.ceil(top+4+figureHeight+outerHeight(card.querySelector(':scope > .bag-day-label'))+outerHeight(card.querySelector('.collection-timing'))+parseFloat(getComputedStyle(card).paddingBottom)+2);
     stage.style.setProperty('--home-card-min-height',`${minimum}px`);
     const app=stage.closest('.app'),dashboard=$('dashboard');
