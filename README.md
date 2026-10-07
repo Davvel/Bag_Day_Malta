@@ -273,42 +273,46 @@ Downward dragging places an item on the conveyor rather than sorting it by gestu
 Removed collisions between waste items. Items can be dragged over one another or into an occupied lane without blocking or pushing. The selected item appears above the others, including after release. Conveyor motion is independent for each item. Downward placement and release-inside-bag sorting remain unchanged, as does the two-step Back navigation.
 
 
-## Version 1.0.62 — immediate space-based spawning
+## Version 1.0.63 — immediate space-based spawning
 
 A new card appears immediately when the top-middle card footprint clears, including during dragging or keyboard lane changes. No new card is created while that footprint is occupied. Removed the extra 12px spawning gap. A round starts with its first card immediately; belt motion continues checking available space each frame. Items can still overlap freely elsewhere.
 
 
-## Version 1.0.62 — explanations and discovery
+## Version 1.0.63 — explanations and discovery
 Clickable usage/game records; shared bag information in home, lobby and gameplay; game pauses for information and resumes on closing. Information closes with circle X, Escape or browser/mobile Back. Screen Wake Lock requested while running (browser support and permissions apply). Home demonstrations on first two opens, navigation wiggles for 30 days and five-day game invitation for 60 days. Locality picker offers Follow my location and Set as my home. Prior streak records without a stored start date are labelled honestly. Streak records and hint schedules stay local to this device and reset if site data is cleared.
 
 
-## Version 1.0.62 — modal and hint refinements
+## Version 1.0.63 — modal and hint refinements
 Missing streak start dates are omitted. Collection information is vertically centred. Locality actions use blue buttons with white text in both themes. Only Next day receives a glove-tap demonstration; navigating by button or horizontal card swipe permanently disables navigation hints on this device. Modal headings align with SVG circle-close controls. Game bag data and modal resources are self-contained copies with matching appearance.
 
 
-## Version 1.0.62 — locality and layout fixes
+## Version 1.0.63 — locality and layout fixes
 The locality picker has mutually exclusive Auto Follow / Keep my home radios, saving immediately and staying open. Selecting a locality in Home mode saves it as home; in Auto mode it temporarily previews that locality. Analytics consent changes without page reload and can be re-enabled. Settings is vertically centred with a distinct header. Light-mode modal headers use dark blue with white text. Original game lobby title layout restored. Day-arrow offsets reset to keep both buttons aligned.
 
 
-## Version 1.0.62 — sequential idle hints
+## Version 1.0.63 — sequential idle hints
 For the first 30 days, the bag tap, Next day tap and large swipe glove run one at a time, with two seconds after each animation before the next begins. The sequence repeats while idle. Any touch, click, key or wheel interaction stops all three for the session. Old two-launch and permanent navigation-dismissal flags no longer restrict this sequence. The separate bag-tap interval was removed. Swipe returns the card to its original position without changing the displayed date.
 
 
-## Version 1.0.62
+## Version 1.0.63
 Locality mode uses one shared blue container with two radio rows, clearer descriptions, 18 px titles, 15 px descriptions and 26 px radio circles. Entire rows remain tappable.
 
 
-## Version 1.0.62
+## Version 1.0.63
 Only interactions while the home screen is ready count towards hint dismissal. Setup and splash interactions are ignored. Each of the three home hints must complete once during the first 30 days; completion is saved locally. Early home interaction cancels the current animation safely and retries unseen hints after returning home. Once all three have completed, a prior home interaction stops the sequence.
 
 
-## Version 1.0.62
+## Version 1.0.63
 Compact two-row locality mode selector with no descriptions or extra heading. Choose a locality remains in the modal title bar beside the circle close control.
 
 
-## Version 1.0.62
+## Version 1.0.63
 Locality picker replaces mode radios with a short explanation and an Open Settings shortcut. Locality choices preview their schedule; saved home and automatic-follow preferences remain managed in Settings.
 
 
-## Version 1.0.62 — centred Sunday landscape card
+## Version 1.0.63 — centred Sunday landscape card
 The no-collection sun and message use the complete card width in landscape. The duplicate weekday is removed. Minimum card height measures the sun and message instead of reserving space for a waste bag. Collection-day layouts are unchanged.
+
+## Version 1.0.63 — donation title bars
+
+Both donation steps use a full-width header matching Settings: 72px minimum height, 14px/18px padding, bottom divider, and 44px circular close control. The left ŻejtunSoft logo is retained.
