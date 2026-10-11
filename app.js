@@ -724,6 +724,14 @@
   let calendarMonthIndex=0,calendarWasInert=false;
   const addDays=(date,days)=>{const copy=new Date(date);copy.setUTCDate(copy.getUTCDate()+days);return copy;};
   const monthIndex=date=>date.getUTCFullYear()*12+date.getUTCMonth();
+  // Compact symbols use the same collection rules as the main card.
+  function calendarSymbol(type){
+    const bottle='<path d="M9 2h6v5l3 5v15a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V12l3-5Z" fill="#73cbb0" stroke="#183e36" stroke-width="1.6"/><path d="M8 16h8v7H8Z" fill="#d9f7eb"/>';
+    const colours={organic:['#fff','#8094a7'],mixed:['#25313d','#91a8be'],recycle:['#44ad61','#185b31']};
+    const [fill,stroke]=colours[type]||colours.organic;
+    const bag=`<path d="m9 2 3 2 3-2 1 5-3 2c6 4 8 11 8 16 0 4-18 4-18 0 0-5 2-12 8-16L8 7Z" fill="${fill}" stroke="${stroke}" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 9h6" stroke="${stroke}" stroke-width="2"/>${type==='recycle'?'<text x="12" y="23" text-anchor="middle" font-size="15" fill="#fff">♻</text>':''}`;
+    return `<svg class="calendar-symbol" viewBox="0 0 24 32" aria-hidden="true" focusable="false">${type==='glass'?bottle:bag}</svg>`;
+  }
   function renderCalendar(){
     const today=maltaToday(),last=addDays(today,maxDaysAhead);
     calendarMonthIndex=Math.max(monthIndex(today),Math.min(monthIndex(last),calendarMonthIndex));
@@ -732,14 +740,19 @@
     $('calendarMonth').textContent=new Intl.DateTimeFormat('en-GB',{month:'long',year:'numeric',timeZone:'UTC'}).format(first);
     $('calendarPreviousMonth').disabled=calendarMonthIndex<=monthIndex(today);
     $('calendarNextMonth').disabled=calendarMonthIndex>=monthIndex(last);
+    $('calendarHelp').textContent=`${selected || 'Your locality'} · Today and the next 30 days`;
+    $('calendarLegend').innerHTML=['organic','mixed','recycle','glass'].map(type=>`<span>${calendarSymbol(type)}${type==='glass'?'Glass':type==='organic'?'Organic':type==='mixed'?'Mixed':'Recycling'}</span>`).join('');
     const grid=$('calendarDays');grid.replaceChildren();
     for(let i=0;i<(first.getUTCDay()+6)%7;i++){const blank=document.createElement('span');blank.setAttribute('aria-hidden','true');grid.append(blank);}
     const selectedIso=shownDate().toISOString().slice(0,10);
     for(let day=1;day<=length;day++){
       const date=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth(),day,12)),iso=date.toISOString().slice(0,10);
-      const button=document.createElement('button');button.type='button';button.textContent=String(day);button.dataset.date=iso;
+      const button=document.createElement('button');button.type='button';button.dataset.date=iso;
+      const schedule=scheduleFor(date);
+      const types=[...(schedule.bag?[schedule.bag]:[]),...(schedule.glass?['glass']:[])];
+      button.innerHTML=`<span class="calendar-day-number">${day}</span><span class="calendar-collections" aria-hidden="true">${types.map(calendarSymbol).join('')}</span>`;
       button.disabled=date<today || date>last;
-      button.setAttribute('aria-label',new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(date));
+      button.setAttribute('aria-label',new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(date)+': '+(types.length?types.map(type=>type==='glass'?'Glass':copy.en[type]).join(' and '):'No collection'));
       button.setAttribute('aria-pressed',String(iso===selectedIso));
       if(date.getTime()===today.getTime())button.setAttribute('aria-current','date');
       button.onclick=()=>selectCalendarDate(iso);grid.append(button);
