@@ -4,15 +4,20 @@
   const $ = id => document.getElementById(id);
   const appearanceKey='bag-day-appearance-v1';
   function applyAppearance(){
-    const saved=localStorage.getItem(appearanceKey);
+    let saved;try{saved=localStorage.getItem(appearanceKey);}catch(_){}
     const preference=saved==='light'?'light':'dark';
     const dark=preference==='dark';
-    document.documentElement.dataset.theme=dark?'dark':'light';
+    document.documentElement.dataset.theme=preference;
+    document.documentElement.style.colorScheme=preference;
+    document.documentElement.style.backgroundColor=dark?'#0b1421':'#edf3f9';
+    document.querySelector('meta[name="color-scheme"]').content=preference;
     document.querySelector('meta[name="theme-color"]').content=dark?'#0b1421':'#edf3f9';
     $('appearanceSelect').value=preference;
   }
   $('appearanceSelect').onchange=()=>{localStorage.setItem(appearanceKey,$('appearanceSelect').value);applyAppearance();};
   window.addEventListener('storage',e=>{if(e.key===appearanceKey)applyAppearance();});
+  window.addEventListener('pageshow',applyAppearance);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)applyAppearance();});
   applyAppearance();
   // Persist the first two application openings across sessions.
   const splash = $('splashScreen');
