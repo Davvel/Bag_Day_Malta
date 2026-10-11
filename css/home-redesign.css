@@ -1,4 +1,4 @@
-/* v1.0.83: implemented mobile mockup layout, separate from historical styles. */
+/* v1.0.84: implemented mobile mockup layout, separate from historical styles. */
 html,body{min-height:100%;background:#061727}
 :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 [data-theme=dark]{--ink:#f7f8fc;--secondary:#b6c6d6;--card:#10283e;--border:#245573}
@@ -73,7 +73,7 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 
 .sponsor-link::after{content:"↗";margin-left:auto;flex:none;padding-left:8px}.timing-truck{width:20px;height:17px;vertical-align:middle;margin-right:3px}
 /* Warm studio lighting and quiet botanical silhouettes like the concept. */
-[data-bag=organic] #bagArea{background-image:url('icons/card-botanical.svg'),radial-gradient(ellipse at 0% 0%,#925321 0%,#5b3519 30%,#302014 75%,#241a13 100%);background-size:cover;border-color:#aa7748;box-shadow:inset 0 1px 2px #ffd49e36,inset 0 -30px 60px #130c0966,0 7px 22px #0004}
+[data-bag=organic] #bagArea{background-image:url('../icons/card-botanical.svg'),radial-gradient(ellipse at 0% 0%,#925321 0%,#5b3519 30%,#302014 75%,#241a13 100%);background-size:cover;border-color:#aa7748;box-shadow:inset 0 1px 2px #ffd49e36,inset 0 -30px 60px #130c0966,0 7px 22px #0004}
 #collectionCardBody .collection-type-icon{background:linear-gradient(135deg,#cf995a,#a86b36);box-shadow:inset 0 1px 1px #ffe8bd44}
 #collectionCardBody .put-out-instruction>span{color:#fff4e7}#collectionCardBody .put-out-instruction>span>span{color:#efc575;font-size:22px;vertical-align:middle}
 #collectionCardBody .put-out-instruction strong small,.collection-start strong small{font-size:.42em;font-weight:600;letter-spacing:0;color:#eadac9}
@@ -94,7 +94,7 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 #dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong{font-size:clamp(14px,4vw,20px);flex-wrap:nowrap;white-space:nowrap;gap:3px}#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong small{font-size:8px}
 #dashboard:not([data-sponsor-count="0"]) .collection-figures:has(.glass-item){display:grid;grid-template-rows:minmax(0,1.8fr) minmax(0,1fr);gap:6px}#dashboard:not([data-sponsor-count="0"]) .glass-item .bag-figure{max-width:115px}#dashboard:not([data-sponsor-count="0"]) .glass-item .collection-item-label{font-size:10px;white-space:nowrap}
 /* A restrained skyline is behind the content and adds no vertical space. */
-#councilPanel{position:relative;overflow:hidden;padding:9px 12px;gap:6px 9px;background-image:url('icons/council-backdrop.svg'),linear-gradient(130deg,#154767,#082c46);background-position:center bottom;background-size:cover;border-color:#4389a8;box-shadow:inset 0 1px 0 #b4e7ff28,0 4px 15px #0003}
+#councilPanel{position:relative;overflow:hidden;padding:9px 12px;gap:6px 9px;background-image:url('../icons/council-backdrop.svg'),linear-gradient(130deg,#154767,#082c46);background-position:center bottom;background-size:cover;border-color:#4389a8;box-shadow:inset 0 1px 0 #b4e7ff28,0 4px 15px #0003}
 #councilPanel .council-link{display:flex;align-items:center;cursor:pointer;line-height:1.2;font:600 11px/1.2 system-ui;padding:7px 8px;min-height:37px}#councilPanel .council-bulky{flex:1.9;background:linear-gradient(#246d92,#154a70);border-color:#69a7c6;color:white}
 .bulky-dialog .info-titlebar{background:#285783;color:white}.bulky-dialog .info-titlebar h2{font-size:19px}.bulky-copy{padding:16px 20px 22px}.bulky-contact{padding:14px;border:1px solid #4a809f;border-radius:14px;background:linear-gradient(130deg,#163e5a,#102d42)}.bulky-contact-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#a7d6f1}.bulky-contact h3{font-size:24px;margin:4px 0 8px}.bulky-contact p{font-size:14px;margin:8px 0}.bulky-number{font-size:25px;font-weight:750;letter-spacing:.02em;color:#f5fbff;margin:12px 0;user-select:text}.bulky-call{display:flex;gap:9px;align-items:center;justify-content:center;background:linear-gradient(#287fba,#176093);border:1px solid #70b9df;border-radius:11px;padding:12px;color:white;text-decoration:none;font-weight:700;font-size:14px;min-height:44px}.bulky-call svg{width:22px;height:22px;flex:none}.bulky-copy .bulky-small{font-size:12px;line-height:1.45;color:#b7ccda}.bulky-rules li{margin:10px 0;font-size:14px}.bulky-sources{display:flex;flex-direction:column;gap:10px;font-size:13px}.bulky-sources a{color:#a4dbff}.bulky-copy>p{font-size:14px}
 [data-theme=light] .bulky-contact{background:#edf6fc;color:#173a53;border-color:#bbd6e7}[data-theme=light] .bulky-number{color:#174367}[data-theme=light] .bulky-contact-label,[data-theme=light] .bulky-copy .bulky-small{color:#42617a}[data-theme=light] .bulky-sources a{color:#155a88}
@@ -146,5 +146,5 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 #bulkyOverlay .bulky-sources svg{width:27px;height:27px}
 @media(max-height:620px){#bulkyOverlay .bulky-contact{padding:10px}#bulkyOverlay .bulky-contact h3{font-size:24px;margin-bottom:4px}#bulkyOverlay .bulky-number{margin:6px 0 9px}#bulkyOverlay .bulky-steps{gap:9px;margin:12px 0}#bulkyOverlay .bulky-steps li,#bulkyOverlay .bulky-steps strong{font-size:15px}#bulkyOverlay .bulky-sources a{min-height:74px;padding:7px 3px}}
 /* Low-contrast recyclable outlines frame the card without affecting layout. */
-[data-bag=recycle] #bagArea{background-image:url('icons/card-recycling.svg'),radial-gradient(ellipse at 0% 0%,#38694d 0%,#254d39 35%,#163a2c 75%,#112d24 100%);background-size:cover;background-position:center;border-color:#659a78;box-shadow:inset 0 1px 2px #d8ffda24,inset 0 -30px 60px #071b1466,0 7px 22px #0004}
+[data-bag=recycle] #bagArea{background-image:url('../icons/card-recycling.svg'),radial-gradient(ellipse at 0% 0%,#38694d 0%,#254d39 35%,#163a2c 75%,#112d24 100%);background-size:cover;background-position:center;border-color:#659a78;box-shadow:inset 0 1px 2px #d8ffda24,inset 0 -30px 60px #071b1466,0 7px 22px #0004}
 [data-bag=recycle] #collectionCardBody .collection-type-icon{background:linear-gradient(135deg,#6aa17a,#3f7955);box-shadow:inset 0 1px 1px #deffe344}
