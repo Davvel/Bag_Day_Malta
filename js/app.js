@@ -726,9 +726,10 @@
     $('prevDay').disabled=dayOffset===0;
     $('nextDay').disabled=dayOffset===maxDaysAhead;
     $('dateButton').disabled=moving;
+    $('todayPill').disabled=moving;
     $('bagArea').setAttribute('aria-busy',String(moving));
   }
-  let calendarMonthIndex=0,calendarWasInert=false;
+  let calendarMonthIndex=0,calendarWasInert=false,calendarOpener=null;
   const addDays=(date,days)=>{const copy=new Date(date);copy.setUTCDate(copy.getUTCDate()+days);return copy;};
   const monthIndex=date=>date.getUTCFullYear()*12+date.getUTCMonth();
   // Compact symbols use the same collection rules as the main card.
@@ -767,9 +768,10 @@
       button.onclick=()=>selectCalendarDate(iso);grid.append(button);
     }
   }
-  function openCalendar(){
+  function openCalendar(event){
     if(changingDay || performance.now()<suppressTapUntil || welcomeNeeded || !$('calendarOverlay').hidden)return;
     clearTimeout(returnTimer);
+    calendarOpener=event?.currentTarget || $('dateButton');
     calendarMonthIndex=monthIndex(shownDate());calendarWasInert=appContent.inert;
     $('calendarOverlay').hidden=false;appContent.inert=true;renderCalendar();
     $('calendarDialog').animate([{opacity:0,transform:'translateY(16px)'},{opacity:1,transform:'translateY(0)'}],{duration:reducedMotion()?0:220,easing:'ease-out'});
@@ -778,7 +780,7 @@
   function closeCalendar(){
     if($('calendarOverlay').hidden)return;
     $('calendarOverlay').hidden=true;appContent.inert=calendarWasInert;
-    $('dateButton').focus({preventScroll:true});
+    (calendarOpener || $('dateButton')).focus({preventScroll:true});
     render();
     if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=defaultDayOffset();render();},60000);
   }
@@ -807,6 +809,7 @@
     $('calendarDays').querySelector(`[data-date="${target.toISOString().slice(0,10)}"]`)?.focus();
   }
   $('dateButton').onclick=openCalendar;
+  $('todayPill').onclick=openCalendar;
   $('closeCalendar').onclick=closeCalendar;
   $('calendarToday').onclick=()=>selectCalendarDate(maltaToday().toISOString().slice(0,10));
   $('calendarPreviousMonth').onclick=()=>{calendarMonthIndex--;renderCalendar();};
