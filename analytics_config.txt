@@ -1,4 +1,0 @@
-# Bag Day Malta Google Analytics configuration
-# Collection starts only after visitors accept optional analytics.
-Analytics_Enabled=true
-Measurement_ID=G-2P58GJJQT8
