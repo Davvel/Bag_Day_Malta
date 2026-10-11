@@ -21,9 +21,9 @@
   renderRecords();showOnly('gameMenu');notifyPause();notifyRound();
  }
  function renderRecords(){const records=window.SORTING_STATS.snapshot();for(const name of ['highestLevel','bestRound','currentStreak','longestStreak'])byId(name).textContent=String(records[name]);}
- function notifyRound(){if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-round',open:mode!=='menu'&&mode!=='closed'},location.origin);}
- function notifyPause(){if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-pause',paused:mode==='paused'},location.origin);}
- function notifyWin(){if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-win',open:!byId('winPanel').hidden},location.origin);}
+ function notifyRound(){if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-round',open:mode!=='menu'&&mode!=='closed'},location.protocol==='file:'?'*':location.origin);}
+ function notifyPause(){if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-pause',paused:mode==='paused'},location.protocol==='file:'?'*':location.origin);}
+ function notifyWin(){if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-win',open:!byId('winPanel').hidden},location.protocol==='file:'?'*':location.origin);}
  function celebrate(accuracy){
   showOnly('gamePlay');mode='won';byId('gamePlay').inert=true;byId('winPanel').hidden=false;
   const stars=accuracy>=95?3:accuracy>=90?2:1;
@@ -50,7 +50,7 @@
   }
   notifyWin();(level<100?byId('playNextLevel'):byId('exitWin')).focus({preventScroll:true});
  }
- function closeGame(){cancelAnimationFrame(raf);mode='closed';hideHint();if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-close'},location.origin);else location.replace('../');}
+ function closeGame(){cancelAnimationFrame(raf);mode='closed';hideHint();if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-close'},location.protocol==='file:'?'*':location.origin);else location.replace('../');}
  function fillDeck(){
   const count=Math.min(catalog.length,6+Math.floor((level-1)/2)*3);deck=catalog.slice(0,count).slice();
   for(let n=deck.length-1;n>0;n--){const index=Math.floor(Math.random()*(n+1));[deck[n],deck[index]]=[deck[index],deck[n]];}
@@ -175,7 +175,7 @@
  async function syncWake(){if(mode!=='running'||document.hidden){if(wakeLock){const old=wakeLock;wakeLock=null;await old.release().catch(()=>{});}return;}if(wakeLock||wakePending||!navigator.wakeLock)return;wakePending=true;try{const lock=await navigator.wakeLock.request('screen');if(mode!=='running'||document.hidden)await lock.release();else{wakeLock=lock;lock.addEventListener('release',()=>{if(wakeLock===lock)wakeLock=null;});}}catch(_){}finally{wakePending=false;}}
  new MutationObserver(syncWake).observe(document.body,{subtree:true,attributes:true,attributeFilter:['hidden','class']});document.addEventListener('visibilitychange',syncWake);window.addEventListener('pagehide',()=>wakeLock?.release());
  byId('closeGameMenu').onclick=closeGame;for(const id of ['closeGamePlay','closeGameResults'])byId(id).onclick=()=>{renderMenu();byId('startGame').focus();};
- window.addEventListener('message',event=>{if(event.source===window.parent&&event.origin===location.origin&&event.data?.type==='bag-day-game-resume')resume();if(event.source===window.parent&&event.origin===location.origin&&event.data?.type==='bag-day-game-menu')renderMenu();});
+ window.addEventListener('message',event=>{if(event.source===window.parent&&(location.protocol==='file:'?event.origin==='null':event.origin===location.origin)&&event.data?.type==='bag-day-game-resume')resume();if(event.source===window.parent&&(location.protocol==='file:'?event.origin==='null':event.origin===location.origin)&&event.data?.type==='bag-day-game-menu')renderMenu();});
  byId('levelChoice').onchange=()=>{level=Math.max(1,Math.min(unlocked,Number(byId('levelChoice').value)||1));rememberLevel(level);};
  byId('startGame').onclick=()=>startRound();
  byId('pauseGame').onclick=pause;byId('resumeGame').onclick=resume;byId('closePause').onclick=resume;
@@ -201,7 +201,7 @@
  renderMenu();
  setInterval(()=>{if(mode==='menu')renderRecords();},60000);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&mode==='menu')renderRecords();});
- if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-ready'},location.origin);else location.replace('../');
+ if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-ready'},location.protocol==='file:'?'*':location.origin);else location.replace('../');
  // This worker owns only /game/ assets, never the collection app's cache.
  if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{});
 })();
