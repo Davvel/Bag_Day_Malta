@@ -403,7 +403,7 @@ html,body{height:100%;overflow:hidden}
 #calendarHelp{color:#59738b;font-size:.88rem;line-height:1.5;margin:12px 0 20px}
 .calendar-month-navigation{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px}.calendar-month-navigation h3{margin:0;font-size:1.1rem}.calendar-month-navigation button{border:0;border-radius:10px;background:#edf5fc;color:#245c82;width:44px;height:44px;font-size:1.6rem}.calendar-month-navigation button:disabled{opacity:.3}
 .calendar-weekdays,.calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}.calendar-weekdays{font-size:.72rem;font-weight:750;color:#698092;margin-bottom:8px}
-.calendar-days button{border:1px solid transparent;min-height:44px;border-radius:10px;background:#f0f6fb;color:#245c82;font-size:.95rem;font-weight:650;padding:8px 0}.calendar-days button:disabled{background:#f8fafc;color:#bbc7d1;cursor:default}.calendar-days button[aria-current=date]{border-color:#126db2}.calendar-days button[aria-pressed=true]{background:#126db2;color:#fff;box-shadow:0 3px 10px #126db230}
+.calendar-days button{border:1px solid transparent;min-height:44px;border-radius:10px;background:#f0f6fb;color:#245c82;font-size:.95rem;font-weight:650;padding:8px 0}.calendar-days button:disabled{background:#f8fafc;color:#bbc7d1;cursor:default}.calendar-days button[aria-current=date]{border-color:#126db2}
 .calendar-footer{display:flex;align-items:center;gap:14px;margin-top:20px}.calendar-footer button{border:1px solid #cbdfea;background:#edf5fc;color:#245c82;border-radius:10px;padding:11px 16px;min-height:44px;font-weight:750}.calendar-footer span{font-size:.75rem;line-height:1.4;color:#698092}
 @media(max-width:360px){.calendar-dialog{padding:16px}.calendar-days,.calendar-weekdays{gap:2px}.calendar-days button{min-height:40px}}
 @media(max-width:360px){.day-navigation{grid-template-columns:minmax(0,1fr) minmax(0,1.65fr) minmax(0,1fr)}.day-navigation .nav-button{flex-direction:column;gap:1px;padding:4px 1px}.day-navigation .nav-button>span[aria-hidden]{order:-1;font-size:1.3rem}}
@@ -518,7 +518,6 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 [data-theme=dark] .calendar-month-navigation button,[data-theme=dark] .calendar-days button{background:var(--surface);color:var(--ink)}
 [data-theme=dark] .calendar-days button:disabled{background:#192536;color:#667c92}
 [data-theme=dark] .calendar-days button[aria-current=date]{border-color:var(--accent)}
-[data-theme=dark] .calendar-days button[aria-pressed=true]{background:#1c68aa;color:#fff}
 [data-theme=dark] .calendar-weekdays,[data-theme=dark] .calendar-footer span{color:var(--secondary)}
 [data-theme=dark] .calendar-footer #calendarToday{background:#1c68aa;border-color:#1c68aa;color:#fff}
 [data-theme=dark] .waste-head{background:var(--surface);border-color:var(--border)}
@@ -630,7 +629,7 @@ body{background:radial-gradient(circle at 85% 2%,var(--page-glow) 0,transparent 
 
 .locality-settings-note{margin:12px 0 16px}.locality-settings-note p{font-size:14px;line-height:1.45;margin:0 0 9px;color:var(--secondary)}#localityOpenSettings{background:#285783;color:white;border:1px solid #628bb0;border-radius:9px;padding:8px 12px;font-size:14px;font-weight:700;min-height:36px}
 
-/* v1.0.65: preserve the bag; scroll when the measured card cannot fit. */
+/* v1.0.68: preserve the bag; scroll when the measured card cannot fit. */
 html{height:auto;min-height:100%;overflow-y:auto}
 body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
 #appContent{height:auto;min-height:var(--app-height,100dvh)}
@@ -646,7 +645,7 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
  .collection-card.no-collection{padding-left:var(--card-panel-inset)}
 }
 
-/* v1.0.65: fill spare height, preserving the central bag and label. */
+/* v1.0.68: fill spare height, preserving the central bag and label. */
 .app{height:max(var(--app-height,100dvh),var(--home-min-height,0px));min-height:var(--app-height,100dvh);max-height:none}
 .collection-stage{flex:1;min-height:var(--home-card-min-height,560px)}
 .collection-card{min-height:var(--home-card-min-height,560px)}
@@ -656,7 +655,7 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
 .bag-button img,.collection-figures .bag-button img{max-width:280px}
 .collection-item-label{font-size:clamp(18px,4vw,22px);font-weight:800;line-height:1.3}
 
-/* v1.0.65: one-line date controls on screens with limited height. */
+/* v1.0.68: one-line date controls on screens with limited height. */
 @media(max-height:650px){
  .day-navigation{padding:3px;gap:4px}
  .day-navigation .nav-button{flex-direction:row;min-height:44px;height:44px;padding:4px 2px;white-space:nowrap}
@@ -667,14 +666,14 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
  .date-button #date>span+span::before{content:' '}
 }
 
-/* v1.0.65: group the day and put-out instructions below the bag. */
+/* v1.0.68: group the day and put-out instructions below the bag. */
 .viewed-day-row{display:none}
 .bag-day-label{flex:none;font-size:clamp(18px,4vw,22px);font-weight:800;line-height:1.3;text-align:center;margin:0 0 10px;color:var(--ink)}
 .put-out-end{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .put-out-info{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;padding:6px;border:0;background:transparent;color:inherit;border-radius:50%;cursor:pointer}
 .put-out-info .info-circle{width:21px;height:21px;font-size:14px}
 
-/* v1.0.65: balanced header with the locality in the centre. */
+/* v1.0.68: balanced header with the locality in the centre. */
 .topbar{display:grid;grid-template-columns:90px minmax(0,1fr) 90px;gap:6px;height:auto;min-height:60px;align-items:center}
 .topbar .brand{gap:5px;font-size:14px;line-height:1.15;letter-spacing:-.03em;min-width:0}
 .topbar .brand-mark{width:24px;height:28px;flex:none;font-size:18px}
@@ -691,7 +690,7 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
  .topbar .icon-button,.topbar #gameModeButton{width:36px;height:36px;min-width:36px}
 }
 
-/* v1.0.65: consistent support and confirmation headers and branding. */
+/* v1.0.68: consistent support and confirmation headers and branding. */
 #supportDialog .modal-titlebar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;padding:12px 16px;border-radius:12px;background:#233d55;color:white;border:1px solid #63809a}
 [data-theme=light] #supportDialog .modal-titlebar{background:#285783;border-color:#628bb0}
 #supportDialog .modal-titlebar h2{flex:1;margin:0;color:inherit;text-align:left;font-size:1.3rem;line-height:1.25}
@@ -700,7 +699,7 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
 #supportCoffee{margin:12px 0 20px}
 #supportDialog .donation-confirm-note{margin:12px 0 20px;text-align:center;line-height:1.5;color:var(--secondary)}
 
-/* v1.0.65: compact support headers with shared left-side branding. */
+/* v1.0.68: compact support headers with shared left-side branding. */
 #supportDialog .modal-titlebar{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:10px;min-height:52px;padding:8px 12px}
 #supportDialog .modal-titlebar h2{margin:0;text-align:center;font-size:clamp(15px,3.8vw,20px);line-height:1.2}
 #supportDialog .support-title-logo{width:32px;height:32px;border-radius:9px;justify-self:start}
@@ -710,14 +709,14 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
 [data-theme=dark] .confirmation-coffee .coffee-cup{color:#edc78e}
 #supportCoffee{margin:20px 0 22px}
 
-/* v1.0.65: centre no-collection content across the complete card. */
+/* v1.0.68: centre no-collection content across the complete card. */
 .collection-card.no-collection .no-collection-message{margin-left:0;width:100%;transform:none;padding:24px 0;box-sizing:border-box;text-align:center}
 .collection-card.no-collection .bag-name{max-width:100%;overflow-wrap:break-word}
 @media(max-height:450px) and (min-width:600px){
  .collection-card.no-collection .no-collection-message{margin-left:0;transform:none}
 }
 
-/* v1.0.65: both donation steps use the full-width Settings title bar. */
+/* v1.0.68: both donation steps use the full-width Settings title bar. */
 #supportDialog{padding:0 18px 16px}
 #supportDialog .modal-titlebar{
  position:sticky;top:0;z-index:2;
@@ -755,3 +754,24 @@ body{height:auto;min-height:var(--app-height,100dvh);overflow-y:visible}
 .calendar-footer{margin-top:13px;gap:8px}
 .calendar-footer span{font-size:.7rem}
 @media(max-width:360px){.calendar-dialog{padding:12px}.calendar-days button{min-height:60px}.calendar-collections{gap:0}.calendar-symbol{width:17px;height:25px}}
+
+/* Calendar collection colours remain visible in both appearance modes. */
+#calendarDays button[data-bag=organic]{--collection-colour:#f5e7af}
+#calendarDays button[data-bag=mixed]{--collection-colour:#bbc2c9}
+#calendarDays button[data-bag=recycle]{--collection-colour:#c6e8cb}
+#calendarDays button[data-bag]:not([data-bag=none]){background:var(--collection-colour);color:#17334b}
+#calendarDays button[data-glass=true]{background:linear-gradient(to right,var(--collection-colour) 0 50%,#c5e5f7 50% 100%);color:#17334b}
+#calendarDays button[data-bag]:disabled{opacity:.4}
+#calendarDays button[data-bag]:disabled .calendar-collections{opacity:1}
+#calendarDays button[data-bag][aria-current=date]{border:2px solid #285783}
+#calendarDays button[data-bag]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* Today is the only persistently highlighted calendar date. */
+#calendarDays button[data-bag][aria-current=date]{border:2px solid #168cff;box-shadow:inset 0 0 0 1px #fff,0 0 0 2px #168cff,0 0 10px 2px #168cff80;position:relative;z-index:1}
+.calendar-legend>span{padding:4px 7px;border-radius:7px;color:#17334b}
+.calendar-legend [data-bag=organic]{background:#f5e7af}
+.calendar-legend [data-bag=mixed]{background:#bbc2c9}
+.calendar-legend [data-bag=recycle]{background:#c6e8cb}
+.calendar-legend [data-bag=glass]{background:#c5e5f7}
+
+#brandSupportButton{border:0;padding:0;position:relative;cursor:pointer}#brandSupportButton::after{content:"";position:absolute;inset:-8px}

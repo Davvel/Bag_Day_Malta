@@ -741,7 +741,7 @@
     $('calendarPreviousMonth').disabled=calendarMonthIndex<=monthIndex(today);
     $('calendarNextMonth').disabled=calendarMonthIndex>=monthIndex(last);
     $('calendarHelp').textContent=`${selected || 'Your locality'} · Today and the next 30 days`;
-    $('calendarLegend').innerHTML=['organic','mixed','recycle','glass'].map(type=>`<span>${calendarSymbol(type)}${type==='glass'?'Glass':type==='organic'?'Organic':type==='mixed'?'Mixed':'Recycling'}</span>`).join('');
+    $('calendarLegend').innerHTML=['organic','mixed','recycle','glass'].map(type=>`<span data-bag="${type}">${calendarSymbol(type)}${type==='glass'?'Glass':type==='organic'?'Organic':type==='mixed'?'Mixed':'Recycling'}</span>`).join('');
     const grid=$('calendarDays');grid.replaceChildren();
     for(let i=0;i<(first.getUTCDay()+6)%7;i++){const blank=document.createElement('span');blank.setAttribute('aria-hidden','true');grid.append(blank);}
     const selectedIso=shownDate().toISOString().slice(0,10);
@@ -749,6 +749,8 @@
       const date=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth(),day,12)),iso=date.toISOString().slice(0,10);
       const button=document.createElement('button');button.type='button';button.dataset.date=iso;
       const schedule=scheduleFor(date);
+      button.dataset.bag=schedule.bag || 'none';
+      button.dataset.glass=String(schedule.glass);
       const types=[...(schedule.bag?[schedule.bag]:[]),...(schedule.glass?['glass']:[])];
       button.innerHTML=`<span class="calendar-day-number">${day}</span><span class="calendar-collections" aria-hidden="true">${types.map(calendarSymbol).join('')}</span>`;
       button.disabled=date<today || date>last;
@@ -764,7 +766,7 @@
     calendarMonthIndex=monthIndex(shownDate());calendarWasInert=appContent.inert;
     $('calendarOverlay').hidden=false;appContent.inert=true;renderCalendar();
     $('calendarDialog').animate([{opacity:0,transform:'translateY(16px)'},{opacity:1,transform:'translateY(0)'}],{duration:reducedMotion()?0:220,easing:'ease-out'});
-    ($('calendarDays').querySelector('[aria-pressed=true]:not(:disabled)') || $('calendarToday')).focus({preventScroll:true});
+    ($('calendarDays').querySelector('[aria-current=date]:not(:disabled)') || $('calendarToday')).focus({preventScroll:true});
   }
   function closeCalendar(){
     if($('calendarOverlay').hidden)return;
@@ -1011,6 +1013,7 @@
   $('prevDay').onclick=()=>changeDay(-1);
   $('nextDay').onclick=()=>changeDay(1);
   $('donationCard').addEventListener('click',()=>openSupport());
+  $('brandSupportButton').addEventListener('click',()=>openSupport());
   $('closeSupport').onclick=backSupportStep;
   $('dismissSupport').onclick=closeSupport;
   $('supportOverlay').onclick=e=>{if(e.target===$('supportOverlay'))backSupportStep();};
