@@ -1,4 +1,4 @@
-/* v1.0.82: implemented mobile mockup layout, separate from historical styles. */
+/* v1.0.83: implemented mobile mockup layout, separate from historical styles. */
 html,body{min-height:100%;background:#061727}
 :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 [data-theme=dark]{--ink:#f7f8fc;--secondary:#b6c6d6;--card:#10283e;--border:#245573}

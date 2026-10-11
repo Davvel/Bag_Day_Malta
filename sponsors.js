@@ -59,5 +59,5 @@
   }
   async function load(file){try{if(location.protocol==='file:'){return parseCSV(window.BAG_DAY_LOCAL_FILES?.[file]??'');}const r=await fetch(file,{cache:'no-cache'});if(!r.ok)throw new Error(r.status);return parseCSV(await r.text());}catch(e){console.warn('Bag Day could not load '+file,e);return [];}}
   window.BAG_DAY_SPONSORS={render,parseCSV,bookings,safeURL};
-  Promise.all([load('sponsors.csv'),load('councils.csv')]).then(([s,c])=>{sponsorRows=s;councilRows=c;if(last)render(...last);window.dispatchEvent(new Event('bag-day-sponsors-ready'));});
+  Promise.all([load('data/sponsors.csv'),load('data/councils.csv')]).then(([s,c])=>{sponsorRows=s;councilRows=c;if(last)render(...last);window.dispatchEvent(new Event('bag-day-sponsors-ready'));});
 })();
