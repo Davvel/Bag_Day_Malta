@@ -1,4 +1,4 @@
-/* v1.0.86: implemented mobile mockup layout, separate from historical styles. */
+/* v1.0.87: implemented mobile mockup layout, separate from historical styles. */
 html,body{min-height:100%;background:#061727}
 :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 [data-theme=dark]{--ink:#f7f8fc;--secondary:#b6c6d6;--card:#10283e;--border:#245573}
@@ -149,4 +149,4 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 [data-bag=recycle] #bagArea{background-image:url('../icons/card-recycling.svg'),radial-gradient(ellipse at 0% 0%,#38694d 0%,#254d39 35%,#163a2c 75%,#112d24 100%);background-size:cover;background-position:center;border-color:#659a78;box-shadow:inset 0 1px 2px #d8ffda24,inset 0 -30px 60px #071b1466,0 7px 22px #0004}
 [data-bag=recycle] #collectionCardBody .collection-type-icon{background:linear-gradient(135deg,#6aa17a,#3f7955);box-shadow:inset 0 1px 1px #deffe344}
 
-.collection-date #todayPill{border:0;box-shadow:none;font-family:inherit;cursor:pointer}
+.collection-date #todayPill{border:0;box-shadow:none;font-family:inherit;cursor:pointer;margin-inline:auto;text-align:center}
