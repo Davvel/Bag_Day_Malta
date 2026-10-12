@@ -1,4 +1,4 @@
-Bag Day Malta v1.0.89
+Bag Day Malta v1.0.90
 
 Upload all ZIP contents to the existing GitHub Pages repository, retaining CNAME.
 
@@ -23,7 +23,7 @@ Validation: JavaScript syntax and sponsor engine behavior checks passed. Browser
 Donation_Visible=false is now a master switch. It hides every support entry point, blocks automatic invitations and checkout, and closes an open support dialog when switched off. Missing/unreadable configuration stays disabled. The brand mark remains visible as a non-clickable symbol.
 
 
-v1.0.89 visual redesign and direct-file preview:
+v1.0.90 visual redesign and direct-file preview:
 - New realistic organic, mixed and recyclable bag graphics; themed collection cards; dates above the card; clear put-out and start times; compact council contact row and text sponsors.
 - Open index.html directly to preview without publishing. Bundled local-preview-data.js contains snapshots of the two CSVs and config files. The game starts locally without fetch preflight; parent/iframe messages support opaque local-file origins while still checking the sending frame.
 - To test edited CSVs locally: Settings > Local preview data > Council CSV or Sponsor CSV. Selections are saved in this browser only. Use bundled CSVs resets these imports. On GitHub Pages the app reads the separate real CSVs normally; local imports never affect the hosted version.
@@ -31,25 +31,25 @@ v1.0.89 visual redesign and direct-file preview:
 - Donations stay off. For direct-file preview, config snapshots in local-preview-data.js control the switch; on hosting donation_config.txt controls it. Both currently have Donation_Visible=false. The top-left bag mark is non-clickable.
 - WhatsApp is hidden. Council and sponsor CSVs remain independently replaceable.
 
-1.0.89: AM/PM suffixes, botanical organic card, realistic glass bottles in a reusable teal container, enhanced council identity and Free bulky refuse call label. Phone defaults to the council contact number; an optional BulkyTelephone column takes precedence for dedicated booking numbers.
+1.0.90: AM/PM suffixes, botanical organic card, realistic glass bottles in a reusable teal container, enhanced council identity and Free bulky refuse call label. Phone defaults to the council contact number; an optional BulkyTelephone column takes precedence for dedicated booking numbers.
 
-v1.0.89: Bulky Refuse Collection opens an accessible panel with household service guidance, selected council/locality, a visible selectable phone number and a blue tel: button. Close with X, Escape, outside tap or browser/phone Back. Contact comes from data/councils.csv; optional BulkyTelephone overrides Phone, otherwise the panel accurately describes it as the council number. Shared council-neighbourhood artwork appears below the council buttons. WhatsApp and donations remain hidden.
+v1.0.90: Bulky Refuse Collection opens an accessible panel with household service guidance, selected council/locality, a visible selectable phone number and a blue tel: button. Close with X, Escape, outside tap or browser/phone Back. Contact comes from data/councils.csv; optional BulkyTelephone overrides Phone, otherwise the panel accurately describes it as the council number. Shared council-neighbourhood artwork appears below the council buttons. WhatsApp and donations remain hidden.
 Guidance sources checked 11 October 2026: https://www.wsm.com.mt/en/bulky-waste and https://zejtunlc.gov.mt/en/contact-us/ . Dates, accepted items and placement instructions must be confirmed with the council; no council-specific limits have been invented.
 
 The bulky panel also links directly to https://localgovernment.gov.mt/articles/bulky-refuse-collection-from-your-doorstep/ (checked 11 October 2026).
 
-v1.0.89: Shared council skyline backdrop replaces the separate picture strip, saving 57px. On glass days, bag and reusable glass container occupy one row in the same card height, with collection timings below.
+v1.0.90: Shared council skyline backdrop replaces the separate picture strip, saving 57px. On glass days, bag and reusable glass container occupy one row in the same card height, with collection timings below.
 
-v1.0.89: Consistent sponsored card height calculated with a reserved three-slot footprint, regardless of actual sponsor count or bag type. No-sponsor days still reclaim space. Absolute contained artwork cannot stretch the card. Verified equal card heights for organic, mixed and glass days and sponsor bottom within a 390x844 viewport. Very short screens retain scrolling for readable controls.
+v1.0.90: Consistent sponsored card height calculated with a reserved three-slot footprint, regardless of actual sponsor count or bag type. No-sponsor days still reclaim space. Absolute contained artwork cannot stretch the card. Verified equal card heights for organic, mixed and glass days and sponsor bottom within a 390x844 viewport. Very short screens retain scrolling for readable controls.
 
-v1.0.89: The 1 Minute Sorting Game has a shared stopwatch/three-bin SVG identity and a two-line lobby title. Bulky refuse panel shortened to booking contact, visible number, call button, three concise steps and a single icon-link row. Verified no internal scrolling at 390x844 and 320x568, local game title/startup, Back/X close, CSV import, consistent day cards and sponsor visibility.
+v1.0.90: The 1 Minute Sorting Game has a shared stopwatch/three-bin SVG identity and a two-line lobby title. Bulky refuse panel shortened to booking contact, visible number, call button, three concise steps and a single icon-link row. Verified no internal scrolling at 390x844 and 320x568, local game title/startup, Back/X close, CSV import, consistent day cards and sponsor visibility.
 
-v1.0.89: Free Bulky Refuse Collection title, redundant contact/free-service/dial-yourself captions removed. Call To Book with Local Council button; larger 16px instructions and 13px icon-link labels (15px instructions on short screens). Local phone, Back/X and no-scroll panel verified at 390x844 and 320x568.
+v1.0.90: Free Bulky Refuse Collection title, redundant contact/free-service/dial-yourself captions removed. Call To Book with Local Council button; larger 16px instructions and 13px icon-link labels (15px instructions on short screens). Local phone, Back/X and no-scroll panel verified at 390x844 and 320x568.
 
-v1.0.89 supersedes local CSV import instructions above: public Settings contains no import/reset controls. Stored preview CSV overrides are ignored. Direct-file preview uses bundled snapshots; hosted app continues reading independent data/councils.csv and data/sponsors.csv. Demo sponsors remain in the local snapshot.
+v1.0.90 supersedes local CSV import instructions above: public Settings contains no import/reset controls. Stored preview CSV overrides are ignored. Direct-file preview uses bundled snapshots; hosted app continues reading independent data/councils.csv and data/sponsors.csv. Demo sponsors remain in the local snapshot.
 
-v1.0.89 supersedes demo rotation and empty-live-CSV notes: data/sponsors.csv contains 18 rows for October–December 2026: Żejtun slots 1–3, Kalkara slots 1–2, San Pawl il-Baħar slot 1, no other locality. Each row is one sponsor/locality/calendar month. Names Sponsor 1/2/3 and links https://www.wsm.com.mt/. Same data bundled for local-file preview. Heading is Sponsored; no daily rotation.
+v1.0.90 supersedes demo rotation and empty-live-CSV notes: data/sponsors.csv contains 18 rows for October–December 2026: Żejtun slots 1–3, Kalkara slots 1–2, San Pawl il-Baħar slot 1, no other locality. Each row is one sponsor/locality/calendar month. Names Sponsor 1/2/3 and links https://www.wsm.com.mt/. Same data bundled for local-file preview. Heading is Sponsored; no daily rotation.
 
-v1.0.89: All CSVs moved out of root. Live files: data/councils.csv and data/sponsors.csv. Research references: data/council_sources.csv. Examples: data/examples/. Loading paths, bundled local snapshot keys and offline precache paths updated. Keep index.html and service-worker.js at root. When replacing an existing checkout, remove the old root CSVs after copying this full package so there is only one editable copy of each.
+v1.0.90: All CSVs moved out of root. Live files: data/councils.csv and data/sponsors.csv. Research references: data/council_sources.csv. Examples: data/examples/. Loading paths, bundled local snapshot keys and offline precache paths updated. Keep index.html and service-worker.js at root. When replacing an existing checkout, remove the old root CSVs after copying this full package so there is only one editable copy of each.
 
-v1.0.89: Main app styles moved to css/styles.css, css/home-redesign.css, css/info-panel.css, css/game-launcher.css. HTML links, background artwork paths and offline cache updated. Game styles remain within game/. Remove old root CSS copies when overlaying an existing folder, after copying all updated files.
+v1.0.90: Main app styles moved to css/styles.css, css/home-redesign.css, css/info-panel.css, css/game-launcher.css. HTML links, background artwork paths and offline cache updated. Game styles remain within game/. Remove old root CSS copies when overlaying an existing folder, after copying all updated files.
