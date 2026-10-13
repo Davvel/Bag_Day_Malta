@@ -316,3 +316,7 @@ The no-collection sun and message use the complete card width in landscape. The 
 ## Version 1.0.90 — donation title bars
 
 Both donation steps use a full-width header matching Settings: 72px minimum height, 14px/18px padding, bottom divider, and 44px circular close control. The left ŻejtunSoft logo is retained.
+
+## Version 1.0.91
+
+Sponsor-ID lookup using data/sponsors.csv and data/sponsor_slots.csv. Optional banners stretch to fill adverts; failed images fall back to display text. Slot-number gaps are supported.

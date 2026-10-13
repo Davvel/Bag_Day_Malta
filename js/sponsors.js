@@ -22,16 +22,19 @@
     const row=window.WASTE_DATA.localities.find(r=>[r[0],...(r[3]||[])].some(v=>normal(v)===key));
     return row?normal(row[0]):key;
   }
-  function bookings(rows,locality,date){
-    const used=new Set();
-    return rows.filter(r=>{
-      const slot=Number(r.slot),month=Number(r.month.replace(/^month\s*/i,''));
-      const valid=canonical(r.locality)===canonical(locality)&&month===date.getUTCMonth()+1&&Number(r.year)===date.getUTCFullYear()&&[1,2,3].includes(slot)&&r.sponsorname&&safeURL(r.url);
-      if(!valid||used.has(slot))return false;
-      used.add(slot);return true;
-    }).sort((a,b)=>Number(a.slot)-Number(b.slot));
+  function bookings(rows,locality,date,master=[]){
+    const sponsors=new Map(master.map(r=>[String(r.sponsorid||'').trim().toUpperCase(),r]));
+    const usedSlots=new Set(),usedSponsors=new Set();
+    return rows.map(r=>({...r,advert:sponsors.get(String(r.sponsorid||'').trim().toUpperCase())}))
+      .filter(r=>canonical(r.locality)===canonical(locality)&&Number(r.month)===date.getUTCMonth()+1&&Number(r.year)===date.getUTCFullYear()&&Number.isInteger(Number(r.slot))&&Number(r.slot)>0&&r.advert&&r.advert.displaytext&&safeURL(r.advert.url))
+      .sort((a,b)=>Number(a.slot)-Number(b.slot))
+      .filter(r=>{
+        const id=String(r.sponsorid).trim().toUpperCase(),slot=Number(r.slot);
+        if(usedSlots.has(slot)||usedSponsors.has(id))return false;
+        usedSlots.add(slot);usedSponsors.add(id);return true;
+      }).slice(0,3);
   }
-  let sponsorRows=[],councilRows=[],last=null;
+  let sponsorRows=[],slotRows=[],councilRows=[],last=null;
   const link=(text,url,cls)=>{const a=document.createElement('a');a.textContent=text;a.href=url;a.className=cls;a.target='_blank';a.rel='noopener noreferrer sponsored';return a;};
   function render(locality,date){
     last=[locality,date];
@@ -50,14 +53,26 @@
       const button=document.createElement('button');button.type='button';button.className='council-link council-whatsapp-disabled';button.textContent='WhatsApp';button.disabled=true;button.title='Council WhatsApp is not available yet';actions.append(button);
     }
     if(actions.childElementCount)council.append(actions);
-    const active=bookings(sponsorRows,locality,date);panel.hidden=!active.length;
+    const active=bookings(slotRows,locality,date,sponsorRows);panel.hidden=!active.length;
     if(active.length){
       const heading=document.createElement('div');heading.className='sponsor-heading';heading.textContent='Sponsored';panel.append(heading);
-      active.forEach(r=>panel.append(link(r.sponsorname,safeURL(r.url),'sponsor-link sponsor-slot-'+Number(r.slot))));
+      active.forEach((r,index)=>{
+        const advert=r.advert;
+        const a=link(advert.displaytext,safeURL(advert.url),'sponsor-link sponsor-slot-'+(index+1));
+        const imageURL=safeURL(advert.imageurl);
+        if(imageURL){
+          const image=document.createElement('img');
+          image.alt=advert.displaytext;image.className='sponsor-banner';
+          a.setAttribute('aria-label',advert.displaytext);
+          image.onerror=()=>{a.classList.remove('sponsor-link-image');a.textContent=advert.displaytext;};
+          a.classList.add('sponsor-link-image');a.replaceChildren(image);image.src=imageURL;
+        }
+        panel.append(a);
+      });
     }
     document.getElementById('dashboard').dataset.sponsorCount=active.length;
   }
   async function load(file){try{if(location.protocol==='file:'){return parseCSV(window.BAG_DAY_LOCAL_FILES?.[file]??'');}const r=await fetch(file,{cache:'no-cache'});if(!r.ok)throw new Error(r.status);return parseCSV(await r.text());}catch(e){console.warn('Bag Day could not load '+file,e);return [];}}
   window.BAG_DAY_SPONSORS={render,parseCSV,bookings,safeURL};
-  Promise.all([load('data/sponsors.csv'),load('data/councils.csv')]).then(([s,c])=>{sponsorRows=s;councilRows=c;if(last)render(...last);window.dispatchEvent(new Event('bag-day-sponsors-ready'));});
+  Promise.all([load('data/sponsors.csv'),load('data/sponsor_slots.csv'),load('data/councils.csv')]).then(([s,b,c])=>{sponsorRows=s;slotRows=b;councilRows=c;if(last)render(...last);window.dispatchEvent(new Event('bag-day-sponsors-ready'));});
 })();
