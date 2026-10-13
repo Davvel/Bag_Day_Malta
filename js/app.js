@@ -404,6 +404,7 @@
     if(!analyticsAllowed() || !analyticsReady || typeof window.gtag!=='function') return;
     window.gtag('event',name,params);
   }
+  window.BAG_DAY_ANALYTICS={event:analyticsEvent};
 
   $('gameModeButton').addEventListener('click',()=>{
     if($('gameModeButton').hidden || appContent.inert || !splash.hidden || $('dashboard').hidden || !analyticsAllowed())return;

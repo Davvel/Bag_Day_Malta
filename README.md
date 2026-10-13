@@ -320,3 +320,7 @@ Both donation steps use a full-width header matching Settings: 72px minimum heig
 ## Version 1.0.91
 
 Sponsor-ID lookup using data/sponsors.csv and data/sponsor_slots.csv. Optional banners stretch to fill adverts; failed images fall back to display text. Slot-number gaps are supported.
+
+## Version 1.0.92
+
+Consent-controlled sponsor_click analytics with sponsor_id and advert context for text, image and middle clicks. See SPONSORS_README.md for GA4 reporting setup.

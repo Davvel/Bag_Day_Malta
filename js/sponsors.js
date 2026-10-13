@@ -67,6 +67,21 @@
           image.onerror=()=>{a.classList.remove('sponsor-link-image');a.textContent=advert.displaytext;};
           a.classList.add('sponsor-link-image');a.replaceChildren(image);image.src=imageURL;
         }
+        const trackClick=()=>{
+          try{
+            window.BAG_DAY_ANALYTICS?.event('sponsor_click',{
+              sponsor_id:String(r.sponsorid).trim().toUpperCase(),
+              sponsor_name:advert.sponsorname,
+              locality,
+              booking_month:Number(r.month),
+              booking_year:Number(r.year),
+              sponsor_slot:Number(r.slot),
+              advert_format:a.classList.contains('sponsor-link-image')?'image':'text'
+            });
+          }catch(_){ /* Analytics must never prevent opening the sponsor website. */ }
+        };
+        a.addEventListener('click',trackClick);
+        a.addEventListener('auxclick',event=>{if(event.button===1)trackClick();});
         panel.append(a);
       });
     }
