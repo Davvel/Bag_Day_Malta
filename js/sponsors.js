@@ -17,6 +17,17 @@
     return rows.map(r=>Object.fromEntries(headers.map((h,i)=>[h,(r[i]||'').trim()])));
   }
   function safeURL(value){try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:null;}catch(_){return null;}}
+  function bannerURLs(value){
+    const u=new URL(value);
+    if(u.origin==='https://bagdaymalta.eu'&&u.pathname.toLowerCase()==='/images/sponsors/google.png'){
+      u.searchParams.set('v','1.0.101');
+      // Keep the published path; try the alternative case for Windows/GitHub uploads.
+      const original=u.href;
+      u.pathname=u.pathname.endsWith('/google.png')?'/images/sponsors/Google.png':'/images/sponsors/google.png';
+      return [original,u.href];
+    }
+    return [u.href];
+  }
   function canonical(value){
     const key=normal(value);
     const row=window.WASTE_DATA.localities.find(r=>[r[0],...(r[3]||[])].some(v=>normal(v)===key));
@@ -64,8 +75,9 @@
           const image=document.createElement('img');
           image.alt=advert.displaytext;image.className='sponsor-banner';
           a.setAttribute('aria-label',advert.displaytext);
-          image.onerror=()=>{a.classList.remove('sponsor-link-image');a.textContent=advert.displaytext;};
-          a.classList.add('sponsor-link-image');a.replaceChildren(image);const bannerAsset=new URL(imageURL);if(bannerAsset.origin==='https://bagdaymalta.eu'&&bannerAsset.pathname.toLowerCase()==='/images/sponsors/google.png'){bannerAsset.pathname='/images/sponsors/google.png';bannerAsset.searchParams.set('v','1.0.100');}image.src=bannerAsset.href;
+          const candidates=bannerURLs(imageURL);let candidate=0;
+          image.onerror=()=>{candidate++;if(candidate<candidates.length){image.src=candidates[candidate];return;}a.classList.remove('sponsor-link-image');a.textContent=advert.displaytext;};
+          a.classList.add('sponsor-link-image');a.replaceChildren(image);image.src=candidates[0];
         }
         const trackClick=()=>{
           try{
@@ -127,7 +139,7 @@
     })().finally(()=>{refreshPromise=null;});
     return refreshPromise;
   }
-  window.BAG_DAY_SPONSORS={render,parseCSV,bookings,safeURL,refresh,status:()=>({source:'Cloudflare',version:publicationVersion,saved_data:sponsorStale,last_error:lastExportError})};
+  window.BAG_DAY_SPONSORS={render,parseCSV,bookings,safeURL,bannerURLs,refresh,status:()=>({source:'Cloudflare',version:publicationVersion,saved_data:sponsorStale,last_error:lastExportError})};
   // Council data remains in the existing GitHub-hosted file.
   load('data/councils.csv').then(c=>{councilRows=c;notify();});
   readSavedPair();notify();refresh();

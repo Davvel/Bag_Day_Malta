@@ -1,0 +1,5 @@
+Bag Day Malta 1.0.101
+Fix: preserve published image URL spelling, retry Google.png/google.png on failure.
+Image: images/sponsors/google.png, 1500 x 150 (10:1).
+Copy into existing GitHub folder, accept Replace, publish. Keep existing CNAME and admin folder. No CNAME included.
+Settings: 1.0.101. Sponsor CSV cache remains 24 hours.
