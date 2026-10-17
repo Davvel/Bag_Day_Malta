@@ -65,7 +65,7 @@
           image.alt=advert.displaytext;image.className='sponsor-banner';
           a.setAttribute('aria-label',advert.displaytext);
           image.onerror=()=>{a.classList.remove('sponsor-link-image');a.textContent=advert.displaytext;};
-          a.classList.add('sponsor-link-image');a.replaceChildren(image);const bannerAsset=new URL(imageURL);if(bannerAsset.origin==='https://bagdaymalta.eu'&&bannerAsset.pathname.toLowerCase()==='/images/sponsors/google.png'){bannerAsset.pathname='/images/sponsors/google.png';bannerAsset.searchParams.set('v','1.0.98');}image.src=bannerAsset.href;
+          a.classList.add('sponsor-link-image');a.replaceChildren(image);const bannerAsset=new URL(imageURL);if(bannerAsset.origin==='https://bagdaymalta.eu'&&bannerAsset.pathname.toLowerCase()==='/images/sponsors/google.png'){bannerAsset.pathname='/images/sponsors/google.png';bannerAsset.searchParams.set('v','1.0.99');}image.src=bannerAsset.href;
         }
         const trackClick=()=>{
           try{
