@@ -1,4 +1,12 @@
-# Bag Day Admin PWA v2
+# Update instructions
+
+Replace the existing admin folder contents in your Bag Day GitHub repository with this ZIP's admin folder. Commit and push. No CNAME file is included. This release is Admin v1.0.2, distributed as ZIP v3.
+
+Close all admin tabs and the installed Admin PWA, then reopen https://bagdaymalta.eu/admin/ after GitHub Pages deploys. If necessary, refresh with Ctrl+F5. Confirm v1.0.2 appears on the screen. The new Generate sponsor CSVs button is in the top header after login.
+
+If you configured Google login in your local assets/config.mjs, carry your real googleClientId into the new config before uploading. Keep any intentionally changed API/exporter addresses too; do not copy an older config wholesale over the new file's version and exporter setting.
+
+# Bag Day Admin PWA v3
 
 17 October 2026. A static admin PWA for GitHub Pages, connected to the deployed API at https://bagday-admin-api.davvel.workers.dev. This replaces the earlier browser-local demo. It contains no password or Cloudflare secret.
 
@@ -7,7 +15,7 @@
 This package is prepared for **https://bagdaymalta.eu/admin/**. No separate repository, new domain or DNS change is needed. There is no CNAME file in this package.
 
 1. Create an `admin` folder in the existing Bag Day repository.
-2. Copy the contents of this extracted folder into `admin`, so the file is `admin/index.html`, not `admin/Bag_Day_Admin_PWA_v2/index.html`.
+2. Copy the contents of this extracted folder into `admin`, so the file is `admin/index.html`, not `admin/Bag_Day_Admin_PWA_v3/index.html`.
 3. Commit and push using GitHub Desktop.
 4. Wait for GitHub Pages to finish publishing, then open https://bagdaymalta.eu/admin/.
 
@@ -69,15 +77,21 @@ All private reads and writes require connectivity. Login tokens stay in memory, 
 
 New releases should increment CONFIG.version and the service-worker CACHE version. The new worker waits until the old app is closed, avoiding forced replacement while editing. Close all admin tabs and reopen if an update is waiting. The admin service-worker scope is /admin/; it cannot control the public app outside that path. A root-scoped public worker can still intercept initial admin requests, so test that interaction.
 
-## Public Bag Day remains unchanged
+## Generate sponsor CSVs
 
-Saving here updates D1. It does not yet publish sponsor CSV files or change the public app. The scheduled CSV publisher is the next separate project stage. Approval currently means eligible for that future exporter, not proof that a file has been published.
+A Generate sponsor CSVs button is available in the header on every signed-in screen. Click it after saving changes. It uses the current administrator session, calls the separate exporter and shows sponsor/slot counts, Malta publication time and links to both CSVs from the same version.
+
+Install Bag_Day_Midnight_CSV_Exporter_v1 first. The default exporter address is configured as https://bagday-sponsor-export.davvel.workers.dev, matching the proposed Worker name and your existing account's workers.dev subdomain. Check the actual worker_url in the exporter's deployment_v1.json. If it differs, change exporterBase in assets/config.mjs before publishing this frontend. No password or installation secret is placed in the frontend.
+
+This button does not redeploy the API, modify D1 tables or replace the midnight schedule. The exporter validates the existing ADMIN/Google administrator session through the API. Up to three manual rebuilds per minute are allowed by the exporter's rate limiter. A timeout is an unknown outcome; the export may still finish. Check the current manifest before retrying.
+
+The public Bag Day app is not modified by this admin release. Published Cloudflare files only drive public sponsor display after the public app is integrated with the exporter. Until then, the two links can be used to inspect/download the generated files.
 
 ## Verification
 
 JavaScript syntax checks and six automated frontend helper tests passed: CSV special characters/validation, month ranges, escaping/quoting, idempotent retry keys and paginated fetches. The existing API previously passed its nine automated tests and your live read/login checks.
 
-Browser visual testing was unavailable in this environment; end-to-end browser interaction, real Google login, custom-domain setup and real D1 writes from this new frontend still need testing after you publish it. No live records were changed while building this ZIP.
+The export-button helper additionally passed mocked authentication, path validation, success and failure checks. Browser visual testing was unavailable in this environment; end-to-end browser interaction, real Google login, custom-domain setup and real D1 writes from this new frontend still need testing after you publish it. No live records were changed while building this ZIP.
 
 Optional local helper tests with Node.js: `node --test tests/*.test.mjs`. Opening index.html as file:// is not supported; use HTTPS GitHub Pages or a local HTTP server with the appropriate API allowed origin.
 
