@@ -1,11 +1,16 @@
-const CACHE='bag-day-malta-1.0.92';
-const ASSETS=['./icons/card-recycling.svg','./icons/sorting-minute.svg','./js/bulky-refuse.js?v=1.0.92','./icons/council-backdrop.svg','./icons/glass-real.png','./icons/card-botanical.svg','./css/home-redesign.css?v=1.0.92','./js/local-preview-data.js?v=1.0.92','./icons/bag-organic-real.png','./icons/bag-mixed-real.png','./icons/bag-recycle-real.png','./js/sponsors.js?v=1.0.92','./data/sponsors.csv','./data/sponsor_slots.csv','./data/councils.csv','./js/info-panel.js?v=1.0.92','./css/info-panel.css?v=1.0.92','./js/home-hints.js?v=1.0.92','./icons/hint-hand.svg','./js/usage-streak.js?v=1.0.92','./js/navigation.js?v=1.0.92','./','./index.html','./css/styles.css?v=1.0.92','./js/data.js?v=1.0.92','./js/app.js?v=1.0.92','./js/waste-guide.js?v=1.0.92','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest?v=1.0.92','./icons/icon-192.png?v=1.0.92','./icons/icon-512.png?v=1.0.92','./icons/icon-maskable-512.png?v=1.0.92','./icons/apple-touch-icon.png?v=1.0.92','./icons/favicon-32.png?v=1.0.92','./icons/glass-carrier.svg','./icons/zejtunsoft-profile.png'];
+const CACHE='bag-day-malta-1.0.95';
+const ASSETS=['./icons/card-recycling.svg','./icons/sorting-minute.svg','./js/bulky-refuse.js?v=1.0.95','./icons/council-backdrop.svg','./icons/glass-real.png','./icons/card-botanical.svg','./css/home-redesign.css?v=1.0.95','./js/local-preview-data.js?v=1.0.95','./icons/bag-organic-real.png','./icons/bag-mixed-real.png','./icons/bag-recycle-real.png','./js/sponsors.js?v=1.0.95','./data/councils.csv','./js/info-panel.js?v=1.0.95','./css/info-panel.css?v=1.0.95','./js/home-hints.js?v=1.0.95','./icons/hint-hand.svg','./js/usage-streak.js?v=1.0.95','./js/navigation.js?v=1.0.95','./','./index.html','./css/styles.css?v=1.0.95','./js/data.js?v=1.0.95','./js/app.js?v=1.0.95','./js/waste-guide.js?v=1.0.95','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest?v=1.0.95','./icons/icon-192.png?v=1.0.95','./icons/icon-512.png?v=1.0.95','./icons/icon-maskable-512.png?v=1.0.95','./icons/apple-touch-icon.png?v=1.0.95','./icons/favicon-32.png?v=1.0.95','./icons/glass-carrier.svg','./icons/zejtunsoft-profile.png'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('bag-day-malta-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET')return;
   const url=new URL(event.request.url);
   if(url.origin!==self.location.origin)return;
+  // Admin manages its own application shell; never intercept it here.
+  const adminRoot=new URL('./admin/',self.location.href).pathname;
+  if(url.pathname===adminRoot.slice(0,-1)||url.pathname.startsWith(adminRoot))return;
+  // Old bundled sponsor CSV files are no longer a public data source.
+  if(url.pathname.endsWith('/data/sponsors.csv')||url.pathname.endsWith('/data/sponsor_slots.csv'))return;
   // Optional game assets use their own worker/cache and never enter the core precache.
   const optionalGameRoot=new URL('./game/',self.location.href).pathname;
   if(url.pathname.startsWith(optionalGameRoot)||url.pathname.endsWith('/js/game-launcher.js')||url.pathname.endsWith('/css/game-launcher.css'))return;
