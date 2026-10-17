@@ -1,8 +1,0 @@
-Bag Day Malta 1.0.99
-
-Copy the ZIP contents into your existing GitHub Pages folder and accept Replace, then publish.
-Keep your existing CNAME and admin folder. This ZIP contains no CNAME.
-
-Changes: Google concept banner fills the sponsor area horizontally, with the existing banner height. Side strips removed. Canonical image: images/sponsors/google.png. Settings version and app/image caches updated to 1.0.99. Sponsor CSV refresh remains 24 hours.
-
-After publishing, reopen the app and check Settings shows 1.0.99.
