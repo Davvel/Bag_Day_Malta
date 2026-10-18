@@ -1,4 +1,4 @@
-const CACHE='bagday-admin-shell-v1.1.3';
+const CACHE='bagday-admin-shell-v1.1.4';
 const SHELL=['./','./index.html','./manifest.webmanifest','./assets/style.css','./assets/app.mjs','./assets/config.mjs','./assets/data.mjs','./assets/api.mjs','./assets/exporter.mjs','./assets/reuse.mjs','./assets/icon-192.png','./assets/icon-512.png'];
 const permitted=new Set(SHELL.map(p=>new URL(p,self.registration.scope).href));
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL))));

@@ -1,0 +1,12 @@
+Bag Day Malta 1.1.4 — usage and sponsor engagement measurement
+
+Shared consent-gated Google Analytics on Home and REUSE.
+Qualified sponsor, council, schedule and REUSE-card visibility.
+Sponsor attribution includes ID, public placement locality, booking month/year,
+slot, format and live/saved source. Redraws do not inflate impressions.
+Sponsor clicks and one-per-view qualified click-through are separate.
+Explicit council, calendar, guidance, game and REUSE action/completion events.
+Direct REUSE entry has non-blocking consent and shared usage preferences.
+Device exclusion for testing and demonstrations; private custom-event fields omitted.
+Existing v1.1.3 API/database/email setup is used without an upgrade.
+See the accompanying GA4 setup/reporting guide before comparing client figures.

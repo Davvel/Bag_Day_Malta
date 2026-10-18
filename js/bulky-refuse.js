@@ -6,12 +6,15 @@
  document.body.append(root);
  const by=id=>document.getElementById(id),closeButton=root.querySelector('.info-close');let opener,previous=[];
  function close(){if(root.hidden)return;root.hidden=true;previous.forEach(([node,value])=>node.inert=value);previous=[];opener?.focus({preventScroll:true});}
- function open({locality,council,phone,website,dedicated}){
+ function open({locality,council,phone,website,dedicated,analyticsPlacement}){
+  root.dataset.analyticsPlacement=analyticsPlacement||'';window.BAG_DAY_ANALYTICS?.event('bulky_info_open',{placement_locality:analyticsPlacement});
   opener=document.activeElement;by('bulkyLocality').textContent=locality;
   by('bulkyNumber').textContent=phone.replace(/^(\+356)(\d{4})(\d{4})$/,'$1 $2 $3');by('bulkyCall').href='tel:'+phone;by('bulkyCall').setAttribute('aria-label','Call '+locality+' for bulky refuse collection on '+phone);
   by('bulkyCouncilSource').hidden=!website;if(website)by('bulkyCouncilSource').href=website;
   previous=[...document.body.children].filter(n=>n!==root&&n.tagName!=='SCRIPT').map(n=>[n,n.inert]);previous.forEach(([n])=>n.inert=true);root.hidden=false;root.querySelector('.info-copy').scrollTop=0;closeButton.focus({preventScroll:true});window.BAG_DAY_BACK?.sync();
  }
+ by('bulkyCall').addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('bulky_call_click',{placement_locality:root.dataset.analyticsPlacement}));
+ root.querySelectorAll('.bulky-sources a').forEach((a,index)=>a.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('bulky_source_click',{placement_locality:root.dataset.analyticsPlacement,source_type:['government','wasteserv','council'][index]})));
  closeButton.onclick=close;root.onclick=e=>{if(e.target===root)close();};
  document.addEventListener('keydown',e=>{if(root.hidden)return;if(e.key==='Escape'){e.preventDefault();close();}if(e.key==='Tab'){const items=[...root.querySelectorAll('button,a[href]')].filter(n=>!n.hidden);const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}e.stopImmediatePropagation();},true);
  window.BAG_DAY_BACK?.register('bulkyRefuse',{isOpen:()=>!root.hidden,close});window.BAG_DAY_BULKY={open,close};
