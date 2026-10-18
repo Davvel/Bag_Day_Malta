@@ -20,7 +20,7 @@
   function bannerURLs(value){
     const u=new URL(value);
     if(u.origin==='https://bagdaymalta.eu'&&u.pathname.toLowerCase()==='/images/sponsors/google.png'){
-      u.searchParams.set('v','1.1.0');
+      u.searchParams.set('v','1.1.1');
       // Keep the published path; try the alternative case for Windows/GitHub uploads.
       const original=u.href;
       u.pathname=u.pathname.endsWith('/google.png')?'/images/sponsors/Google.png':'/images/sponsors/google.png';
@@ -70,13 +70,14 @@
       active.forEach((r,index)=>{
         const advert=r.advert;
         const a=link(advert.displaytext,safeURL(advert.url),'sponsor-link sponsor-slot-'+((index%3)+1));
+        const label=document.createElement('span');label.className='sponsor-copy';label.textContent=advert.displaytext;a.replaceChildren(label);a.setAttribute('aria-label',advert.displaytext);
         const imageURL=safeURL(advert.imageurl);
         if(imageURL){
           const image=document.createElement('img');
           image.alt=advert.displaytext;image.className='sponsor-banner';
           a.setAttribute('aria-label',advert.displaytext);
           const candidates=bannerURLs(imageURL);let candidate=0;
-          image.onerror=()=>{candidate++;if(candidate<candidates.length){image.src=candidates[candidate];return;}a.classList.remove('sponsor-link-image');a.textContent=advert.displaytext;};
+          image.onerror=()=>{candidate++;if(candidate<candidates.length){image.src=candidates[candidate];return;}a.classList.remove('sponsor-link-image');a.replaceChildren(label);};
           a.classList.add('sponsor-link-image');a.replaceChildren(image);image.src=candidates[0];
         }
         const trackClick=()=>{

@@ -1,5 +1,0 @@
-Bag Day Malta 1.0.100
-Copy contents into your existing GitHub Pages folder, accept Replace, and publish.
-Google concept image: images/sponsors/google.png, exactly 1500 x 150 pixels (10:1). Existing banner height retained; image fills width.
-Settings and image cache version: 1.0.100. CSV refresh remains 24 hours.
-No CNAME included. Keep your existing CNAME and admin folder.

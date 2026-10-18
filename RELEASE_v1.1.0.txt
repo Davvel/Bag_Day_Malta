@@ -1,7 +1,0 @@
-Bag Day Malta v1.1.0 — REUSE first implementation, 18 October 2026
-
-Base: full public app v1.0.101.
-Adds: REUSE home link; open public browsing and external advert links; Google sign-in for phone access; short contributor application; private own-item management; text-only free listings.
-Deploy database, API and admin stages first. See the package-root START_HERE.md.
-Real Google sign-in needs configured authorised origins and the same-site API hostname.
-No production deployment or real email delivery has been performed from this package.

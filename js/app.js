@@ -710,10 +710,8 @@
     const extras=[...dashboard.children].filter(n=>n!==$('collectionStage')&&!n.hidden);
     const appStyle=getComputedStyle(app);
     const sponsorCount=Number(dashboard.dataset.sponsorCount)||0;
-    // Reserve the three-slot footprint on sponsored days so browsing does not resize the card.
-    const sponsorPanel=$('sponsorPanel'),sponsorLink=sponsorPanel.querySelector('.sponsor-link');
-    const reservedSponsors=sponsorCount&&sponsorLink ? outer(sponsorPanel)+(3-sponsorCount)*(outer(sponsorLink)+(parseFloat(getComputedStyle(sponsorPanel).gap)||0)) : 0;
-    const extrasHeight=extras.reduce((a,n)=>a+(n===sponsorPanel?reservedSponsors:outer(n)),0);
+    // Only visible adverts use space. One sponsor never reserves two empty rows.
+    const extrasHeight=extras.reduce((a,n)=>a+outer(n),0);
     const space=window.innerHeight-outer(document.querySelector('.topbar'))-(parseFloat(appStyle.paddingTop)||0)-(parseFloat(appStyle.paddingBottom)||0)-extrasHeight-16;
     const minimum=sponsorCount===0?320:240;
     dashboard.style.setProperty('--collection-space',Math.max(minimum,space)+'px');
