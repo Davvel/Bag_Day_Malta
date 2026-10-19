@@ -1,0 +1,9 @@
+Bag Day Malta 1.1.8 — REUSE style and item age
+
+Bag Day-style header, typography, rounded controls and subtle green accents.
+Compact item rows show collection locality and submission age.
+Details show posted and actual expiry dates; newest items stay first.
+Run the included API posting-date updater before the website replacement.
+No database migration or retention change is made in this release.
+The existing maximum lifetime remains 30 days; the proposed 90-day setting
+requires the next database/API step. Emoji fields and AI remain later stages.
