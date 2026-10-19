@@ -1,5 +1,5 @@
 import {request,esc} from './client.mjs';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.4';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.6';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=false,page=0,loading=false,afterLogin=null,feedRequest=0,selectionRevision=0,locationHint='';
 const track=(name,params={})=>window.BAG_DAY_ANALYTICS?.event(name,params);

@@ -227,10 +227,9 @@
 
   function analyticsAllowed(){return window.BAG_DAY_ANALYTICS?.allowed()===true;}
   function setAnalyticsChoice(allowed){window.BAG_DAY_ANALYTICS?.setConsent(allowed);$('allowAnalytics').checked=allowed;}
-  function syncAnalyticsChoices(){const a=window.BAG_DAY_ANALYTICS?.status();$('allowAnalytics').checked=a?.consent==='granted';$('excludeAnalytics').checked=a?.excluded===true;}
+  function syncAnalyticsChoices(){const a=window.BAG_DAY_ANALYTICS?.status();$('allowAnalytics').checked=a?.consent==='granted';}
   syncAnalyticsChoices();
   $('allowAnalytics').onchange=e=>setAnalyticsChoice(e.target.checked);
-  $('excludeAnalytics').onchange=e=>window.BAG_DAY_ANALYTICS?.setExcluded(e.target.checked);
   window.addEventListener('bag-day-analytics-choice',syncAnalyticsChoices);
   let donationConfig = null;
   const supportLastShownKey='bag-day-support-last-shown-v2';

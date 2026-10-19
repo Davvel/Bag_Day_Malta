@@ -2,10 +2,20 @@
 (() => {
  'use strict';
  if(window.BAG_DAY_ANALYTICS)return;
- const VERSION='1.1.4',scriptURL=new URL(document.currentScript.src),root=new URL('../',scriptURL);
+ const VERSION='1.1.6',scriptURL=new URL(document.currentScript.src),root=new URL('../',scriptURL);
  const area=location.pathname.startsWith(new URL('reuse/',root).pathname)?'reuse':'home';
  const consentKey='bag-day-analytics-consent-v1',excludeKey='bag-day-analytics-exclude-v1';
  const get=k=>{try{return localStorage.getItem(k)}catch{return null}},put=(k,v)=>{try{localStorage.setItem(k,v)}catch{}};
+ // Unlisted device-testing links, applied before any analytics can start.
+ // This is a local preference, not an authenticated administrator control.
+ try{
+  const url=new URL(location.href),choice=url.searchParams.get('exclude_usage');
+  if(choice==='1'||choice==='0'){
+   put(excludeKey,String(choice==='1'));
+   url.searchParams.delete('exclude_usage');
+   try{history.replaceState(history.state,'',url.href)}catch{}
+  }
+ }catch{}
  const allowed=()=>get(consentKey)==='granted'&&get(excludeKey)!=='true';
  const names=new Set(('page_view bagday_open bagday_daily_use app_resume app_install_prompt app_install schedule_view calendar_open day_changed time_info_open waste_guide_open settings_open appearance_changed locality_picker_open locality_changed locality_view_changed gps_used gps_unavailable current_locality_viewed follow_location_enabled onboarding_complete donation_prompt_open donation_amount_selected donation_click sponsor_impression sponsor_click sponsor_click_after_view council_impression council_website_click council_whatsapp_click bulky_info_open bulky_call_click bulky_source_click game_open game_ready game_unavailable game_round_start game_round_complete game_round_abandon game_pause game_resume game_guide_open reuse_entry_click reuse_open reuse_search reuse_filter_changed reuse_item_impression reuse_advert_click reuse_phone_request reuse_phone_revealed reuse_phone_call_click reuse_give_click reuse_my_items_open reuse_signin_open reuse_signin_success reuse_signin_cancel reuse_signout reuse_enrolment_start reuse_enrolment_submit reuse_enrolment_success reuse_item_form_open reuse_item_submit reuse_item_submitted reuse_item_edit_saved reuse_item_taken reuse_item_withdrawn reuse_action_error').split(' '));
  const enums={entry_point:['header','settings','direct','give_button','empty_state','my_items','phone','account'],search_scope:['all','locality'],contact_type:['phone','url','both'],listing_state:['pending','live'],operation:['signin','enrolment','create','edit','taken','withdraw','phone','search'],bag_type:['organic','mixed','recycle','glass','none'],direction:['forward','back'],appearance:['light','dark'],advert_format:['image','text'],data_source:['live','saved'],source_type:['government','wasteserv','council'],mode:['practice','timed'],outcome:['passed','retry'],choice:['accepted','dismissed'],language:['en']};
