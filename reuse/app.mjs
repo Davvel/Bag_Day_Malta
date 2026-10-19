@@ -1,14 +1,17 @@
 import {request,esc} from './client.mjs';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.6';
-const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog');
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.7';
+const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=false,page=0,loading=false,afterLogin=null,feedRequest=0,selectionRevision=0,locationHint='';
+const contactCache=new Map(),revealing=new Set();let currentDetail=null,sponsorKey='';
+const hasPhone=item=>!!(item.has_phone??(item.contact_mode==='PHONE'));
+const publicURL=value=>{try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}};
 const track=(name,params={})=>window.BAG_DAY_ANALYTICS?.event(name,params);
 const contactStats=item=>({has_phone:item.contact_phone?1:0,has_url:item.external_url?1:0,contact_type:item.contact_phone?(item.external_url?'both':'phone'):'url'});
 const failed=(operation,e)=>track('reuse_action_error',{operation,status_code:Number(e.status)||0});
 const date=s=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',day:'numeric',month:'short'}).format(new Date(s));
 const choices=(selected='')=>localities.map(l=>`<option value="${esc(l.locality_id)}" ${l.locality_id===selected?'selected':''}>${esc(l.name)}</option>`).join('');
-function message(s){$('#message').textContent=s;$('#message').hidden=!s}
-function account(){const signed=!!me;$('#signin').hidden=signed;$('#signout').hidden=!signed;$('#mineTab').hidden=!signed;$('#mineTab').textContent='My items'}
+function message(s){$('#message').textContent=s;$('#message').hidden=!s;const detail=detailsDialog.querySelector('#detailError');if(detailsDialog.open&&detail){detail.textContent=s;detail.hidden=!s}}
+function account(){const signed=!!me;if(!signed)contactCache.clear();$('#signin').hidden=signed;$('#signout').hidden=!signed;$('#mineTab').hidden=!signed;$('#mineTab').textContent='My items'}
 function tabs(){for(const [id,v] of [['browseTab','browse'],['mineTab','mine']])v===view?$('#'+id).setAttribute('aria-current','page'):$('#'+id).removeAttribute('aria-current')}
 async function run(fn,button){if(loading)return;loading=true;if(button)button.disabled=true;try{await fn()}catch(e){if(e.status===401){me=null;account()}message(e.message)}finally{loading=false;if(button?.isConnected)button.disabled=false}}
 async function refreshMe(){try{me=await request('/reuse/me')}catch(e){if(e.status===401)me=null;else throw e}account()}
@@ -25,16 +28,22 @@ async function signIn(next){track('reuse_signin_open');afterLogin=next;$('#signi
 async function needLogin(next){if(!me)return signIn(next);return next()}
 function showLocationHint(){const hint=$('#locationHint');if(hint){hint.textContent=locationHint;hint.hidden=allLocalities}}
 function reloadFeed(){page=0;$('#prev').hidden=true;$('#next').hidden=true;feed().catch(e=>message(e.message))}
-async function browse(){view='browse';tabs();content.innerHTML=`<div class="toolbar"><div><h2>Find a free item</h2><p class="muted small">Free things near you · Newest first.</p></div><div class="locality-filters"><label id="localityChoice" ${allLocalities?'hidden':''}><span>Collection locality</span><select id="browseLocality" aria-describedby="locationHint">${locality?'':'<option value="" selected disabled>Choose a locality</option>'}${choices(locality)}</select></label><label class="check all-localities"><input id="allLocalities" type="checkbox" ${allLocalities?'checked':''}><span>Search all localities</span></label><p id="locationHint" class="field-hint" role="status"></p></div></div><p id="feedSummary" class="muted small" role="status"></p><div id="feed" class="item-grid"></div><div class="toolbar"><button id="prev" class="quiet" ${page?'':'hidden'}>← Previous</button><button id="next" class="quiet" hidden>More items →</button></div>`;
+async function browse(){view='browse';tabs();content.innerHTML=`<div class="locality-filters"><label id="localityChoice" ${allLocalities?'hidden':''}><span>Collection locality</span><select id="browseLocality" aria-label="Collection locality" aria-describedby="locationHint">${locality?'':'<option value="" selected disabled>Choose a locality</option>'}${choices(locality)}</select></label><label class="check all-localities"><input id="allLocalities" type="checkbox" ${allLocalities?'checked':''}><span>All localities</span></label></div><p id="locationHint" class="locality-context" role="status"></p><p id="feedSummary" role="status"></p><div id="feed" class="item-list"></div><div class="pagination"><button id="prev" class="quiet" ${page?'':'hidden'}>← Previous</button><button id="next" class="quiet" hidden>More items →</button></div>`;
  showLocationHint();
  $('#browseLocality').onchange=e=>{track('reuse_filter_changed',{search_scope:'locality'});selectionRevision++;locality=e.target.value;allLocalities=false;$('#allLocalities').checked=false;locationHint='';showLocationHint();reloadFeed()};
  $('#allLocalities').onchange=e=>{track('reuse_filter_changed',{search_scope:e.target.checked?'all':'locality'});selectionRevision++;allLocalities=e.target.checked;$('#localityChoice').hidden=allLocalities;showLocationHint();reloadFeed()};
- $('#prev').onclick=()=>run(async()=>{page=Math.max(0,page-1);await browse()});$('#next').onclick=()=>run(async()=>{page++;await browse()});await feed();
+ $('#prev').onclick=()=>run(async()=>{page=Math.max(0,page-1);await browse();$('#reuseScroll').scrollTop=0});$('#next').onclick=()=>run(async()=>{page++;await browse();$('#reuseScroll').scrollTop=0});await feed();
+}
+function renderSponsors(){
+ const chosen=localities.find(l=>l.locality_id===(preferredLocality||locality));if(!chosen||!window.BAG_DAY_SPONSORS)return;
+ const day=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const key=chosen.name+'|'+day;if(key===sponsorKey)return;sponsorKey=key;
+ window.BAG_DAY_SPONSORS.render(chosen.name,new Date(day+'T00:00:00Z'));
 }
 async function defaultToGps(){
  const revision=selectionRevision;
  const detected=await detectLocality(localities,window.WASTE_DATA?.localities||[]);
- if(detected)preferredLocality=detected.locality_id;
+ if(detected)preferredLocality=detected.locality_id;renderSponsors();
  if(selectionRevision!==revision)return;
  locationHint=detected?'Using your GPS locality.':locality?'GPS unavailable. Using your saved locality.':'GPS unavailable. Choose a locality or tick All localities.';
  if(detected&&locality!==detected.locality_id){locality=detected.locality_id;page=0;if(view==='browse')await browse()}
@@ -51,17 +60,45 @@ async function feed(){
  track('reuse_search',{search_scope:selected?'locality':'all',result_count:items.length,page_index:pageNumber});
  const area=selected?(localities.find(l=>l.locality_id===selected)?.name||'this locality'):'all localities';
  $('#feedSummary').textContent=items.length?`${items.length} free ${items.length===1?'item':'items'}${pageNumber?' on this page':''} · ${area} · Newest first`:'';
- target.innerHTML=items.map(i=>`<article class="item-card" data-item-id="${esc(i.item_id)}"><span class="pill">FREE TO A NEW HOME</span><h3>${i.external_url?`<a href="${esc(i.external_url)}" target="_blank" rel="noopener noreferrer">${esc(i.description)} ↗</a>`:esc(i.description)}</h3><span class="location">${esc(i.locality_name)}</span>${i.external_url?'<span class="muted small">Open the text above for the original advert.</span>':''}${(i.has_phone??i.contact_mode==='PHONE')?`<button class="quiet item-action" data-reveal="${esc(i.item_id)}">View phone number</button>`:''}</article>`).join('')||'<div class="empty"><h3>A little room for something useful.</h3><p>No free items here at the moment.</p><button id="emptyGive">Give something away</button></div>';
- for(const b of target.querySelectorAll('[data-reveal]'))b.onclick=()=>{track('reuse_phone_request');needLogin(()=>reveal(b.dataset.reveal))};for(const card of target.querySelectorAll('.item-card')){const i=items.find(i=>i.item_id===card.dataset.itemId);window.BAG_DAY_ANALYTICS?.observe(card,'reuse_item_impression',{has_phone:(i.has_phone??(i.contact_mode==='PHONE'))?1:0,has_url:i.external_url?1:0},'reuse:'+i.item_id);const a=card.querySelector('h3 a');if(a){const click=()=>track('reuse_advert_click');a.addEventListener('click',click);a.addEventListener('auxclick',e=>{if(e.button===1)click()})}}if($('#emptyGive'))$('#emptyGive').onclick=()=>give('empty_state');$('#next').hidden=data.items.length<20;
+ target.innerHTML=items.map(i=>`<button type="button" class="item-row" data-item-id="${esc(i.item_id)}" aria-haspopup="dialog"><span class="item-description">${esc(i.description)}</span><span class="item-chevron" aria-hidden="true">›</span></button>`).join('')||'<div class="empty"><h3>Something useful could start here.</h3><p>No free items here at the moment.</p><button id="emptyGive">Give something away</button></div>';
+ for(const row of target.querySelectorAll('.item-row')){const item=items.find(i=>i.item_id===row.dataset.itemId);row.onclick=()=>openDetails(item);window.BAG_DAY_ANALYTICS?.observe(row,'reuse_item_impression',{has_phone:hasPhone(item)?1:0,has_url:publicURL(item.external_url)?1:0},'reuse:'+item.item_id)}
+ if($('#emptyGive'))$('#emptyGive').onclick=()=>give('empty_state');$('#next').hidden=data.items.length<20;
 }
-async function reveal(id){try{const data=await request('/reuse/items/'+encodeURIComponent(id)+'/contact');const b=document.querySelector(`[data-reveal="${CSS.escape(id)}"]`);if(b){const a=document.createElement('a');a.className='item-action';a.href='tel:'+data.contact_phone;a.textContent=data.contact_phone;a.onclick=()=>track('reuse_phone_call_click');track('reuse_phone_revealed');b.replaceWith(a)}}catch(e){if(e.status===401){me=null;account();await signIn(()=>reveal(id))}else{failed('phone',e);message(e.message)}}}
+function contactMessage(text){const el=detailsDialog.querySelector('#contactMessage');if(el){el.textContent=text;el.hidden=!text}}
+function showPhone(item,phone,owned=false){
+ const container=detailsDialog.querySelector('[data-contact-id]');if(!container||container.dataset.contactId!==item.item_id)return;
+ const clean=String(phone).replace(/[^+0-9]/g,'');if(!/^\+?[0-9]{8,15}$/.test(clean)){contactMessage('This contact number is unavailable. Please try again.');return}
+ container.innerHTML=`<span class="muted small">Contact number</span><div class="phone-number">${esc(phone)}</div><div class="phone-actions"><a href="tel:${esc(clean)}" id="callOwner">Call${owned?'':' owner'}</a><button type="button" id="copyPhone" class="quiet">Copy number</button></div><p id="contactMessage" class="contact-hint" role="status" hidden></p>`;
+ $('#callOwner').onclick=()=>{if(!owned)track('reuse_phone_call_click')};
+ $('#copyPhone').onclick=async()=>{try{if(!navigator.clipboard?.writeText)throw Error('unavailable');await navigator.clipboard.writeText(String(phone));if(!owned)track('reuse_phone_copy');contactMessage('Number copied.')}catch{const el=container.querySelector('.phone-number'),range=document.createRange();range.selectNodeContents(el);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);contactMessage('Number selected. Use Copy to copy it.')}};
+}
+function openDetails(item,owned=false){
+ currentDetail={item,owned};const link=publicURL(item.external_url),place=item.locality_name||localities.find(l=>l.locality_id===item.locality_id)?.name||'';
+ const state=owned?(item.status==='LIVE'?'AVAILABLE':item.status==='PENDING'?'AWAITING APPROVAL':item.status):'FREE TO A NEW HOME';
+ detailsDialog.innerHTML=`<button type="button" id="closeDetails" class="close" aria-label="Close item details">×</button><span class="pill ${owned&&item.status==='PENDING'?'pending':owned&&item.status==='REJECTED'?'rejected':''}">${esc(state)}</span><h2 id="detailTitle">${esc(item.description)}</h2><p class="detail-location">${esc(place)}${owned?' · Ends '+esc(date(item.delete_at)):''}</p><p id="detailError" class="notice" role="alert" hidden></p>${owned&&item.decision_note?`<p class="notice small">${esc(item.decision_note)}</p>`:''}${hasPhone(item)||item.contact_phone?`<div class="detail-contact" data-contact-id="${esc(item.item_id)}"><button type="button" id="revealPhone">View phone number</button><p id="contactMessage" class="contact-hint" role="status">${me?'':'Sign in with Google to see the number.'}</p></div>`:''}${link?`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer" class="detail-link" id="detailAdvert">Open original advert ↗</a>`:''}${owned?`<div class="detail-actions"><div class="item-actions">${['LIVE','PENDING','REJECTED'].includes(item.status)?'<button type="button" class="quiet" id="editDetail">Edit</button>':''}${['LIVE','PENDING'].includes(item.status)?'<button type="button" id="takeDetail">Mark as taken</button><button type="button" class="quiet" id="withdrawDetail">Withdraw</button>':''}</div></div>`:''}`;
+ $('#closeDetails').onclick=()=>detailsDialog.close();
+ if($('#revealPhone'))$('#revealPhone').onclick=()=>{if(owned&&item.contact_phone){showPhone(item,item.contact_phone,true);return}track('reuse_phone_request');needLogin(()=>reveal(item))};
+ if($('#detailAdvert')){const click=()=>track('reuse_advert_click');$('#detailAdvert').addEventListener('click',click);$('#detailAdvert').addEventListener('auxclick',e=>{if(e.button===1)click()})}
+ if(owned){if($('#editDetail'))$('#editDetail').onclick=()=>{detailsDialog.close();itemForm(item)};if($('#takeDetail'))$('#takeDetail').onclick=e=>endItem(item,'TAKEN',e.currentTarget);if($('#withdrawDetail'))$('#withdrawDetail').onclick=e=>endItem(item,'WITHDRAW',e.currentTarget)}
+ if(!detailsDialog.open)detailsDialog.showModal();detailsDialog.scrollTop=0;
+ if(owned&&item.contact_phone)showPhone(item,item.contact_phone,true);else if(me&&contactCache.has(item.item_id))showPhone(item,contactCache.get(item.item_id));
+ if(!owned)track('reuse_item_open',{has_phone:hasPhone(item)?1:0,has_url:link?1:0});
+}
+async function reveal(item){
+ if(!me||revealing.has(item.item_id))return;const session=me,button=$('#revealPhone');if(contactCache.has(item.item_id)){showPhone(item,contactCache.get(item.item_id));return}
+ revealing.add(item.item_id);if(button){button.disabled=true;button.textContent='Opening number…'}
+ try{const data=await request('/reuse/items/'+encodeURIComponent(item.item_id)+'/contact');if(!me||me!==session)return;contactCache.set(item.item_id,data.contact_phone);track('reuse_phone_revealed');if(detailsDialog.open&&currentDetail?.item.item_id===item.item_id)showPhone(item,data.contact_phone)}
+ catch(e){if(e.status===401){me=null;account();await signIn(()=>reveal(item))}else{failed('phone',e);if(detailsDialog.open&&currentDetail?.item.item_id===item.item_id)contactMessage(e.message)}}
+ finally{revealing.delete(item.item_id);if(button?.isConnected){button.disabled=false;button.textContent='View phone number'}}
+}
+function endItem(item,action,button){run(async()=>{await request('/reuse/items/'+encodeURIComponent(item.item_id),{method:'PATCH',body:{action,revision:item.revision}});track(action==='TAKEN'?'reuse_item_taken':'reuse_item_withdrawn');detailsDialog.close();await mine();message(action==='TAKEN'?'Marked as taken. Thank you for passing it on.':'Your item has been withdrawn.')},button)}
 async function mine(){if(!me)return needLogin(mine);await refreshMe();if(!me){await browse();return needLogin(mine)}view='mine';tabs();const c=me.contributor;
  if(!c||c.status==='REJECTED')return enrolment(c);
  if(c.status==='PENDING'){content.innerHTML=`<div class="panel"><span class="pill pending">ENROLMENT WAITING FOR APPROVAL</span><h2>Thank you, ${esc(c.display_name.split(' ')[0])}.</h2><p>Your request is with us. Once approved, you can list your first free item.</p><p class="muted small">You can still browse items and see contact numbers while you wait.</p><button id="checkStatus" class="quiet">Check status</button></div>`;$('#checkStatus').onclick=()=>run(mine);return}
  if(c.status==='SUSPENDED'){content.innerHTML=`<div class="panel"><h2>Your contributor account is paused</h2><p>${esc(c.decision_note||'Posting is currently unavailable.')}</p></div>`;return}
  const visible=me.items.filter(i=>!['TAKEN','WITHDRAWN'].includes(i.status)&&Date.parse(i.delete_at)>Date.now()),active=visible.filter(i=>['PENDING','LIVE'].includes(i.status)).length;
- content.innerHTML=`<div class="toolbar"><div><h2>My items</h2><p class="muted small">${active} of ${me.listing_limit} active items${c.trust_level==='TRUSTED'?' · Trusted contributor':''}</p></div><button id="addItem" ${active>=me.listing_limit?'disabled':''}>+ Add a free item</button></div>${c.trust_level==='TRUSTED'&&!me.trusted_autopublish?'<p class="notice small">You can have up to three active items. All items are being reviewed before publication during launch.</p>':''}<div class="item-grid">${visible.map(i=>`<article class="item-card" data-item-id="${esc(i.item_id)}"><span class="pill ${i.status==='PENDING'?'pending':i.status==='REJECTED'?'rejected':''}">${esc(i.status==='LIVE'?'AVAILABLE':i.status==='PENDING'?'AWAITING APPROVAL':i.status)}</span><h3>${esc(i.description)}</h3><span class="location">${esc(localities.find(l=>l.locality_id===i.locality_id)?.name||'')} · Ends ${date(i.delete_at)}</span>${i.decision_note?`<p class="small muted">${esc(i.decision_note)}</p>`:''}<div class="item-actions">${['LIVE','PENDING','REJECTED'].includes(i.status)?`<button class="quiet" data-edit="${esc(i.item_id)}">Edit</button>`:''}${['LIVE','PENDING'].includes(i.status)?`<button data-end="${esc(i.item_id)}" data-action="TAKEN">Mark as taken</button><button class="quiet" data-end="${esc(i.item_id)}" data-action="WITHDRAW">Withdraw</button>`:''}</div></article>`).join('')||'<div class="empty"><h3>Your next second life starts here.</h3><p>No items to manage. Add something you’re ready to pass on.</p></div>'}</div>`;
- $('#addItem').onclick=()=>itemForm();for(const b of content.querySelectorAll('[data-edit]'))b.onclick=()=>itemForm(me.items.find(i=>i.item_id===b.dataset.edit));for(const b of content.querySelectorAll('[data-end]'))b.onclick=()=>run(async()=>{const item=me.items.find(i=>i.item_id===b.dataset.end);await request('/reuse/items/'+item.item_id,{method:'PATCH',body:{action:b.dataset.action,revision:item.revision}});track(b.dataset.action==='TAKEN'?'reuse_item_taken':'reuse_item_withdrawn');await mine();message(b.dataset.action==='TAKEN'?'Marked as taken. Thank you for passing it on.':'Your item has been withdrawn.')},b);
+ content.innerHTML=`<div class="toolbar"><div><h2>My items</h2><p class="muted small">${active} of ${me.listing_limit} active items${c.trust_level==='TRUSTED'?' · Trusted contributor':''}</p></div><button id="addItem" class="quiet" ${active>=me.listing_limit?'disabled':''}>+ Add</button></div>${c.trust_level==='TRUSTED'&&!me.trusted_autopublish?'<details class="review-help"><summary>Items are reviewed before publication</summary><p>You can have up to three active items. Tap an item to see its status and manage it.</p></details>':''}<div class="item-list">${visible.map(i=>`<button type="button" class="item-row" data-item-id="${esc(i.item_id)}" aria-haspopup="dialog"><span class="item-description">${esc(i.description)}</span><span class="item-chevron" aria-hidden="true">›</span></button>`).join('')||'<div class="empty"><h3>Ready for a second life?</h3><p>No items to manage. Use + Give to add something.</p></div>'}</div>`;
+ $('#addItem').onclick=()=>itemForm();for(const row of content.querySelectorAll('.item-row'))row.onclick=()=>openDetails(visible.find(i=>i.item_id===row.dataset.itemId),true);
 }
 async function give(entry_point='give_button'){track('reuse_give_click',{entry_point});await needLogin(async()=>{await mine();if(me?.contributor?.status==='APPROVED'){const active=me.items.filter(i=>['LIVE','PENDING'].includes(i.status)).length;if(active<me.listing_limit)itemForm()}})}
 function enrolment(old){track('reuse_enrolment_start');const name=old?.display_name||me.user.display_name,chosen=old?.locality_id||locality||preferredLocality;
@@ -76,14 +113,24 @@ function itemForm(old){
  $('#itemForm').onsubmit=async e=>{e.preventDefault();if(loading)return;loading=true;e.submitter.disabled=true;try{const b={...Object.fromEntries(new FormData(e.target)),free_only:$('#free').checked,...(old?{revision:old.revision}:{item_id:id})};track('reuse_item_submit',{operation:old?'edit':'create',...contactStats(b)});const r=await request('/reuse/items'+(old?'/'+old.item_id:''),{method:old?'PATCH':'POST',body:b});if(!r.replayed)track(old?'reuse_item_edit_saved':'reuse_item_submitted',{...contactStats(b),listing_state:r.item.status==='LIVE'?'live':'pending'});itemDialog.close();await mine();message(r.item.status==='LIVE'?'Your free item is now available.':'Your item is waiting for approval.')}catch(err){failed(old?'edit':'create',err);$('#itemError').textContent=err.message;$('#itemError').hidden=false}finally{loading=false;if(e.submitter?.isConnected)e.submitter.disabled=false}};
 }
 loginDialog.addEventListener('cancel',()=>{track('reuse_signin_cancel');afterLogin=null});
-$('#signin').onclick=()=>signIn(()=>view==='mine'?mine():browse());$('#signout').onclick=()=>run(async()=>{await request('/auth/public/logout',{method:'POST',body:{}});track('reuse_signout');me=null;account();message('');await browse()});$('#closeSignin').onclick=()=>{track('reuse_signin_cancel');afterLogin=null;loginDialog.close()};$('#give').onclick=()=>give('give_button');$('#mineTab').onclick=()=>{track('reuse_my_items_open');run(mine)};$('#browseTab').onclick=()=>run(browse);
+$('#signin').onclick=()=>signIn(()=>view==='mine'?mine():browse());$('#signout').onclick=()=>run(async()=>{detailsDialog.close();itemDialog.close();await request('/auth/public/logout',{method:'POST',body:{}});track('reuse_signout');me=null;account();message('');await browse()});$('#closeSignin').onclick=()=>{track('reuse_signin_cancel');afterLogin=null;loginDialog.close()};$('#give').onclick=()=>give('give_button');$('#mineTab').onclick=()=>{track('reuse_my_items_open');run(mine)};$('#browseTab').onclick=()=>run(browse);
 async function start(){try{
  const [ls]=await Promise.all([request('/public/reuse/localities'),refreshMe()]);
  localities=ls.items.sort((a,b)=>a.name.localeCompare(b.name,'en'));
  let saved='';try{saved=localStorage.getItem('bag-day-locality-v1')||''}catch{}
  preferredLocality=matchLocality(saved,localities,window.WASTE_DATA?.localities||[])?.locality_id||localities.find(l=>l.locality_id===me?.contributor?.locality_id)?.locality_id||'';
- locality=preferredLocality;allLocalities=false;page=0;locationHint='Finding your GPS locality…';
+ locality=preferredLocality;allLocalities=false;page=0;locationHint='Finding your GPS locality…';renderSponsors();
  const initialBrowse=browse();defaultToGps().catch(e=>message(e.message));await initialBrowse;
  if(location.hash==='#mine'||location.hash==='#join')await needLogin(mine);
  }catch(e){content.innerHTML='<div class="empty"><h3>REUSE is taking a moment.</h3><p>We couldn’t connect. Please try again shortly.</p><button id="retry">Try again</button></div>';$('#retry').onclick=start;message(e.message)}}
+const sponsorDock=$('#sponsorDock'),sponsorPanel=$('#sponsorPanel');
+function sizeDock(){sponsorDock.hidden=sponsorPanel.hidden;document.documentElement.style.setProperty('--reuse-sponsor-count',String(Math.max(1,sponsorPanel.querySelectorAll('.sponsor-link').length)));document.documentElement.style.setProperty('--sponsor-dock-height',sponsorDock.hidden?'0px':sponsorDock.getBoundingClientRect().height+'px')}
+new MutationObserver(sizeDock).observe(sponsorPanel,{attributes:true,attributeFilter:['hidden'],childList:true});
+if(window.ResizeObserver)new ResizeObserver(sizeDock).observe(sponsorDock);
+window.addEventListener('bag-day-sponsors-ready',sizeDock);window.addEventListener('resize',sizeDock);
+const viewport=window.visualViewport;function fitViewport(){if(viewport)document.documentElement.style.setProperty('--usable-height',viewport.height+'px');sizeDock()}if(viewport)viewport.addEventListener('resize',fitViewport);fitViewport();
+window.addEventListener('pageshow',renderSponsors);document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderSponsors()});setInterval(renderSponsors,60000);
+for(const dialog of [detailsDialog,itemDialog,loginDialog])dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close()});
 start();
+
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('../service-worker.js').catch(()=>{}));

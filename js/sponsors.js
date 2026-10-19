@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const siteRoot=new URL('../',document.currentScript.src);
   const normal = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
   function parseCSV(text) {
     const rows=[]; let row=[],value='',quoted=false;
@@ -20,7 +21,7 @@
   function bannerURLs(value){
     const u=new URL(value);
     if(u.origin==='https://bagdaymalta.eu'&&u.pathname.toLowerCase()==='/images/sponsors/google.png'){
-      u.searchParams.set('v','1.1.6');
+      u.searchParams.set('v','1.1.7');
       // Keep the published path; try the alternative case for Windows/GitHub uploads.
       const original=u.href;
       u.pathname=u.pathname.endsWith('/google.png')?'/images/sponsors/Google.png':'/images/sponsors/google.png';
@@ -50,7 +51,9 @@
   function render(locality,date){
     last=[locality,date];
     const council=document.getElementById('councilPanel'),panel=document.getElementById('sponsorPanel');
-    council.replaceChildren();panel.replaceChildren();
+    if(!panel)return;panel.replaceChildren();
+    if(council){
+    council.replaceChildren();
     const details=councilRows.find(r=>canonical(r.locality||r.council)===canonical(locality));
     const name=document.createElement('strong');name.textContent=details?.councilname||locality+' Local Council';const emblem=document.createElement('span');emblem.className='council-emblem';emblem.innerHTML='<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12 16 5l12 7H4ZM7 14v11m6-11v11m6-11v11m6-11v11M4 27h24"/></svg>';emblem.setAttribute('aria-hidden','true');const identity=document.createElement('div');identity.className='council-identity';identity.append(name);council.append(emblem,identity);
     const actions=document.createElement('div');actions.className='council-actions';
@@ -67,6 +70,7 @@
     }
     if(actions.childElementCount)council.append(actions);
     window.BAG_DAY_ANALYTICS?.observe(council,'council_impression',councilParams,'council:'+(placement||'generic'));
+    }
     const active=bookings(slotRows,locality,date,sponsorRows);panel.hidden=!active.length;
     if(active.length){
       const heading=document.createElement('div');heading.className='sponsor-heading';heading.textContent=sponsorStale?'Sponsored · saved data':'Sponsored';panel.append(heading);
@@ -93,9 +97,9 @@
         window.BAG_DAY_ANALYTICS?.observe(a,'sponsor_impression',currentParams,placementKey);
       });
     }
-    document.getElementById('dashboard').dataset.sponsorCount=active.length;
+    const dashboard=document.getElementById('dashboard');if(dashboard)dashboard.dataset.sponsorCount=active.length;
   }
-  async function load(file){try{if(location.protocol==='file:'){return parseCSV(window.BAG_DAY_LOCAL_FILES?.[file]??'');}const r=await fetch(file,{cache:'no-cache'});if(!r.ok)throw new Error(r.status);return parseCSV(await r.text());}catch(e){console.warn('Bag Day could not load '+file,e);return [];}}
+  async function load(file){try{if(location.protocol==='file:'){return parseCSV(window.BAG_DAY_LOCAL_FILES?.[file]??'');}const r=await fetch(new URL(file,siteRoot),{cache:'no-cache'});if(!r.ok)throw new Error(r.status);return parseCSV(await r.text());}catch(e){console.warn('Bag Day could not load '+file,e);return [];}}
   const EXPORT_BASE='https://bagday-sponsor-export.davvel.workers.dev';
   const PUBLIC_CACHE_KEY='bag-day-cloudflare-sponsor-pair-v1';
   const REFRESH_INTERVAL_MS=24*60*60*1000;

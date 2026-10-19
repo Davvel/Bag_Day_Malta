@@ -2,7 +2,7 @@
 (() => {
  'use strict';
  if(window.BAG_DAY_ANALYTICS)return;
- const VERSION='1.1.6',scriptURL=new URL(document.currentScript.src),root=new URL('../',scriptURL);
+ const VERSION='1.1.7',scriptURL=new URL(document.currentScript.src),root=new URL('../',scriptURL);
  const area=location.pathname.startsWith(new URL('reuse/',root).pathname)?'reuse':'home';
  const consentKey='bag-day-analytics-consent-v1',excludeKey='bag-day-analytics-exclude-v1';
  const get=k=>{try{return localStorage.getItem(k)}catch{return null}},put=(k,v)=>{try{localStorage.setItem(k,v)}catch{}};
@@ -17,7 +17,7 @@
   }
  }catch{}
  const allowed=()=>get(consentKey)==='granted'&&get(excludeKey)!=='true';
- const names=new Set(('page_view bagday_open bagday_daily_use app_resume app_install_prompt app_install schedule_view calendar_open day_changed time_info_open waste_guide_open settings_open appearance_changed locality_picker_open locality_changed locality_view_changed gps_used gps_unavailable current_locality_viewed follow_location_enabled onboarding_complete donation_prompt_open donation_amount_selected donation_click sponsor_impression sponsor_click sponsor_click_after_view council_impression council_website_click council_whatsapp_click bulky_info_open bulky_call_click bulky_source_click game_open game_ready game_unavailable game_round_start game_round_complete game_round_abandon game_pause game_resume game_guide_open reuse_entry_click reuse_open reuse_search reuse_filter_changed reuse_item_impression reuse_advert_click reuse_phone_request reuse_phone_revealed reuse_phone_call_click reuse_give_click reuse_my_items_open reuse_signin_open reuse_signin_success reuse_signin_cancel reuse_signout reuse_enrolment_start reuse_enrolment_submit reuse_enrolment_success reuse_item_form_open reuse_item_submit reuse_item_submitted reuse_item_edit_saved reuse_item_taken reuse_item_withdrawn reuse_action_error').split(' '));
+ const names=new Set(('page_view bagday_open bagday_daily_use app_resume app_install_prompt app_install schedule_view calendar_open day_changed time_info_open waste_guide_open settings_open appearance_changed locality_picker_open locality_changed locality_view_changed gps_used gps_unavailable current_locality_viewed follow_location_enabled onboarding_complete donation_prompt_open donation_amount_selected donation_click sponsor_impression sponsor_click sponsor_click_after_view council_impression council_website_click council_whatsapp_click bulky_info_open bulky_call_click bulky_source_click game_open game_ready game_unavailable game_round_start game_round_complete game_round_abandon game_pause game_resume game_guide_open reuse_entry_click reuse_open reuse_search reuse_filter_changed reuse_item_impression reuse_item_open reuse_phone_copy reuse_advert_click reuse_phone_request reuse_phone_revealed reuse_phone_call_click reuse_give_click reuse_my_items_open reuse_signin_open reuse_signin_success reuse_signin_cancel reuse_signout reuse_enrolment_start reuse_enrolment_submit reuse_enrolment_success reuse_item_form_open reuse_item_submit reuse_item_submitted reuse_item_edit_saved reuse_item_taken reuse_item_withdrawn reuse_action_error').split(' '));
  const enums={entry_point:['header','settings','direct','give_button','empty_state','my_items','phone','account'],search_scope:['all','locality'],contact_type:['phone','url','both'],listing_state:['pending','live'],operation:['signin','enrolment','create','edit','taken','withdraw','phone','search'],bag_type:['organic','mixed','recycle','glass','none'],direction:['forward','back'],appearance:['light','dark'],advert_format:['image','text'],data_source:['live','saved'],source_type:['government','wasteserv','council'],mode:['practice','timed'],outcome:['passed','retry'],choice:['accepted','dismissed'],language:['en']};
  const numeric={day_offset:[0,30],booking_month:[1,12],booking_year:[2020,2200],sponsor_slot:[1,100],result_count:[0,200],page_index:[0,100000],has_phone:[0,1],has_url:[0,1],status_code:[0,599],level:[1,100],score:[0,10000],mistakes:[0,10000],accuracy:[0,100],duration_seconds:[0,86400]};
  function clean(params){const out={};for(const[k,v]of Object.entries(params||{})){
@@ -60,7 +60,16 @@
  function sync(){for(const w of watches)w.since=0;if(!allowed()){queue=[];ready=false;state=get(excludeKey)==='true'?'excluded':'waiting_for_consent';if(id)window['ga-disable-'+id]=true;window.gtag?.('consent','update',{analytics_storage:'denied'});removeCookies()}else{if(id)window['ga-disable-'+id]=false;lastAttempt=0;start()}window.dispatchEvent(new Event('bag-day-analytics-choice'))}
  function setConsent(value){put(consentKey,value?'granted':'denied');sync()}
  function setExcluded(value){put(excludeKey,String(!!value));sync()}
- function visible(element){if(document.hidden||!element.isConnected||element.closest('[hidden],[inert]'))return false;const modal=document.querySelector('dialog[open]');if(modal&&!modal.contains(element))return false;if([...element.querySelectorAll('img')].some(i=>!i.complete||!i.naturalWidth))return false;const r=element.getBoundingClientRect(),s=getComputedStyle(element);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none'&&Number(s.opacity)>0&&Math.max(0,Math.min(r.right,innerWidth)-Math.max(0,r.left))*Math.max(0,Math.min(r.bottom,innerHeight)-Math.max(0,r.top))>=r.width*r.height*.5}
+ function visible(element){
+  if(document.hidden||!element.isConnected||element.closest('[hidden],[inert]'))return false;
+  const modal=document.querySelector('dialog[open]');if(modal&&!modal.contains(element))return false;
+  if([...element.querySelectorAll('img')].some(i=>!i.complete||!i.naturalWidth))return false;
+  const r=element.getBoundingClientRect(),s=getComputedStyle(element);if(r.width<=0||r.height<=0||s.visibility==='hidden'||s.display==='none'||Number(s.opacity)===0)return false;
+  let left=Math.max(0,r.left),right=Math.min(innerWidth,r.right),top=Math.max(0,r.top),bottom=Math.min(innerHeight,r.bottom);
+  for(let p=element.parentElement;p;p=p.parentElement){const css=getComputedStyle(p),rect=p.getBoundingClientRect();if(/^(auto|scroll|hidden|clip)$/.test(css.overflowX)){left=Math.max(left,rect.left);right=Math.min(right,rect.right)}if(/^(auto|scroll|hidden|clip)$/.test(css.overflowY)){top=Math.max(top,rect.top);bottom=Math.min(bottom,rect.bottom)}}
+  return Math.max(0,right-left)*Math.max(0,bottom-top)>=r.width*r.height*.5;
+ }
+
  function observe(element,name,params,key){if(!element||seen.has(key)||[...watches].some(w=>w.element===element&&w.key===key))return;watches.add({element,name,params,key,since:0})}
  setInterval(()=>{const time=performance.now();for(const w of watches){if(!w.element.isConnected||seen.has(w.key)){watches.delete(w);continue}if(!allowed()||!visible(w.element)){w.since=0;continue}if(!w.since)w.since=time;if(time-w.since>=1000&&event(w.name,typeof w.params==='function'?w.params():w.params)){seen.add(w.key);watches.delete(w)}}},200);
  window.addEventListener('storage',e=>{if([consentKey,excludeKey].includes(e.key)||e.key===null)sync()});

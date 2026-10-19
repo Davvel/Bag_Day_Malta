@@ -1,0 +1,10 @@
+Bag Day Malta 1.1.7 — Compact REUSE
+
+Compact description-only lists; tap an item for details and management.
+Phone reveal keeps Google sign-in and adds Call owner / Copy number.
+Live sponsors stay visible below scrolling content and collapse when empty.
+Short, wide landscape screens show sponsors side by side.
+Shared consent-gated analytics retain sponsor IDs and app_area attribution.
+New events: reuse_item_open and reuse_phone_copy. No item/contact text is sent.
+No database, API, email or Cloudflare configuration changes are required.
+Emoji fields, palette and AI are reserved for the next stages.
