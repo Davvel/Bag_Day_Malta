@@ -2,6 +2,7 @@
 const DAY=86400000;
 const calendar=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit',day:'2-digit'});
 const fullDate=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',year:'numeric',month:'long',day:'numeric'});
+const shortDate=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',year:'numeric',month:'short',day:'numeric'});
 export function submittedTime(item){
  const value=item?.submitted_at;if(typeof value!=='string'||!value.trim())return null;
  const normal=/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(value)?value.replace(' ','T')+'Z':value;
@@ -14,4 +15,5 @@ export function listingAge(item,now=Date.now()){
 }
 export function ageLabel(item,now=Date.now()){const days=listingAge(item,now);return days===null?'Date unavailable':days===0?'Today':days===1?'1 day old':days+' days old'}
 export function postedDate(item){const submitted=submittedTime(item);return submitted===null?'':fullDate.format(submitted)}
+export function postedShortDate(item){const submitted=submittedTime(item);return submitted===null?'':shortDate.format(submitted)}
 export function newestFirst(items){return [...items].sort((a,b)=>(submittedTime(b)??0)-(submittedTime(a)??0))}
