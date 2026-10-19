@@ -1,9 +1,10 @@
 import {request,esc} from './client.mjs';
-import {ageLabel,postedDate,newestFirst} from './item-dates.mjs?v=1.1.8';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.8';
+import {ageLabel,postedDate,newestFirst} from './item-dates.mjs?v=1.1.9';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.9';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=false,page=0,loading=false,afterLogin=null,feedRequest=0,selectionRevision=0,locationHint='';
 const contactCache=new Map(),revealing=new Set();let currentDetail=null,sponsorKey='';
+let closeListingHelp=()=>{};
 const hasPhone=item=>!!(item.has_phone??(item.contact_mode==='PHONE'));
 const publicURL=value=>{try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}};
 const track=(name,params={})=>window.BAG_DAY_ANALYTICS?.event(name,params);
@@ -29,7 +30,8 @@ async function signIn(next){track('reuse_signin_open');afterLogin=next;$('#signi
 async function needLogin(next){if(!me)return signIn(next);return next()}
 function showLocationHint(){const hint=$('#locationHint');if(hint){hint.textContent=locationHint;hint.hidden=allLocalities}}
 function reloadFeed(){page=0;$('#prev').hidden=true;$('#next').hidden=true;feed().catch(e=>message(e.message))}
-async function browse(){view='browse';tabs();content.innerHTML=`<div class="locality-filters"><label id="localityChoice" ${allLocalities?'hidden':''}><span>Collection locality</span><select id="browseLocality" aria-label="Collection locality" aria-describedby="locationHint">${locality?'':'<option value="" selected disabled>Choose a locality</option>'}${choices(locality)}</select></label><label class="check all-localities"><input id="allLocalities" type="checkbox" ${allLocalities?'checked':''}><span>All localities</span></label></div><p id="locationHint" class="locality-context" role="status"></p><p id="feedSummary" role="status"></p><div id="feed" class="item-list"></div><div class="pagination"><button id="prev" class="quiet" ${page?'':'hidden'}>← Previous</button><button id="next" class="quiet" hidden>More items →</button></div>`;
+async function browse(){closeListingHelp();view='browse';tabs();content.innerHTML=`<div class="locality-filters"><label id="localityChoice" ${allLocalities?'hidden':''}><span>Collection locality</span><select id="browseLocality" aria-label="Collection locality" aria-describedby="locationHint">${locality?'':'<option value="" selected disabled>Choose a locality</option>'}${choices(locality)}</select></label><label class="check all-localities"><input id="allLocalities" type="checkbox" ${allLocalities?'checked':''}><span>All localities</span></label><button id="give" type="button" aria-label="Give something away"><span aria-hidden="true">+</span> Give</button></div><p id="locationHint" class="locality-context" role="status"></p><p id="feedSummary" role="status"></p><div id="feed" class="item-list"></div><div class="pagination"><button id="prev" class="quiet" ${page?'':'hidden'}>← Previous</button><button id="next" class="quiet" hidden>More items →</button></div>`;
+ $('#give').onclick=()=>give('give_button');
  showLocationHint();
  $('#browseLocality').onchange=e=>{track('reuse_filter_changed',{search_scope:'locality'});selectionRevision++;locality=e.target.value;allLocalities=false;$('#allLocalities').checked=false;locationHint='';showLocationHint();reloadFeed()};
  $('#allLocalities').onchange=e=>{track('reuse_filter_changed',{search_scope:e.target.checked?'all':'locality'});selectionRevision++;allLocalities=e.target.checked;$('#localityChoice').hidden=allLocalities;showLocationHint();reloadFeed()};
@@ -100,13 +102,26 @@ async function reveal(item){
  finally{revealing.delete(item.item_id);if(button?.isConnected){button.disabled=false;button.textContent='View phone number'}}
 }
 function endItem(item,action,button){run(async()=>{await request('/reuse/items/'+encodeURIComponent(item.item_id),{method:'PATCH',body:{action,revision:item.revision}});track(action==='TAKEN'?'reuse_item_taken':'reuse_item_withdrawn');detailsDialog.close();await mine();message(action==='TAKEN'?'Marked as taken. Thank you for passing it on.':'Your item has been withdrawn.')},button)}
-async function mine(){if(!me)return needLogin(mine);await refreshMe();if(!me){await browse();return needLogin(mine)}view='mine';tabs();const c=me.contributor;
+function bindListingHelp(){
+ const control=$('.add-item-control'),help=$('#listingLimitHelp'),tip=$('#listingLimitTip');let pinned=false;
+ const show=()=>{tip.hidden=false;help.setAttribute('aria-expanded','true')};
+ const hide=()=>{pinned=false;tip.hidden=true;help.setAttribute('aria-expanded','false')};
+ closeListingHelp=hide;
+ control.onpointerenter=e=>{if(e.pointerType==='mouse')show()};
+ control.onpointerleave=()=>{if(!pinned&&!control.contains(document.activeElement))hide()};
+ control.onfocusin=show;control.onfocusout=e=>{if(!control.contains(e.relatedTarget))hide()};
+ help.onclick=()=>{pinned=!pinned;if(pinned)show();else hide()};
+ control.onkeydown=e=>{if(e.key==='Escape'){hide();e.preventDefault();e.stopPropagation()}};
+}
+document.addEventListener('pointerdown',e=>{if(!$('.add-item-control')?.contains(e.target))closeListingHelp()});
+async function mine(){closeListingHelp();if(!me)return needLogin(mine);await refreshMe();if(!me){await browse();return needLogin(mine)}view='mine';tabs();const c=me.contributor;
  if(!c||c.status==='REJECTED')return enrolment(c);
  if(c.status==='PENDING'){content.innerHTML=`<div class="panel"><span class="pill pending">ENROLMENT WAITING FOR APPROVAL</span><h2>Thank you, ${esc(c.display_name.split(' ')[0])}.</h2><p>Your request is with us. Once approved, you can list your first free item.</p><p class="muted small">You can still browse items and see contact numbers while you wait.</p><button id="checkStatus" class="quiet">Check status</button></div>`;$('#checkStatus').onclick=()=>run(mine);return}
  if(c.status==='SUSPENDED'){content.innerHTML=`<div class="panel"><h2>Your contributor account is paused</h2><p>${esc(c.decision_note||'Posting is currently unavailable.')}</p></div>`;return}
  const visible=newestFirst(me.items.filter(i=>!['TAKEN','WITHDRAWN'].includes(i.status)&&Date.parse(i.delete_at)>Date.now())),active=visible.filter(i=>['PENDING','LIVE'].includes(i.status)).length;
- content.innerHTML=`<div class="toolbar"><div><h2>My items</h2><p class="muted small">${active} of ${me.listing_limit} active items${c.trust_level==='TRUSTED'?' · Trusted contributor':''}</p></div><button id="addItem" class="quiet" ${active>=me.listing_limit?'disabled':''}>+ Add</button></div>${c.trust_level==='TRUSTED'&&!me.trusted_autopublish?'<details class="review-help"><summary>Items are reviewed before publication</summary><p>You can have up to three active items. Tap an item to see its status and manage it.</p></details>':''}<div class="item-list">${visible.map(i=>itemRow(i)).join('')||'<div class="empty"><h3>Ready for a second life?</h3><p>No items to manage. Use + Give to add something.</p></div>'}</div>`;
- $('#addItem').onclick=()=>itemForm();for(const row of content.querySelectorAll('.item-row'))row.onclick=()=>openDetails(visible.find(i=>i.item_id===row.dataset.itemId),true);
+ const limit=Number(me.listing_limit),limitHelp=`You can list ${limit} ${limit===1?'item':'items'} at a time.${limit===1?' Established contributors may be approved for a higher listing limit.':''}${active>=limit?' Your current limit is reached. Mark an item as taken or withdraw it before adding another.':''}`;
+ content.innerHTML=`<div class="toolbar"><div><h2>My items</h2><p class="muted small">${active} of ${limit} active items${c.trust_level==='TRUSTED'?' · Established contributor':''}</p></div><div class="add-item-control"><button id="addItem" type="button" class="quiet" aria-describedby="listingLimitTip" ${active>=limit?'disabled':''}>+ Add</button><button id="listingLimitHelp" type="button" class="quiet listing-help" aria-label="About your listing limit" aria-expanded="false" aria-controls="listingLimitTip" aria-describedby="listingLimitTip"><span aria-hidden="true">ⓘ</span></button><p id="listingLimitTip" class="listing-limit-tip" role="tooltip" hidden>${esc(limitHelp)}</p></div></div>${c.trust_level==='TRUSTED'&&!me.trusted_autopublish?'<details class="review-help"><summary>Items are reviewed before publication</summary><p>You can have up to three active items. Tap an item to see its status and manage it.</p></details>':''}<div class="item-list">${visible.map(i=>itemRow(i)).join('')||'<div class="empty"><h3>Ready for a second life?</h3><p>No items to manage. Use + Add to list something.</p></div>'}</div>`;
+ bindListingHelp();$('#addItem').onclick=()=>{closeListingHelp();itemForm()};for(const row of content.querySelectorAll('.item-row'))row.onclick=()=>{closeListingHelp();openDetails(visible.find(i=>i.item_id===row.dataset.itemId),true)};
 }
 async function give(entry_point='give_button'){track('reuse_give_click',{entry_point});await needLogin(async()=>{await mine();if(me?.contributor?.status==='APPROVED'){const active=me.items.filter(i=>['LIVE','PENDING'].includes(i.status)).length;if(active<me.listing_limit)itemForm()}})}
 function enrolment(old){track('reuse_enrolment_start');const name=old?.display_name||me.user.display_name,chosen=old?.locality_id||locality||preferredLocality;
@@ -121,7 +136,7 @@ function itemForm(old){
  $('#itemForm').onsubmit=async e=>{e.preventDefault();if(loading)return;loading=true;e.submitter.disabled=true;try{const b={...Object.fromEntries(new FormData(e.target)),free_only:$('#free').checked,...(old?{revision:old.revision}:{item_id:id})};track('reuse_item_submit',{operation:old?'edit':'create',...contactStats(b)});const r=await request('/reuse/items'+(old?'/'+old.item_id:''),{method:old?'PATCH':'POST',body:b});if(!r.replayed)track(old?'reuse_item_edit_saved':'reuse_item_submitted',{...contactStats(b),listing_state:r.item.status==='LIVE'?'live':'pending'});itemDialog.close();await mine();message(r.item.status==='LIVE'?'Your free item is now available.':'Your item is waiting for approval.')}catch(err){failed(old?'edit':'create',err);$('#itemError').textContent=err.message;$('#itemError').hidden=false}finally{loading=false;if(e.submitter?.isConnected)e.submitter.disabled=false}};
 }
 loginDialog.addEventListener('cancel',()=>{track('reuse_signin_cancel');afterLogin=null});
-$('#signin').onclick=()=>signIn(()=>view==='mine'?mine():browse());$('#signout').onclick=()=>run(async()=>{detailsDialog.close();itemDialog.close();await request('/auth/public/logout',{method:'POST',body:{}});track('reuse_signout');me=null;account();message('');await browse()});$('#closeSignin').onclick=()=>{track('reuse_signin_cancel');afterLogin=null;loginDialog.close()};$('#give').onclick=()=>give('give_button');$('#mineTab').onclick=()=>{track('reuse_my_items_open');run(mine)};$('#browseTab').onclick=()=>run(browse);
+$('#signin').onclick=()=>signIn(()=>view==='mine'?mine():browse());$('#signout').onclick=()=>run(async()=>{detailsDialog.close();itemDialog.close();await request('/auth/public/logout',{method:'POST',body:{}});track('reuse_signout');me=null;account();message('');await browse()});$('#closeSignin').onclick=()=>{track('reuse_signin_cancel');afterLogin=null;loginDialog.close()};$('#mineTab').onclick=()=>{track('reuse_my_items_open');run(mine)};$('#browseTab').onclick=()=>run(browse);
 async function start(){try{
  const [ls]=await Promise.all([request('/public/reuse/localities'),refreshMe()]);
  localities=ls.items.sort((a,b)=>a.name.localeCompare(b.name,'en'));

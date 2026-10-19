@@ -1,0 +1,8 @@
+Bag Day Malta v1.1.9 — REUSE controls
+
+Give now sits beside All localities in the browse filters.
+Sign Out is a normal text button in the header.
+My items has accessible listing-limit help beside + Add: hover, focus or tap the information button. Help remains available when Add is disabled, uses the account's actual allowance, and explains how to free a slot.
+Established contributor replaces Trusted contributor in the user-facing account label.
+
+The v1.1.8 date updater is included unchanged for accounts that have not applied it yet. No new API or database change is needed for these controls.
