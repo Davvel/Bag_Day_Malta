@@ -1,5 +1,5 @@
-const CACHE='bagday-admin-shell-v1.1.12';
-const SHELL=['./','./index.html','./manifest.webmanifest','./assets/style.css','./assets/app.mjs','./assets/config.mjs','./assets/data.mjs','./assets/api.mjs','./assets/exporter.mjs','./assets/reuse.mjs','./assets/icon-192.png','./assets/icon-512.png'];
+const CACHE='bagday-admin-shell-v1.1.13';
+const SHELL=['./assets/item-attributes.mjs?v=1.1.13','./','./index.html','./manifest.webmanifest','./assets/style.css','./assets/app.mjs','./assets/config.mjs','./assets/data.mjs','./assets/api.mjs','./assets/exporter.mjs','./assets/reuse.mjs','./assets/icon-192.png','./assets/icon-512.png'];
 const permitted=new Set(SHELL.map(p=>new URL(p,self.registration.scope).href));
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL))));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('bagday-admin-shell-')&&k!==CACHE).map(k=>caches.delete(k))))));
