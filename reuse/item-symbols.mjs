@@ -38,6 +38,8 @@ export function itemSymbols(item){
   const icons=Array.from(segmenter.segment(saved),s=>s.segment).filter(s=>emoji.test(s)).slice(0,3);
   if(icons.length)return icons;
  }
- const description=String(item?.description||'');
+ const description=String(item?.title||item?.description||'');
  return [categories.find(([pattern])=>pattern.test(description))?.[1]||'♻️'];
 }
+
+export function suggestSymbols(title){return [itemSymbols({title})[0],'🎁','♻️','📦'].filter((s,i,a)=>a.indexOf(s)===i).slice(0,3);}
