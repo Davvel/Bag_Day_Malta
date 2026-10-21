@@ -1,8 +1,0 @@
-Bag Day Malta 1.1.6 — REUSE footer cleanup
-
-Removed the Usage statistics button from the public REUSE footer and its
-JavaScript binding. The first-visit analytics consent prompt still works.
-Visitors can change their analytics choice in the main Bag Day settings.
-Includes the public testing-device checkbox removal from v1.1.5.
-Updated asset versions and service-worker caches for this release.
-No API, database, email or Cloudflare changes are required.

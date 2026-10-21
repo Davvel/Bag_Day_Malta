@@ -1,8 +1,8 @@
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.11';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.12';
 import {request,esc} from './client.mjs';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.11';
-import {itemSymbols,suggestSymbols} from './item-symbols.mjs?v=1.1.11';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.11';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.12';
+import {itemSymbols,suggestSymbols} from './item-symbols.mjs?v=1.1.12';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.12';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=false,page=0,loading=false,afterLogin=null,feedRequest=0,selectionRevision=0,locationHint='';
 const contactCache=new Map(),revealing=new Set();let currentDetail=null,sponsorKey='';
@@ -67,7 +67,7 @@ async function feed(){
  const area=selected?(localities.find(l=>l.locality_id===selected)?.name||'this locality'):'all localities';
  $('#feedSummary').textContent=items.length?`${items.length} free ${items.length===1?'item':'items'}${pageNumber?' on this page':''} · ${area} · Newest first`:'';
  target.innerHTML=items.map(i=>itemRow(i)).join('')||'<div class="empty"><span class="empty-reuse" aria-hidden="true">♻</span><h3>Room for another useful life</h3><p>No free items here yet. Have something to pass on?</p><button id="emptyGive">Give something away</button></div>';
- for(const row of target.querySelectorAll('.item-row')){const item=items.find(i=>i.item_id===row.dataset.itemId);row.onclick=()=>openDetails(item);window.BAG_DAY_ANALYTICS?.observe(row,'reuse_item_impression',{has_phone:hasPhone(item)?1:0,has_url:publicURL(item.external_url)?1:0},'reuse:'+item.item_id)}
+ for(const row of target.querySelectorAll('.item-row')){const item=items.find(i=>i.item_id===row.dataset.itemId);row.onclick=()=>run(async()=>{if(me)await refreshMe();openDetails(item)});window.BAG_DAY_ANALYTICS?.observe(row,'reuse_item_impression',{has_phone:hasPhone(item)?1:0,has_url:publicURL(item.external_url)?1:0},'reuse:'+item.item_id)}
  if($('#emptyGive'))$('#emptyGive').onclick=()=>give('empty_state');$('#next').hidden=data.items.length<20;
 }
 function ownerName(item,owned=false){
@@ -90,12 +90,14 @@ function showPhone(item,phone,owned=false){
  $('#callOwner').onclick=()=>{if(!owned)track('reuse_phone_call_click')};
  $('#copyPhone').onclick=async()=>{try{if(!navigator.clipboard?.writeText)throw Error('unavailable');await navigator.clipboard.writeText(String(phone));if(!owned)track('reuse_phone_copy');contactMessage('Number copied.')}catch{const el=container.querySelector('.phone-number'),range=document.createRange();range.selectNodeContents(el);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);contactMessage('Number selected. Use Copy to copy it.')}};
 }
-function openDetails(item,owned=false){
+function openDetails(item){
+ const ownItem=me?.items?.find(own=>own.item_id===item.item_id);
+ const owned=!!ownItem;if(owned)item=ownItem;
  currentDetail={item,owned};const link=publicURL(item.external_url);
  const state=owned?(item.status==='LIVE'?'AVAILABLE':item.status==='PENDING'?'AWAITING APPROVAL':item.status):'FREE TO A NEW HOME';
  detailsDialog.innerHTML=`<button type="button" id="closeDetails" class="close" aria-label="Close item details">×</button><span class="pill ${owned&&item.status==='PENDING'?'pending':owned&&item.status==='REJECTED'?'rejected':''}">${esc(state)}</span><div class="detail-heading">${symbolMark(item,true)}<h2 id="detailTitle">${esc(itemTitle(item))}</h2></div><div class="detail-location item-meta">${itemMetadata(item,owned,true)}</div><p class="detail-description">${esc(item.description||'')}</p><p class="detail-expiry">Expires ${esc(date(item.delete_at))}</p><p id="detailError" class="notice" role="alert" hidden></p>${owned&&item.decision_note?`<p class="notice small">${esc(item.decision_note)}</p>`:''}${hasPhone(item)||item.contact_phone?`<div class="detail-contact" data-contact-id="${esc(item.item_id)}"><button type="button" id="revealPhone">View phone number</button><p id="contactMessage" class="contact-hint" role="status">${me?'':'Sign in with Google to see the number.'}</p></div>`:''}${link?`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer" class="detail-link" id="detailAdvert">Open original advert ↗</a>`:''}${owned?`<div class="detail-actions"><div class="item-actions">${['LIVE','PENDING','REJECTED'].includes(item.status)?'<button type="button" class="quiet" id="editDetail">Edit</button>':''}${['LIVE','PENDING'].includes(item.status)?'<button type="button" id="takeDetail">Mark as taken</button><button type="button" class="quiet" id="withdrawDetail">Withdraw</button>':''}</div></div>`:''}`;
  $('#closeDetails').onclick=()=>detailsDialog.close();
- if($('#revealPhone'))$('#revealPhone').onclick=()=>{if(owned&&item.contact_phone){showPhone(item,item.contact_phone,true);return}track('reuse_phone_request');needLogin(()=>reveal(item))};
+ if($('#revealPhone'))$('#revealPhone').onclick=()=>{if(owned&&item.contact_phone){showPhone(item,item.contact_phone,true);return}track('reuse_phone_request');needLogin(()=>me?.items?.some(own=>own.item_id===item.item_id)?openDetails(item):reveal(item))};
  if($('#detailAdvert')){const click=()=>track('reuse_advert_click');$('#detailAdvert').addEventListener('click',click);$('#detailAdvert').addEventListener('auxclick',e=>{if(e.button===1)click()})}
  if(owned){if($('#editDetail'))$('#editDetail').onclick=()=>{detailsDialog.close();itemForm(item)};if($('#takeDetail'))$('#takeDetail').onclick=e=>endItem(item,'TAKEN',e.currentTarget);if($('#withdrawDetail'))$('#withdrawDetail').onclick=e=>endItem(item,'WITHDRAW',e.currentTarget)}
  if(!detailsDialog.open)detailsDialog.showModal();detailsDialog.scrollTop=0;

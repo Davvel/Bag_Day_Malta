@@ -1,7 +1,0 @@
-Bag Day Malta v1.1.10 — REUSE listing identity
-
-Leading item symbols, owner first name, locality, submission date and age in compact rows. Latest submissions remain first. All REUSE modal panels are centered horizontally and vertically; details remain in the modal. Short screens use a compact sponsor row.
-
-Run the included 1_API_Listing_Update updater before deploying COPY_TO_GITHUB. The API adds its existing submission date and a first-name-only owner projection. No database migration is needed.
-
-Symbols are local visual hints for now. The saved emoji field, picker and optional AI Suggest work remain separate next steps.
