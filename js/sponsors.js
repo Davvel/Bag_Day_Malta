@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const siteRoot=new URL('../',document.currentScript.src);
   const normal = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
   function parseCSV(text) {
     const rows=[]; let row=[],value='',quoted=false;
@@ -20,7 +21,7 @@
   function bannerURLs(value){
     const u=new URL(value);
     if(u.origin==='https://bagdaymalta.eu'&&u.pathname.toLowerCase()==='/images/sponsors/google.png'){
-      u.searchParams.set('v','1.1.1');
+      u.searchParams.set('v','1.1.17');
       // Keep the published path; try the alternative case for Windows/GitHub uploads.
       const original=u.href;
       u.pathname=u.pathname.endsWith('/google.png')?'/images/sponsors/Google.png':'/images/sponsors/google.png';
@@ -50,20 +51,26 @@
   function render(locality,date){
     last=[locality,date];
     const council=document.getElementById('councilPanel'),panel=document.getElementById('sponsorPanel');
-    council.replaceChildren();panel.replaceChildren();
+    if(!panel)return;panel.replaceChildren();
+    if(council){
+    council.replaceChildren();
     const details=councilRows.find(r=>canonical(r.locality||r.council)===canonical(locality));
     const name=document.createElement('strong');name.textContent=details?.councilname||locality+' Local Council';const emblem=document.createElement('span');emblem.className='council-emblem';emblem.innerHTML='<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12 16 5l12 7H4ZM7 14v11m6-11v11m6-11v11m6-11v11M4 27h24"/></svg>';emblem.setAttribute('aria-hidden','true');const identity=document.createElement('div');identity.className='council-identity';identity.append(name);council.append(emblem,identity);
     const actions=document.createElement('div');actions.className='council-actions';
-    if(details&&safeURL(details.website||details.websiteurl)){const a=link('Website ↗',safeURL(details.website||details.websiteurl),'council-link');a.rel='noopener noreferrer';actions.append(a);}
+    const placement=window.WASTE_DATA.localities.find(r=>canonical(r[0])===canonical(details?.locality||details?.council||''))?.[0];
+    const councilParams=placement?{placement_locality:placement}:{};
+    if(details&&safeURL(details.website||details.websiteurl)){const a=link('Website ↗',safeURL(details.website||details.websiteurl),'council-link');a.rel='noopener noreferrer';a.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('council_website_click',councilParams));actions.append(a);}
     const phone=(details?.bulkytelephone||details?.phone||'').replace(/[^+0-9]/g,'');
-    if(phone.length>=8){const a=document.createElement('button');a.type='button';a.className='council-link council-bulky';a.textContent='Bulky Refuse Collection';a.setAttribute('aria-haspopup','dialog');a.setAttribute('aria-controls','bulkyOverlay');a.onclick=()=>window.BAG_DAY_BULKY.open({locality,council:name.textContent,phone,website:safeURL(details?.website||details?.websiteurl),dedicated:!!details?.bulkytelephone});actions.append(a);}
+    if(phone.length>=8){const a=document.createElement('button');a.type='button';a.className='council-link council-bulky';a.textContent='Bulky Refuse Collection';a.setAttribute('aria-haspopup','dialog');a.setAttribute('aria-controls','bulkyOverlay');a.onclick=()=>window.BAG_DAY_BULKY.open({locality,council:name.textContent,phone,website:safeURL(details?.website||details?.websiteurl),dedicated:!!details?.bulkytelephone,analyticsPlacement:placement});actions.append(a);}
     const whatsapp=(details?.whatsapp||details?.whatsappnumber||'').replace(/\D/g,'');
     const whatsappMode=(details?.whatsappmode||'disabled').toLowerCase();
-    if(window.BAG_DAY_WHATSAPP_VISIBLE===true&&whatsappMode==='enabled'&&whatsapp.length>=8){const a=link('WhatsApp ↗','https://wa.me/'+(whatsapp.length===8?'356':'')+whatsapp,'council-link');a.rel='noopener noreferrer';actions.append(a);}
+    if(window.BAG_DAY_WHATSAPP_VISIBLE===true&&whatsappMode==='enabled'&&whatsapp.length>=8){const a=link('WhatsApp ↗','https://wa.me/'+(whatsapp.length===8?'356':'')+whatsapp,'council-link');a.rel='noopener noreferrer';a.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('council_whatsapp_click',councilParams));actions.append(a);}
     if(window.BAG_DAY_WHATSAPP_VISIBLE===true&&whatsappMode!=='hidden'&&(whatsappMode!=='enabled'||whatsapp.length<8)){
       const button=document.createElement('button');button.type='button';button.className='council-link council-whatsapp-disabled';button.textContent='WhatsApp';button.disabled=true;button.title='Council WhatsApp is not available yet';actions.append(button);
     }
     if(actions.childElementCount)council.append(actions);
+    window.BAG_DAY_ANALYTICS?.observe(council,'council_impression',councilParams,'council:'+(placement||'generic'));
+    }
     const active=bookings(slotRows,locality,date,sponsorRows);panel.hidden=!active.length;
     if(active.length){
       const heading=document.createElement('div');heading.className='sponsor-heading';heading.textContent=sponsorStale?'Sponsored · saved data':'Sponsored';panel.append(heading);
@@ -80,27 +87,19 @@
           image.onerror=()=>{candidate++;if(candidate<candidates.length){image.src=candidates[candidate];return;}a.classList.remove('sponsor-link-image');a.replaceChildren(label);};
           a.classList.add('sponsor-link-image');a.replaceChildren(image);image.src=candidates[0];
         }
-        const trackClick=()=>{
-          try{
-            window.BAG_DAY_ANALYTICS?.event('sponsor_click',{
-              sponsor_id:String(r.sponsorid).trim().toUpperCase(),
-              sponsor_name:advert.sponsorname,
-              locality,
-              booking_month:Number(r.month),
-              booking_year:Number(r.year),
-              sponsor_slot:Number(r.slot),
-              advert_format:a.classList.contains('sponsor-link-image')?'image':'text'
-            });
-          }catch(_){ /* Analytics must never prevent opening the sponsor website. */ }
-        };
+        const analyticsParams={sponsor_id:String(r.sponsorid).trim().toUpperCase(),placement_locality:window.WASTE_DATA.localities.find(row=>canonical(row[0])===canonical(r.locality))?.[0],booking_month:Number(r.month),booking_year:Number(r.year),sponsor_slot:Number(r.slot),advert_format:a.classList.contains('sponsor-link-image')?'image':'text',data_source:sponsorStale?'saved':'live'};
+        const placementKey='sponsor:'+analyticsParams.sponsor_id+':'+canonical(r.locality)+':'+r.year+':'+r.month+':'+r.slot;
+        const currentParams=()=>({...analyticsParams,advert_format:a.classList.contains('sponsor-link-image')?'image':'text'});
+        const trackClick=()=>{const analytics=window.BAG_DAY_ANALYTICS;analytics?.event('sponsor_click',currentParams());if(analytics?.viewed(placementKey))analytics.once('sponsor_click_after_view',currentParams(),'click:'+placementKey)};
         a.addEventListener('click',trackClick);
         a.addEventListener('auxclick',event=>{if(event.button===1)trackClick();});
         panel.append(a);
+        window.BAG_DAY_ANALYTICS?.observe(a,'sponsor_impression',currentParams,placementKey);
       });
     }
-    document.getElementById('dashboard').dataset.sponsorCount=active.length;
+    const dashboard=document.getElementById('dashboard');if(dashboard)dashboard.dataset.sponsorCount=active.length;
   }
-  async function load(file){try{if(location.protocol==='file:'){return parseCSV(window.BAG_DAY_LOCAL_FILES?.[file]??'');}const r=await fetch(file,{cache:'no-cache'});if(!r.ok)throw new Error(r.status);return parseCSV(await r.text());}catch(e){console.warn('Bag Day could not load '+file,e);return [];}}
+  async function load(file){try{if(location.protocol==='file:'){return parseCSV(window.BAG_DAY_LOCAL_FILES?.[file]??'');}const r=await fetch(new URL(file,siteRoot),{cache:'no-cache'});if(!r.ok)throw new Error(r.status);return parseCSV(await r.text());}catch(e){console.warn('Bag Day could not load '+file,e);return [];}}
   const EXPORT_BASE='https://bagday-sponsor-export.davvel.workers.dev';
   const PUBLIC_CACHE_KEY='bag-day-cloudflare-sponsor-pair-v1';
   const REFRESH_INTERVAL_MS=24*60*60*1000;

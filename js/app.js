@@ -14,7 +14,7 @@
     document.querySelector('meta[name="theme-color"]').content=dark?'#0b1421':'#edf3f9';
     $('appearanceSelect').value=preference;
   }
-  $('appearanceSelect').onchange=()=>{localStorage.setItem(appearanceKey,$('appearanceSelect').value);applyAppearance();};
+  $('appearanceSelect').onchange=()=>{localStorage.setItem(appearanceKey,$('appearanceSelect').value);applyAppearance();analyticsEvent('appearance_changed',{appearance:$('appearanceSelect').value});};
   window.addEventListener('storage',e=>{if(e.key===appearanceKey)applyAppearance();});
   window.addEventListener('pageshow',applyAppearance);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)applyAppearance();});
@@ -196,7 +196,7 @@
     localStorage.setItem(followLocationKey,String(followLocation));
     localStorage.setItem(welcomeCompleteKey,'true');localStorage.removeItem(welcomeDraftKey);
     welcomeNeeded=false;
-    setAnalyticsChoice(allow);render();
+    setAnalyticsChoice(allow);analyticsEvent('onboarding_complete');render();
     $('welcomeSummary').textContent=`Home: ${selected} · ${followLocation?'Auto':'Home'} mode. You can change your choices in Settings.`;
     renderWelcome();welcomeFocus();
     welcomeReadyTimer=setTimeout(closeWelcome,1800);
@@ -225,27 +225,12 @@
     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   });
 
-  let analyticsReady = false, pendingGameOpens=0;
-  const analyticsConsentKey='bag-day-analytics-consent-v1';
-  let analyticsLoading=false,analyticsScriptLoaded=false,analyticsId='';
-  function analyticsAllowed(){return localStorage.getItem(analyticsConsentKey)==='granted';}
-  function setAnalyticsChoice(allowed){
-    localStorage.setItem(analyticsConsentKey,allowed?'granted':'denied');
-    $('allowAnalytics').checked=allowed;
-    if(allowed){if(analyticsId){window['ga-disable-'+analyticsId]=false;window.gtag?.('consent','update',{analytics_storage:'granted'});}if(analyticsScriptLoaded){analyticsReady=true;}else loadAnalytics();return;}
-    analyticsReady=false;pendingGameOpens=0;
-    if(analyticsId)window['ga-disable-'+analyticsId]=true;
-    // Remove existing Analytics cookies after withdrawal.
-    document.cookie.split(';').forEach(pair=>{
-      const name=pair.trim().split('=')[0];if(!/^_ga($|_)/.test(name))return;
-      const parts=location.hostname.split('.');
-      document.cookie=name+'=; Max-Age=0; path=/';
-      for(let i=0;i<parts.length-1;i++)document.cookie=name+'=; Max-Age=0; path=/; domain=.'+parts.slice(i).join('.');
-    });
-    window.gtag?.('consent','update',{analytics_storage:'denied'});
-  }
-  $('allowAnalytics').checked=analyticsAllowed();
+  function analyticsAllowed(){return window.BAG_DAY_ANALYTICS?.allowed()===true;}
+  function setAnalyticsChoice(allowed){window.BAG_DAY_ANALYTICS?.setConsent(allowed);$('allowAnalytics').checked=allowed;}
+  function syncAnalyticsChoices(){const a=window.BAG_DAY_ANALYTICS?.status();$('allowAnalytics').checked=a?.consent==='granted';}
+  syncAnalyticsChoices();
   $('allowAnalytics').onchange=e=>setAnalyticsChoice(e.target.checked);
+  window.addEventListener('bag-day-analytics-choice',syncAnalyticsChoices);
   let donationConfig = null;
   const supportLastShownKey='bag-day-support-last-shown-v2';
   const supportFirstUseKey='bag-day-first-use-v3';
@@ -347,6 +332,7 @@
   let wasteCloseTimer = null;
   let wasteAppWasInert = false;
   function openWasteGuide(type, trigger) {
+    analyticsEvent('waste_guide_open',{bag_type:type});
     window.BAG_INFO.bag(type);
   }
   function closeWasteGuide() {
@@ -400,40 +386,8 @@
     return parseConfig(await response.text());
   }
 
-  function analyticsEvent(name,params={}){
-    if(!analyticsAllowed() || !analyticsReady || typeof window.gtag!=='function') return;
-    window.gtag('event',name,params);
-  }
-  window.BAG_DAY_ANALYTICS={event:analyticsEvent};
-
-  $('gameModeButton').addEventListener('click',()=>{
-    if($('gameModeButton').hidden || appContent.inert || !splash.hidden || $('dashboard').hidden || !analyticsAllowed())return;
-    if(analyticsReady)analyticsEvent('game_open');
-    else{pendingGameOpens++;loadAnalytics();}
-  },true);
-
-  async function loadAnalytics(){
-    if(analyticsLoading||analyticsReady)return;
-    try{
-      const cfg=await fetchLiveConfig('./analytics_config.txt');
-      if(String(cfg.Analytics_Enabled||'').toLowerCase()!=='true') return;
-      const id=String(cfg.Measurement_ID||'').trim();
-      if(!/^G-[A-Z0-9]+$/i.test(id) || id==='G-XXXXXXXXXX') return;
-      if(!analyticsAllowed())return;
-      analyticsLoading=true;analyticsId=id;window['ga-disable-'+id]=false;
-      window.dataLayer=window.dataLayer||[];
-      window.gtag=function(){window.dataLayer.push(arguments);};
-      window.gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
-      window.gtag('consent','update',{analytics_storage:'granted'});
-      window.gtag('js',new Date());
-      window.gtag('config',id,{anonymize_ip:true,allow_google_signals:false,allow_ad_personalization_signals:false});
-      const script=document.createElement('script');
-      script.async=true; script.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
-      script.onload=()=>{analyticsScriptLoaded=true;analyticsLoading=false;analyticsReady=analyticsAllowed();const clicks=pendingGameOpens;pendingGameOpens=0;if(analyticsReady)for(let n=0;n<clicks;n++)analyticsEvent('game_open');};
-      script.onerror=()=>{analyticsLoading=false;};
-      document.head.appendChild(script);
-    }catch(_){ /* analytics is optional */ }
-  }
+  function analyticsEvent(name,params={}){return window.BAG_DAY_ANALYTICS?.event(name,params);}
+  function loadAnalytics(){return window.BAG_DAY_ANALYTICS?.start();}
 
   function renderDonation(){
     const card=$('donationCard');
@@ -621,6 +575,7 @@
   const truckIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h11v12H3zM14 9h4l3 4v4h-7"/><path d="M18 9v4h3"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>';
   let timeReturnFocus=null;
   function openTimeInfo(trigger){
+    analyticsEvent('time_info_open');
     timeReturnFocus=trigger;
     const locality=activeLocality(), date=shownDate();
     const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
@@ -688,6 +643,7 @@
     requestAnimationFrame(syncDayNavigationLayout);
     const schedule=scheduleFor(date);
     $('dashboard').dataset.bag=schedule.bag||'none';
+    window.BAG_DAY_ANALYTICS?.observe($('collectionStage'),'schedule_view',{bag_type:schedule.bag||'none',day_offset:dayOffset},'schedule:'+date.toISOString().slice(0,10)+':'+(schedule.bag||'none')+':'+!!schedule.glass);
     if(!schedule.bag){
       $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="no-collection-message"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div></div></div>`;
     }else{
@@ -770,6 +726,7 @@
   function openCalendar(event){
     if(changingDay || performance.now()<suppressTapUntil || welcomeNeeded || !$('calendarOverlay').hidden)return;
     clearTimeout(returnTimer);
+    analyticsEvent('calendar_open');
     calendarOpener=event?.currentTarget || $('dateButton');
     calendarMonthIndex=monthIndex(shownDate());calendarWasInert=appContent.inert;
     $('calendarOverlay').hidden=false;appContent.inert=true;renderCalendar();
@@ -836,6 +793,7 @@
       render();
       await area.animate([{transform:`translateX(${Math.sign(delta)*distance}px)`},{transform:'translateX(0)'}],{duration:280,easing:'cubic-bezier(.2,.8,.2,1)'}).finished;
     }
+    if(next!==previousOffset)analyticsEvent('day_changed',{direction:next>previousOffset?'forward':'back',day_offset:next});
     area.style.transform='';changingDay=false;setDayNavigationMoving(false);syncDayNavigationLayout();
     if(previousOffset>0&&dayOffset===0)queueSupportInvitation();
     clearTimeout(returnTimer);
@@ -891,6 +849,7 @@
     $('localityEmpty').hidden=matches.length>0;
   }
   function openLocalityPicker(){
+    analyticsEvent('locality_picker_open');
     if(changingDay || performance.now()<suppressTapUntil || welcomeNeeded || !localityModalFree())return;
     clearTimeout(returnTimer);localityReturnFocus=document.activeElement;
     pickerLocality=activeLocality();$('localitySearch').value='';
@@ -928,6 +887,7 @@
   let settingsClosing=false, settingsOpener=null;
   function openSettings(){
     if(welcomeNeeded || !$('welcomeOverlay').hidden || settingsClosing||!$('settingsOverlay').hidden)return;
+    analyticsEvent('settings_open');
     settingsOpener=document.activeElement;
     $('settingsOverlay').hidden=false;
     document.querySelector('main.app').inert=true;
@@ -964,7 +924,7 @@
     return null;
   }
 
-  function detectionUnavailable() {locationFailed=true;suggestWelcomeLocality();}
+  function detectionUnavailable() {analyticsEvent('gps_unavailable');locationFailed=true;suggestWelcomeLocality();}
   function detectLocation() {
     if(!navigator.geolocation){detectionUnavailable();return;}
     if(Date.now()-lastGpsAttempt<60000)return;

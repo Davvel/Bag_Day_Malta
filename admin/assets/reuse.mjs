@@ -1,4 +1,4 @@
-import {attributeSummary} from './item-attributes.mjs?v=1.1.16';
+import {attributeSummary} from './item-attributes.mjs?v=1.1.17';
 export async function renderReuse({container,api,esc,mode,onChanged,isCurrent=()=>true}){
  let status=mode==='people'?'PENDING':'PENDING',offset=0,records=[],summary;
  const date=s=>s?new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',dateStyle:'medium'}).format(new Date(s)):'';
