@@ -1,0 +1,12 @@
+{
+  "name": "bagday-analytics-verification",
+  "version": "1.1.19",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test *.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

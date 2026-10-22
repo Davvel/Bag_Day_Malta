@@ -1,0 +1,12 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {submittedTime,listingAge,ageLabel,postedDate,postedShortDate,newestFirst} from '../COPY_TO_GITHUB/reuse/item-dates.mjs';
+const now=Date.parse('2026-10-19T12:00:00Z');
+test('listing labels use the immutable submission timestamp',()=>{assert.equal(ageLabel({submitted_at:'2026-10-19T08:00:00Z'},now),'Today');assert.equal(ageLabel({submitted_at:'2026-10-18T08:00:00Z'},now),'1 day old');assert.equal(ageLabel({submitted_at:'2026-10-12T08:00:00Z'},now),'7 days old')});
+test('expiry changes cannot change the listing age',()=>{for(const delete_at of ['2026-11-01T12:00:00Z','2027-01-17T12:00:00Z'])assert.equal(listingAge({submitted_at:'2026-09-01T12:00:00Z',delete_at},now),48)});
+test('Malta midnight changes the day label even after only an hour',()=>{assert.equal(listingAge({submitted_at:'2026-10-19T21:30:00Z'},Date.parse('2026-10-19T22:30:00Z')),1)});
+test('the 25-hour daylight-saving day counts as one calendar day',()=>{assert.equal(listingAge({submitted_at:'2026-10-24T22:30:00Z'},Date.parse('2026-10-25T23:30:00Z')),1)});
+test('missing, invalid or future dates never invent an age from expiry',()=>{for(const submitted_at of [null,'','not-a-date','2026-10-20T12:00:00Z'])assert.equal(ageLabel({submitted_at,delete_at:'2026-11-18T12:00:00Z'},now),'Date unavailable')});
+test('plain SQLite timestamps are interpreted as UTC',()=>{assert.equal(submittedTime({submitted_at:'2026-10-18 12:00:00'}),Date.parse('2026-10-18T12:00:00Z'))});
+test('ordering is newest first without mutating the supplied records',()=>{const rows=[{id:'old',submitted_at:'2026-09-01T12:00:00Z'},{id:'missing'},{id:'new',submitted_at:'2026-10-19T12:00:00Z'}];assert.deepEqual(newestFirst(rows).map(i=>i.id),['new','old','missing']);assert.equal(rows[0].id,'old')});
+test('full posted date uses Malta time',()=>{assert.equal(postedDate({submitted_at:'2026-10-19T22:30:00Z'}),'20 October 2026')});
+test('the compact submission date uses Malta time and does not invent missing dates',()=>{assert.equal(postedShortDate({submitted_at:'2026-10-19T22:30:00Z'}),'20 Oct 2026');assert.equal(postedShortDate({submitted_at:'invalid'}),'')});

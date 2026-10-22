@@ -1,0 +1,5 @@
+Bag Day Malta frontend v1.1.19
+All Localities default; GPS on untick; compact Edit Icon / Manual Select / Auto Find.
+Selected icon appears before the title. Existing icons survive empty/failed searches.
+Own listings hide self-contact actions. My Items adds compact moderation labels.
+Use existing API v1.1.16; no backend or database deployment for this frontend release.
