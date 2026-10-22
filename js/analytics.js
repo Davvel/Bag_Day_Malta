@@ -2,7 +2,7 @@
 (() => {
  'use strict';
  if(window.BAG_DAY_ANALYTICS)return;
- const VERSION='1.1.17',scriptURL=new URL(document.currentScript.src),root=new URL('../',scriptURL);
+ const VERSION='1.1.16',scriptURL=new URL(document.currentScript.src),root=new URL('../',scriptURL);
  const area=location.pathname.startsWith(new URL('reuse/',root).pathname)?'reuse':'home';
  const consentKey='bag-day-analytics-consent-v1',excludeKey='bag-day-analytics-exclude-v1';
  const get=k=>{try{return localStorage.getItem(k)}catch{return null}},put=(k,v)=>{try{localStorage.setItem(k,v)}catch{}};
