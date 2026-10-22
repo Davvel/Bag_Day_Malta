@@ -1,11 +1,14 @@
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.13';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.13';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.16';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.16';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.16';
 import {request,esc} from './client.mjs';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.13';
-import {itemSymbols,suggestSymbols} from './item-symbols.mjs?v=1.1.13';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.13';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.16';
+import {itemSymbols} from './item-symbols.mjs?v=1.1.16';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.16';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=false,page=0,loading=false,afterLogin=null,feedRequest=0,selectionRevision=0,locationHint='';
+let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
+const iconState=createIconState({storage:iconSessionStorage});
 const contactCache=new Map(),revealing=new Set();let currentDetail=null,sponsorKey='';
 let closeListingHelp=()=>{};
 const itemTitle=item=>item.title||Array.from(String(item.description||'')).slice(0,40).join('')||'Free item';
@@ -139,24 +142,61 @@ function enrolment(old){track('reuse_enrolment_start');const name=old?.display_n
  content.innerHTML=`<section class="panel"><span class="eyebrow">JOIN THE REUSE COMMUNITY</span><h2>A few details. A useful difference.</h2><p class="muted">Tell us a little about you before your first contribution.</p>${old?.decision_note?`<p class="notice">${esc(old.decision_note)}</p>`:''}<form id="enrolForm"><label>Your name<input name="display_name" autocomplete="name" value="${esc(name)}" maxlength="100" required></label><label>Google account email<input value="${esc(me.user.email||'')}" type="email" readonly><span class="field-hint">Already supplied by Google.</span></label><div class="field-row"><label>Home locality<select name="locality_id" required>${choices(chosen)}</select></label><label>Contact number<input name="contact_phone" type="tel" autocomplete="tel" value="${esc(old?.contact_phone||'')}" placeholder="9912 3456 or +356 9912 3456" maxlength="32" required></label></div><label class="reflection">Why does giving something a second life matter to you?<textarea id="why" name="why_reuse" maxlength="240" rows="3" required placeholder="A few words in your own way are enough.">${esc(old?.why_reuse||'')}</textarea><span id="whyCount" class="counter">0 / 240</span><span class="field-hint">Your answer stays between you and the administrator.</span></label><p class="muted small">Your number is used for items you choose to list by phone. Those numbers are shown only to signed-in users. Your first name appears with the items you list. Your email and reflection stay private.</p><div id="enrolError" class="notice" hidden role="alert"></div><button>Request to join</button></form></section>`;
  const enrolPhone=$('#enrolForm [name=contact_phone]');enrolPhone.oninput=()=>{const digits=enrolPhone.value.replace(/[\s().-]/g,'');enrolPhone.setCustomValidity(digits&&!/^(?:\+?356)?[0-9]{8}$/.test(digits)?'Enter 8 digits, optionally starting with 356 or +356.':'')};enrolPhone.oninput();const count=()=>$('#whyCount').textContent=$('#why').value.length+' / 240';$('#why').oninput=count;count();$('#enrolForm').onsubmit=async e=>{e.preventDefault();if(loading)return;loading=true;e.submitter.disabled=true;try{const b=Object.fromEntries(new FormData(e.target));track('reuse_enrolment_submit');const result=await request('/reuse/enrolment',{method:'POST',body:b});if(!result.already_submitted)track('reuse_enrolment_success');await mine()}catch(err){failed('enrolment',err);$('#enrolError').textContent=err.message;$('#enrolError').hidden=false}finally{loading=false;if(e.submitter?.isConnected)e.submitter.disabled=false}};
 }
-function bindEmojiPicker(saved){
- let selected=splitEmojis(saved).filter(v=>EMOJI_PALETTE.some(e=>e.symbol===v)).slice(0,3);
+function bindEmojiPicker(saved,getContext,expiresAt=Infinity){
+ let selected=splitEmojis(saved).filter(v=>EMOJI_PALETTE.some(e=>e.symbol===v)).slice(0,3),aiBusy=false,selectionVersion=0;
+ const form=$('#itemForm'),hint=$('#emojiHint');let cooldownTimer,syncVersion=0;
+ const user=me?.user?.user_id||me?.user?.email||'';
+ const syncAIButton=async()=>{
+  if(!form.isConnected)return;
+  const version=++syncVersion,button=$('#quickIcons'),remaining=iconState.remaining();
+  button.hidden=Date.now()>=expiresAt;button.disabled=true;
+  $('#aiCooldown').textContent=remaining>0&&!button.hidden?'Try again in '+Math.ceil(remaining/1000)+'s':'';
+  clearTimeout(cooldownTimer);
+  if(!button.hidden)cooldownTimer=setTimeout(syncAIButton,Math.min(remaining>0?1000:2147483647,Math.max(1,expiresAt-Date.now())));
+  if(button.hidden||remaining>0||aiBusy||!$('#listingTitle').value.trim())return;
+  const key=await iconState.key(user,getContext());
+  if(version===syncVersion&&form.isConnected)button.disabled=!!iconState.get(key)||aiBusy||iconState.remaining()>0||Date.now()>=expiresAt;
+ };
+ itemDialog.addEventListener('close',()=>{clearTimeout(cooldownTimer);syncVersion++},{once:true});
+ const defaultHint=()=>selected.length?'Tap an icon to remove it, or choose different icons.':'Choose icons yourself, or ask AI. One accurate icon is usually enough.';
+ const changed=()=>{selectionVersion++;update()};
  const update=()=>{
   $('#itemEmojis').value=selected.join('');
   $('#selectedEmojis').innerHTML=selected.map((symbol,index)=>`<button type="button" class="selected-icon" data-remove-icon="${index}" aria-label="Remove ${esc(EMOJI_PALETTE.find(e=>e.symbol===symbol)?.name||'icon')}">${esc(symbol)} <small aria-hidden="true">×</small></button>`).join('')||'<span class="muted small">No icons selected</span>';
-  for(const b of $('#selectedEmojis').querySelectorAll('[data-remove-icon]'))b.onclick=()=>{selected.splice(Number(b.dataset.removeIcon),1);update()};
-  $('#quickIcons').disabled=selected.length>0||!$('#listingTitle').value.trim();$('#clearIcons').disabled=!selected.length;
-  $('#emojiHint').textContent=selected.length?'Tap an icon to remove it. Clear your icons to use Quick icons again.':'Choose your icons, or use Quick icons based on your title.';
-  render();
+  for(const button of $('#selectedEmojis').querySelectorAll('[data-remove-icon]'))button.onclick=()=>{selected.splice(Number(button.dataset.removeIcon),1);changed()};
+  syncAIButton();$('#quickIcons').textContent=aiBusy?'Thinking…':'AI Select';$('#quickIcons').setAttribute('aria-busy',String(aiBusy));$('#clearIcons').disabled=!selected.length;
+  hint.textContent=aiBusy?'AI is choosing icons for your item…':defaultHint();render();
  };
  const render=()=>{
   const search=$('#emojiSearch').value.trim().toLowerCase(),groups=new Map();
   for(const e of EMOJI_PALETTE.filter(e=>(e.name+' '+e.group).toLowerCase().includes(search))){if(!groups.has(e.group))groups.set(e.group,[]);groups.get(e.group).push(e)}
   $('#emojiPalette').innerHTML=[...groups].map(([name,icons])=>`<div class="emoji-group"><h4>${esc(name)}</h4><div>${icons.map(e=>`<button type="button" data-pick-icon="${esc(e.symbol)}" title="${esc(e.name)}" aria-label="${esc(e.name)}" aria-pressed="${selected.includes(e.symbol)}" ${selected.length>=3&&!selected.includes(e.symbol)?'disabled':''}>${e.symbol}</button>`).join('')}</div></div>`).join('')||'<p class="small muted">No matching icons.</p>';
-  for(const b of $('#emojiPalette').querySelectorAll('[data-pick-icon]'))b.onclick=()=>{const symbol=b.dataset.pickIcon;if(selected.includes(symbol))selected=selected.filter(s=>s!==symbol);else if(selected.length<3)selected.push(symbol);update()};
+  for(const button of $('#emojiPalette').querySelectorAll('[data-pick-icon]'))button.onclick=()=>{const symbol=button.dataset.pickIcon;if(selected.includes(symbol))selected=selected.filter(s=>s!==symbol);else if(selected.length<3)selected.push(symbol);changed()};
  };
- $('#emojiSearch').oninput=render;$('#clearIcons').onclick=()=>{selected=[];update()};
- $('#quickIcons').onclick=()=>{if(selected.length||!$('#listingTitle').value.trim())return;selected=suggestSymbols($('#listingTitle').value);update()};update();
+ $('#emojiSearch').oninput=render;$('#clearIcons').onclick=()=>{selected=[];changed()};
+ form.addEventListener('input',syncAIButton);
+ $('#manualIcons').onclick=()=>{const choices=$('#emojiChoices');choices.open=!choices.open;if(choices.open)$('#emojiSearch').focus()};
+ $('#quickIcons').onclick=async()=>{
+  if(aiBusy||!$('#listingTitle').value.trim()||iconState.remaining()>0||Date.now()>=expiresAt)return;
+  const context=getContext(),snapshot=JSON.stringify(context),revision=selectionVersion;aiBusy=true;update();let resultMessage='';
+  try{
+   const key=await iconState.key(user,context);
+   if(!form.isConnected||!itemDialog.open)return;
+   const previous=iconState.get(key);
+   if(previous)return;
+   if(Date.now()>=expiresAt||!iconState.press()){syncAIButton();return}
+   // Record the attempt before sending: repeated unchanged input never retries,
+   // including after a failure. Only hashes and icon choices go to session storage.
+   iconState.remember(key);
+   const result=await request('/reuse/icons/suggest',{method:'POST',body:context});
+   if(!Array.isArray(result.icons)||result.icons.length>3||result.icons.some(v=>!EMOJI_PALETTE.some(e=>e.symbol===v)))throw Error('AI returned an unavailable icon. Please choose icons yourself.');
+   iconState.remember(key,[...new Set(result.icons)]);
+   if(!form.isConnected||!itemDialog.open)return;
+   if(Date.now()>=expiresAt||selectionVersion!==revision||JSON.stringify(getContext())!==snapshot){resultMessage='Your choices or item details changed. The AI suggestion was not applied.';return}
+   selected=[...new Set(result.icons)];resultMessage=selected.length?'AI suggested '+selected.length+' '+(selected.length===1?'icon':'icons')+'. You can change them.':'AI could not find a suitable icon. Choose one yourself, or leave icons blank.';
+  }catch(e){if(form.isConnected&&itemDialog.open){failed('icons_ai',e);resultMessage=e.message}}
+  finally{aiBusy=false;if(form.isConnected&&itemDialog.open){update();hint.textContent=resultMessage||defaultHint()}}
+ };update();
 }
 const colourSwatches={black:'#161616',white:'#ffffff',grey:'#888888',brown:'#875535',beige:'#d7bf94',red:'#db4343',orange:'#ec8b2d',yellow:'#f1d64b',green:'#4a9b59',blue:'#4786d2',purple:'#925ab6',pink:'#e994bc'};
 function attributeDetails(item){const entries=attributeSummary(item);return entries.length?'<dl class="item-attributes">'+entries.map(a=>`<div><dt>${esc(a.label)}</dt><dd>${esc(a.values.join(', '))}</dd></div>`).join('')+'</dl>':''}
@@ -166,16 +206,16 @@ function bindAttributes(old){
  for(const a of ATTRIBUTES){
   const buttons=itemDialog.querySelectorAll(`[data-attribute="${a.key}"] button`);
   const update=()=>{for(const b of buttons)b.setAttribute('aria-pressed',String(a.multiple?selected[a.key].includes(b.dataset.value):selected[a.key]===b.dataset.value))};
-  for(const b of buttons)b.onclick=()=>{const value=b.dataset.value;if(a.multiple)selected[a.key]=selected[a.key].includes(value)?selected[a.key].filter(v=>v!==value):[...selected[a.key],value];else selected[a.key]=selected[a.key]===value?null:value;update()};update();
+  for(const b of buttons)b.onclick=()=>{const value=b.dataset.value;if(a.multiple)selected[a.key]=selected[a.key].includes(value)?selected[a.key].filter(v=>v!==value):[...selected[a.key],value];else selected[a.key]=selected[a.key]===value?null:value;update();$('#itemForm').dispatchEvent(new Event('input',{bubbles:true}))};update();
  }
  return ()=>Object.fromEntries(ATTRIBUTES.map(a=>[a.key,a.multiple?a.options.filter(o=>selected[a.key].includes(o[0])).map(o=>o[0]):selected[a.key]]));
 }
 function itemForm(old){
  track('reuse_item_form_open',{operation:old?'edit':'create'});
  const c=me.contributor,id=old?.item_id||crypto.randomUUID();
- itemDialog.innerHTML=`<button id="closeItem" class="close" aria-label="Close item form">×</button><span class="eyebrow">A NEW SECOND LIFE</span><h2 id="itemTitle">${old?'Edit your item':'What are you passing on?'}</h2><form id="itemForm"><label>Title<input id="listingTitle" name="title" maxlength="40" required placeholder="e.g. Small wooden bookcase" value="${esc(old?itemTitle(old):'')}"><span id="titleCount" class="counter"></span></label><label>Description<textarea id="description" name="description" maxlength="500" rows="3" required placeholder="Condition, collection details and anything useful to know.">${esc(old?.description||'')}</textarea><span id="descriptionCount" class="counter"></span></label><fieldset class="emoji-picker"><legend>Item icons <span class="muted small">up to 3</span></legend><div id="selectedEmojis" class="selected-emojis" aria-live="polite"></div><input type="hidden" id="itemEmojis" name="item_emojis"><div class="emoji-tools"><button type="button" id="quickIcons" class="quiet">Quick icons</button><button type="button" id="clearIcons" class="quiet">Clear</button></div><p id="emojiHint" class="field-hint">Choose your icons, or use Quick icons based on your title.</p><details id="emojiChoices"><summary>Choose icons</summary><input id="emojiSearch" type="search" placeholder="Search icons, e.g. chair" aria-label="Search item icons"><div id="emojiPalette" class="emoji-palette"></div></details></fieldset>${attributeFields()}<label>Collection locality<select name="locality_id" required>${choices(old?.locality_id||c.locality_id)}</select></label><label id="phoneField">Phone number<input id="phone" name="contact_phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="32" value="${esc(old?old.contact_phone||'':c.contact_phone||'')}" placeholder="9912 3456 or +356 9912 3456"><span class="field-hint">8 digits, optionally starting with 356 or +356. Visible only after Google sign-in.</span></label><label id="linkField"><span>Advert URL <span class="muted">(optional)</span></span><input id="link" name="external_url" type="url" maxlength="2048" value="${esc(old?.external_url||'')}" placeholder="https://…"><span class="field-hint">You can add a link as well as a phone number. If you leave the URL empty, a phone number is required. Anyone can open the link without signing in.</span></label><label class="check"><input id="free" type="checkbox" required><span>This item is completely free. No payment or purchase is required.</span></label><p class="muted small">${old?(me.trusted_autopublish?'Your edits publish automatically. The original expiry date stays the same.':'Edits are reviewed again. The original expiry date stays the same.'):'Listings expire automatically. The expiry date appears in item details.'}</p><div id="itemError" class="notice" role="alert" hidden></div><div class="form-actions"><button>${old?'Save changes':'Submit free item'}</button><button type="button" id="cancelItem" class="quiet">Cancel</button></div></form>`;
+ itemDialog.innerHTML=`<button id="closeItem" class="close" aria-label="Close item form">×</button><span class="eyebrow">A NEW SECOND LIFE</span><h2 id="itemTitle">${old?'Edit your item':'What are you passing on?'}</h2><form id="itemForm"><label>Title<input id="listingTitle" name="title" maxlength="40" required placeholder="e.g. Small wooden bookcase" value="${esc(old?itemTitle(old):'')}"><span id="titleCount" class="counter"></span></label><label>Description<textarea id="description" name="description" maxlength="500" rows="3" required placeholder="Condition, collection details and anything useful to know.">${esc(old?.description||'')}</textarea><span id="descriptionCount" class="counter"></span></label><fieldset class="emoji-picker"><legend>Item icons <span class="muted small">up to 3</span></legend><div id="selectedEmojis" class="selected-emojis" aria-live="polite"></div><input type="hidden" id="itemEmojis" name="item_emojis"><div class="emoji-tools"><button type="button" id="manualIcons" class="quiet" aria-controls="emojiChoices">Choose up to 3 icons</button><button type="button" id="quickIcons" class="quiet" disabled>AI Select</button></div><p id="aiCooldown" class="field-hint" role="status"></p><div class="emoji-clear"><button type="button" id="clearIcons" class="quiet">Clear icons</button></div><p id="emojiHint" class="field-hint">Choose icons yourself, or ask AI for a suggestion.</p><details id="emojiChoices"><summary>Icon selection</summary><input id="emojiSearch" type="search" placeholder="Search icons, e.g. chair" aria-label="Search item icons"><div id="emojiPalette" class="emoji-palette"></div></details></fieldset>${attributeFields()}<label>Collection locality<select name="locality_id" required>${choices(old?.locality_id||c.locality_id)}</select></label><label id="phoneField">Phone number<input id="phone" name="contact_phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="32" value="${esc(old?old.contact_phone||'':c.contact_phone||'')}" placeholder="9912 3456 or +356 9912 3456"><span class="field-hint">8 digits, optionally starting with 356 or +356. Visible only after Google sign-in.</span></label><label id="linkField"><span>Advert URL <span class="muted">(optional)</span></span><input id="link" name="external_url" type="url" maxlength="2048" value="${esc(old?.external_url||'')}" placeholder="https://…"><span class="field-hint">You can add a link as well as a phone number. If you leave the URL empty, a phone number is required. Anyone can open the link without signing in.</span></label><label class="check"><input id="free" type="checkbox" required><span>This item is completely free. No payment or purchase is required.</span></label><p class="muted small">${old?(me.trusted_autopublish?'Your edits publish automatically. The original expiry date stays the same.':'Edits are reviewed again. The original expiry date stays the same.'):'Listings expire automatically. The expiry date appears in item details.'}</p><div id="itemError" class="notice" role="alert" hidden></div><div class="form-actions"><button>${old?'Save changes':'Submit free item'}</button><button type="button" id="cancelItem" class="quiet">Cancel</button></div></form>`;
  const collectAttributes=bindAttributes(old);
- const validateContacts=()=>{const phone=$('#phone'),link=$('#link'),digits=phone.value.replace(/[\s().-]/g,'');phone.required=!link.value.trim();link.required=!phone.value.trim();phone.setCustomValidity(digits&&!/^(?:\+?356)?[0-9]{8}$/.test(digits)?'Enter 8 digits, optionally starting with 356 or +356.':'');link.setCustomValidity(link.value.trim()&&!/^https:\/\//i.test(link.value.trim())?'Use a complete https:// advert URL.':'')};$('#phone').oninput=$('#link').oninput=validateContacts;validateContacts();const count=()=>{$('#descriptionCount').textContent=Array.from($('#description').value).length+' / 500';$('#titleCount').textContent=Array.from($('#listingTitle').value).length+' / 40'};$('#description').oninput=count;count();bindEmojiPicker(old?.item_emojis||'');$('#listingTitle').oninput=()=>{count();$('#quickIcons').disabled=!!$('#itemEmojis').value||!$('#listingTitle').value.trim()};$('#closeItem').onclick=$('#cancelItem').onclick=()=>itemDialog.close();itemDialog.showModal();$('#listingTitle').focus();
+ const validateContacts=()=>{const phone=$('#phone'),link=$('#link'),digits=phone.value.replace(/[\s().-]/g,'');phone.required=!link.value.trim();link.required=!phone.value.trim();phone.setCustomValidity(digits&&!/^(?:\+?356)?[0-9]{8}$/.test(digits)?'Enter 8 digits, optionally starting with 356 or +356.':'');link.setCustomValidity(link.value.trim()&&!/^https:\/\//i.test(link.value.trim())?'Use a complete https:// advert URL.':'')};$('#phone').oninput=$('#link').oninput=validateContacts;validateContacts();const count=()=>{$('#descriptionCount').textContent=Array.from($('#description').value).length+' / 500';$('#titleCount').textContent=Array.from($('#listingTitle').value).length+' / 40'};$('#description').oninput=count;count();bindEmojiPicker(old?.item_emojis||'',()=>({title:$('#listingTitle').value.trim(),description:$('#description').value.trim(),...collectAttributes()}),old?(submittedTime(old)===null?0:submittedTime(old)+30*60000):Infinity);$('#listingTitle').oninput=count;$('#closeItem').onclick=$('#cancelItem').onclick=()=>itemDialog.close();itemDialog.showModal();$('#listingTitle').focus();
  $('#itemForm').onsubmit=async e=>{e.preventDefault();if(loading)return;loading=true;e.submitter.disabled=true;try{const b={...Object.fromEntries(new FormData(e.target)),...collectAttributes(),free_only:$('#free').checked,...(old?{revision:old.revision}:{item_id:id})};track('reuse_item_submit',{operation:old?'edit':'create',...contactStats(b)});const r=await request('/reuse/items'+(old?'/'+old.item_id:''),{method:old?'PATCH':'POST',body:b});if(!r.replayed)track(old?'reuse_item_edit_saved':'reuse_item_submitted',{...contactStats(b),listing_state:r.item.status==='LIVE'?'live':'pending'});itemDialog.close();await mine();message(r.item.status==='LIVE'?'Your free item is now available.':'Your item is waiting for approval.')}catch(err){failed(old?'edit':'create',err);$('#itemError').textContent=err.message;$('#itemError').hidden=false}finally{loading=false;if(e.submitter?.isConnected)e.submitter.disabled=false}};
 }
 loginDialog.addEventListener('cancel',()=>{track('reuse_signin_cancel');afterLogin=null});
