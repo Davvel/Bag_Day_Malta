@@ -1,0 +1,6 @@
+Bag Day Malta frontend v1.1.20 - package 35
+Item details opens by default and remains collapsible.
+Compact optional dropdowns plus expandable Colour/Material multi-selection rows.
+Collapsed summary; existing saved values and all AI controls retained.
+All Localities, compact title-icon editing and owner approval labels retained.
+Use existing API v1.1.16; no backend or database deployment for this frontend release.
