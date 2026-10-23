@@ -21,7 +21,8 @@ export async function detectLocality(localities,known=[],{geolocation=globalThis
  if(!geolocation)return null;
  try{
   const position=await new Promise((resolve,reject)=>geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:false,timeout:10000,maximumAge:60000}));
-  const {latitude,longitude}=position.coords;
+  const {latitude,longitude,accuracy}=position.coords;
+  if(!Number.isFinite(accuracy)||accuracy<0||accuracy>2000)return null;
   if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||latitude<35.78||latitude>36.09||longitude<14.17||longitude>14.6)return null;
   const url=new URL('https://nominatim.openstreetmap.org/reverse');
   url.search=new URLSearchParams({format:'jsonv2',addressdetails:'1',zoom:'14',lat:String(latitude),lon:String(longitude)});

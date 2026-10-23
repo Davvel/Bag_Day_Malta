@@ -33,25 +33,14 @@
     const header = document.createElement('div'); header.className = 'sponsor-carousel-header';
     const heading = document.createElement('div'); heading.className = 'sponsor-heading'; heading.textContent = headingText;
     const controls = document.createElement('div'); controls.className = 'sponsor-controls'; controls.hidden = count < 2;
-    const dots = count <= 5 ? links.map((link, i) => {
-      const button = document.createElement('button'); button.type = 'button'; button.className = 'sponsor-dot';
-      button.setAttribute('aria-label', 'Show ' + word + ' ' + (i + 1) + ' of ' + count + ': ' + link.getAttribute('aria-label'));
-      button.addEventListener('click', () => go(i, true, i < index ? -1 : 1));
-      controls.append(button); return button;
-    }) : [];
-    const counter = document.createElement('span'); counter.className = 'sponsor-position';
-    if (count > 5) {
-      const previous = document.createElement('button'), next = document.createElement('button');
-      previous.type = next.type = 'button'; previous.className = next.className = 'sponsor-step';
-      previous.textContent = '‹'; next.textContent = '›';
-      previous.setAttribute('aria-label', 'Previous advert'); next.setAttribute('aria-label', 'Next advert');
-      previous.onclick = () => go(choice(-1), true, -1); next.onclick = () => go(choice(1), true, 1);
-      controls.append(previous, counter, next);
-    }
+    const dots = [];
     const toggle = document.createElement('button'); toggle.type = 'button'; toggle.className = 'sponsor-rotation-toggle';
     toggle.addEventListener('click', () => { freeze(); paused = !paused; remaining = INTERVAL_MS; updateControls(); save(); sync(); });
     controls.append(toggle); header.append(heading, controls);
     const viewport = document.createElement('div'); viewport.className = 'sponsor-viewport';
+    if(count>1){viewport.setAttribute('role','group');viewport.tabIndex=0;viewport.setAttribute('aria-label','Advert carousel. Swipe or use Left and Right arrow keys.');}
+    const keyboard=event=>{if(count<2||!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();event.stopPropagation();go(choice(event.key==='ArrowLeft'?-1:1),true,event.key==='ArrowLeft'?-1:1)};
+    viewport.addEventListener('keydown',keyboard);
     const slides = links.map((link, i) => {
       link.draggable = false; link.querySelectorAll('img').forEach(image => image.draggable = false);
       const slide = document.createElement('div'); slide.className = 'sponsor-slide';
@@ -84,7 +73,7 @@
     }
     function choice(direction) { return config.nextIndex ? config.nextIndex(index, direction) : index + direction; }
     function updateControls() {
-      if (count > 5) counter.textContent = (index + 1) + '/' + count;
+      viewport.dataset.activeIndex=String(index);
       heading.textContent = config.heading ? config.heading(links[index]) : headingText;
       dots.forEach((dot, i) => dot.setAttribute('aria-pressed', String(i === index)));
       toggle.textContent = paused ? '▶' : 'Ⅱ';
@@ -160,6 +149,7 @@
     config.onSelect?.(index); settle(); updateControls(); save(); sync();
     return { destroy() {
       freeze(); save(); destroyed = true; settle(); observer.disconnect(); intersection.disconnect();
+      viewport.removeEventListener('keydown', keyboard);
       panel.removeEventListener('focusin', focus); panel.removeEventListener('pointerenter', enter); panel.removeEventListener('pointerleave', leave);
       document.removeEventListener('visibilitychange', visibility); window.removeEventListener('pagehide', pagehide); window.removeEventListener('pageshow', pageshow);
       window.removeEventListener('resize', sync); window.removeEventListener('scroll', sync, true); media.removeEventListener('change', motion);

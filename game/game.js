@@ -5,7 +5,9 @@
  const storage={read(){try{return Math.max(10,Math.min(100,Math.floor(Number(localStorage.getItem(progressKey)))||10));}catch(_){return 1;}},write(value){try{localStorage.setItem(progressKey,String(value));}catch(_){}}};
  function savedLevel(){try{return Math.max(1,Math.min(storage.read(),Math.floor(Number(localStorage.getItem(lastLevelKey)))||1));}catch(_){return 1;}}
  function rememberLevel(value){try{localStorage.setItem(lastLevelKey,String(value));}catch(_){}}
- let hintItem=null;
+ let hintItem=null,helpEnabled=true;
+ const readHelp=()=>{try{helpEnabled=localStorage.getItem('bag-day-help-animations-v1')!=='false'}catch{}};readHelp();
+ window.addEventListener('storage',e=>{if(e.key==='bag-day-help-animations-v1'||e.key===null){readHelp();if(!helpEnabled)hideHint()}});
  const activePointers=new Set();
  let unlocked=storage.read(),level=savedLevel(),mode='menu',practice=false,elapsed=0,hits=0,misses=0,items=[],mistakes=new Map(),deck=[],nextSpawn=0,serial=0,selected=null,drag=null,raf=null,lastFrame=0,lastInput=0,feedbackUntil=0;
  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -145,7 +147,7 @@
   const seconds=Math.max(0,Math.ceil(60-elapsed));byId('timeLeft').textContent=practice?'∞':`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
 
   const middleItem=items.find(item=>item.lane===1);
-  if(!drag && !activePointers.size && middleItem && level<=10 && now-lastInput>2000 && !reduced.matches)showHint(middleItem);else hideHint();
+  if(helpEnabled && !drag && !activePointers.size && middleItem && level<=10 && now-lastInput>2000 && !reduced.matches)showHint(middleItem);else hideHint();
   if(!practice && elapsed>=60){finishRound();return;}raf=requestAnimationFrame(tick);
  }
  function startRound(next=Number(byId('levelChoice').value),isPractice=false){

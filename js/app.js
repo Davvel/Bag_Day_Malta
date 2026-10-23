@@ -19,6 +19,10 @@
   window.addEventListener('pageshow',applyAppearance);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)applyAppearance();});
   applyAppearance();
+  const helpToggle=$('helpAnimations');
+  const syncHelp=()=>{helpToggle.checked=window.BAG_DAY_HELP?.enabled()!==false;document.body.classList.toggle('help-disabled',!helpToggle.checked)};
+  syncHelp();window.addEventListener('bag-day-help-changed',syncHelp);
+  helpToggle.onchange=()=>{window.BAG_DAY_HELP?.setEnabled(helpToggle.checked);analyticsEvent('help_preference_changed',{help_state:helpToggle.checked?'on':'off'})};
   // Each fresh Home opening waits for the core artwork, then fades in.
   const splash = $('splashScreen');
   const appContent = $('appContent');
@@ -49,7 +53,7 @@
   };
   let dayOffset = defaultDayOffset();
   try{if(JSON.parse(localStorage.getItem('bag-day-home-hints-v1')||'{}').launches<=2)dayOffset=0;}catch(_){}
-  let returnTimer = null;
+  let viewedDate = null;
   let lastGpsAttempt = 0;
 
   let locationFailed = false;
@@ -75,11 +79,11 @@
     $('welcomeChoiceHand').hidden=true;
   }
   function queueWelcomeChoiceCue(delay=3000){
-    if(!welcomeNeeded || welcomeDraft.step!==2 || welcomeDraft.mode || welcomeBusy || document.hidden || $('welcomeOverlay').hidden){stopWelcomeChoiceCue();return;}
+    if(window.BAG_DAY_HELP?.enabled()===false || !welcomeNeeded || welcomeDraft.step!==2 || welcomeDraft.mode || welcomeBusy || document.hidden || $('welcomeOverlay').hidden){stopWelcomeChoiceCue();return;}
     if(welcomeChoiceTimer || welcomeChoiceAnimation || !$('welcomeChoiceHand').hidden)return;
     welcomeChoiceTimer=setTimeout(()=>{
       welcomeChoiceTimer=null;
-      if(!welcomeNeeded || welcomeDraft.step!==2 || welcomeDraft.mode || document.hidden)return;
+      if(window.BAG_DAY_HELP?.enabled()===false || !welcomeNeeded || welcomeDraft.step!==2 || welcomeDraft.mode || document.hidden)return;
       const hand=$('welcomeChoiceHand');hand.hidden=false;
       hand.classList.toggle('still-hand',!!reducedMotion());
       if(reducedMotion()){hand.style.left='';hand.style.top='';return;}
@@ -109,6 +113,7 @@
   }
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopWelcomeChoiceCue();else queueWelcomeChoiceCue();});
   window.addEventListener('resize',()=>{stopWelcomeChoiceCue();queueWelcomeChoiceCue();});
+  window.addEventListener('bag-day-help-changed',()=>{stopWelcomeChoiceCue();queueWelcomeChoiceCue();});
 
   function saveWelcomeDraft(){localStorage.setItem(welcomeDraftKey,JSON.stringify(welcomeDraft));}
   function welcomeFocus(){
@@ -290,7 +295,7 @@
     const get = type => Number(parts.find(p => p.type === type).value);
     return new Date(Date.UTC(get('year'),get('month')-1,get('day'),12));
   };
-  const shownDate = () => { const date=maltaToday();date.setUTCDate(date.getUTCDate()+dayOffset);return date; };
+  const shownDate = () => { if(!viewedDate){const date=maltaToday();date.setUTCDate(date.getUTCDate()+dayOffset);viewedDate=date.toISOString().slice(0,10);}return new Date(viewedDate+'T12:00:00Z'); };
   const formatTime = time => {const [h,m]=time.split(':').map(Number);return `${String((h+20)%24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;};
   const artworkURL = (path,fallback) => window.BAG_DAY_STARTUP?.imageURL(path,fallback) || path;
   const bagSvg = type => `<img src="${artworkURL(`icons/bag-${type}-real.webp`,`icons/bag-${type}.svg`)}" decoding="async" alt="${t()[type]} bag with a large waste sorting symbol">`;
@@ -586,6 +591,7 @@
     if(!locality)return;
     recordSupportUsage();
     const c=t(),date=shownDate();
+    dayOffset=Math.round((date-maltaToday())/86400000);
     window.BAG_DAY_SPONSORS.render(locality,date);
     $('localityName').textContent=locality;
     $('localityButton').setAttribute('aria-label',`${locality}. Choose a locality`);
@@ -596,11 +602,11 @@
     $('date').setAttribute('datetime',date.toISOString().slice(0,10));
     $('todayPill').hidden=false;
     const weekday=new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date);
-    $('todayPill').textContent=dayOffset===0?'Today':dayOffset===1?'Tomorrow':weekday;
-    $('todayPill').setAttribute('aria-label',dayOffset===0?'Today':dayOffset===1?`Tomorrow (${weekday})`:weekday);
+    $('todayPill').textContent=dayOffset<=0?'Today':dayOffset===1?'Tomorrow':weekday;
+    $('todayPill').setAttribute('aria-label',dayOffset<=0?'Today':dayOffset===1?`Tomorrow (${weekday})`:weekday);
     renderLocationMode();
     fitLocalityTitle();
-    $('prevDay').disabled=dayOffset===0;
+    $('prevDay').disabled=dayOffset<=0;
     $('nextDay').disabled=dayOffset===maxDaysAhead;
     for(const [delta,id,label] of [[-1,'previousDayName','Previous day'],[1,'nextDayName','Next day']]){
       const neighbour=new Date(date);neighbour.setUTCDate(neighbour.getUTCDate()+delta);
@@ -648,7 +654,7 @@
 
   function setDayNavigationMoving(moving){
     $('dayNavigation').classList.toggle('day-navigation-moving',moving);
-    $('prevDay').disabled=dayOffset===0;
+    $('prevDay').disabled=dayOffset<=0;
     $('nextDay').disabled=dayOffset===maxDaysAhead;
     $('dateButton').disabled=moving;
     $('todayPill').disabled=moving;
@@ -695,7 +701,7 @@
   }
   function openCalendar(event){
     if(changingDay || performance.now()<suppressTapUntil || welcomeNeeded || !$('calendarOverlay').hidden)return;
-    clearTimeout(returnTimer);
+    
     analyticsEvent('calendar_open');
     calendarOpener=event?.currentTarget || $('dateButton');
     calendarMonthIndex=monthIndex(shownDate());calendarWasInert=appContent.inert;
@@ -708,12 +714,11 @@
     $('calendarOverlay').hidden=true;appContent.inert=calendarWasInert;
     (calendarOpener || $('dateButton')).focus({preventScroll:true});
     render();
-    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=defaultDayOffset();render();},60000);
   }
   function selectCalendarDate(iso){
     const offset=Math.round((new Date(`${iso}T12:00:00Z`)-maltaToday())/86400000);
     if(!Number.isFinite(offset) || offset<0 || offset>maxDaysAhead){renderCalendar();return;}
-    closeCalendar();changeDay(offset-dayOffset);
+    closeCalendar();changeDay(offset-Math.round((shownDate()-maltaToday())/86400000));
   }
   function calendarKeydown(e){
     if(e.key==='Escape'){e.preventDefault();closeCalendar();return;}
@@ -746,7 +751,8 @@
   let changingDay=false, suppressTapUntil=0;
   async function changeDay(delta) {
     if(changingDay || !$('welcomeOverlay').hidden)return;
-    const previousOffset=dayOffset;
+    const previousOffset=Math.round((shownDate()-maltaToday())/86400000);
+    dayOffset=previousOffset;
     const next=Math.max(0,Math.min(maxDaysAhead,dayOffset+delta));
     const area=$('bagArea'),distance=area.clientWidth+24;
     changingDay=true;setDayNavigationMoving(true);
@@ -755,19 +761,17 @@
     }else if(reducedMotion()){
       area.style.transform='';
       await area.animate([{opacity:1},{opacity:0}],{duration:90,easing:'ease-out'}).finished;
-      dayOffset=next;render();
+      dayOffset=next;viewedDate=addDays(maltaToday(),next).toISOString().slice(0,10);render();
       await area.animate([{opacity:0},{opacity:1}],{duration:120,easing:'ease-in'}).finished;
     }else{
       await area.animate([{transform:area.style.transform||'translateX(0)'},{transform:`translateX(${-Math.sign(delta)*distance}px)`}],{duration:180,easing:'ease-in'}).finished;
-      area.style.transform='';dayOffset=next;
+      area.style.transform='';dayOffset=next;viewedDate=addDays(maltaToday(),next).toISOString().slice(0,10);
       render();
       await area.animate([{transform:`translateX(${Math.sign(delta)*distance}px)`},{transform:'translateX(0)'}],{duration:280,easing:'cubic-bezier(.2,.8,.2,1)'}).finished;
     }
     if(next!==previousOffset)analyticsEvent('day_changed',{direction:next>previousOffset?'forward':'back',day_offset:next});
     area.style.transform='';changingDay=false;setDayNavigationMoving(false);syncDayNavigationLayout();
-    if(previousOffset>0&&dayOffset===0)queueSupportInvitation();
-    clearTimeout(returnTimer);
-    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=defaultDayOffset();render();},60000);
+    if(previousOffset>0&&dayOffset<=0)queueSupportInvitation();
   }
 
   let homeOptionsReady=false;
@@ -787,7 +791,7 @@
     selected=name;temporaryView=null;
     localStorage.setItem(localityKey,selected);
     analyticsEvent('locality_changed');
-    dayOffset=defaultDayOffset();render();
+    render();
   }
 
   let localityReturnFocus=null,pickerLocality=null;
@@ -821,7 +825,7 @@
   function openLocalityPicker(){
     analyticsEvent('locality_picker_open');
     if(changingDay || performance.now()<suppressTapUntil || welcomeNeeded || !localityModalFree())return;
-    clearTimeout(returnTimer);localityReturnFocus=document.activeElement;
+    localityReturnFocus=document.activeElement;
     pickerLocality=activeLocality();$('localitySearch').value='';
     $('localityHomeNote').textContent=`Your saved home: ${selected}`;
     $('localityOverlay').hidden=false;appContent.inert=true;
@@ -837,7 +841,6 @@
     if($('localityOverlay').hidden)return;
     $('localityOverlay').hidden=true;appContent.inert=false;
     (localityReturnFocus?.isConnected?localityReturnFocus:$('localityButton')).focus({preventScroll:true});
-    if(dayOffset)returnTimer=setTimeout(()=>{dayOffset=defaultDayOffset();render();},60000);
   }
   function localityKeydown(e){
     if(e.key==='Escape'){e.preventDefault();closeLocalityPicker();return;}
@@ -934,9 +937,9 @@
     temporaryView=detected;
     localStorage.setItem(locationPromptKey,JSON.stringify({selected,detected,until:Date.now()+promptCooldownMs}));
     analyticsEvent('current_locality_viewed');
-    dayOffset=defaultDayOffset();render();
+    render();
   };
-  $('locationModeChip').onclick=()=>{if(changingDay||performance.now()<suppressTapUntil)return;if(temporaryView){temporaryView=null;dayOffset=defaultDayOffset();render();}else openSettings();};
+  $('locationModeChip').onclick=()=>{if(changingDay||performance.now()<suppressTapUntil)return;if(temporaryView){temporaryView=null;render();}else openSettings();};
   $('closeTimeInfo').onclick=closeTimeInfo;
   $('timeOverlay').onclick=e=>{if(e.target===$('timeOverlay'))closeTimeInfo();};
   $('keepLocalityMode').onchange=()=>{
@@ -1008,7 +1011,7 @@
     e.preventDefault();
     if(g.axis==='x'){
       setDayNavigationMoving(true);
-      const atEnd=(g.dx>0&&dayOffset===0)||(g.dx<0&&dayOffset===maxDaysAhead);
+      const atEnd=(g.dx>0&&dayOffset<=0)||(g.dx<0&&dayOffset===maxDaysAhead);
       const shift=atEnd?Math.sign(g.dx)*Math.min(65,Math.abs(g.dx)*.25):g.dx;
       if(!reducedMotion())$('bagArea').style.transform=`translateX(${shift}px)`;
     }else if(g.dy>0){
@@ -1051,7 +1054,7 @@
   panel.addEventListener('touchcancel',()=>finishSettingsGesture(true),{passive:true});
   document.addEventListener('keydown',e=>{if(!splash.hidden || !$('welcomeOverlay').hidden)return;if(!$('localityOverlay').hidden){localityKeydown(e);return;}if(!$('calendarOverlay').hidden){calendarKeydown(e);return;}if(!$('timeOverlay').hidden){timeInfoKeydown(e);return;}if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();if(e.key==='Tab'){const nodes=[...$('settingsDialog').querySelectorAll('button:not([hidden]),select,input')].filter(n=>!n.disabled);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
   document.addEventListener('visibilitychange',()=>{queueSupportInvitation();if(!document.hidden){render();loadDonation();detectLocation();}});
-  setInterval(()=>{if(dayOffset===0&&!homeGesture&&!changingDay)render();},60000);
+  setInterval(()=>{if(dayOffset<=0&&!homeGesture&&!changingDay)render();},60000);
   function syncViewport(){
     const height=window.visualViewport?.height||window.innerHeight;
     requestAnimationFrame(()=>{fitLocalityTitle();syncDayNavigationLayout();});

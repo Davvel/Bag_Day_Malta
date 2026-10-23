@@ -25,3 +25,14 @@
 #dashboard :is(#sponsorPanel,#communityPanel) .sponsor-heading{display:none}
 #dashboard .sponsor-carousel-header{justify-content:flex-end}
 #dashboard .sponsor-carousel-header:has(> .sponsor-controls[hidden]){display:none}
+
+/* Swipe/arrow-key navigation replaces visible dots. The pause control is inline. */
+:is(#sponsorPanel,#communityPanel).sponsor-panel{position:relative}
+.sponsor-carousel-header{height:14px}
+.sponsor-controls{position:absolute;right:4px;bottom:10px;z-index:2}
+:is(#sponsorPanel,#communityPanel) .sponsor-rotation-toggle{border-radius:7px;background:#0b2a45bd;color:#fff}
+:is(#sponsorPanel,#communityPanel) .sponsor-rotation-toggle:hover{background:#0b2a45}
+:is(#sponsorPanel,#communityPanel) .sponsor-slide .sponsor-link:not(.sponsor-link-image){padding-right:35px}
+#dashboard :is(#sponsorPanel,#communityPanel).sponsor-panel{gap:0}
+#dashboard .sponsor-carousel-header{height:0}
+:is(#sponsorPanel,#communityPanel)[data-carousel-count="1"] .sponsor-slide .sponsor-link:not(.sponsor-link-image){padding-right:11px}
