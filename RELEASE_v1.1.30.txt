@@ -1,0 +1,12 @@
+Bag Day Malta frontend v1.1.30 - package 45
+
+Colour and Material now use native single-choice dropdowns, just like the
+other item details. Choosing an option closes the native selection menu.
+Multicolour and Mixed materials remain available for mixed items.
+Older listings with several saved colours or materials keep their existing
+values until the user explicitly chooses a replacement or Not specified.
+The purchase price and year alignment from v1.1.29 is included.
+
+Frontend-only update. No backend scripts or database changes are needed.
+Copy everything INSIDE COPY_TO_GITHUB to the website repository root.
+Keep your existing CNAME and .git folder. This ZIP contains no CNAME.

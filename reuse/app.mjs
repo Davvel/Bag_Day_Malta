@@ -1,12 +1,12 @@
-import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.28';
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.28';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.28';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.28';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.28';
+import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.30';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.30';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.30';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.30';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.30';
 import {request,esc} from './client.mjs';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.28';
-import {titleIcons} from './title-icons.mjs?v=1.1.28';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.28';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.30';
+import {titleIcons} from './title-icons.mjs?v=1.1.30';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.30';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='',searchQuery='',searchTimer=null;
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
@@ -222,25 +222,30 @@ function bindEmojiPicker(saved,getContext,expiresAt=Infinity){
   finally{aiBusy=false;if(form.isConnected&&itemDialog.open){update();hint.textContent=resultMessage||defaultHint()}}
  };update();
 }
-const colourSwatches={black:'#161616',white:'#ffffff',grey:'#888888',brown:'#875535',beige:'#d7bf94',red:'#db4343',orange:'#ec8b2d',yellow:'#f1d64b',green:'#4a9b59',blue:'#4786d2',purple:'#925ab6',pink:'#e994bc'};
 function attributeDetails(item){const entries=attributeSummary(item);return entries.length?'<dl class="item-attributes">'+entries.map(a=>`<div><dt>${esc(a.label)}</dt><dd>${esc(a.values.join(', '))}</dd></div>`).join('')+'</dl>':''}
 function attributeFields(old){
- const singles=ATTRIBUTES.filter(a=>!a.multiple),multiples=ATTRIBUTES.filter(a=>a.multiple);
- return `<details class="optional-attributes" open><summary>Item details <span class="muted small">optional</span><span class="attribute-overview"></span></summary><div class="attribute-fields">${singles.map(a=>`<label class="attribute-field attribute-single" data-attribute="${a.key}"><span>${esc(a.label)}</span><select aria-label="${esc(a.label)}"><option value="">Not specified</option>${a.options.map(([value,label])=>`<option value="${value}">${esc(value==='heavy_needs_two_people'?'Heavy / 2 people':label)}</option>`).join('')}</select></label>`).join('')}${multiples.map(a=>`<div class="attribute-field" data-attribute="${a.key}"><details class="attribute-multiple"><summary><span>${esc(a.label)}</span><span class="attribute-selection">Not specified</span></summary><div class="attribute-options" role="group" aria-label="${esc(a.label)} — select any">${a.options.map(([value,label])=>`<button type="button" class="attribute-option quiet" data-value="${value}" aria-pressed="false">${a.key==='colours'&&colourSwatches[value]?`<span class="colour-swatch" style="background:${colourSwatches[value]}" aria-hidden="true"></span>`:''}<span>${esc(label)}</span><span class="attribute-tick" aria-hidden="true">✓</span></button>`).join('')}</div></details></div>`).join('')}</div><div class="purchase-fields"><label>Original purchase price (€)<input id="originalPrice" name="original_price_eur" type="number" inputmode="decimal" min="0" max="1000000" step="0.01" value="${old?.original_price_cents==null?'':(old.original_price_cents/100).toFixed(2)}" placeholder="e.g. 200"><span class="field-hint">Optional · this item is still FREE.</span></label><label>Bought in <span class="muted small">optional</span><input id="purchaseYear" name="purchase_year" type="number" inputmode="numeric" min="1900" max="${maltaYear()}" step="1" value="${esc(old?.purchase_year??'')}" placeholder="e.g. ${maltaYear()-2}"></label></div></details>`;
+ const fields=[...ATTRIBUTES.filter(a=>!a.multiple),...ATTRIBUTES.filter(a=>a.multiple)];
+ return `<details class="optional-attributes" open><summary>Item details <span class="muted small">optional</span><span class="attribute-overview"></span></summary><div class="attribute-fields">${fields.map(a=>`<label class="attribute-field attribute-single" data-attribute="${a.key}"><span>${esc(a.label)}</span><select aria-label="${esc(a.label)}"><option value="">Not specified</option>${a.options.map(([value,label])=>`<option value="${value}">${esc(value==='heavy_needs_two_people'?'Heavy / 2 people':label)}</option>`).join('')}</select></label>`).join('')}</div><div class="purchase-fields"><label for="originalPrice">Original purchase price (€)</label><label for="purchaseYear">Bought in</label><input id="originalPrice" aria-describedby="originalPriceHint" name="original_price_eur" type="number" inputmode="decimal" min="0" max="1000000" step="0.01" value="${old?.original_price_cents==null?'':(old.original_price_cents/100).toFixed(2)}" placeholder="e.g. 200"><input id="purchaseYear" aria-describedby="purchaseYearHint" name="purchase_year" type="number" inputmode="numeric" min="1900" max="${maltaYear()}" step="1" value="${esc(old?.purchase_year??'')}" placeholder="e.g. ${maltaYear()-2}"><span id="originalPriceHint" class="field-hint">Optional · this item is still FREE.</span><span id="purchaseYearHint" class="field-hint">Optional</span></div></details>`;
 }
 function bindAttributes(old){
  const selected=decodeAttributes(old||{});
  const overview=()=>{$('.attribute-overview').textContent=attributeSummary(selected).flatMap(a=>a.values).join(' · ')||'No details selected'};
  for(const a of ATTRIBUTES){
   const field=itemDialog.querySelector(`[data-attribute="${a.key}"]`);
-  if(!a.multiple){
-   const select=field.querySelector('select');select.value=selected[a.key]||'';
-   select.oninput=()=>{selected[a.key]=select.value||null;overview()};
-  }else{
-   const buttons=field.querySelectorAll('button'),summary=field.querySelector('.attribute-selection');
-   const update=()=>{for(const b of buttons)b.setAttribute('aria-pressed',String(selected[a.key].includes(b.dataset.value)));summary.textContent=a.options.filter(o=>selected[a.key].includes(o[0])).map(o=>o[1]).join(', ')||'Not specified';summary.title=summary.textContent;overview()};
-   for(const b of buttons)b.onclick=()=>{const value=b.dataset.value;selected[a.key]=selected[a.key].includes(value)?selected[a.key].filter(v=>v!==value):[...selected[a.key],value];update();$('#itemForm').dispatchEvent(new Event('input',{bubbles:true}))};update();
-  }
+  const select=field.querySelector('select');
+  const savedValues=a.multiple?[...selected[a.key]]:[];
+  // Keep older multi-value listings intact until the user chooses a replacement.
+  if(savedValues.length>1){
+   const label=a.options.filter(o=>savedValues.includes(o[0])).map(o=>o[1]).join(', ');
+   select.add(new Option(label,'__existing__'),1);
+   select.value='__existing__';
+  }else select.value=(a.multiple?savedValues[0]:selected[a.key])||'';
+  select.oninput=()=>{
+   selected[a.key]=a.multiple
+    ?select.value==='__existing__'?[...savedValues]:select.value?[select.value]:[]
+    :select.value||null;
+   overview();
+  };
  }
  overview();
  return ()=>Object.fromEntries(ATTRIBUTES.map(a=>[a.key,a.multiple?a.options.filter(o=>selected[a.key].includes(o[0])).map(o=>o[0]):selected[a.key]]));
