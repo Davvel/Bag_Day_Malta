@@ -1,0 +1,8 @@
+Bag Day Malta frontend v1.1.23 - package 38
+Sunday carousel layout follows the Home page date being viewed.
+Dedicated community/free carousel above the paid carousel on every Sunday page.
+Community adverts never fill the paid row on a Sunday Home page.
+Empty rows collapse; banner dimensions and ten-second rotation are retained.
+Weekday Home and REUSE retain the existing spare-capacity policy.
+Campaign eligibility and paid booking month still use the actual Malta date.
+Uses existing API v1.1.17. No backend/database deployment for this update.

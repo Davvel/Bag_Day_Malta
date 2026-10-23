@@ -21,7 +21,7 @@
   function bannerURLs(value){
     const u=new URL(value);
     if(u.origin==='https://bagdaymalta.eu'&&u.pathname.toLowerCase()==='/images/sponsors/google.png'){
-      u.searchParams.set('v','1.1.22');
+      u.searchParams.set('v','1.1.23');
       // Keep the published path; try the alternative case for Windows/GitHub uploads.
       const original=u.href;
       u.pathname=u.pathname.endsWith('/google.png')?'/images/sponsors/Google.png':'/images/sponsors/google.png';
@@ -120,7 +120,7 @@
     }
     const today=sponsorDate(),paid=bookings(slotRows,locality,today,sponsorRows).map(r=>({id:String(r.sponsorid).trim().toUpperCase(),kind:'paid',displayText:r.advert.displaytext,imageURL:safeURL(r.advert.imageurl),url:safeURL(r.advert.url),month:Number(r.month),year:Number(r.year),position:Number(r.slot)}));
     const snapshot=window.BAG_DAY_COMMUNITY.snapshot(),community=snapshot.adverts.map(a=>({...a,id:'COMMUNITY_'+a.advert_id,kind:'community',displayText:a.display_text,imageURL:safeURL(a.banner_url),url:safeURL(a.destination_url)}));
-    const dashboard=document.getElementById('dashboard'),plan=window.BAG_DAY_ADVERT_POLICY.plan(paid,community,snapshot.capacity,!!dashboard,new Date());
+    const dashboard=document.getElementById('dashboard'),plan=window.BAG_DAY_ADVERT_POLICY.plan(paid,community,snapshot.capacity,!!dashboard,new Date(),dashboard?date:null);
     renderPlacement(panel,plan.primary.entries,plan.primary.mode,locality,today,'primary');
     if(dashboard){
       let upper=document.getElementById('communityPanel');

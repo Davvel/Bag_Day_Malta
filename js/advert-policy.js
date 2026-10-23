@@ -3,8 +3,10 @@
  const formatter=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit',day:'2-digit'});
  function dayKey(now=new Date()){const p=formatter.formatToParts(now),get=t=>p.find(v=>v.type===t).value;return get('year')+'-'+get('month')+'-'+get('day')}
  function eligible(adverts,now=new Date()){const day=dayKey(now);return adverts.filter(a=>a.start_date<=day&&a.end_date>=day)}
- function plan(paid,community,capacity,isHome,now=new Date()){
-  const free=eligible(community,now),sunday=new Date(dayKey(now)+'T00:00:00Z').getUTCDay()===0;
+ function plan(paid,community,capacity,isHome,now=new Date(),viewDate=null){
+  // Home's displayed date controls the layout; campaign eligibility uses today.
+  // The collection calendar represents its displayed dates in UTC.
+  const free=eligible(community,now),sunday=(viewDate||new Date(dayKey(now)+'T00:00:00Z')).getUTCDay()===0;
   const separate=isHome&&sunday;
   const mixed=!separate&&paid.length<capacity&&free.length>0;
   return {primary:{mode:mixed?(paid.length?'mixed':'community'):'paid',entries:mixed?[...paid,...free]:paid},community:separate?free:[],sunday};
