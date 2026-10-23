@@ -1,3 +1,0 @@
-Bag Day Malta frontend v1.1.18
-Compact optional single-icon controls; max_icons: 1 AI request; 40 visible title characters including complete emojis.
-Requires API v1.1.15 and its Unicode-title database upgrade.

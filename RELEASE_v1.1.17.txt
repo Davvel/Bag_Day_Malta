@@ -1,5 +1,0 @@
-Bag Day Malta frontend v1.1.17 - title icons.
-First saved icon before the title; up to two optional icons after the title.
-Live title preview, labelled positions, tap an extra to make it main, x to remove.
-Existing item_emojis storage and text fields are preserved.
-Compatible with backend package 26 v1.1.14. No database or backend change.

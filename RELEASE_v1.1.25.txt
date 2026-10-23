@@ -1,8 +1,0 @@
-Bag Day Malta frontend v1.1.25 - package 40
-Automatic BagDayMalta / Zejtun Soft / version intro on each fresh Home opening.
-Preloads and decodes bag/glass graphics and local backgrounds before revealing.
-Home fades in as the intro fades out; reduced motion is respected.
-The four graphic delivery files are 37.5% smaller with identical RGBA pixels.
-Existing image fallback SVGs and a bounded wait prevent a stuck image intro.
-Existing Sunday carousel policy, compact headings, REUSE and game are retained.
-No backend/database update is required. Existing API v1.1.17 is retained.
