@@ -1,0 +1,12 @@
+Bag Day Malta frontend v1.1.27 - package 42
+
+Fixed: the colourful marketplace/storefront icon is part of the Home header,
+beside Game, and opens REUSE on every day. It no longer waits for the REUSE
+JavaScript module to create it. The icon is embedded in the page itself.
+REUSE entry click analytics and Settings sign-in links remain available.
+No additional banner or header row is added.
+The PWA cache and frontend asset version are updated to v1.1.27.
+
+This is a frontend-only update from v1.1.26. No backend scripts are required.
+Copy everything INSIDE COPY_TO_GITHUB into the website repository root,
+replacing matching files. Keep your CNAME and .git folder.

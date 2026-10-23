@@ -1,7 +1,7 @@
 .topbar{grid-template-columns:82px minmax(0,1fr) 122px}
 .topbar .top-actions{display:flex;justify-content:flex-end;gap:4px}
 .topbar .reuse-marketplace{text-decoration:none}
-.topbar .reuse-marketplace img{display:block;width:29px;height:29px}
+.topbar .reuse-marketplace :is(img,svg){display:block;width:29px;height:29px;flex:none}
 #dayNavigation #dateButton{gap:9px;padding:2px}
 #dayNavigation #dateButton .calendar-colour-icon{width:25px;height:28px;flex:none;filter:drop-shadow(0 2px 3px #0002)}
 .help-disabled :is(.tap-hand,.sequence-glove,.feature-tip,#welcomeChoiceHand){display:none!important}
@@ -9,6 +9,6 @@
 .feature-tip-action{display:flex;align-items:center;justify-content:center;gap:9px;flex:1;min-width:0;min-height:36px;border:0;background:none;color:inherit;font:700 12px/1.35 system-ui;text-align:left;padding:3px 5px;box-shadow:none}
 .feature-tip-action img{width:27px;height:27px;flex:none}
 .feature-tip-close{display:grid;place-items:center;flex:none;width:30px;height:30px;min-width:30px;padding:0;border:0;border-radius:8px;background:#c7e2ef;color:#123453;box-shadow:none;font:500 22px/1 system-ui}
-@media(max-width:360px){.topbar{grid-template-columns:76px minmax(0,1fr) 110px}.topbar .top-actions{gap:4px}.topbar .icon-button{width:34px;height:34px;min-width:34px}.topbar .reuse-marketplace img{width:27px;height:27px}.topbar #title{font-size:18px}}
+@media(max-width:360px){.topbar{grid-template-columns:76px minmax(0,1fr) 110px}.topbar .top-actions{gap:4px}.topbar .icon-button{width:34px;height:34px;min-width:34px}.topbar .reuse-marketplace :is(img,svg){width:27px;height:27px}.topbar #title{font-size:18px}}
 
 .help-disabled .tap-demo .bag-button img{animation:none}
