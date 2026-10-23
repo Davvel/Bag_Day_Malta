@@ -41,7 +41,7 @@
   clear();nextAt=now+20000;
   bubble=document.createElement('aside');bubble.className='feature-tip';bubble.setAttribute('aria-label','Bag Day tip');
   const action=document.createElement('button');action.type='button';action.className='feature-tip-action';
-  if(choice.feature==='reuse'){const icon=document.createElement('img');icon.src='icons/reuse-marketplace.svg';icon.alt='';action.append(icon)}
+  if(choice.feature==='reuse'){const icon=document.createElement('img');icon.src='icons/reuse-free-stuff-v1.png';icon.alt='';action.append(icon)}
   const label=document.createElement('span');label.textContent=text[choice.feature];action.append(label);
   const close=document.createElement('button');close.type='button';close.className='feature-tip-close';close.textContent='×';close.setAttribute('aria-label','Dismiss tip');close.onclick=dismiss;
   action.onclick=()=>{const feature=choice.feature;dismiss();window.BAG_DAY_ANALYTICS?.event('help_tip_click',{feature});document.getElementById({game:'gameModeButton',calendar:'dateButton',reuse:'reuseModeButton'}[feature])?.click()};
