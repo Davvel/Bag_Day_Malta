@@ -1024,7 +1024,7 @@
   const pull=$('settingsPull');
   const openThreshold=()=>Math.min(150,Math.max(100,innerHeight*.19));
   $('dashboard').addEventListener('touchstart',e=>{
-    if(e.touches.length!==1||changingDay)return;
+    if(e.touches.length!==1||changingDay||e.target.closest('.sponsor-panel'))return;
     const t=e.touches[0];homeGesture={x:t.clientX,y:t.clientY,axis:null,dx:0,dy:0};
   },{passive:true});
   $('dashboard').addEventListener('touchmove',e=>{

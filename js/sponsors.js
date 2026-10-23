@@ -21,7 +21,7 @@
   function bannerURLs(value){
     const u=new URL(value);
     if(u.origin==='https://bagdaymalta.eu'&&u.pathname.toLowerCase()==='/images/sponsors/google.png'){
-      u.searchParams.set('v','1.1.20');
+      u.searchParams.set('v','1.1.22');
       // Keep the published path; try the alternative case for Windows/GitHub uploads.
       const original=u.href;
       u.pathname=u.pathname.endsWith('/google.png')?'/images/sponsors/Google.png':'/images/sponsors/google.png';
@@ -47,11 +47,58 @@
       });
   }
   let sponsorRows=[],slotRows=[],councilRows=[],last=null,sponsorStale=false,publicationVersion=null,lastExportError=null;
+  function sponsorDate(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const get=type=>parts.find(p=>p.type===type).value;return new Date(get('year')+'-'+get('month')+'-'+get('day')+'T00:00:00Z');}
   const link=(text,url,cls)=>{const a=document.createElement('a');a.textContent=text;a.href=url;a.className=cls;a.target='_blank';a.rel='noopener noreferrer sponsored';return a;};
+  const panelState=new Map();
+  let pickerState={};try{pickerState=JSON.parse(sessionStorage.getItem('bag-day-community-order-v1')||'{}')}catch{}
+  const freePicker=new window.BAG_DAY_ADVERT_POLICY.FreePicker(pickerState,state=>{try{sessionStorage.setItem('bag-day-community-order-v1',JSON.stringify(state))}catch{}});
+  function advertLink(entry,index,locality,today){
+    const a=link(entry.displayText,entry.url,'sponsor-link sponsor-slot-'+((index%3)+1));
+    a.dataset.sponsorId=entry.id;a.dataset.advertKind=entry.kind;
+    const label=document.createElement('span');label.className='sponsor-copy';label.textContent=entry.displayText;a.replaceChildren(label);a.setAttribute('aria-label',entry.displayText);
+    if(entry.imageURL){
+      const image=document.createElement('img');image.alt=entry.displayText;image.className='sponsor-banner';
+      const candidates=bannerURLs(entry.imageURL);let candidate=0;
+      image.onerror=()=>{candidate++;if(candidate<candidates.length){image.src=candidates[candidate];return}a.classList.remove('sponsor-link-image');a.replaceChildren(label)};
+      a.classList.add('sponsor-link-image');a.replaceChildren(image);image.src=candidates[0];
+    }
+    const placement=window.WASTE_DATA.localities.find(row=>canonical(row[0])===canonical(locality))?.[0];
+    const params=entry.kind==='paid'?{sponsor_id:entry.id,placement_locality:placement,booking_month:entry.month,booking_year:entry.year,sponsor_slot:entry.position,data_source:sponsorStale?'saved':'live'}:{community_advert_id:entry.advert_id,placement_locality:placement};
+    const currentParams=()=>({...params,advert_kind:entry.kind,advert_format:a.classList.contains('sponsor-link-image')?'image':'text'});
+    const eventPrefix=entry.kind==='paid'?'sponsor':'community';
+    const key=entry.kind==='paid'?['sponsor',entry.id,canonical(locality),entry.year,entry.month,entry.position].join(':'):['community',entry.advert_id,canonical(locality),window.BAG_DAY_ADVERT_POLICY.dayKey(today)].join(':');
+    const trackClick=()=>{const analytics=window.BAG_DAY_ANALYTICS;analytics?.event(eventPrefix+'_click',currentParams());if(analytics?.viewed(key))analytics.once(eventPrefix+'_click_after_view',currentParams(),'click:'+key)};
+    a.addEventListener('click',trackClick);a.addEventListener('auxclick',event=>{if(event.button===1)trackClick()});
+    window.BAG_DAY_ANALYTICS?.observe(a,eventPrefix+'_impression',currentParams,key);return a;
+  }
+  function renderPlacement(panel,entries,mode,locality,today,channel){
+    panel.hidden=!entries.length;
+    const fingerprint=JSON.stringify([canonical(locality),mode,entries,sponsorStale]);
+    const old=panelState.get(panel.id);if(old?.fingerprint===fingerprint)return;
+    old?.controller?.destroy();
+    const state={fingerprint,controller:null};panelState.set(panel.id,state);
+    if(!entries.length){panel.replaceChildren();delete panel.dataset.carouselCount;return}
+    const links=entries.map((entry,i)=>advertLink(entry,i,locality,today));
+    const paidCount=entries.filter(e=>e.kind==='paid').length,freeIds=entries.filter(e=>e.kind==='community').map(e=>e.id);
+    const freeIndex=()=>{const id=freePicker.next(freeIds);return entries.findIndex(e=>e.id===id)};
+    const nextIndex=(index,direction)=>{
+      if(direction<0)return(index-1+entries.length)%entries.length;
+      if(mode==='community')return freeIndex();
+      if(mode==='mixed')return index<paidCount-1?index+1:index===paidCount-1?freeIndex():0;
+      return(index+1)%entries.length;
+    };
+    const key=[canonical(locality),today.getUTCFullYear(),today.getUTCMonth()+1,...links.map(a=>a.dataset.sponsorId)].join('|');
+    state.controller=window.BAG_DAY_SPONSOR_CAROUSEL.mount(panel,links,key,'Sponsored',{
+      channel,startCount:paidCount||entries.length,label:freeIds.length?'advert':'sponsor',nextIndex,
+      ...(mode==='community'?{initialIndex:freeIndex}:{}),
+      onSelect:index=>{if(entries[index].kind==='community')freePicker.seen(entries[index].id)},
+      heading:a=>a.dataset.advertKind==='community'?'Community':sponsorStale?'Sponsored · saved data':'Sponsored'
+    });
+  }
   function render(locality,date){
     last=[locality,date];
     const council=document.getElementById('councilPanel'),panel=document.getElementById('sponsorPanel');
-    if(!panel)return;panel.replaceChildren();
+    if(!panel)return;
     if(council){
     council.replaceChildren();
     const details=councilRows.find(r=>canonical(r.locality||r.council)===canonical(locality));
@@ -71,33 +118,16 @@
     if(actions.childElementCount)council.append(actions);
     window.BAG_DAY_ANALYTICS?.observe(council,'council_impression',councilParams,'council:'+(placement||'generic'));
     }
-    const active=bookings(slotRows,locality,date,sponsorRows);panel.hidden=!active.length;
-    if(active.length){
-      const heading=document.createElement('div');heading.className='sponsor-heading';heading.textContent=sponsorStale?'Sponsored · saved data':'Sponsored';panel.append(heading);
-      active.forEach((r,index)=>{
-        const advert=r.advert;
-        const a=link(advert.displaytext,safeURL(advert.url),'sponsor-link sponsor-slot-'+((index%3)+1));
-        const label=document.createElement('span');label.className='sponsor-copy';label.textContent=advert.displaytext;a.replaceChildren(label);a.setAttribute('aria-label',advert.displaytext);
-        const imageURL=safeURL(advert.imageurl);
-        if(imageURL){
-          const image=document.createElement('img');
-          image.alt=advert.displaytext;image.className='sponsor-banner';
-          a.setAttribute('aria-label',advert.displaytext);
-          const candidates=bannerURLs(imageURL);let candidate=0;
-          image.onerror=()=>{candidate++;if(candidate<candidates.length){image.src=candidates[candidate];return;}a.classList.remove('sponsor-link-image');a.replaceChildren(label);};
-          a.classList.add('sponsor-link-image');a.replaceChildren(image);image.src=candidates[0];
-        }
-        const analyticsParams={sponsor_id:String(r.sponsorid).trim().toUpperCase(),placement_locality:window.WASTE_DATA.localities.find(row=>canonical(row[0])===canonical(r.locality))?.[0],booking_month:Number(r.month),booking_year:Number(r.year),sponsor_slot:Number(r.slot),advert_format:a.classList.contains('sponsor-link-image')?'image':'text',data_source:sponsorStale?'saved':'live'};
-        const placementKey='sponsor:'+analyticsParams.sponsor_id+':'+canonical(r.locality)+':'+r.year+':'+r.month+':'+r.slot;
-        const currentParams=()=>({...analyticsParams,advert_format:a.classList.contains('sponsor-link-image')?'image':'text'});
-        const trackClick=()=>{const analytics=window.BAG_DAY_ANALYTICS;analytics?.event('sponsor_click',currentParams());if(analytics?.viewed(placementKey))analytics.once('sponsor_click_after_view',currentParams(),'click:'+placementKey)};
-        a.addEventListener('click',trackClick);
-        a.addEventListener('auxclick',event=>{if(event.button===1)trackClick();});
-        panel.append(a);
-        window.BAG_DAY_ANALYTICS?.observe(a,'sponsor_impression',currentParams,placementKey);
-      });
+    const today=sponsorDate(),paid=bookings(slotRows,locality,today,sponsorRows).map(r=>({id:String(r.sponsorid).trim().toUpperCase(),kind:'paid',displayText:r.advert.displaytext,imageURL:safeURL(r.advert.imageurl),url:safeURL(r.advert.url),month:Number(r.month),year:Number(r.year),position:Number(r.slot)}));
+    const snapshot=window.BAG_DAY_COMMUNITY.snapshot(),community=snapshot.adverts.map(a=>({...a,id:'COMMUNITY_'+a.advert_id,kind:'community',displayText:a.display_text,imageURL:safeURL(a.banner_url),url:safeURL(a.destination_url)}));
+    const dashboard=document.getElementById('dashboard'),plan=window.BAG_DAY_ADVERT_POLICY.plan(paid,community,snapshot.capacity,!!dashboard,new Date());
+    renderPlacement(panel,plan.primary.entries,plan.primary.mode,locality,today,'primary');
+    if(dashboard){
+      let upper=document.getElementById('communityPanel');
+      if(!upper){upper=document.createElement('section');upper.id='communityPanel';upper.className='sponsor-panel';upper.hidden=true;upper.setAttribute('aria-label','Community');panel.before(upper)}
+      renderPlacement(upper,plan.community,'community',locality,today,'community');
+      dashboard.dataset.sponsorCount=paid.length||Number(!!plan.primary.entries.length||!!plan.community.length);
     }
-    const dashboard=document.getElementById('dashboard');if(dashboard)dashboard.dataset.sponsorCount=active.length;
   }
   async function load(file){try{if(location.protocol==='file:'){return parseCSV(window.BAG_DAY_LOCAL_FILES?.[file]??'');}const r=await fetch(new URL(file,siteRoot),{cache:'no-cache'});if(!r.ok)throw new Error(r.status);return parseCSV(await r.text());}catch(e){console.warn('Bag Day could not load '+file,e);return [];}}
   const EXPORT_BASE='https://bagday-sponsor-export.davvel.workers.dev';
@@ -140,10 +170,13 @@
     return refreshPromise;
   }
   window.BAG_DAY_SPONSORS={render,parseCSV,bookings,safeURL,bannerURLs,refresh,status:()=>({source:'Cloudflare',version:publicationVersion,saved_data:sponsorStale,last_error:lastExportError})};
+  window.addEventListener('bag-day-community-ready',()=>{if(last)render(...last);window.dispatchEvent(new Event('bag-day-sponsors-ready'))});
+  function midnight(){setTimeout(()=>{notify();midnight()},Math.max(1,window.BAG_DAY_ADVERT_POLICY.nextMidnight()-Date.now()+1))}midnight();
   // Council data remains in the existing GitHub-hosted file.
   load('data/councils.csv').then(c=>{councilRows=c;notify();});
   readSavedPair();notify();refresh();
   window.addEventListener('online',()=>refresh());
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh();});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){refresh();notify()}});
   setInterval(()=>{if(document.visibilityState==='visible')refresh();},REFRESH_INTERVAL_MS);
+  setInterval(()=>{if(document.visibilityState==='visible'&&last)render(...last);},60000);
 })();

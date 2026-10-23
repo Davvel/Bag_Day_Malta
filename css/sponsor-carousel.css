@@ -1,0 +1,22 @@
+/* Shared, fixed-height sponsor carousel. Keep after each screen's base styles. */
+:is(#sponsorPanel,#communityPanel).sponsor-panel{display:flex;flex-direction:column;gap:2px;min-width:0;min-height:0}
+.sponsor-carousel-header{display:flex;align-items:center;justify-content:space-between;gap:8px;height:24px;flex:none}
+:is(#sponsorPanel,#communityPanel) .sponsor-heading{font-size:10px;line-height:1.2;padding:0;margin:0;min-width:0}
+.sponsor-controls{display:flex;align-items:center;gap:0;flex:none}
+:is(#sponsorPanel,#communityPanel) .sponsor-dot,:is(#sponsorPanel,#communityPanel) .sponsor-rotation-toggle{display:grid;place-items:center;width:24px;height:24px;min-width:24px;min-height:24px;padding:0;margin:0;border:0;border-radius:6px;background:transparent;color:inherit;box-shadow:none;font:700 12px/1 system-ui;cursor:pointer;touch-action:manipulation}
+:is(#sponsorPanel,#communityPanel) .sponsor-dot::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.35}
+:is(#sponsorPanel,#communityPanel) .sponsor-dot[aria-pressed=true]::before{opacity:1;width:7px;height:7px}
+:is(#sponsorPanel,#communityPanel) .sponsor-dot:hover,:is(#sponsorPanel,#communityPanel) .sponsor-rotation-toggle:hover{background:#7c9ca522}
+:is(#sponsorPanel,#communityPanel) button:focus-visible,:is(#sponsorPanel,#communityPanel) a:focus-visible{outline:2px solid #68b5ff;outline-offset:-2px}
+.sponsor-viewport{position:relative;overflow:hidden;isolation:isolate;width:100%;height:44px;min-height:44px;flex:none;border-radius:9px;touch-action:pan-y}
+.sponsor-slide{position:absolute;inset:0;width:100%;height:44px;min-width:0}
+:is(#sponsorPanel,#communityPanel) .sponsor-slide .sponsor-link{display:flex;align-items:center;width:100%;height:44px;min-height:44px;max-height:44px;padding:4px 11px;margin:0;border-radius:9px;font-size:14px;line-height:1.15;overflow:hidden;box-sizing:border-box}
+:is(#sponsorPanel,#communityPanel) .sponsor-slide .sponsor-link.sponsor-link-image{display:block;padding:0;aspect-ratio:auto}
+:is(#sponsorPanel,#communityPanel) .sponsor-slide .sponsor-banner{display:block;width:100%;height:100%;object-fit:fill;border-radius:9px}
+:is(#sponsorPanel,#communityPanel) .sponsor-copy{min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.sponsor-status{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;pointer-events:none}
+.sponsor-slide[hidden],:is(#sponsorPanel,#communityPanel) .sponsor-controls[hidden]{display:none!important}
+
+:is(#sponsorPanel,#communityPanel) .sponsor-step{display:grid;place-items:center;width:24px;height:24px;min-height:24px;min-width:24px;padding:0;border:0;border-radius:6px;background:transparent;color:inherit;font:600 22px/1 system-ui;box-shadow:none}
+.sponsor-position{min-width:36px;text-align:center;font:600 10px/1 system-ui;font-variant-numeric:tabular-nums}
+#communityPanel{margin-top:8px}

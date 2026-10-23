@@ -1,11 +1,11 @@
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.20';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.20';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.20';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.20';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.22';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.22';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.22';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.22';
 import {request,esc} from './client.mjs';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.20';
-import {titleIcons} from './title-icons.mjs?v=1.1.20';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.20';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.22';
+import {titleIcons} from './title-icons.mjs?v=1.1.22';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.22';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='';
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
@@ -260,7 +260,7 @@ async function start(){try{
  if(location.hash==='#mine'||location.hash==='#join')await needLogin(mine);
  }catch(e){content.innerHTML='<div class="empty"><h3>REUSE is taking a moment.</h3><p>We couldn’t connect. Please try again shortly.</p><button id="retry">Try again</button></div>';$('#retry').onclick=start;message(e.message)}}
 const sponsorDock=$('#sponsorDock'),sponsorPanel=$('#sponsorPanel');
-function sizeDock(){sponsorDock.hidden=sponsorPanel.hidden;document.documentElement.style.setProperty('--reuse-sponsor-count',String(Math.max(1,sponsorPanel.querySelectorAll('.sponsor-link').length)));document.documentElement.style.setProperty('--sponsor-dock-height',sponsorDock.hidden?'0px':sponsorDock.getBoundingClientRect().height+'px')}
+function sizeDock(){sponsorDock.hidden=sponsorPanel.hidden;document.documentElement.style.setProperty('--sponsor-dock-height',sponsorDock.hidden?'0px':sponsorDock.getBoundingClientRect().height+'px')}
 new MutationObserver(sizeDock).observe(sponsorPanel,{attributes:true,attributeFilter:['hidden'],childList:true});
 if(window.ResizeObserver)new ResizeObserver(sizeDock).observe(sponsorDock);
 window.addEventListener('bag-day-sponsors-ready',sizeDock);window.addEventListener('resize',sizeDock);

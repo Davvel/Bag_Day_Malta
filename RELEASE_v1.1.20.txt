@@ -1,4 +1,4 @@
-Bag Day Malta frontend v1.1.20 - package 35
+Bag Day Malta frontend v1.1.22 - package 35
 Item details opens by default and remains collapsible.
 Compact optional dropdowns plus expandable Colour/Material multi-selection rows.
 Collapsed summary; existing saved values and all AI controls retained.
