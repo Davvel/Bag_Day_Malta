@@ -19,46 +19,15 @@
   window.addEventListener('pageshow',applyAppearance);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)applyAppearance();});
   applyAppearance();
-  // Persist the first two application openings across sessions.
+  // Each fresh Home opening waits for the core artwork, then fades in.
   const splash = $('splashScreen');
   const appContent = $('appContent');
-  let splashSeen = true;
-  try {
-    const opens = Math.max(0, Number(localStorage.getItem('bag-day-open-count-v1')) || 0);
-    splashSeen = opens >= 2;
-    localStorage.setItem('bag-day-open-count-v1', String(Math.min(3, opens + 1)));
-  } catch (_) {}
-  let splashTimer;
-  let splashFadeTimer;
-  let splashFading = false;
+  appContent.inert = true;
   function finishSplash() {
-    clearTimeout(splashTimer);
-    clearTimeout(splashFadeTimer);
     splash.hidden = true;
-    
     appContent.inert = false;
     if(welcomeNeeded){openWelcome();return;}
-    if (document.activeElement === splash) {
-      const target = !$('settingsOverlay').hidden ? $('homeLocalitySelect') : $('settingsButton');
-      target.focus({preventScroll:true});
-    }
-  }
-  function fadeSplash() {
-    if (splash.hidden || splashFading) return;
-    splashFading = true;
-    splash.classList.add('splash-leaving');
-    splashFadeTimer = setTimeout(finishSplash, 600);
-  }
-  splash.addEventListener('pointerdown', e => { e.preventDefault(); finishSplash(); });
-  splash.addEventListener('click', finishSplash);
-  splash.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { e.preventDefault(); finishSplash(); }
-  });
-  if (!splashSeen) {
-    splash.hidden = false;
-    appContent.inert = true;
-    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    splashTimer = setTimeout(reducedMotion ? finishSplash : fadeSplash, reducedMotion ? 6000 : 5400);
+    queueSupportInvitation();
   }
 
   const localityKey = 'bag-day-locality-v1';
@@ -323,9 +292,10 @@
   };
   const shownDate = () => { const date=maltaToday();date.setUTCDate(date.getUTCDate()+dayOffset);return date; };
   const formatTime = time => {const [h,m]=time.split(':').map(Number);return `${String((h+20)%24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;};
-  const bagSvg = type => `<img src="icons/bag-${type}-real.png" alt="${t()[type]} bag with a large waste sorting symbol">`;
+  const artworkURL = (path,fallback) => window.BAG_DAY_STARTUP?.imageURL(path,fallback) || path;
+  const bagSvg = type => `<img src="${artworkURL(`icons/bag-${type}-real.webp`,`icons/bag-${type}.svg`)}" decoding="async" alt="${t()[type]} bag with a large waste sorting symbol">`;
   const displayClock = time => {const [h,m]=time.split(':').map(Number);return `<span class="clock-value">${String(h%12||12).padStart(2,'0')}:${String(m).padStart(2,'0')} <small>${h<12?'AM':'PM'}</small></span>`;};
-  const bagButton = (type, label) => `<button type="button" class="bag-figure bag-button" data-waste-type="${type}" aria-label="What goes in ${label.toLowerCase()}?" aria-haspopup="dialog" aria-controls="wasteOverlay">${type==='glass'?'<img src="icons/glass-real.png" alt="Empty glass bottles in a reusable collection container">':bagSvg(type)}<span class="tap-hand" aria-hidden="true"><svg viewBox="0 0 40 48"><path d="M14 26V8a4 4 0 0 1 8 0v13c1-4 7-4 8 0 3-3 8-1 8 3v10c0 7-5 12-12 12h-3c-5 0-8-2-11-6L4 29c-3-5 3-9 7-5l3 2Z" fill="#fff" stroke="#123453" stroke-width="2.5" stroke-linejoin="round"/></svg></span></button>`;
+  const bagButton = (type, label) => `<button type="button" class="bag-figure bag-button" data-waste-type="${type}" aria-label="What goes in ${label.toLowerCase()}?" aria-haspopup="dialog" aria-controls="wasteOverlay">${type==='glass'?`<img src="${artworkURL('icons/glass-real.webp','icons/glass-carrier.svg')}" decoding="async" alt="Empty glass bottles in a reusable collection container">`:bagSvg(type)}<span class="tap-hand" aria-hidden="true"><svg viewBox="0 0 40 48"><path d="M14 26V8a4 4 0 0 1 8 0v13c1-4 7-4 8 0 3-3 8-1 8 3v10c0 7-5 12-12 12h-3c-5 0-8-2-11-6L4 29c-3-5 3-9 7-5l3 2Z" fill="#fff" stroke="#123453" stroke-width="2.5" stroke-linejoin="round"/></svg></span></button>`;
 
   let wasteReturnFocus = null;
   let wastePreviousOverflow = '';
@@ -1098,6 +1068,11 @@
   loadAnalytics();
   if(welcomeNeeded){if(splash.hidden)openWelcome();}
   else detectLocation();
+  if(window.BAG_DAY_STARTUP){
+    window.BAG_DAY_STARTUP.reveal({beforeReveal:render,onComplete:finishSplash}).catch(()=>{});
+  }else{
+    document.body.classList.remove('app-loading');finishSplash();
+  }
   if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
   // Hardware Back uses the same close routines as each panel's own controls.
   for(const [id,close] of [['settingsOverlay',closeSettings],['supportOverlay',closeSupport],['wasteOverlay',closeWasteGuide],['timeOverlay',closeTimeInfo],['calendarOverlay',closeCalendar],['localityOverlay',closeLocalityPicker]]){

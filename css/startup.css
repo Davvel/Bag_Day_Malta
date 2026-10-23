@@ -1,0 +1,10 @@
+/* The loading cover is present in the initial HTML, before app.js runs. */
+.startup-screen{border:0;box-shadow:none;cursor:default;transition:opacity .4s ease;touch-action:none}
+.startup-screen.splash-leaving{transform:none;filter:none}
+.startup-screen .splash-content{gap:10px;animation:none}
+.startup-brand{font-size:clamp(2rem,9vw,3rem);font-weight:800;letter-spacing:-.045em;line-height:1.15}
+.startup-maker{font-size:1.05rem;font-weight:600;color:#d3e5f2}
+.startup-screen .splash-version{margin-top:4px;font-size:.8rem;color:#b4d7eb}
+#appContent{opacity:1;transition:opacity .4s ease}
+body.app-loading #appContent{opacity:0;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.startup-screen,#appContent{transition:none}}

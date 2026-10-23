@@ -1,11 +1,11 @@
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.23';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.23';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.23';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.23';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.25';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.25';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.25';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.25';
 import {request,esc} from './client.mjs';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.23';
-import {titleIcons} from './title-icons.mjs?v=1.1.23';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.23';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.25';
+import {titleIcons} from './title-icons.mjs?v=1.1.25';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.25';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='';
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
