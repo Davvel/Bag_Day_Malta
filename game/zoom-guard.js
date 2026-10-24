@@ -49,7 +49,7 @@
   // Allow the new page's viewport to settle before deciding whether help is needed.
   setTimeout(()=>{
    if(!intent||intent.token!==token||Date.now()-intent.created>30000){if(magnified())fallback();return;}
-   if(magnified())fallback();else start(intent.next,intent.isPractice===true);
+   if(magnified())fallback();else start(intent.next,intent.isPractice===true,intent.retryPlan||null);
   },350);
  }
  window.BAG_DAY_GAME_ZOOM={guard,restore};

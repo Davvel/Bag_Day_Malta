@@ -185,17 +185,18 @@
  byId('orientationResume').onclick=()=>{
   if(landscape())return;
   const intent=orientationIntent;orientationIntent=null;closeOrientation();
-  if(intent)startRound(intent.next,intent.isPractice);else resume();
+  if(intent)startRound(intent.next,intent.isPractice,intent.retryPlan);else resume();
  };
  byId('orientationMenu').onclick=()=>{orientationIntent=null;closeOrientation();renderMenu();};
  window.matchMedia('(orientation: landscape)').addEventListener('change',checkOrientation);
  const lessonPanel=byId('lessonPanel');
- function startRound(next=Number(byId('levelChoice').value),isPractice=false){
+ function startRound(next=Number(byId('levelChoice').value),isPractice=false,retryPlan=null){
   if(preparing||lessonPanel.open)return;
   window.BAG_DAY_GAME_LAYOUT?.sync();
-  if(landscape()){showOrientation({next,isPractice});return;}
+  if(landscape()){showOrientation({next,isPractice,retryPlan});return;}
   next=Math.max(1,Math.min(unlocked,Number(next)||1));
-  if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice}))return;
+  if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice,retryPlan}))return;
+  if(retryPlan){prepareRound(next,isPractice,retryPlan.lesson,retryPlan);return;}
   const lesson=content.chooseLesson(next);
   if(!lesson){prepareRound(next,isPractice,null);return;}
   const previewPlan=content.plan(next,lesson);
@@ -226,7 +227,7 @@
  }
  async function prepareRound(next,isPractice,lesson,previewPlan=null){
   if(preparing)return;
-  if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice}))return;
+  if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice,retryPlan:previewPlan}))return;
   preparing=true;const serial=++prepareSerial,plan=previewPlan||content.plan(next,lesson);
   byId('startGame').disabled=true;byId('startGame').textContent='Getting pictures ready…';
   byId('tryLesson').disabled=true;byId('lessonStatus').textContent='Getting pictures ready…';
@@ -239,7 +240,7 @@
    else window.BAG_INFO.open('Pictures could not load','<p>Please check your connection and press Play again.</p>');
    return;
   }
-  if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice}))return;
+  if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice,retryPlan:previewPlan}))return;
   pendingRound=null;if(lessonPanel.open)lessonPanel.close();
   round=plan;beginRound(next,isPractice);
  }
@@ -266,9 +267,23 @@
   if(!practice && elapsed>=60)window.SORTING_STATS.complete({level,hits,passed});
   if(passed){unlocked=Math.max(unlocked,Math.min(100,level+1));storage.write(unlocked);}
   if(passed){celebrate(accuracy);return;}
-  byId('resultsTitle').textContent='Try again?';byId('resultSummary').textContent=`${hits} correct · ${misses} wrong · ${accuracy}% accuracy` ;
-  const review=byId('reviewList');review.replaceChildren();const heading=document.createElement('h2');heading.textContent='Items in this level';review.append(heading);
-  for(const info of round.pool){const row=document.createElement('div');row.className='review-item';const img=document.createElement('img');img.src=content.artURL(info.id);img.alt='';const text=document.createElement('div'),name=document.createElement('strong'),help=document.createElement('p');name.textContent=`${info.name} → ${columnName(content.laneFor(info,round.columns))}`;help.textContent=info.why;text.append(name,help);row.append(img,text);review.append(row);}
+  const result=content.outcome(hits,misses);
+  byId('resultsTitle').textContent=`Level ${level}`;
+  byId('resultMessage').textContent=result.message;
+  byId('resultAccuracy').textContent=`${result.accuracy}% accuracy`;
+  byId('resultProgress').value=result.percent;
+  byId('resultTarget').textContent=total?`${hits} of ${total} correct · needed ${result.required} of ${total}`:'Sort at least one item, with 80% accuracy, to pass.';
+  byId('resultSummary').textContent=`${hits} correct · ${misses} wrong`;
+  byId('replayLevel').textContent=`Try Level ${level} Again`;
+  const review=byId('reviewList');review.replaceChildren();
+  function addReview(title,entries){
+   const section=document.createElement('details'),heading=document.createElement('summary');heading.textContent=title;section.append(heading);
+   for(const info of entries){const row=document.createElement('div');row.className='review-item';const img=document.createElement('img');img.src=content.artURL(info.id);img.alt='';img.loading='lazy';const text=document.createElement('div'),name=document.createElement('strong'),help=document.createElement('p');name.textContent=`${info.name} → ${columnName(content.laneFor(info,round.columns))}`;help.textContent=info.why;text.append(name,help);row.append(img,text);section.append(row);}
+   review.append(section);
+  }
+  if(mistakes.size)addReview(`Review mistakes (${misses} ${misses===1?'answer':'answers'} · ${mistakes.size} ${mistakes.size===1?'item':'items'})`,mistakes.values());
+  addReview(`All items in this level (${round.pool.length})`,round.pool);
+  byId('gameResults').scrollTop=0;
   showOnly('gameResults');byId('gameResults').focus({preventScroll:true});
  }
  function explainRoute(route){
@@ -297,7 +312,7 @@
  byId('startGame').onclick=()=>startRound();
  byId('pauseGame').onclick=pause;byId('resumeGame').onclick=resume;byId('closePause').onclick=resume;
  byId('playNextLevel').onclick=()=>startRound(level+1,false);byId('exitWin').onclick=()=>{renderMenu();byId('startGame').focus();};
- byId('replayLevel').onclick=()=>startRound(level,false);
+ byId('replayLevel').onclick=()=>startRound(level,false,round);
  // Only interaction with falling objects resets the two-second help delay.
  function recordObjectInteraction(){lastInput=performance.now();hideHint();}
  document.addEventListener('pointerdown',event=>{

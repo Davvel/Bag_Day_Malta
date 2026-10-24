@@ -45,6 +45,15 @@
  const accepts=(item,route)=>item.routes.includes(route);
  const laneFor=(item,columns)=>columns.findIndex(route=>accepts(item,route));
  function deck(pool,lastId=null,random=Math.random){const a=shuffle(pool,random);const special=a.findIndex(item=>item.bag===null);if(special>=0&&special<a.length-6){const early=Math.max(0,a.length-3);[a[special],a[early]]=[a[early],a[special]];}if(a.length>1&&a[a.length-1].id===lastId)[a[0],a[a.length-1]]=[a[a.length-1],a[0]];return a;}
- const artURL=id=>`assets/items/${id}.webp?v=1.1.41`;
- window.SORTING_CONTENT={artURL,destinations,lessons,chooseLesson,specialGuides,classic,plan,accepts,laneFor,deck};
+ // Same denominator as the finished round: how many wrong answers needed to be right.
+ function outcome(hits,misses){
+  const total=hits+misses,percent=total?hits/total*100:0,required=Math.ceil(total*4/5),shortfall=Math.max(0,required-hits);
+  const passed=total>0&&hits*5>=total*4;
+  const accuracy=passed?Math.round(percent):Math.floor(percent*10)/10;
+  const gap=shortfall===1?'1 fewer mistake':`${shortfall} fewer mistakes`;
+  const message=!total?'A fresh start is waiting. Try sorting a few items this time.':passed?'Level complete!':percent>=70?`So close! ${gap} would have passed this round.`:percent>=50?`You are getting there. ${gap} would have passed this round.`:`This level needs a little more practice. ${gap} would have passed this round.`;
+  return {total,percent,accuracy,required,shortfall,passed,message};
+ }
+ const artURL=id=>`assets/items/${id}.webp?v=1.1.42`;
+ window.SORTING_CONTENT={outcome,artURL,destinations,lessons,chooseLesson,specialGuides,classic,plan,accepts,laneFor,deck};
 })();
