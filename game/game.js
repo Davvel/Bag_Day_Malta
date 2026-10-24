@@ -64,7 +64,7 @@
  function closeGame(){prepareSerial++;preparing=false;pendingRound=null;abandon();cancelAnimationFrame(raf);mode='closed';hideHint();if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-close'},location.protocol==='file:'?'*':location.origin);else if(new URLSearchParams(location.search).get('from')==='home'&&history.length>1)history.back();else location.replace('../');}
  function fillDeck(){deck=content.deck(round.pool,lastSpawnId);}
  const columnName=lane=>content.destinations[round.columns[lane]].name;
- function displayColumns(){bags.forEach((bag,index)=>{const d=content.destinations[round.columns[index]];bag.querySelector('img').src=d.image;bag.querySelector('strong').textContent=d.name;bag.querySelector('.destination-detail').textContent=d.detail;bag.setAttribute('aria-label','About '+d.name);bag.classList.toggle('special-receptacle',!content.classic.includes(d.id));});}
+ function displayColumns(){bags.forEach((bag,index)=>{const d=content.destinations[round.columns[index]];bag.querySelector('img').src=d.image;bag.querySelector('strong').textContent=d.name;bag.querySelector('.destination-detail').textContent=d.detail;bag.setAttribute('aria-label','About '+d.name);});}
  function selectItem(item){
   if(mode!=='running'||!items.includes(item))return;selected=item;lastInput=performance.now();hideHint();
   for(const entry of items)entry.node.classList.toggle('selected',entry===item);
@@ -160,7 +160,7 @@
   const remaining=Math.max(0,60-elapsed),seconds=Math.ceil(remaining),face=byId('timerFace'),label=byId('timeLeft');
   label.textContent=practice?'∞':String(seconds);
   label.setAttribute('aria-label',practice?'Practice: no time limit':`${seconds} seconds remaining`);
-  face.style.setProperty('--hand-angle',`${practice?0:(60-remaining)*6}deg`);
+  face.style.setProperty('--elapsed-angle',`${practice?0:(60-remaining)*6}deg`);
   face.classList.toggle('urgent',!practice&&remaining>0&&remaining<=5);
  }
  const orientationPanel=byId('orientationPanel');
@@ -192,6 +192,7 @@
  const lessonPanel=byId('lessonPanel');
  function startRound(next=Number(byId('levelChoice').value),isPractice=false){
   if(preparing||lessonPanel.open)return;
+  window.BAG_DAY_GAME_LAYOUT?.sync();
   if(landscape()){showOrientation({next,isPractice});return;}
   next=Math.max(1,Math.min(unlocked,Number(next)||1));
   if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice}))return;
@@ -210,7 +211,7 @@
    button.append(image,name);button.onclick=()=>explainRoute(route);return button;
   }));
   byId('lessonSource').href=lesson.link;byId('lessonSource').textContent=lesson.route==='battery'?'Find a battery collection point ↗':lesson.route==='roadshow'?'Check the Roadshow schedule ↗':'Official bulky collection information ↗';byId('lessonStatus').textContent='';
-  byId('tryLesson').disabled=false;byId('classicLesson').disabled=false;
+  byId('tryLesson').disabled=false;
   lessonPanel.showModal();window.BAG_DAY_BACK?.sync();byId('tryLesson').focus({preventScroll:true});
  }
  function preloadRound(plan){
@@ -228,12 +229,12 @@
   if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice}))return;
   preparing=true;const serial=++prepareSerial,plan=previewPlan||content.plan(next,lesson);
   byId('startGame').disabled=true;byId('startGame').textContent='Getting pictures ready…';
-  byId('tryLesson').disabled=true;byId('classicLesson').disabled=true;byId('lessonStatus').textContent='Getting pictures ready…';
+  byId('tryLesson').disabled=true;byId('lessonStatus').textContent='Getting pictures ready…';
   const loaded=await preloadRound(plan);
   if(serial!==prepareSerial)return;
   preparing=false;byId('startGame').disabled=false;byId('startGame').textContent='Play ▶';
   if(loaded.some(ok=>!ok)){
-   byId('tryLesson').disabled=false;byId('classicLesson').disabled=false;
+   byId('tryLesson').disabled=false;
    if(lessonPanel.open)byId('lessonStatus').textContent='Some pictures could not load. Please try again.';
    else window.BAG_INFO.open('Pictures could not load','<p>Please check your connection and press Play again.</p>');
    return;
@@ -243,11 +244,11 @@
   round=plan;beginRound(next,isPractice);
  }
  byId('tryLesson').onclick=()=>{if(pendingRound)prepareRound(pendingRound.next,pendingRound.isPractice,pendingRound.lesson,pendingRound.plan);};
- byId('classicLesson').onclick=()=>{if(pendingRound)prepareRound(pendingRound.next,pendingRound.isPractice,null);};
- window.addEventListener('pagehide',()=>{if(preparing){prepareSerial++;preparing=false;byId('startGame').disabled=false;byId('startGame').textContent='Play ▶';byId('tryLesson').disabled=false;byId('classicLesson').disabled=false;byId('lessonStatus').textContent='';}});
+ window.addEventListener('pagehide',()=>{if(preparing){prepareSerial++;preparing=false;byId('startGame').disabled=false;byId('startGame').textContent='Play ▶';byId('tryLesson').disabled=false;byId('lessonStatus').textContent='';}});
  byId('closeLesson').onclick=()=>lessonPanel.close();
  lessonPanel.addEventListener('close',()=>{if(pendingRound){prepareSerial++;preparing=false;pendingRound=null;byId('startGame').disabled=false;byId('startGame').textContent='Play ▶';}window.BAG_DAY_BACK?.sync();});
  function beginRound(next,isPractice=false){
+  window.BAG_DAY_GAME_LAYOUT?.sync();
   byId('winPanel').hidden=true;byId('gamePlay').inert=false;notifyWin();
   abandon();level=Math.max(1,Math.min(unlocked,Number(next)||1));rememberLevel(level);practice=isPractice;measure('game_round_start',{level,mode:practice?'practice':'timed'});elapsed=0;hits=0;misses=0;items=[];mistakes=new Map();deck=[];nextSpawn=0;selected=null;drag=null;lastSpawnId=null;displayColumns();
   itemsLayer.replaceChildren();byId('pausePanel').hidden=true;byId('feedback').classList.remove('shown');bags.forEach(bag=>bag.classList.remove('target','good','bad'));hideHint();
@@ -280,12 +281,12 @@
   if(content.classic.includes(route)){measure('game_guide_open',{bag_type:route});window.BAG_INFO.bag(route,onClose);return;}
   const guide=content.specialGuides[route],link=content.lessons.find(l=>l.route===route).link;
   const list=guide.groups.map(([heading,entries])=>'<h3>'+heading+'</h3><ul>'+entries.map(text=>'<li>'+text+'</li>').join('')+'</ul>').join('');
-  window.BAG_INFO.open(content.destinations[route].name,list+'<p>'+guide.note+'</p><p>In this round, use the special receptacle for the lesson items. Sort everyday waste into the two bags shown.</p><p><a target="_blank" rel="noopener noreferrer" href="'+link+'">Official disposal information ↗</a></p>',onClose);
+  window.BAG_INFO.open(content.destinations[route].name,list+'<p>'+guide.note+'</p>'+(lessonPanel.open||mode!=='menu'?'<p>In this round, use the special receptacle for the lesson items. Sort everyday waste into the two bags shown.</p>':'')+'<p><a target="_blank" rel="noopener noreferrer" href="'+link+'">Official disposal information ↗</a></p>',onClose);
  }
- function explainBag(index,menu=false){explainRoute(menu?content.classic[index]:round.columns[index]);}
+ function explainBag(index){explainRoute(round.columns[index]);}
 
  bags.forEach((bag,index)=>{const detail=document.createElement('small');detail.className='destination-detail';bag.append(detail);bag.onclick=()=>{if(selected&&mode==='running'){selected.lane=index;accept(selected);}else explainBag(index);};bag.setAttribute('aria-label','What belongs in '+bagNames[index]+'?');});
- document.querySelectorAll('.menu-bags>div').forEach((node,index)=>{node.tabIndex=0;node.setAttribute('role','button');node.setAttribute('aria-label','What belongs in '+bagNames[index]+'?');node.onclick=()=>explainBag(index,true);node.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();node.click();}};});
+ document.querySelectorAll('.menu-bags button[data-route]').forEach(node=>{node.onclick=()=>explainRoute(node.dataset.route);});
  document.querySelectorAll('.record').forEach(node=>{node.tabIndex=0;node.setAttribute('role','button');node.onclick=()=>{const stats=window.SORTING_STATS.snapshot();if(node.classList.contains('level-record'))window.BAG_INFO.open('Highest level achieved',`<p>Your highest successfully completed level is <strong>${stats.highestLevel}</strong>.</p><p>Selecting or starting a level does not count; you must pass the round.</p>`);else if(node.classList.contains('score-record'))window.BAG_INFO.open('Most correct in one round',`<p>Your best completed round had <strong>${stats.bestRound} correctly sorted items</strong>.</p><p>This is your largest correct-item count in a single round, rather than a percentage or a lifetime total.</p>`);else window.BAG_INFO.streak(stats,true);};node.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();node.click();}};});
  let wakeLock=null,wakePending=false;
  async function syncWake(){if(mode!=='running'||document.hidden){if(wakeLock){const old=wakeLock;wakeLock=null;await old.release().catch(()=>{});}return;}if(wakeLock||wakePending||!navigator.wakeLock)return;wakePending=true;try{const lock=await navigator.wakeLock.request('screen');if(mode!=='running'||document.hidden)await lock.release();else{wakeLock=lock;lock.addEventListener('release',()=>{if(wakeLock===lock)wakeLock=null;});}}catch(_){}finally{wakePending=false;}}
@@ -310,6 +311,7 @@
  document.addEventListener('visibilitychange',()=>{if(document.hidden){activePointers.clear();if(mode==='info'){window.BAG_INFO.close();}pause();}});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();if(mode==='running')pause();else if(mode==='paused')resume();else if(mode==='won')renderMenu();}if(mode==='won'&&event.key==='Tab'){const controls=[byId('playNextLevel'),byId('exitWin')].filter(n=>!n.hidden);if(event.shiftKey&&document.activeElement===controls[0]){event.preventDefault();controls.at(-1).focus();}else if(!event.shiftKey&&document.activeElement===controls.at(-1)){event.preventDefault();controls[0].focus();}}if(mode==='paused'&&event.key==='Tab'){const nodes=[byId('closePause'),byId('resumeGame')];if(event.shiftKey&&document.activeElement===nodes[0]){event.preventDefault();nodes.at(-1).focus();}else if(!event.shiftKey&&document.activeElement===nodes.at(-1)){event.preventDefault();nodes[0].focus();}}});
  window.addEventListener('resize',()=>{if(mode==='running')pause();checkOrientation();for(const item of items)position(item);});
+ window.addEventListener('bag-day-game-layout',()=>{for(const item of items)position(item);});
  if('ResizeObserver' in window){
   const record=document.querySelector('.record');
   new ResizeObserver(()=>{const height=record.getBoundingClientRect().height;if(height>0)byId('gameMenu').style.setProperty('--stat-height',`${height}px`);}).observe(record);

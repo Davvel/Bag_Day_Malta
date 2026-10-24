@@ -45,6 +45,6 @@
  const accepts=(item,route)=>item.routes.includes(route);
  const laneFor=(item,columns)=>columns.findIndex(route=>accepts(item,route));
  function deck(pool,lastId=null,random=Math.random){const a=shuffle(pool,random);const special=a.findIndex(item=>item.bag===null);if(special>=0&&special<a.length-6){const early=Math.max(0,a.length-3);[a[special],a[early]]=[a[early],a[special]];}if(a.length>1&&a[a.length-1].id===lastId)[a[0],a[a.length-1]]=[a[a.length-1],a[0]];return a;}
- const artURL=id=>`assets/items/${id}.webp?v=1.1.40`;
+ const artURL=id=>`assets/items/${id}.webp?v=1.1.41`;
  window.SORTING_CONTENT={artURL,destinations,lessons,chooseLesson,specialGuides,classic,plan,accepts,laneFor,deck};
 })();

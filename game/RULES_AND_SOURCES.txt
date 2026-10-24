@@ -1,4 +1,4 @@
-Sorting Game content review - 24 October 2026 - v1.1.40
+Sorting Game content review - 24 October 2026 - v1.1.41
 
 Household bags:
 https://www.wastecollection.mt/
@@ -49,11 +49,11 @@ This is household education, not a commercial waste disposal guide. Recheck
 operator guidance before extending the catalogue or changing accepted routes.
 
 
-ROUND SELECTION (v1.1.40)
+ROUND SELECTION (v1.1.41)
 Levels 1-10: Classic. Level 11+: fresh draw per round, 60% Classic;
 40% shared equally between Battery bin, Roadshow Truck and Bulky collection.
 Within a destination its lessons are selected with equal probability.
-Players offered a special lesson may still choose Play Classic.
+Special introductions have one Play button. The selected mode is not overridden.
 
 SPECIAL RECEPTACLE GUIDES - reviewed 24 October 2026
 Roadshow and bulky acceptance categories checked against the official
@@ -63,5 +63,5 @@ Battery examples remain the household types used in the existing catalogue.
 
 SPECIAL RECEPTACLE ORDER
 Special rounds shuffle all three destinations once when opening the intro.
-Try it reuses this exact plan; it never draws a new order on start or retry.
+Play reuses this exact plan; it never draws a new order when confirming the lesson.
 Classic rounds retain Organic / Mixed / Recyclables order.

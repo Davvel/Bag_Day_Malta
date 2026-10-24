@@ -97,7 +97,7 @@
 #lessonText{font-size:16px;line-height:1.55;color:#f1f5ee}
 #lessonExtra{font-size:13px;line-height:1.5;color:#bed5dd}
 #lessonStatus:empty{display:none}#lessonStatus{font-size:13px;color:#f0cf8e}
-#tryLesson,#classicLesson{display:block;width:100%;margin-top:10px;min-height:48px}
+#tryLesson{display:block;width:100%;margin-top:10px;min-height:48px}
 #lessonSource{display:block;text-align:center;font-size:11px;margin-top:16px;padding:5px}
 @media(max-width:360px){.falling-item{height:116px}.falling-item img{width:62px;height:62px}#lessonPanel{padding:22px 16px}#lessonPanel h2{font-size:21px}}
 @media(max-height:450px) and (min-width:600px){.falling-item{height:90px}.falling-item img{width:46px;height:46px}.destination-detail{font-size:8px}.game-bags img{max-height:48px}}
@@ -113,7 +113,7 @@
 #lessonDetails summary{min-height:36px;display:list-item;align-content:center;color:#b3dbcc}
 #lessonExtra{font-size:12px;line-height:1.45;margin:6px 0 10px}
 .lesson-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-#tryLesson,#classicLesson{margin:0;min-height:48px;padding:10px 6px;font-size:14px}
+#tryLesson{margin:0;min-height:48px;padding:10px 6px;font-size:14px}
 #lessonSource{margin-top:8px;min-height:36px;display:flex;align-items:center;justify-content:center}
 @media(max-height:600px){#lessonPanel{padding:14px 16px}.lesson-picture img{width:56px;height:56px}#lessonPanel h2{font-size:19px;margin-top:10px}#lessonText{font-size:13px}}
 
@@ -138,11 +138,10 @@ html,body{height:100%;min-height:0}
 .timer-face{position:relative;width:60px;height:60px;border:3px solid #86c7c4;border-radius:50%;display:grid;place-items:center;background:repeating-conic-gradient(from -1deg,#bdd3c7 0deg 2deg,transparent 2deg 30deg),#122c3a;box-shadow:inset 0 0 0 4px #122c3a;color:#f5fff8}
 .timer-face::after{content:'';position:absolute;inset:7px;border:1px solid #628887;border-radius:50%;pointer-events:none}
 .scorebar #timeLeft{position:relative;z-index:2;display:grid;place-items:center;width:36px;height:29px;border-radius:9px;background:#122c3ae8;font-size:1.3rem;font-weight:850;line-height:1}
-.clock-hand{position:absolute;left:calc(50% - 1px);bottom:50%;width:2px;height:24px;background:#ffca76;transform-origin:center bottom;transform:rotate(var(--hand-angle,0deg));z-index:1}
 .timer-face.urgent{border-color:#ff787d;color:#ffd9db;box-shadow:0 0 0 2px #e9506033}
 .play-panel.running .timer-face.urgent{animation:clock-drama 1s ease-in-out infinite}
 @keyframes clock-drama{50%{border-color:#ffbdbe;box-shadow:0 0 12px 3px #e9506066}}
-.special-receptacle{border:2px solid #ef777a!important}
+#lessonReceptacles .special-receptacle{border:2px solid #ef777a!important}
 .lesson-receptacles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 4px}
 .receptacle-preview{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:transparent;border:1px solid #587485;border-radius:14px;padding:6px 3px;min-width:0;min-height:0}
 .receptacle-preview img{width:64px;height:64px;object-fit:contain}.receptacle-preview strong{font-size:11px;line-height:1.2}
@@ -153,4 +152,26 @@ html,body{height:100%;min-height:0}
 #orientationPanel h2{margin:0 0 12px;font-size:22px}#orientationPanel button{width:100%;margin-top:10px}
 @media(max-height:670px){.menu-panel{padding-top:54px;padding-bottom:8px}.minute-game-brand>img{height:46px;width:46px}.menu-panel #menuTitle{font-size:23px}.minute-game-brand{margin-bottom:8px}.record{min-height:38px;padding:6px 10px}.game-records{gap:6px}.level-row{margin-top:10px}.menu-panel #startGame{margin-top:8px}.menu-panel .menu-bags{margin-top:8px}.menu-bags img{height:60px}#lessonPanel{padding:12px 16px}.lesson-picture img{height:42px;width:42px}#lessonPanel h2{font-size:18px;margin:8px 0 6px}#lessonText{font-size:12px;margin-bottom:6px}.receptacle-preview img{height:48px;width:48px}}
 @media(max-width:350px){.scorebar{grid-template-columns:.6fr .8fr .8fr 60px auto;gap:3px}.scorebar small{font-size:.65rem}.record small{font-size:.75rem}.record strong{font-size:1.25rem}}
-@media(prefers-reduced-motion:reduce){.clock-hand{display:none}.play-panel.running .timer-face.urgent{animation:none}}
+@media(prefers-reduced-motion:reduce){.play-panel.running .timer-face.urgent{animation:none}}
+
+/* Measure the visible area on entry as well as after rotation/browser-bar changes. */
+html,body{height:var(--game-height,100dvh)}
+.sort-game{height:var(--game-height,100dvh);max-height:var(--game-height,100dvh)}
+.menu-panel .menu-bags{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px;margin-top:12px}
+.menu-bags button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0 2px;background:transparent;border:0;min-height:64px;min-width:0;border-radius:10px;font-weight:650}
+.menu-bags button img{width:100%;height:clamp(44px,calc(var(--game-height,100dvh) * .075),64px);max-width:110px;filter:drop-shadow(0 4px 4px #0004)}
+.menu-bags button span{font-size:11px;line-height:1.15;text-align:center;color:#d5e8ed}
+[data-game-compact=true] .menu-panel{padding-top:54px;padding-bottom:8px}
+[data-game-compact=true] .minute-game-brand{margin-bottom:8px}
+[data-game-compact=true] .minute-game-brand>img{width:46px;height:46px}
+[data-game-compact=true] .menu-panel #menuTitle{font-size:23px}
+[data-game-compact=true] .record{min-height:38px;padding:6px 10px}
+[data-game-compact=true] .record small{font-size:.8rem}
+[data-game-compact=true] .game-records{gap:6px}
+[data-game-compact=true] .level-row{margin-top:10px}
+[data-game-compact=true] .menu-panel #startGame{margin-top:8px}
+[data-game-compact=true] .menu-panel .menu-bags{margin-top:8px;gap:6px}
+[data-game-compact=true] .menu-bags button img{height:42px}
+.lesson-actions{grid-template-columns:1fr}
+.timer-face{background:repeating-conic-gradient(from -1deg,#bdd3c7 0deg 2deg,transparent 2deg 30deg),conic-gradient(from 0deg,#e99a36 0deg var(--elapsed-angle,0deg),#122c3a var(--elapsed-angle,0deg) 360deg)}
+.scorebar #timeLeft{background:transparent;color:#fff;text-shadow:0 1px 3px #071522,1px 0 2px #071522,-1px 0 2px #071522}

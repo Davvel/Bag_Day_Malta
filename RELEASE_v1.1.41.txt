@@ -1,0 +1,75 @@
+BAG DAY MALTA - VISIBLE SCREEN FIT, ORANGE CLOCK AND SIX GUIDES
+Package 56 | Website v1.1.41 | Based on package 55 / v1.1.40
+
+WHAT CHANGED
+1. Initial sizing: Game now measures the actual visible height before the first
+   layout. It checks again as the page settles and after visible viewport,
+   rotation, pageshow and visibility changes. Pressing Play also synchronises
+   height. This addresses the reported fit improving only after rotation.
+   During pinch zoom the established layout height is retained, rather than
+   shrinking the game inside the magnified view. No idle zoom-out is added.
+2. Clock: an orange pie sector grows clockwise from the top, using elapsed
+   time: empty at 60 seconds, half at 30 and fully orange at zero. The numeric
+   countdown stays above it. The old moving hand is removed. Final 5 seconds
+   keep the gentle pulse; reduced-motion users keep a steady red highlight.
+3. Special red border: shown only around the special receptacle in the tutorial
+   modal. Game receptacles use their normal borders. Existing correct/wrong
+   feedback still works. Preview order and gameplay order stay identical.
+4. Game home: two compact rows show all six actual receptacles, with labels:
+   Organic, Mixed, Recyclables, Battery bin, Roadshow Truck, Bulky collection.
+   Each opens its full existing accepted-items guide with bulleted lists.
+5. Special tutorial: one Play button replaces Try it / Play Classic. It starts
+   the selected special round. Close still returns to the game home.
+
+PRESERVED
+- Levels 1-10 always Classic. Above level 10, each fresh round has a 60% Classic
+  chance; the remaining 40% is divided equally among Battery/Roadshow/Bulky.
+- One-minute rounds, saved progress, current artwork and game scoring.
+- Portrait-only play, pause on rotation, and explicit Resume after returning.
+- Clickable receptacle guides in tutorials and during play.
+- No sponsors in the game area. No changes to Home/REUSE zoom behaviour.
+
+DEPLOY WEBSITE
+1. Extract this ZIP.
+2. Open COPY_TO_GITHUB. Copy everything INSIDE it into the root of your
+   existing Bag Day WEBSITE repository, replacing matching files and merging
+   folders. Do not copy the COPY_TO_GITHUB folder itself.
+3. Keep your existing CNAME, .git folder, live configuration text files and
+   repository configuration. This ZIP contains no CNAME.
+4. In GitHub Desktop use this commit summary:
+   Fix game entry sizing and add orange countdown and six guides - v1.1.41
+5. Click Commit to main, then Push origin. Wait for GitHub Pages to finish.
+6. Open Bag Day online, refresh once, close and reopen it. Confirm Settings
+   shows v1.1.41. Open Game online once so its separate offline cache updates.
+
+BACKEND
+Frontend only. No API deployment, PowerShell commands or SQL required.
+
+VALIDATION
+- JavaScript syntax, release versions and offline asset references checked.
+- Simulated visible viewport updates, delayed startup settling and retaining
+  layout size during pinch passed. This uses controlled viewport values.
+- Real application handlers in a simulated DOM passed for all six home guides,
+  the single tutorial Play, matching preview/play order, guides during play,
+  tutorial-only special border, rotation pause, explicit Resume, countdown
+  fill at 0/180/360 degrees, final-five urgency and timer freeze/completion.
+- 100,000 mode draws again yielded 60.095% Classic and near-equal special shares.
+- These are code and behavioural simulations, not a rendered device test.
+  Native browser execution is blocked in this environment. Confirm the initial
+  fit and orange appearance on the phone using the checks below.
+
+PHONE CHECKS
+1. Close and reopen Bag Day. Enter Game in portrait WITHOUT rotating first.
+   Confirm the game home and all six guide images fit. Tap each guide.
+2. Start a round while still upright. Confirm all receptacles and the bottom
+   hint are visible immediately; there should be no need to rotate to fix it.
+3. On a special introduction, confirm only Play is offered and the red border
+   appears there. After Play, the receptacle order stays the same and the
+   special receptacle has no persistent red border.
+4. Watch the orange fill grow clockwise. At 30 seconds it should be half full.
+   At 5 seconds check the gentle pulse. Pause: time and fill must both stop.
+5. Turn sideways during play; return upright and deliberately press Resume.
+6. Return to the game home and check its six guides still work. Check phone
+   Back and in-app close, and test offline after loading the release online.
+
+This ZIP does not deploy anything to your live website or database.
