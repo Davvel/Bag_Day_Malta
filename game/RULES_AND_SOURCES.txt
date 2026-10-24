@@ -1,4 +1,4 @@
-Sorting Game content review - 24 October 2026 - v1.1.36
+Sorting Game content review - 24 October 2026 - v1.1.37
 
 Household bags:
 https://www.wastecollection.mt/
@@ -13,7 +13,8 @@ https://greenpak.com.mt/AboutBatteriesforHospice
 https://batterybin.mt/
 Use only small household battery examples: AA, AAA, button and 9V. No car
 batteries, damaged battery packs, vapes or electronic devices in this lesson.
-Ask a grown-up to handle and take the batteries to a dedicated collection bin.
+Take household batteries to a dedicated collection bin. Keep button batteries
+out of reach of children.
 WasteServ also lists household batteries for its Roadshow Truck and Civic
 Amenity Sites; the game must not describe a battery bin as the only real route.
 
@@ -42,7 +43,7 @@ Ordinary items are sampled from the two visible bag categories. Item routes
 support more than one accepted visible destination where officially valid.
 The game does not require all waste to have exactly one possible real route.
 No live collection dates, points, telephone numbers or quantity limits are
-hardcoded into the lesson. Official links are provided for grown-ups.
+hardcoded into the lesson. Official links are provided for further information.
 
 This is household education, not a commercial waste disposal guide. Recheck
 operator guidance before extending the catalogue or changing accepted routes.

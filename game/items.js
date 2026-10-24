@@ -825,7 +825,7 @@ window.SORTING_ITEMS=[
       "roadshow"
     ],
     "lesson": "batteries",
-    "why": "Ask a grown-up to take small household batteries to a battery collection bin. WasteServ’s Roadshow Truck and Civic Amenity Sites also accept them."
+    "why": "Take small household batteries to a battery collection bin. WasteServ’s Roadshow Truck and Civic Amenity Sites also accept them."
   },
   {
     "id": "battery-aaa",
@@ -838,7 +838,7 @@ window.SORTING_ITEMS=[
       "roadshow"
     ],
     "lesson": "batteries",
-    "why": "Ask a grown-up to take small household batteries to a battery collection bin. WasteServ’s Roadshow Truck and Civic Amenity Sites also accept them."
+    "why": "Take small household batteries to a battery collection bin. WasteServ’s Roadshow Truck and Civic Amenity Sites also accept them."
   },
   {
     "id": "battery-button",
@@ -851,7 +851,7 @@ window.SORTING_ITEMS=[
       "roadshow"
     ],
     "lesson": "batteries",
-    "why": "Ask a grown-up to handle button batteries and take them to a battery collection bin. They must never go in a waste bag."
+    "why": "Take used button batteries to a battery collection bin. Keep them out of waste bags and out of reach of children."
   },
   {
     "id": "battery-square",
@@ -864,7 +864,7 @@ window.SORTING_ITEMS=[
       "roadshow"
     ],
     "lesson": "batteries",
-    "why": "Ask a grown-up to take small household batteries to a battery collection bin. WasteServ’s Roadshow Truck and Civic Amenity Sites also accept them."
+    "why": "Take small household batteries to a battery collection bin. WasteServ’s Roadshow Truck and Civic Amenity Sites also accept them."
   },
   {
     "id": "oil-jar",
@@ -876,7 +876,7 @@ window.SORTING_ITEMS=[
       "roadshow"
     ],
     "lesson": "oil",
-    "why": "Used cooking oil goes to WasteServ’s Roadshow Truck or a Civic Amenity Site. Ask a grown-up to keep it in a closed container. Do not pour it down the drain."
+    "why": "Take used cooking oil in a closed container to WasteServ’s Roadshow Truck or a Civic Amenity Site. Do not pour it down the drain."
   },
   {
     "id": "oil-bottle",
@@ -888,7 +888,7 @@ window.SORTING_ITEMS=[
       "roadshow"
     ],
     "lesson": "oil",
-    "why": "Used cooking oil goes to WasteServ’s Roadshow Truck or a Civic Amenity Site. Ask a grown-up to keep it in a closed container. Do not pour it down the drain."
+    "why": "Take used cooking oil in a closed container to WasteServ’s Roadshow Truck or a Civic Amenity Site. Do not pour it down the drain."
   },
   {
     "id": "paint-tin",
@@ -900,7 +900,7 @@ window.SORTING_ITEMS=[
       "roadshow"
     ],
     "lesson": "paint",
-    "why": "Ask a grown-up to take leftover household paint to the Roadshow Truck or a Civic Amenity Site. Keep it in its original labelled container."
+    "why": "Take leftover household paint to the Roadshow Truck or a Civic Amenity Site. Keep it in its original labelled container."
   },
   {
     "id": "paint-pot",
@@ -912,7 +912,7 @@ window.SORTING_ITEMS=[
       "roadshow"
     ],
     "lesson": "paint",
-    "why": "Ask a grown-up to take leftover household paint to the Roadshow Truck or a Civic Amenity Site. Keep it in its original labelled container."
+    "why": "Take leftover household paint to the Roadshow Truck or a Civic Amenity Site. Keep it in its original labelled container."
   },
   {
     "id": "bulky-chair",
@@ -924,7 +924,7 @@ window.SORTING_ITEMS=[
       "bulky"
     ],
     "lesson": "bulky-chair",
-    "why": "Ask a grown-up to book bulky collection with the Local Council. Put the item out only as instructed. A Civic Amenity Site is another option."
+    "why": "Book bulky collection with the Local Council. Put the item out according to your booking instructions. A Civic Amenity Site is another option."
   },
   {
     "id": "bulky-sofa",
@@ -936,7 +936,7 @@ window.SORTING_ITEMS=[
       "bulky"
     ],
     "lesson": "bulky-sofa",
-    "why": "Ask a grown-up to book bulky collection with the Local Council. Put the item out only as instructed. A Civic Amenity Site is another option."
+    "why": "Book bulky collection with the Local Council. Put the item out according to your booking instructions. A Civic Amenity Site is another option."
   },
   {
     "id": "bulky-mattress",
@@ -948,7 +948,7 @@ window.SORTING_ITEMS=[
       "bulky"
     ],
     "lesson": "bulky-mattress",
-    "why": "Ask a grown-up to book bulky collection with the Local Council. Put the item out only as instructed. A Civic Amenity Site is another option."
+    "why": "Book bulky collection with the Local Council. Put the item out according to your booking instructions. A Civic Amenity Site is another option."
   },
   {
     "id": "bulky-table",
@@ -960,7 +960,7 @@ window.SORTING_ITEMS=[
       "bulky"
     ],
     "lesson": "bulky-table",
-    "why": "Ask a grown-up to book bulky collection with the Local Council. Put the item out only as instructed. A Civic Amenity Site is another option."
+    "why": "Book bulky collection with the Local Council. Put the item out according to your booking instructions. A Civic Amenity Site is another option."
   },
   {
     "id": "bulky-wardrobe",
@@ -972,7 +972,7 @@ window.SORTING_ITEMS=[
       "bulky"
     ],
     "lesson": "bulky-wardrobe",
-    "why": "Ask a grown-up to book bulky collection with the Local Council. Put the item out only as instructed. A Civic Amenity Site is another option."
+    "why": "Book bulky collection with the Local Council. Put the item out according to your booking instructions. A Civic Amenity Site is another option."
   },
   {
     "id": "bulky-bed",
@@ -984,6 +984,6 @@ window.SORTING_ITEMS=[
       "bulky"
     ],
     "lesson": "bulky-bed",
-    "why": "Ask a grown-up to book bulky collection with the Local Council. Put the item out only as instructed. A Civic Amenity Site is another option."
+    "why": "Book bulky collection with the Local Council. Put the item out according to your booking instructions. A Civic Amenity Site is another option."
   }
 ];
