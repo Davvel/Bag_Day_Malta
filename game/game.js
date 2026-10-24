@@ -73,7 +73,7 @@
  function clearSelection(){selected=null;bags.forEach(bag=>bag.classList.remove('target'));byId('controlHint').textContent='Drag to move · drop into a destination';}
  function spawn(){
   if(!deck.length)fillDeck();const info=deck.pop();lastSpawnId=info.id;const node=document.createElement('button');node.type='button';node.className='falling-item';node.dataset.itemId=info.id;node.setAttribute('aria-label',`${info.name}. In ${columnName(1)} lane. Select to sort.`);
-  const img=document.createElement('img');img.src=`assets/${info.id}.svg?v=1.1.37`;img.alt='';img.draggable=false;const label=document.createElement('span');label.textContent=info.name;node.append(img,label);
+  const img=document.createElement('img');img.src=content.artURL(info.id);img.alt='';img.draggable=false;const label=document.createElement('span');label.textContent=info.name;node.append(img,label);
   const item={info,node,lane:1,y:0,id:++serial};node.dataset.serial=String(item.id);items.push(item);itemsLayer.append(node);position(item);
   node.onclick=()=>{if(!drag && mode==='running')selectItem(item);};
   node.onpointerdown=event=>{
@@ -164,7 +164,7 @@
   const lesson=content.lessons[lessonCursor++%content.lessons.length];
   pendingRound={next,isPractice,lesson};
   byId('lessonTitle').textContent=lesson.title;byId('lessonText').textContent=lesson.text;byId('lessonExtra').textContent=lesson.extra;
-  byId('lessonItem').src='assets/'+lesson.item+'.svg?v=1.1.37';byId('lessonItem').alt=catalog.find(i=>i.id===lesson.item).name;
+  byId('lessonItem').src=content.artURL(lesson.item);byId('lessonItem').alt=catalog.find(i=>i.id===lesson.item).name;
   byId('lessonDestination').src=content.destinations[lesson.route].image;byId('lessonDestination').alt=content.destinations[lesson.route].name;
   byId('lessonColumns').replaceChildren(...content.plan(next,lesson).columns.map(route=>{const node=document.createElement('span');node.textContent=content.destinations[route].name;return node;}));
   byId('lessonSource').href=lesson.link;byId('lessonSource').textContent=lesson.route==='battery'?'Find a battery collection point ↗':lesson.route==='roadshow'?'Check the Roadshow schedule ↗':'Official bulky collection information ↗';byId('lessonStatus').textContent='';
@@ -172,7 +172,7 @@
   lessonPanel.showModal();window.BAG_DAY_BACK?.sync();byId('tryLesson').focus({preventScroll:true});
  }
  function preloadRound(plan){
-  const paths=[...plan.pool.map(i=>'assets/'+i.id+'.svg?v=1.1.37'),...plan.columns.map(r=>content.destinations[r].image)];
+  const paths=[...plan.pool.map(i=>content.artURL(i.id)),...plan.columns.map(r=>content.destinations[r].image)];
   return Promise.all(paths.map(src=>new Promise(resolve=>{
    const image=new Image();let done=false;
    const finish=ok=>{if(done)return;done=true;clearTimeout(timer);resolve(ok);};
@@ -225,7 +225,7 @@
   if(passed){celebrate(accuracy);return;}
   byId('resultsTitle').textContent='Try again?';byId('resultSummary').textContent=`${hits} correct · ${misses} wrong · ${accuracy}% accuracy` ;
   const review=byId('reviewList');review.replaceChildren();const heading=document.createElement('h2');heading.textContent='Items in this level';review.append(heading);
-  for(const info of round.pool){const row=document.createElement('div');row.className='review-item';const img=document.createElement('img');img.src=`assets/${info.id}.svg?v=1.1.37`;img.alt='';const text=document.createElement('div'),name=document.createElement('strong'),help=document.createElement('p');name.textContent=`${info.name} → ${columnName(content.laneFor(info,round.columns))}`;help.textContent=info.why;text.append(name,help);row.append(img,text);review.append(row);}
+  for(const info of round.pool){const row=document.createElement('div');row.className='review-item';const img=document.createElement('img');img.src=content.artURL(info.id);img.alt='';const text=document.createElement('div'),name=document.createElement('strong'),help=document.createElement('p');name.textContent=`${info.name} → ${columnName(content.laneFor(info,round.columns))}`;help.textContent=info.why;text.append(name,help);row.append(img,text);review.append(row);}
   showOnly('gameResults');byId('gameResults').focus({preventScroll:true});
  }
  function explainBag(index,menu=false){const route=menu?content.classic[index]:round.columns[index];if(content.classic.includes(route))measure('game_guide_open',{bag_type:route==='recycle'?'recycle':route});const wasRunning=mode==='running';if(wasRunning){mode='info';cancelAnimationFrame(raf);drag=null;hideHint();byId('gamePlay').classList.remove('running');}const onClose=()=>{if(wasRunning&&mode==='info'){mode='running';lastFrame=performance.now();lastInput=lastFrame;byId('gamePlay').classList.add('running');raf=requestAnimationFrame(tick);}};
