@@ -1,6 +1,6 @@
-const CACHE='bag-day-malta-1.1.34';
-const ASSETS=['./js/zoom-awareness.js?v=1.1.34','./css/zoom-awareness.css?v=1.1.34','./reuse/custom-emoji.mjs?v=1.1.34','./js/help-preferences.js?v=1.1.34','./css/discovery.css?v=1.1.34','./icons/reuse-free-stuff-v1.png','./reuse/purchase-info.mjs?v=1.1.34','./js/startup.js?v=1.1.34','./css/startup.css?v=1.1.34','./js/advert-policy.js?v=1.1.34','./js/community-adverts.js?v=1.1.34','./js/sponsor-carousel.js?v=1.1.34','./css/sponsor-carousel.css?v=1.1.34','./reuse/title-text.mjs?v=1.1.34','./reuse/title-icons.mjs?v=1.1.34','./reuse/ai-icon-state.mjs?v=1.1.34','./reuse/item-attributes.mjs?v=1.1.34','./reuse/emoji-palette.mjs?v=1.1.34','./reuse/item-symbols.mjs?v=1.1.34','./reuse/item-dates.mjs?v=1.1.34','./js/analytics.js?v=1.1.34','./reuse/analytics-ui.js?v=1.1.34','./reuse/location.mjs?v=1.1.34','./reuse/index.html','./reuse/style.css?v=1.1.34','./reuse/app.mjs?v=1.1.34','./reuse/client.mjs','./reuse/config.mjs','./reuse/entry.mjs?v=1.1.34','./icons/card-recycling.svg','./icons/sorting-minute.svg','./js/bulky-refuse.js?v=1.1.34','./icons/council-backdrop.svg','./icons/glass-real.webp','./icons/card-botanical.svg','./css/home-redesign.css?v=1.1.34','./js/local-preview-data.js?v=1.1.34','./icons/bag-organic-real.webp','./icons/bag-mixed-real.webp','./icons/bag-recycle-real.webp','./js/sponsors.js?v=1.1.34','./data/councils.csv','./js/info-panel.js?v=1.1.34','./css/info-panel.css?v=1.1.34','./js/home-hints.js?v=1.1.34','./icons/hint-hand.svg','./js/usage-streak.js?v=1.1.34','./js/navigation.js?v=1.1.34','./','./index.html','./css/styles.css?v=1.1.34','./js/data.js?v=1.1.34','./js/app.js?v=1.1.34','./js/waste-guide.js?v=1.1.34','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest?v=1.1.34','./icons/icon-192.png?v=1.1.34','./icons/icon-512.png?v=1.1.34','./icons/icon-maskable-512.png?v=1.1.34','./icons/apple-touch-icon.png?v=1.1.34','./icons/favicon-32.png?v=1.1.34','./icons/glass-carrier.svg','./icons/zejtunsoft-profile.png'];
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
+const CACHE='bag-day-malta-1.1.35';
+const ASSETS=['./js/zoom-awareness.js?v=1.1.35','./css/zoom-awareness.css?v=1.1.35','./reuse/custom-emoji.mjs?v=1.1.35','./js/help-preferences.js?v=1.1.35','./css/discovery.css?v=1.1.35','./icons/reuse-free-stuff-v1.png','./reuse/purchase-info.mjs?v=1.1.35','./js/startup.js?v=1.1.35','./css/startup.css?v=1.1.35','./js/advert-policy.js?v=1.1.35','./js/community-adverts.js?v=1.1.35','./js/sponsor-carousel.js?v=1.1.35','./css/sponsor-carousel.css?v=1.1.35','./reuse/title-text.mjs?v=1.1.35','./reuse/title-icons.mjs?v=1.1.35','./reuse/ai-icon-state.mjs?v=1.1.35','./reuse/item-attributes.mjs?v=1.1.35','./reuse/emoji-palette.mjs?v=1.1.35','./reuse/item-symbols.mjs?v=1.1.35','./reuse/item-dates.mjs?v=1.1.35','./js/analytics.js?v=1.1.35','./reuse/analytics-ui.js?v=1.1.35','./reuse/location.mjs?v=1.1.35','./reuse/index.html','./reuse/style.css?v=1.1.35','./reuse/app.mjs?v=1.1.35','./reuse/client.mjs','./reuse/config.mjs','./reuse/entry.mjs?v=1.1.35','./icons/card-recycling.svg','./icons/sorting-minute.svg','./js/bulky-refuse.js?v=1.1.35','./icons/council-backdrop.svg','./icons/glass-real.webp','./icons/card-botanical.svg','./css/home-redesign.css?v=1.1.35','./js/local-preview-data.js?v=1.1.35','./icons/bag-organic-real.webp','./icons/bag-mixed-real.webp','./icons/bag-recycle-real.webp','./js/sponsors.js?v=1.1.35','./data/councils.csv','./js/info-panel.js?v=1.1.35','./css/info-panel.css?v=1.1.35','./js/home-hints.js?v=1.1.35','./icons/hint-hand.svg','./js/usage-streak.js?v=1.1.35','./js/navigation.js?v=1.1.35','./','./index.html','./css/styles.css?v=1.1.35','./js/data.js?v=1.1.35','./js/app.js?v=1.1.35','./js/waste-guide.js?v=1.1.35','./icons/bag-organic.svg','./icons/bag-mixed.svg','./icons/bag-recycle.svg','./manifest.webmanifest?v=1.1.35','./icons/icon-192.png?v=1.1.35','./icons/icon-512.png?v=1.1.35','./icons/icon-maskable-512.png?v=1.1.35','./icons/apple-touch-icon.png?v=1.1.35','./icons/favicon-32.png?v=1.1.35','./icons/glass-carrier.svg','./icons/zejtunsoft-profile.png'];
+self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS.map(asset=>/^(?:\.\/|\.\/index\.html|\.\/reuse\/index\.html)$/.test(asset)?new Request(new URL(asset,self.location.href),{cache:'reload'}):asset))).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('bag-day-malta-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET')return;
@@ -18,6 +18,26 @@ self.addEventListener('fetch',event=>{
   // Live configuration must never be satisfied from the service-worker cache.
   if(url.pathname.endsWith('/game_config.txt')||url.pathname.endsWith('/donation_config.txt')||url.pathname.endsWith('/analytics_config.txt')||url.pathname.endsWith('/service-worker.js')){
     event.respondWith(fetch(event.request,{cache:'no-store'}));
+    return;
+  }
+  // Revalidate HTML instead of allowing a previously visited Settings query
+  // to reuse an older document from the browser's HTTP cache.
+  if(event.request.mode==='navigate'){
+    const homeRoot=new URL('./',self.location.href);
+    const homeDocument=url.pathname===homeRoot.pathname||url.pathname===new URL('./index.html',self.location.href).pathname;
+    const key=homeDocument?new URL('./index.html',self.location.href).href:event.request;
+    event.respondWith((async()=>{
+      const cache=await caches.open(CACHE);
+      try{
+        const response=await fetch(event.request,{cache:'no-cache'});
+        if(response.ok)await cache.put(key,response.clone()).catch(()=>{});
+        return response;
+      }catch{
+        // Use this release's canonical Home shell for Settings too. Never
+        // search older caches or return a stale query-specific Home copy.
+        return (await cache.match(key))||Response.error();
+      }
+    })());
     return;
   }
   event.respondWith(fetch(event.request).then(response=>{

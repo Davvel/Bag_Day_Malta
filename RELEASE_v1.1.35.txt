@@ -1,0 +1,49 @@
+BAG DAY MALTA - OLD SETTINGS SPLASH CACHE FIX
+Package 50 | Website v1.1.35 | Based on package 49 / v1.1.34
+
+WHAT CHANGED
+The old version number reported when opening Settings suggests an older
+Settings document was being reused. Settings previously used the same URL
+across releases, separately from the normal Home page.
+
+- Settings now opens with a release-specific URL to bypass older query copies.
+- Page navigation revalidates HTML instead of trusting an old HTTP cache copy.
+- Offline Settings uses the current release's canonical Home shell, rather
+  than an older query-specific document or another release's cache.
+- Splash hiding for Settings is also declared directly in the document head,
+  before the external startup script and styles finish loading.
+- Home retains its two-second minimum splash display before fading.
+- All 397 REUSE manual icons and the existing zoom behavior are preserved.
+
+DEPLOY WEBSITE
+1. Extract this ZIP.
+2. Open COPY_TO_GITHUB. Copy everything INSIDE it into the root of your
+   existing Bag Day WEBSITE repository, replacing matching files and merging
+   folders. Do not copy the COPY_TO_GITHUB folder itself.
+3. Keep your existing CNAME, .git folder, live configuration text files and
+   repository configuration. This ZIP contains no CNAME.
+4. In GitHub Desktop, review the changes and use this commit summary:
+   Prevent cached old Settings splash - v1.1.35
+5. Click Commit to main, then Push origin. Wait for GitHub Pages to finish.
+6. Open Bag Day online and refresh once so it loads the new release.
+   Close and reopen it. Check Settings shows v1.1.35.
+
+BACKEND
+Frontend only. Do not run API deployment PowerShell scripts, database scripts,
+SQL migrations or any backend commands for this release.
+
+PHONE CHECKS
+1. Refresh Home online: the splash shows v1.1.35 for at least two seconds
+   before fading. Open Settings: no splash should appear.
+2. Close Settings and open it again. Check no old version flashes.
+3. Zoom Home, open Settings, then press Back. Home should keep its prior zoom.
+4. After one successful online load, check Settings still opens offline.
+
+VALIDATION
+32 automated behavioral checks pass, including cached HTML navigation,
+current-release offline fallback, cache-write failure and HTML precaching.
+All 53 JS/module files pass syntax checks. All 65 core and 37 game precache
+assets exist. Native browser/phone checks were not run in this environment.
+The exact cache layer responsible on your device has not been directly traced.
+
+This ZIP does not deploy anything to your live website or database.
