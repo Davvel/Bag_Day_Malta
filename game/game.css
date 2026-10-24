@@ -176,21 +176,25 @@ html,body{height:var(--game-height,100dvh)}
 .timer-face{background:repeating-conic-gradient(from -1deg,#bdd3c7 0deg 2deg,transparent 2deg 30deg),conic-gradient(from 0deg,#e99a36 0deg var(--elapsed-angle,0deg),#122c3a var(--elapsed-angle,0deg) 360deg)}
 .scorebar #timeLeft{background:transparent;color:#fff;text-shadow:0 1px 3px #071522,1px 0 2px #071522,-1px 0 2px #071522}
 
-/* A quiet result-first layout; learning lists stay closed until requested. */
-.results-panel{padding:20px;flex:1;scrollbar-gutter:stable}
-.results-panel .game-titlebar{min-height:48px;margin:0 0 16px}
-.results-panel h1{font-size:1.35rem;text-align:left;margin:4px 0}
-.retry-outcome{padding:18px 16px;border:1px solid #a8874f;border-radius:18px;background:linear-gradient(135deg,#423c30,#243649);animation:retry-arrive .45s ease-out}
-.result-status{font-size:.72rem;font-weight:800;letter-spacing:.06em;color:#ffd895;margin:0 0 10px}
-.result-message{font-size:1.14rem;font-weight:750;line-height:1.4;color:#fff4df;margin:0 0 20px}
-.result-progress-label{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;font-size:.8rem;margin-bottom:8px}
-.result-progress-label span{color:#d3dee6}.result-progress-label strong{color:#ffd895;font-size:.95rem}
-.result-track{position:relative;height:12px;margin:0 0 10px}.result-track progress{display:block;appearance:none;-webkit-appearance:none;border:0;border-radius:9px;overflow:hidden;background:#102231;width:100%;height:12px}
-.result-track progress::-webkit-progress-bar{background:#102231}.result-track progress::-webkit-progress-value{background:#edbc72;border-radius:9px}.result-track progress::-moz-progress-bar{background:#edbc72;border-radius:9px}
-.goal-marker{position:absolute;left:80%;top:-3px;height:18px;border-left:2px solid #fff}
-.result-target{font-size:.82rem;margin:10px 0 4px;color:#e2eaf0}.results-panel #resultSummary{text-align:left;font-size:.78rem;margin:0;color:#bccbd6}
-.results-panel .result-actions{max-width:none;margin:22px 0 30px;gap:12px}.results-panel #replayLevel{font-size:1rem;min-height:50px}
-.retry-reassurance{text-align:center;font-size:.76rem;margin:0;color:#b9cedc}
-.review-list details{margin:0;border-top:1px solid #40566a;padding:0;font-size:.86rem}.review-list summary{padding:16px 0;min-height:48px;font-weight:700}.review-list .review-item{font-size:.85rem}.review-list .review-item p{font-size:.8rem;margin-bottom:0}
-@keyframes retry-arrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* Compact accuracy-ring result. No duplicate scores or explanatory card. */
+.results-panel{padding:20px;flex:0 1 auto;max-height:100%;scrollbar-gutter:stable}
+.results-panel .game-titlebar{min-height:44px;margin:0 0 14px}
+.results-panel h1{font-size:1.15rem;text-align:left;margin:4px 0}
+.retry-outcome{text-align:center;padding:8px 0 0;animation:retry-arrive .35s ease-out}
+.retry-outcome h2{font-size:1.55rem;line-height:1.2;letter-spacing:-.025em;margin:0;color:#eff6fa}
+.result-message{font-size:.85rem;line-height:1.4;color:#b9cedc;margin:8px 0 14px}
+.accuracy-ring{width:140px;height:140px;max-width:100%;position:relative;margin:0 auto}
+.accuracy-ring svg{display:block;width:100%;height:100%}
+.accuracy-track,.accuracy-arc{fill:none;stroke-width:10}
+.accuracy-track{stroke:#0c1e2b}.accuracy-arc{stroke:#f2c474;stroke-linecap:round}.accuracy-goal{fill:#eff6fa}
+.accuracy-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;pointer-events:none}
+.accuracy-label strong{font-size:1.8rem;line-height:1.1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.accuracy-label span{font-size:.75rem;color:#b9cedc}
+.results-panel .result-actions{width:100%;max-width:none;margin:18px 0 22px;gap:11px;justify-items:center}
+.results-panel #replayLevel{width:min(190px,100%);min-height:44px;padding:9px 16px;font-size:1rem;border-radius:13px;box-shadow:0 4px 0 #155653}
+.retry-reassurance{text-align:center;font-size:.73rem;margin:0;color:#b9cedc}
+.review-list details{margin:0;border-top:1px solid #40566a;padding:0;font-size:.83rem}
+.review-list summary{padding:13px 0;min-height:44px;font-weight:650}
+.review-list details details{margin-top:8px}.review-list .review-item{font-size:.85rem}.review-list .review-item p{font-size:.8rem;margin-bottom:0}
+@keyframes retry-arrive{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.retry-outcome{animation:none}}

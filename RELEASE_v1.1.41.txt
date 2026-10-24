@@ -1,5 +1,5 @@
 BAG DAY MALTA - VISIBLE SCREEN FIT, ORANGE CLOCK AND SIX GUIDES
-Package 56 | Website v1.1.42 | Based on package 55 / v1.1.40
+Package 56 | Website v1.1.43 | Based on package 55 / v1.1.40
 
 WHAT CHANGED
 1. Initial sizing: Game now measures the actual visible height before the first
@@ -37,10 +37,10 @@ DEPLOY WEBSITE
 3. Keep your existing CNAME, .git folder, live configuration text files and
    repository configuration. This ZIP contains no CNAME.
 4. In GitHub Desktop use this commit summary:
-   Fix game entry sizing and add orange countdown and six guides - v1.1.42
+   Fix game entry sizing and add orange countdown and six guides - v1.1.43
 5. Click Commit to main, then Push origin. Wait for GitHub Pages to finish.
 6. Open Bag Day online, refresh once, close and reopen it. Confirm Settings
-   shows v1.1.42. Open Game online once so its separate offline cache updates.
+   shows v1.1.43. Open Game online once so its separate offline cache updates.
 
 BACKEND
 Frontend only. No API deployment, PowerShell commands or SQL required.

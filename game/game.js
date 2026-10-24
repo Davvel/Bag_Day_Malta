@@ -269,20 +269,21 @@
   if(passed){celebrate(accuracy);return;}
   const result=content.outcome(hits,misses);
   byId('resultsTitle').textContent=`Level ${level}`;
+  byId('resultHeading').textContent=result.heading;
   byId('resultMessage').textContent=result.message;
-  byId('resultAccuracy').textContent=`${result.accuracy}% accuracy`;
-  byId('resultProgress').value=result.percent;
-  byId('resultTarget').textContent=total?`${hits} of ${total} correct · needed ${result.required} of ${total}`:'Sort at least one item, with 80% accuracy, to pass.';
-  byId('resultSummary').textContent=`${hits} correct · ${misses} wrong`;
-  byId('replayLevel').textContent=`Try Level ${level} Again`;
+  byId('resultAccuracy').textContent=`${result.accuracy}%`;
+  byId('resultProgress').setAttribute('aria-valuenow',String(result.percent));
+  byId('resultProgress').setAttribute('aria-valuetext',`${result.accuracy}% accuracy. Goal 80%. ${hits} correct, ${misses} wrong. Level not passed.`);
+  byId('accuracyArc').setAttribute('stroke-dasharray',`${result.percent} 100`);
+  byId('replayLevel').textContent='Try again';
   const review=byId('reviewList');review.replaceChildren();
-  function addReview(title,entries){
+  function addReview(title,entries,parent=review){
    const section=document.createElement('details'),heading=document.createElement('summary');heading.textContent=title;section.append(heading);
    for(const info of entries){const row=document.createElement('div');row.className='review-item';const img=document.createElement('img');img.src=content.artURL(info.id);img.alt='';img.loading='lazy';const text=document.createElement('div'),name=document.createElement('strong'),help=document.createElement('p');name.textContent=`${info.name} → ${columnName(content.laneFor(info,round.columns))}`;help.textContent=info.why;text.append(name,help);row.append(img,text);section.append(row);}
-   review.append(section);
+   parent.append(section);return section;
   }
-  if(mistakes.size)addReview(`Review mistakes (${misses} ${misses===1?'answer':'answers'} · ${mistakes.size} ${mistakes.size===1?'item':'items'})`,mistakes.values());
-  addReview(`All items in this level (${round.pool.length})`,round.pool);
+  const mistakeReview=mistakes.size?addReview('See mistakes',mistakes.values()):null;
+  addReview('All items',round.pool,mistakeReview||review);
   byId('gameResults').scrollTop=0;
   showOnly('gameResults');byId('gameResults').focus({preventScroll:true});
  }
