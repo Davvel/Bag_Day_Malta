@@ -2,6 +2,8 @@
 (() => {
   'use strict';
   const root = new URL('../', document.currentScript.src);
+  const settingsEntry = new URLSearchParams(location.search).get('panel') === 'settings';
+  document.documentElement.dataset.entryScreen = settingsEntry ? 'settings' : 'home';
   const ASSETS = [
     'icons/bag-organic-real.webp', 'icons/bag-mixed-real.webp',
     'icons/bag-recycle-real.webp', 'icons/glass-real.webp',
@@ -9,9 +11,15 @@
     'icons/council-backdrop.svg', 'icons/bag-organic.svg',
     'icons/bag-mixed.svg', 'icons/bag-recycle.svg', 'icons/glass-carrier.svg', 'icons/reuse-free-stuff-v1.png'
   ];
-  const MIN_MS = 650, MAX_MS = 10000, FADE_MS = 400;
+  const MIN_MS = 2000, MAX_MS = 10000, FADE_MS = 400;
   const started = performance.now(), loaded = new Set(), images = [];
   let settled = false, revealing = null;
+  // Count the minimum from the completed document, not the early head request.
+  const splashVisible = new Promise(resolve => {
+    const mark = () => resolve(performance.now());
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mark, {once:true});
+    else mark();
+  });
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   function within(promise, ms) {
     return new Promise(resolve => {
@@ -58,15 +66,20 @@
     revealing = (async () => {
       const splash = document.getElementById('splashScreen'), content = document.getElementById('appContent');
       try {
-        await ready;
-        beforeReveal();
-        await within(visibleImages(content), MAX_MS - (performance.now() - started));
-        await delay(Math.max(0, MIN_MS - (performance.now() - started)));
+        if (settingsEntry) {
+          beforeReveal();
+        } else {
+          const visibleAt = await splashVisible;
+          await ready;
+          beforeReveal();
+          await within(visibleImages(content), MAX_MS - (performance.now() - started));
+          await delay(Math.max(0, MIN_MS - (performance.now() - visibleAt)));
+        }
       } finally {
         const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
         document.body.classList.remove('app-loading');
-        splash.classList.add('splash-leaving');
-        if (!reduced) await delay(FADE_MS);
+        if (!settingsEntry) splash.classList.add('splash-leaving');
+        if (!settingsEntry && !reduced) await delay(FADE_MS);
         splash.hidden = true; content.inert = false;
         onComplete();
       }

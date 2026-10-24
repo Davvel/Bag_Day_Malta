@@ -1,13 +1,13 @@
-import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.33';
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.33';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.33';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.33';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.33';
-import {emojiCandidates} from './custom-emoji.mjs?v=1.1.33';
+import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.34';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.34';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.34';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.34';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.34';
+import {emojiCandidates} from './custom-emoji.mjs?v=1.1.34';
 import {request,esc} from './client.mjs';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.33';
-import {titleIcons} from './title-icons.mjs?v=1.1.33';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.33';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.34';
+import {titleIcons} from './title-icons.mjs?v=1.1.34';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.34';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='',searchQuery='',searchTimer=null;
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
@@ -191,7 +191,7 @@ function bindEmojiPicker(saved,getContext,expiresAt=Infinity){
  const selectIcon=symbol=>{selected=[symbol];selectionVersion++;$('#emojiSearch').value='';collapse()};
  const render=()=>{
   const input=$('#emojiSearch').value,custom=emojiCandidates(input),search=input.trim().toLowerCase(),groups=new Map();
-  for(const e of EMOJI_PALETTE.filter(e=>(e.name+' '+e.group+' '+(iconSearchAliases[e.symbol]||'')).toLowerCase().includes(search))){if(!groups.has(e.group))groups.set(e.group,[]);groups.get(e.group).push(e)}
+  for(const e of EMOJI_PALETTE.filter(e=>(e.name+' '+e.group+' '+(e.keywords||'')+' '+(iconSearchAliases[e.symbol]||'')).toLowerCase().includes(search))){if(!groups.has(e.group))groups.set(e.group,[]);groups.get(e.group).push(e)}
   const customChoices=custom.length?`<div class="custom-emoji-options" role="group" aria-label="Your emoji choices">${custom.map(symbol=>`<button type="button" data-pick-icon="${esc(symbol)}" aria-label="Use ${esc(symbol)} as title icon"><span class="custom-emoji-symbol" aria-hidden="true">${esc(symbol)}</span><span>Use this emoji</span></button>`).join('')}</div>`:'';
   const catalogue=[...groups].map(([name,icons])=>`<div class="emoji-group"><h4>${esc(name)}</h4><div>${icons.map(e=>`<button type="button" data-pick-icon="${esc(e.symbol)}" title="${esc(e.name)}" aria-label="${esc(e.name)}" aria-pressed="${selected[0]===e.symbol}">${e.symbol}</button>`).join('')}</div></div>`).join('');
   $('#emojiSearchStatus').textContent=custom.length?(custom.length===1?'Emoji found. Select it below.':'Emojis found. Choose one below.'):'';
