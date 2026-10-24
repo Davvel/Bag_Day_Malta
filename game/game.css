@@ -116,3 +116,41 @@
 #tryLesson,#classicLesson{margin:0;min-height:48px;padding:10px 6px;font-size:14px}
 #lessonSource{margin-top:8px;min-height:36px;display:flex;align-items:center;justify-content:center}
 @media(max-height:600px){#lessonPanel{padding:14px 16px}.lesson-picture img{width:56px;height:56px}#lessonPanel h2{font-size:19px;margin-top:10px}#lessonText{font-size:13px}}
+
+/* Portrait layout: reserve room for destinations and let only the belt flex. */
+html,body{height:100%;min-height:0}
+.sort-game{height:100dvh;max-height:100dvh;min-height:0;padding:calc(8px + env(safe-area-inset-top)) 12px calc(8px + env(safe-area-inset-bottom));overflow:hidden;gap:8px}
+.menu-panel{--stat-gap:16px;--lobby-gap:12px;flex:1 1 0;min-height:0;padding:60px 16px 14px;justify-content:flex-start}
+.lobby-content{margin-block:auto;min-height:0}
+.minute-game-brand{margin-bottom:12px}
+.game-records{gap:8px}.record{min-height:44px;padding:8px 12px}.record small{font-size:.85rem}
+.level-row{margin-top:16px}
+.menu-panel #startGame{margin-top:12px}
+.menu-panel .menu-bags{margin-top:12px}.menu-bags img{height:clamp(64px,11dvh,108px)}
+.play-panel{flex:1 1 0;min-height:0;overflow:hidden;gap:6px}
+.conveyor{flex:1 1 0;min-height:0}
+.game-bags{flex:0 0 auto;gap:6px}
+.game-bags button{min-height:0;height:clamp(84px,16dvh,118px);padding:4px 2px;justify-content:center}
+.game-bags img{height:clamp(48px,9dvh,76px);width:76px;max-height:none}
+.scorebar{grid-template-columns:.65fr .85fr .85fr 64px auto;gap:5px;flex:0 0 auto;min-height:64px}
+.scorebar strong{font-size:1.45rem}.scorebar small{font-size:.75rem}
+.game-controls{gap:4px}.game-controls .circle-control{width:36px;height:36px;min-width:36px;min-height:36px}
+.timer-face{position:relative;width:60px;height:60px;border:3px solid #86c7c4;border-radius:50%;display:grid;place-items:center;background:repeating-conic-gradient(from -1deg,#bdd3c7 0deg 2deg,transparent 2deg 30deg),#122c3a;box-shadow:inset 0 0 0 4px #122c3a;color:#f5fff8}
+.timer-face::after{content:'';position:absolute;inset:7px;border:1px solid #628887;border-radius:50%;pointer-events:none}
+.scorebar #timeLeft{position:relative;z-index:2;display:grid;place-items:center;width:36px;height:29px;border-radius:9px;background:#122c3ae8;font-size:1.3rem;font-weight:850;line-height:1}
+.clock-hand{position:absolute;left:calc(50% - 1px);bottom:50%;width:2px;height:24px;background:#ffca76;transform-origin:center bottom;transform:rotate(var(--hand-angle,0deg));z-index:1}
+.timer-face.urgent{border-color:#ff787d;color:#ffd9db;box-shadow:0 0 0 2px #e9506033}
+.play-panel.running .timer-face.urgent{animation:clock-drama 1s ease-in-out infinite}
+@keyframes clock-drama{50%{border-color:#ffbdbe;box-shadow:0 0 12px 3px #e9506066}}
+.special-receptacle{border:2px solid #ef777a!important}
+.lesson-receptacles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 4px}
+.receptacle-preview{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:transparent;border:1px solid #587485;border-radius:14px;padding:6px 3px;min-width:0;min-height:0}
+.receptacle-preview img{width:64px;height:64px;object-fit:contain}.receptacle-preview strong{font-size:11px;line-height:1.2}
+#lessonPanel .round-explainer{font-size:13px;line-height:1.35;color:#f1f5ee;margin:10px 0 6px}
+#lessonPanel .receptacle-hint{font-size:11px;margin:4px 0 6px}
+#orientationPanel{width:min(360px,calc(100% - 32px));max-height:calc(100dvh - 24px);overflow:auto;border:1px solid #78afa9;border-radius:22px;padding:22px;background:#193246;color:#f4f8fc}
+#orientationPanel::backdrop{background:#031220e8}
+#orientationPanel h2{margin:0 0 12px;font-size:22px}#orientationPanel button{width:100%;margin-top:10px}
+@media(max-height:670px){.menu-panel{padding-top:54px;padding-bottom:8px}.minute-game-brand>img{height:46px;width:46px}.menu-panel #menuTitle{font-size:23px}.minute-game-brand{margin-bottom:8px}.record{min-height:38px;padding:6px 10px}.game-records{gap:6px}.level-row{margin-top:10px}.menu-panel #startGame{margin-top:8px}.menu-panel .menu-bags{margin-top:8px}.menu-bags img{height:60px}#lessonPanel{padding:12px 16px}.lesson-picture img{height:42px;width:42px}#lessonPanel h2{font-size:18px;margin:8px 0 6px}#lessonText{font-size:12px;margin-bottom:6px}.receptacle-preview img{height:48px;width:48px}}
+@media(max-width:350px){.scorebar{grid-template-columns:.6fr .8fr .8fr 60px auto;gap:3px}.scorebar small{font-size:.65rem}.record small{font-size:.75rem}.record strong{font-size:1.25rem}}
+@media(prefers-reduced-motion:reduce){.clock-hand{display:none}.play-panel.running .timer-face.urgent{animation:none}}

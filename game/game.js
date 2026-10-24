@@ -20,6 +20,7 @@
  function abandon(){if(['running','paused','info'].includes(mode))measure('game_round_abandon',{level,mode:practice?'practice':'timed'})}
  function showOnly(id){for(const name of ['gameMenu','gamePlay','gameResults'])byId(name).hidden=name!==id;}
  function renderMenu(){
+  orientationIntent=null;closeOrientation();
   prepareSerial++;preparing=false;pendingRound=null;
   if(byId('lessonPanel').open)byId('lessonPanel').close();
   byId('startGame').disabled=false;byId('startGame').textContent='Play ▶';
@@ -63,7 +64,7 @@
  function closeGame(){prepareSerial++;preparing=false;pendingRound=null;abandon();cancelAnimationFrame(raf);mode='closed';hideHint();if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-close'},location.protocol==='file:'?'*':location.origin);else if(new URLSearchParams(location.search).get('from')==='home'&&history.length>1)history.back();else location.replace('../');}
  function fillDeck(){deck=content.deck(round.pool,lastSpawnId);}
  const columnName=lane=>content.destinations[round.columns[lane]].name;
- function displayColumns(){bags.forEach((bag,index)=>{const d=content.destinations[round.columns[index]];bag.querySelector('img').src=d.image;bag.querySelector('strong').textContent=d.name;bag.querySelector('.destination-detail').textContent=d.detail;bag.setAttribute('aria-label','About '+d.name);});}
+ function displayColumns(){bags.forEach((bag,index)=>{const d=content.destinations[round.columns[index]];bag.querySelector('img').src=d.image;bag.querySelector('strong').textContent=d.name;bag.querySelector('.destination-detail').textContent=d.detail;bag.setAttribute('aria-label','About '+d.name);bag.classList.toggle('special-receptacle',!content.classic.includes(d.id));});}
  function selectItem(item){
   if(mode!=='running'||!items.includes(item))return;selected=item;lastInput=performance.now();hideHint();
   for(const entry of items)entry.node.classList.toggle('selected',entry===item);
@@ -149,24 +150,65 @@
   const settings=pace();
   for(const item of [...items]){if(drag?.item===item)continue;moveItem(item,item.lane,item.y+dt/settings.travel);if(item.y>=1)accept(item);}
   if(elapsed<60)ensureSupply();
-  const seconds=Math.max(0,Math.ceil(60-elapsed));byId('timeLeft').textContent=practice?'∞':`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
+  updateClock();
 
   const middleItem=items.find(item=>item.lane===1);
   if(helpEnabled && !drag && !activePointers.size && middleItem && level<=10 && now-lastInput>2000 && !reduced.matches)showHint(middleItem);else hideHint();
   if(!practice && elapsed>=60){finishRound();return;}raf=requestAnimationFrame(tick);
  }
+ function updateClock(){
+  const remaining=Math.max(0,60-elapsed),seconds=Math.ceil(remaining),face=byId('timerFace'),label=byId('timeLeft');
+  label.textContent=practice?'∞':String(seconds);
+  label.setAttribute('aria-label',practice?'Practice: no time limit':`${seconds} seconds remaining`);
+  face.style.setProperty('--hand-angle',`${practice?0:(60-remaining)*6}deg`);
+  face.classList.toggle('urgent',!practice&&remaining>0&&remaining<=5);
+ }
+ const orientationPanel=byId('orientationPanel');
+ const landscape=()=>window.matchMedia('(orientation: landscape)').matches;
+ let orientationIntent=null;
+ function closeOrientation(){if(orientationPanel.open)orientationPanel.close();}
+ function showOrientation(intent=null){
+  if(intent)orientationIntent=intent;
+  byId('orientationResume').disabled=landscape();
+  byId('orientationResume').textContent=orientationIntent?'Continue':'Resume';
+  byId('orientationTitle').textContent=landscape()?'Turn your phone upright':'Ready to continue';
+  byId('orientationMessage').textContent=landscape()?'Play in portrait so every receptacle stays in view. Your round stays paused.':'You are back in portrait. Continue when you are ready.';
+  if(!orientationPanel.open)orientationPanel.showModal();window.BAG_DAY_BACK?.sync();
+ }
+ function checkOrientation(){
+  if(landscape()&&['running','info','paused'].includes(mode)){
+   if(window.BAG_INFO.isOpen())window.BAG_INFO.close();
+   pause();showOrientation();
+  }else if(orientationPanel.open)showOrientation();
+ }
+ orientationPanel.addEventListener('cancel',e=>e.preventDefault());
+ byId('orientationResume').onclick=()=>{
+  if(landscape())return;
+  const intent=orientationIntent;orientationIntent=null;closeOrientation();
+  if(intent)startRound(intent.next,intent.isPractice);else resume();
+ };
+ byId('orientationMenu').onclick=()=>{orientationIntent=null;closeOrientation();renderMenu();};
+ window.matchMedia('(orientation: landscape)').addEventListener('change',checkOrientation);
  const lessonPanel=byId('lessonPanel');
  function startRound(next=Number(byId('levelChoice').value),isPractice=false){
   if(preparing||lessonPanel.open)return;
+  if(landscape()){showOrientation({next,isPractice});return;}
   next=Math.max(1,Math.min(unlocked,Number(next)||1));
   if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice}))return;
   const lesson=content.chooseLesson(next);
   if(!lesson){prepareRound(next,isPractice,null);return;}
-  pendingRound={next,isPractice,lesson};
+  const previewPlan=content.plan(next,lesson);
+  pendingRound={next,isPractice,lesson,plan:previewPlan};
   byId('lessonTitle').textContent=lesson.title;byId('lessonText').textContent=lesson.text;byId('lessonExtra').textContent=lesson.extra;
   byId('lessonItem').src=content.artURL(lesson.item);byId('lessonItem').alt=catalog.find(i=>i.id===lesson.item).name;
   byId('lessonDestination').src=content.destinations[lesson.route].image;byId('lessonDestination').alt=content.destinations[lesson.route].name;
   byId('lessonDetails').open=false;
+  byId('lessonReceptacles').replaceChildren(...previewPlan.columns.map(route=>{
+   const d=content.destinations[route],button=document.createElement('button'),image=document.createElement('img'),name=document.createElement('strong');
+   button.type='button';button.className='receptacle-preview'+(route===lesson.route?' special-receptacle':'');
+   button.setAttribute('aria-label','What belongs in '+d.name+'?');image.src=d.image;image.alt='';name.textContent=d.name;
+   button.append(image,name);button.onclick=()=>explainRoute(route);return button;
+  }));
   byId('lessonSource').href=lesson.link;byId('lessonSource').textContent=lesson.route==='battery'?'Find a battery collection point ↗':lesson.route==='roadshow'?'Check the Roadshow schedule ↗':'Official bulky collection information ↗';byId('lessonStatus').textContent='';
   byId('tryLesson').disabled=false;byId('classicLesson').disabled=false;
   lessonPanel.showModal();window.BAG_DAY_BACK?.sync();byId('tryLesson').focus({preventScroll:true});
@@ -181,10 +223,10 @@
    image.onerror=()=>finish(false);image.src=src;
   })));
  }
- async function prepareRound(next,isPractice,lesson){
+ async function prepareRound(next,isPractice,lesson,previewPlan=null){
   if(preparing)return;
   if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice}))return;
-  preparing=true;const serial=++prepareSerial,plan=content.plan(next,lesson);
+  preparing=true;const serial=++prepareSerial,plan=previewPlan||content.plan(next,lesson);
   byId('startGame').disabled=true;byId('startGame').textContent='Getting pictures ready…';
   byId('tryLesson').disabled=true;byId('classicLesson').disabled=true;byId('lessonStatus').textContent='Getting pictures ready…';
   const loaded=await preloadRound(plan);
@@ -200,7 +242,7 @@
   pendingRound=null;if(lessonPanel.open)lessonPanel.close();
   round=plan;beginRound(next,isPractice);
  }
- byId('tryLesson').onclick=()=>{if(pendingRound)prepareRound(pendingRound.next,pendingRound.isPractice,pendingRound.lesson);};
+ byId('tryLesson').onclick=()=>{if(pendingRound)prepareRound(pendingRound.next,pendingRound.isPractice,pendingRound.lesson,pendingRound.plan);};
  byId('classicLesson').onclick=()=>{if(pendingRound)prepareRound(pendingRound.next,pendingRound.isPractice,null);};
  window.addEventListener('pagehide',()=>{if(preparing){prepareSerial++;preparing=false;byId('startGame').disabled=false;byId('startGame').textContent='Play ▶';byId('tryLesson').disabled=false;byId('classicLesson').disabled=false;byId('lessonStatus').textContent='';}});
  byId('closeLesson').onclick=()=>lessonPanel.close();
@@ -209,12 +251,12 @@
   byId('winPanel').hidden=true;byId('gamePlay').inert=false;notifyWin();
   abandon();level=Math.max(1,Math.min(unlocked,Number(next)||1));rememberLevel(level);practice=isPractice;measure('game_round_start',{level,mode:practice?'practice':'timed'});elapsed=0;hits=0;misses=0;items=[];mistakes=new Map();deck=[];nextSpawn=0;selected=null;drag=null;lastSpawnId=null;displayColumns();
   itemsLayer.replaceChildren();byId('pausePanel').hidden=true;byId('feedback').classList.remove('shown');bags.forEach(bag=>bag.classList.remove('target','good','bad'));hideHint();
-  byId('playingLevel').textContent=String(level);byId('hitCount').textContent='0';byId('missCount').textContent='0';byId('timeLeft').textContent=practice?'∞':'1:00';byId('controlHint').textContent='Drag to move · drop into a destination';showOnly('gamePlay');mode='running';ensureSupply();notifyRound();byId('gamePlay').classList.add('running');lastFrame=performance.now();lastInput=lastFrame;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});
+  byId('playingLevel').textContent=String(level);byId('hitCount').textContent='0';byId('missCount').textContent='0';updateClock();byId('controlHint').textContent='Drag to move · drop into a destination';showOnly('gamePlay');mode='running';ensureSupply();notifyRound();byId('gamePlay').classList.add('running');lastFrame=performance.now();lastInput=lastFrame;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});checkOrientation();
  }
  function pause(){
   if(mode!=='running')return;measure('game_pause');mode='paused';cancelAnimationFrame(raf);drag=null;hideHint();byId('gamePlay').classList.remove('running');byId('pausePanel').hidden=false;byId('gamePlay').inert=true;notifyPause();byId('resumeGame').focus({preventScroll:true});
  }
- function resume(){if(mode!=='paused')return;measure('game_resume');byId('pausePanel').hidden=true;byId('gamePlay').inert=false;mode='running';notifyPause();lastFrame=performance.now();lastInput=lastFrame;byId('gamePlay').classList.add('running');raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});}
+ function resume(){if(mode!=='paused')return;if(landscape()){showOrientation();return;}measure('game_resume');byId('pausePanel').hidden=true;byId('gamePlay').inert=false;mode='running';notifyPause();lastFrame=performance.now();lastInput=lastFrame;byId('gamePlay').classList.add('running');raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});}
  function finishRound(){
   cancelAnimationFrame(raf);raf=null;byId('gamePlay').classList.remove('running');byId('pausePanel').hidden=true;byId('gamePlay').inert=false;
 
@@ -228,10 +270,20 @@
   for(const info of round.pool){const row=document.createElement('div');row.className='review-item';const img=document.createElement('img');img.src=content.artURL(info.id);img.alt='';const text=document.createElement('div'),name=document.createElement('strong'),help=document.createElement('p');name.textContent=`${info.name} → ${columnName(content.laneFor(info,round.columns))}`;help.textContent=info.why;text.append(name,help);row.append(img,text);review.append(row);}
   showOnly('gameResults');byId('gameResults').focus({preventScroll:true});
  }
- function explainBag(index,menu=false){const route=menu?content.classic[index]:round.columns[index];if(content.classic.includes(route))measure('game_guide_open',{bag_type:route==='recycle'?'recycle':route});const wasRunning=mode==='running';if(wasRunning){mode='info';cancelAnimationFrame(raf);drag=null;hideHint();byId('gamePlay').classList.remove('running');}const onClose=()=>{if(wasRunning&&mode==='info'){mode='running';lastFrame=performance.now();lastInput=lastFrame;byId('gamePlay').classList.add('running');raf=requestAnimationFrame(tick);}};
-  if(content.classic.includes(route))window.BAG_INFO.bag(route,onClose);
-  else {const lesson=round.lesson;window.BAG_INFO.open(content.destinations[route].name,'<p>'+lesson.text+'</p><p>'+lesson.extra+'</p>',onClose);}
+ function explainRoute(route){
+  const wasRunning=mode==='running';
+  if(wasRunning){mode='info';cancelAnimationFrame(raf);drag=null;hideHint();byId('gamePlay').classList.remove('running');}
+  const onClose=()=>{if(wasRunning&&mode==='info'){
+   mode='paused';byId('pausePanel').hidden=false;byId('gamePlay').inert=true;
+   if(landscape())showOrientation();else resume();
+  }};
+  if(content.classic.includes(route)){measure('game_guide_open',{bag_type:route});window.BAG_INFO.bag(route,onClose);return;}
+  const guide=content.specialGuides[route],link=content.lessons.find(l=>l.route===route).link;
+  const list=guide.groups.map(([heading,entries])=>'<h3>'+heading+'</h3><ul>'+entries.map(text=>'<li>'+text+'</li>').join('')+'</ul>').join('');
+  window.BAG_INFO.open(content.destinations[route].name,list+'<p>'+guide.note+'</p><p>In this round, use the special receptacle for the lesson items. Sort everyday waste into the two bags shown.</p><p><a target="_blank" rel="noopener noreferrer" href="'+link+'">Official disposal information ↗</a></p>',onClose);
  }
+ function explainBag(index,menu=false){explainRoute(menu?content.classic[index]:round.columns[index]);}
+
  bags.forEach((bag,index)=>{const detail=document.createElement('small');detail.className='destination-detail';bag.append(detail);bag.onclick=()=>{if(selected&&mode==='running'){selected.lane=index;accept(selected);}else explainBag(index);};bag.setAttribute('aria-label','What belongs in '+bagNames[index]+'?');});
  document.querySelectorAll('.menu-bags>div').forEach((node,index)=>{node.tabIndex=0;node.setAttribute('role','button');node.setAttribute('aria-label','What belongs in '+bagNames[index]+'?');node.onclick=()=>explainBag(index,true);node.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();node.click();}};});
  document.querySelectorAll('.record').forEach(node=>{node.tabIndex=0;node.setAttribute('role','button');node.onclick=()=>{const stats=window.SORTING_STATS.snapshot();if(node.classList.contains('level-record'))window.BAG_INFO.open('Highest level achieved',`<p>Your highest successfully completed level is <strong>${stats.highestLevel}</strong>.</p><p>Selecting or starting a level does not count; you must pass the round.</p>`);else if(node.classList.contains('score-record'))window.BAG_INFO.open('Most correct in one round',`<p>Your best completed round had <strong>${stats.bestRound} correctly sorted items</strong>.</p><p>This is your largest correct-item count in a single round, rather than a percentage or a lifetime total.</p>`);else window.BAG_INFO.streak(stats,true);};node.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();node.click();}};});
@@ -257,7 +309,7 @@
  document.addEventListener('keydown',event=>{if(mode==='running' && event.target.closest('.falling-item'))recordObjectInteraction();},true);
  document.addEventListener('visibilitychange',()=>{if(document.hidden){activePointers.clear();if(mode==='info'){window.BAG_INFO.close();}pause();}});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();if(mode==='running')pause();else if(mode==='paused')resume();else if(mode==='won')renderMenu();}if(mode==='won'&&event.key==='Tab'){const controls=[byId('playNextLevel'),byId('exitWin')].filter(n=>!n.hidden);if(event.shiftKey&&document.activeElement===controls[0]){event.preventDefault();controls.at(-1).focus();}else if(!event.shiftKey&&document.activeElement===controls.at(-1)){event.preventDefault();controls[0].focus();}}if(mode==='paused'&&event.key==='Tab'){const nodes=[byId('closePause'),byId('resumeGame')];if(event.shiftKey&&document.activeElement===nodes[0]){event.preventDefault();nodes.at(-1).focus();}else if(!event.shiftKey&&document.activeElement===nodes.at(-1)){event.preventDefault();nodes[0].focus();}}});
- window.addEventListener('resize',()=>{if(mode==='running')pause();for(const item of items)position(item);});
+ window.addEventListener('resize',()=>{if(mode==='running')pause();checkOrientation();for(const item of items)position(item);});
  if('ResizeObserver' in window){
   const record=document.querySelector('.record');
   new ResizeObserver(()=>{const height=record.getBoundingClientRect().height;if(height>0)byId('gameMenu').style.setProperty('--stat-height',`${height}px`);}).observe(record);
@@ -271,6 +323,7 @@
  window.BAG_DAY_BACK?.register('lesson',{isOpen:()=>lessonPanel.open,close:()=>lessonPanel.close()});
  // Register information last, so Back closes it before its underlying round.
  window.BAG_DAY_BACK?.register('information',{isOpen:()=>window.BAG_INFO?.isOpen()===true,close:()=>window.BAG_INFO.close()});
+ window.BAG_DAY_BACK?.register('orientation',{isOpen:()=>orientationPanel.open,close:renderMenu});
  window.BAG_DAY_GAME_ZOOM?.restore(startRound);
  // This worker owns only /game/ assets, never the collection app's cache.
  if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{});

@@ -24,11 +24,16 @@
   const choices=lessons.filter(lesson=>lesson.route===route);
   return choices[Math.floor(random()*choices.length)];
  }
+ const specialGuides={
+  battery:{groups:[['Household batteries',['AA and AAA batteries','Button cells','9V batteries']]],note:'Use a household battery collection point. Check the collection operator for other battery types. Roadshow Trucks and Civic Amenity Sites also accept household batteries.'},
+  roadshow:{groups:[['Accepted waste',['Clothing, bags and shoes','Plastic and metal','Used cooking oil','Light bulbs and fluorescent tubes','Glass bottles and jars','Paper and cardboard','Household batteries','Expanded polystyrene','Pots and pans','Small electronic devices','Paint and solvents','Aerosol cans']]],note:'Check the Roadshow schedule before visiting. Seal cooking oil and keep paint in its labelled container.'},
+  bulky:{groups:[['Furniture',['Chairs, tables and sofas','Beds, wardrobes, dressers, desks and cupboards','Mattresses']],['Electrical equipment',['Fridges, freezers and air conditioners','Televisions, screens, laptops and tablets','Ovens, washing machines and dishwashers','Large sports and leisure equipment','Small electricals: microwaves, vacuums, irons, kettles, phones, printers and consoles']],['Textiles and household items',['Clothing, carpets, curtains and curtain rails','Cushions, pillows and rags','Luggage, prams and pushchairs','Heaters, cookers, barbecues and TV aerials','Clothes racks, brooms and ironing boards']],['Garden and other items',['Logs, leaves, plants and pots','Garden tools and lawnmowers','Canopies, gazebos and parasol bases','Bicycles, tyres, vehicle batteries, seat covers and mirrors']]],note:'Book with your Local Council and confirm your items before putting them outside. Usable items can be given away instead.'}
+ };
  const classic=['organic','mixed','recycle'];
  function shuffle(items,random=Math.random){const a=items.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
  function plan(level,lesson=null,random=Math.random){
   if(level<=10)lesson=null;
-  const columns=classic.slice();if(lesson)columns[lesson.replace]=lesson.route;
+  let columns=classic.slice();if(lesson){columns[lesson.replace]=lesson.route;columns=shuffle(columns,random);}
   const perBag=Math.min(24,2+Math.floor((level-1)/2)*2);
   const pool=[];
   columns.forEach(route=>{
@@ -40,6 +45,6 @@
  const accepts=(item,route)=>item.routes.includes(route);
  const laneFor=(item,columns)=>columns.findIndex(route=>accepts(item,route));
  function deck(pool,lastId=null,random=Math.random){const a=shuffle(pool,random);const special=a.findIndex(item=>item.bag===null);if(special>=0&&special<a.length-6){const early=Math.max(0,a.length-3);[a[special],a[early]]=[a[early],a[special]];}if(a.length>1&&a[a.length-1].id===lastId)[a[0],a[a.length-1]]=[a[a.length-1],a[0]];return a;}
- const artURL=id=>`assets/items/${id}.webp?v=1.1.39`;
- window.SORTING_CONTENT={artURL,destinations,lessons,chooseLesson,classic,plan,accepts,laneFor,deck};
+ const artURL=id=>`assets/items/${id}.webp?v=1.1.40`;
+ window.SORTING_CONTENT={artURL,destinations,lessons,chooseLesson,specialGuides,classic,plan,accepts,laneFor,deck};
 })();

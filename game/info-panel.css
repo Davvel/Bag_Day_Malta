@@ -12,3 +12,7 @@
 .info-copy p{margin:16px 0;font:400 16px/1.55 system-ui}.info-copy h3{margin:20px 0 8px;font:700 17px/1.3 system-ui}.info-copy ul{margin:8px 0 16px;padding-left:24px}.info-copy li{font:400 16px/1.55 system-ui;margin:3px 0}
 
 [data-theme=light] .info-titlebar{background:#285783;color:#fff;border-color:#628bb0}[data-theme=light] .info-titlebar h2{color:#fff}[data-theme=light] .info-titlebar .info-close{background:#1c4165;color:white;border-color:#9cb9d3}
+
+/* Modal top layer also works above the special-round introduction. */
+dialog.info-overlay{width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;color:inherit;box-sizing:border-box}
+dialog.info-overlay::backdrop{background:transparent}

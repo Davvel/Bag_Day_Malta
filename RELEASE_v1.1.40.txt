@@ -1,0 +1,75 @@
+BAG DAY MALTA - PORTRAIT GAME, RECEPTACLE GUIDES AND CLOCK
+Package 55 | Website v1.1.40 | Based on package 54 / v1.1.39
+
+WHAT CHANGED
+1. Game home: modest spacing reductions remove the large gaps. Records,
+   level selection, Play and bags use the available portrait screen space.
+2. Special introduction: actual images of the two bags and special receptacle
+   show the exact left-to-right order used during play. The special receptacle
+   has a red border. The order is drawn once and retained when you press Try it.
+   Tap a receptacle for its bulleted accepted-items guide. This works before
+   and during play; opening a guide during play pauses the timer.
+3. Gameplay: a flexible conveyor reserves space for the score, clock and all
+   three receptacles, with dynamic viewport height and safe-area padding.
+   Active play is portrait only. Landscape entry shows an upright-phone prompt.
+   Rotating sideways pauses the round. Turn upright and press Resume yourself.
+   Game home, results and reading screens can still scroll if space is limited.
+4. No sponsors have been added anywhere in the game area.
+6. A compact old-style clock replaces the timer: large seconds, moving hand,
+   gentle red pulse only in the last 5 seconds. Reduced-motion users get a
+   steady red highlight and no moving hand.
+
+PRESERVED
+Levels 1-10 are Classic. Each new round above level 10 has a fresh 60% Classic
+chance, with 40% shared equally across Battery / Roadshow / Bulky. You can
+still choose Play Classic from a special introduction. Scoring, saved progress,
+one-minute duration and realistic lightweight artwork remain in place.
+
+GUIDES
+Normal bags retain their existing guides. Special guides cover accepted
+categories, beyond just the example in the current lesson. The Roadshow and
+bulky lists were checked against official WasteServ pages on 24 October 2026.
+The game still uses the selected special lesson plus its two ordinary bags;
+the guides explain this distinction. Official links are included in the guides.
+
+DEPLOY WEBSITE
+1. Extract this ZIP.
+2. Open COPY_TO_GITHUB. Copy everything INSIDE it into the root of your
+   existing Bag Day WEBSITE repository, replacing matching files and merging
+   folders. Do not copy the COPY_TO_GITHUB folder itself.
+3. Keep your existing CNAME, .git folder, live configuration text files and
+   repository configuration. This ZIP contains no CNAME.
+4. In GitHub Desktop use this commit summary:
+   Fit portrait game, add receptacle guides and countdown clock - v1.1.40
+5. Click Commit to main, then Push origin. Wait for GitHub Pages to finish.
+6. Open Bag Day online, refresh once, close and reopen it. Confirm Settings
+   shows v1.1.40. Open Game online once to refresh its separate offline cache.
+
+BACKEND
+Frontend only. No API deployment, PowerShell commands or SQL required.
+
+VALIDATION
+- JavaScript syntax checks passed.
+- 100,000 simulated mode draws: 60.095% Classic; special shares near equal.
+- All special positions reachable; item pools use valid visible destinations.
+- DOM interaction checks passed: intro and play guides, unchanged preview order,
+  Classic override, landscape entry, pause on rotation, explicit Resume,
+  frozen timer while paused, final-five urgency and round completion.
+- Offline asset references verified. This environment blocks full browser
+  execution, so rendered phone fit and actual device rotation need the checks
+  below. DOM checks do not measure rendered layout.
+
+PHONE CHECKS
+1. In portrait, check game home fits without the former large gaps.
+2. Play a classic and special round. All receptacles should stay in view.
+3. Compare a special introduction's order with the order after Try it. Tap each
+   image for its guide; close it and confirm the introduction is still there.
+4. Tap an unselected receptacle during play to read its guide. If an item is
+   selected, tapping a receptacle sorts that item, as before.
+5. Turn sideways during play. Confirm the timer stops. Return upright: the
+   game must wait for Resume. Also try starting a game while sideways.
+6. Watch the hand and seconds, then the gentle red pulse at 5 seconds. With
+   reduced motion enabled, expect a steady red highlight and no hand motion.
+7. Load Game online, allow its cache to update, then test opening it offline.
+
+This ZIP does not deploy anything to your live website or database.
