@@ -60,7 +60,7 @@
       if (timer) { remaining = Math.max(0, deadline - Date.now()); clearTimeout(timer); timer = 0; }
     }
     function canRun() {
-      if (destroyed || count < 2 || paused || hovered || gesture || document.hidden || panel.closest('[hidden],[inert]') || document.querySelector('dialog[open]')) return false;
+      if (window.BAG_DAY_VIEWPORT?.gesturesBlocked() || destroyed || count < 2 || paused || hovered || gesture || document.hidden || panel.closest('[hidden],[inert]') || document.querySelector('dialog[open]')) return false;
       const r = viewport.getBoundingClientRect();
       return r.width > 0 && r.height > 0 && Math.max(0, Math.min(innerWidth, r.right) - Math.max(0, r.left)) * Math.max(0, Math.min(innerHeight, r.bottom) - Math.max(0, r.top)) >= r.width * r.height * .5;
     }
@@ -107,22 +107,28 @@
     function enter(event) { if (event.pointerType === 'mouse') { hovered = true; sync(); } }
     function leave(event) { if (event.pointerType === 'mouse') { hovered = false; sync(); } }
     function down(event) {
-      if (count < 2 || event.button !== 0) return;
+      if (window.BAG_DAY_VIEWPORT?.gesturesBlocked() || event.isPrimary === false || count < 2 || event.button !== 0) return;
       freeze(); gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, axis: null }; save();
     }
     function move(event) {
+      if (window.BAG_DAY_VIEWPORT?.gesturesBlocked()) { cancel(); return; }
       if (!gesture || event.pointerId !== gesture.id) return;
       const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y;
       if (!gesture.axis && Math.max(Math.abs(dx), Math.abs(dy)) > 12) gesture.axis = Math.abs(dx) > Math.abs(dy) * 1.15 ? 'x' : 'y';
       if (gesture.axis === 'x') { event.preventDefault(); viewport.setPointerCapture(event.pointerId); suppressClickUntil = performance.now() + 700; }
     }
     function up(event) {
+      if (window.BAG_DAY_VIEWPORT?.gesturesBlocked()) { cancel(); return; }
       if (!gesture || event.pointerId !== gesture.id) return;
       const g = gesture; gesture = null;
       if (g.axis === 'x' && Math.abs(event.clientX - g.x) >= 40) go(choice(event.clientX < g.x ? 1 : -1), true, event.clientX < g.x ? 1 : -1);
       else sync();
     }
-    function cancel() { gesture = null; sync(); }
+    function cancel() {
+      const previous=gesture;gesture=null;
+      if(previous && viewport.hasPointerCapture(previous.id))viewport.releasePointerCapture(previous.id);
+      sync();
+    }
     // Touch pointers begin with implicit capture on the link/image. Transferring
     // that capture to the viewport must not cancel the swipe as it bubbles up.
     function lostCapture(event) { if (event.target === viewport) cancel(); }
@@ -143,6 +149,7 @@
     viewport.addEventListener('pointerup', up); viewport.addEventListener('pointercancel', cancel);
     viewport.addEventListener('lostpointercapture', lostCapture); viewport.addEventListener('click', click, true);
     document.addEventListener('visibilitychange', visibility); window.addEventListener('pagehide', pagehide); window.addEventListener('pageshow', pageshow);
+    window.addEventListener('bag-day-gesture-cancel',cancel);window.addEventListener('bag-day-gestures-ready',sync);
     window.addEventListener('resize', sync); window.addEventListener('scroll', sync, true); media.addEventListener('change', motion);
     const observer = new MutationObserver(sync); observer.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['hidden', 'inert', 'open'] });
     const intersection = new IntersectionObserver(sync, { threshold: [0, .5, 1] }); intersection.observe(viewport);
@@ -150,6 +157,10 @@
     return { destroy() {
       freeze(); save(); destroyed = true; settle(); observer.disconnect(); intersection.disconnect();
       viewport.removeEventListener('keydown', keyboard);
+      viewport.removeEventListener('pointerdown',down);viewport.removeEventListener('pointermove',move);
+      viewport.removeEventListener('pointerup',up);viewport.removeEventListener('pointercancel',cancel);
+      viewport.removeEventListener('lostpointercapture',lostCapture);viewport.removeEventListener('click',click,true);
+      window.removeEventListener('bag-day-gesture-cancel',cancel);window.removeEventListener('bag-day-gestures-ready',sync);
       panel.removeEventListener('focusin', focus); panel.removeEventListener('pointerenter', enter); panel.removeEventListener('pointerleave', leave);
       document.removeEventListener('visibilitychange', visibility); window.removeEventListener('pagehide', pagehide); window.removeEventListener('pageshow', pageshow);
       window.removeEventListener('resize', sync); window.removeEventListener('scroll', sync, true); media.removeEventListener('change', motion);

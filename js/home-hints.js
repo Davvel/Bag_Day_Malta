@@ -6,7 +6,7 @@
  let active=false,stage=0,nextAt=Date.now()+2000,animations=[],glove=null,generation=0,bubble=null,inviteTimer=null,inviteAttempt=Date.now()+8000;
  const help=()=>window.BAG_DAY_HELP?.enabled()!==false;
  const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
- const ready=()=>help()&&!document.hidden&&!document.getElementById('dashboard')?.hidden&&!document.getElementById('appContent')?.inert&&document.getElementById('splashScreen')?.hidden&&[...document.querySelectorAll('.overlay')].every(n=>n.hidden)&&!window.BAG_INFO?.isOpen()&&!document.getElementById('bagArea')?.hasAttribute('data-hint-moving')&&document.getElementById('bagArea')?.getAttribute('aria-busy')!=='true';
+ const ready=()=>!window.BAG_DAY_VIEWPORT?.gesturesBlocked()&&help()&&!document.hidden&&!document.getElementById('dashboard')?.hidden&&!document.getElementById('appContent')?.inert&&document.getElementById('splashScreen')?.hidden&&[...document.querySelectorAll('.overlay')].every(n=>n.hidden)&&!window.BAG_INFO?.isOpen()&&!document.getElementById('bagArea')?.hasAttribute('data-hint-moving')&&document.getElementById('bagArea')?.getAttribute('aria-busy')!=='true';
  function clear(){generation++;animations.forEach(a=>a.cancel());animations=[];glove?.remove();glove=null;active=false;}
  function stop(event){
   if(bubble&&!bubble.contains(event.target))dismiss();
@@ -16,6 +16,7 @@
  }
  for(const event of ['pointerdown','touchstart','click','keydown','wheel'])document.addEventListener(event,stop,{capture:true,passive:true});
  function dismiss(){clearTimeout(inviteTimer);bubble?.remove();bubble=null;}
+ window.addEventListener('bag-day-gesture-cancel',()=>{clear();dismiss();nextAt=Date.now()+15000;});
  function hint(index){
   const target=document.querySelector(index===0?'.collection-figures .bag-button':index===1?'#nextDay':'#bagArea');
   if(!target||target.disabled||!target.getClientRects().length)return false;

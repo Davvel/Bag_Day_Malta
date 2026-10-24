@@ -1,13 +1,13 @@
-import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.31';
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.31';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.31';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.31';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.31';
-import {emojiCandidates} from './custom-emoji.mjs?v=1.1.31';
+import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.32';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.32';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.32';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.32';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.32';
+import {emojiCandidates} from './custom-emoji.mjs?v=1.1.32';
 import {request,esc} from './client.mjs';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.31';
-import {titleIcons} from './title-icons.mjs?v=1.1.31';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.31';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.32';
+import {titleIcons} from './title-icons.mjs?v=1.1.32';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.32';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='',searchQuery='',searchTimer=null;
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
@@ -282,7 +282,7 @@ new MutationObserver(sizeDock).observe(sponsorPanel,{attributes:true,attributeFi
 if(window.ResizeObserver)new ResizeObserver(sizeDock).observe(sponsorDock);
 window.addEventListener('bag-day-sponsors-ready',sizeDock);window.addEventListener('resize',sizeDock);
 const viewport=window.visualViewport;
-function fitViewport(){const root=document.documentElement,height=viewport?.height||window.innerHeight;root.classList.toggle('short-viewport',height<=450);root.style.setProperty('--usable-height',height+'px');root.style.setProperty('--usable-width',(viewport?.width||window.innerWidth)+'px');root.style.setProperty('--viewport-top',(viewport?.offsetTop||0)+'px');root.style.setProperty('--viewport-left',(viewport?.offsetLeft||0)+'px');sizeDock()}
+function fitViewport(){const root=document.documentElement,layout=window.BAG_DAY_VIEWPORT?.layout()||{height:window.innerHeight,width:window.innerWidth,top:0,left:0};root.classList.toggle('short-viewport',layout.height<=450);root.style.setProperty('--usable-height',layout.height+'px');root.style.setProperty('--usable-width',layout.width+'px');root.style.setProperty('--viewport-top',layout.top+'px');root.style.setProperty('--viewport-left',layout.left+'px');sizeDock()}
 window.addEventListener('resize',fitViewport);if(viewport){viewport.addEventListener('resize',fitViewport);viewport.addEventListener('scroll',fitViewport)}fitViewport();
 function refreshVisibleState(){renderSponsors();refreshItemAges()}window.addEventListener('pageshow',refreshVisibleState);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshVisibleState()});setInterval(refreshVisibleState,60000);
 for(const dialog of [detailsDialog,itemDialog,loginDialog])dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close()});
