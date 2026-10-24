@@ -2,7 +2,7 @@
  'use strict';
  const byId=id=>document.getElementById(id),catalog=window.SORTING_ITEMS;
  const content=window.SORTING_CONTENT;
- let round=content.plan(1),lessonCursor=0,pendingRound=null,preparing=false,prepareSerial=0,lastSpawnId=null;
+ let round=content.plan(1),pendingRound=null,preparing=false,prepareSerial=0,lastSpawnId=null;
  const bagNames=['Organic','Mixed','Recyclables'],progressKey='sort-belt-highest-unlocked-v1',lastLevelKey='sort-belt-last-level-v1';
  const storage={read(){try{return Math.max(10,Math.min(100,Math.floor(Number(localStorage.getItem(progressKey)))||10));}catch(_){return 1;}},write(value){try{localStorage.setItem(progressKey,String(value));}catch(_){}}};
  function savedLevel(){try{return Math.max(1,Math.min(storage.read(),Math.floor(Number(localStorage.getItem(lastLevelKey)))||1));}catch(_){return 1;}}
@@ -160,13 +160,13 @@
   if(preparing||lessonPanel.open)return;
   next=Math.max(1,Math.min(unlocked,Number(next)||1));
   if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice}))return;
-  if(next<=10){prepareRound(next,isPractice,null);return;}
-  const lesson=content.lessons[lessonCursor++%content.lessons.length];
+  const lesson=content.chooseLesson(next);
+  if(!lesson){prepareRound(next,isPractice,null);return;}
   pendingRound={next,isPractice,lesson};
   byId('lessonTitle').textContent=lesson.title;byId('lessonText').textContent=lesson.text;byId('lessonExtra').textContent=lesson.extra;
   byId('lessonItem').src=content.artURL(lesson.item);byId('lessonItem').alt=catalog.find(i=>i.id===lesson.item).name;
   byId('lessonDestination').src=content.destinations[lesson.route].image;byId('lessonDestination').alt=content.destinations[lesson.route].name;
-  byId('lessonColumns').replaceChildren(...content.plan(next,lesson).columns.map(route=>{const node=document.createElement('span');node.textContent=content.destinations[route].name;return node;}));
+  byId('lessonDetails').open=false;
   byId('lessonSource').href=lesson.link;byId('lessonSource').textContent=lesson.route==='battery'?'Find a battery collection point ↗':lesson.route==='roadshow'?'Check the Roadshow schedule ↗':'Official bulky collection information ↗';byId('lessonStatus').textContent='';
   byId('tryLesson').disabled=false;byId('classicLesson').disabled=false;
   lessonPanel.showModal();window.BAG_DAY_BACK?.sync();byId('tryLesson').focus({preventScroll:true});

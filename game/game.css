@@ -96,11 +96,23 @@
 #lessonPanel h2{font-size:23px;line-height:1.2;letter-spacing:-.025em;margin:18px 0 12px}
 #lessonText{font-size:16px;line-height:1.55;color:#f1f5ee}
 #lessonExtra{font-size:13px;line-height:1.5;color:#bed5dd}
-.lesson-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:16px 0 10px}
-.lesson-columns span{display:grid;place-items:center;min-height:43px;padding:7px 4px;background:#284d5c;border:1px solid #537b80;border-radius:10px;font-size:11px;font-weight:750;text-align:center}
-#lessonPanel .lesson-timing{font-size:12px;line-height:1.4;color:#c3dbd5}
 #lessonStatus:empty{display:none}#lessonStatus{font-size:13px;color:#f0cf8e}
 #tryLesson,#classicLesson{display:block;width:100%;margin-top:10px;min-height:48px}
 #lessonSource{display:block;text-align:center;font-size:11px;margin-top:16px;padding:5px}
 @media(max-width:360px){.falling-item{height:116px}.falling-item img{width:62px;height:62px}#lessonPanel{padding:22px 16px}#lessonPanel h2{font-size:21px}}
 @media(max-height:450px) and (min-width:600px){.falling-item{height:90px}.falling-item img{width:46px;height:46px}.destination-detail{font-size:8px}.game-bags img{max-height:48px}}
+
+/* Compact lesson introduction; scroll only when the viewport or text size needs it. */
+#lessonPanel{width:min(440px,calc(100% - 24px));max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:20px 18px}
+#lessonPanel .lesson-eyebrow{min-height:30px;margin:0 0 8px;display:flex;align-items:center}
+.lesson-picture{padding:6px;gap:18px}
+.lesson-picture img{width:76px;height:76px}
+#lessonPanel h2{font-size:21px;margin:12px 0 8px}
+#lessonText{font-size:14px;line-height:1.45;margin:0 0 10px}
+#lessonDetails{border:0;padding:0;margin:0 0 10px;text-align:left;font-size:12px}
+#lessonDetails summary{min-height:36px;display:list-item;align-content:center;color:#b3dbcc}
+#lessonExtra{font-size:12px;line-height:1.45;margin:6px 0 10px}
+.lesson-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+#tryLesson,#classicLesson{margin:0;min-height:48px;padding:10px 6px;font-size:14px}
+#lessonSource{margin-top:8px;min-height:36px;display:flex;align-items:center;justify-content:center}
+@media(max-height:600px){#lessonPanel{padding:14px 16px}.lesson-picture img{width:56px;height:56px}#lessonPanel h2{font-size:19px;margin-top:10px}#lessonText{font-size:13px}}

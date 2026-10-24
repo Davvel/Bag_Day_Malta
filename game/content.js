@@ -15,6 +15,15 @@
   {id:'paint',route:'roadshow',replace:2,item:'paint-tin',title:'Take leftover paint to the Roadshow Truck',text:'Take leftover household paint to the WasteServ Roadshow Truck. Keep paint out of ordinary waste bags.',extra:'Keep it in its original labelled container. A Civic Amenity Site accepts paint too.',link:'https://www.wsm.com.mt/en/roadshow'},
   ...[['chair','A broken chair'],['sofa','A worn-out sofa'],['mattress','A worn-out mattress'],['table','A broken table'],['wardrobe','A broken wardrobe'],['bed','A broken bed frame']].map(([id,name])=>({id:'bulky-'+id,route:'bulky',replace:0,item:'bulky-'+id,title:name+' needs bulky collection',text:'Book a free bulky collection with your Local Council. Put the item out according to your booking instructions.',extra:'If furniture can still be used safely, giving it to someone else is another option. A Civic Amenity Site also accepts bulky items.',link:'https://www.wsm.com.mt/en/bulky-waste'}))
  ];
+ // Select a fresh mode per round, then a destination before its lesson.
+ // Equal destination weighting keeps the six bulky lessons from dominating.
+ const specialRoutes=['battery','roadshow','bulky'];
+ function chooseLesson(level,random=Math.random){
+  if(level<=10||random()<0.6)return null;
+  const route=specialRoutes[Math.floor(random()*specialRoutes.length)];
+  const choices=lessons.filter(lesson=>lesson.route===route);
+  return choices[Math.floor(random()*choices.length)];
+ }
  const classic=['organic','mixed','recycle'];
  function shuffle(items,random=Math.random){const a=items.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
  function plan(level,lesson=null,random=Math.random){
@@ -31,6 +40,6 @@
  const accepts=(item,route)=>item.routes.includes(route);
  const laneFor=(item,columns)=>columns.findIndex(route=>accepts(item,route));
  function deck(pool,lastId=null,random=Math.random){const a=shuffle(pool,random);const special=a.findIndex(item=>item.bag===null);if(special>=0&&special<a.length-6){const early=Math.max(0,a.length-3);[a[special],a[early]]=[a[early],a[special]];}if(a.length>1&&a[a.length-1].id===lastId)[a[0],a[a.length-1]]=[a[a.length-1],a[0]];return a;}
- const artURL=id=>`assets/items/${id}.webp?v=1.1.38`;
- window.SORTING_CONTENT={artURL,destinations,lessons,classic,plan,accepts,laneFor,deck};
+ const artURL=id=>`assets/items/${id}.webp?v=1.1.39`;
+ window.SORTING_CONTENT={artURL,destinations,lessons,chooseLesson,classic,plan,accepts,laneFor,deck};
 })();
