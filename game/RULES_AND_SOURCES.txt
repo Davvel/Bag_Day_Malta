@@ -1,0 +1,48 @@
+Sorting Game content review - 24 October 2026 - v1.1.36
+
+Household bags:
+https://www.wastecollection.mt/
+The existing local waste-guide.js provides the detailed household categories.
+New illustrated examples stay within those published categories. Labels
+identify empty/clean containers, food removed from packaging, or dirty waste
+where that distinction affects the destination. Glass is not added to this
+three-bag game. Mixed items are not a catch-all for hazardous waste.
+
+Batteries:
+https://greenpak.com.mt/AboutBatteriesforHospice
+https://batterybin.mt/
+Use only small household battery examples: AA, AAA, button and 9V. No car
+batteries, damaged battery packs, vapes or electronic devices in this lesson.
+Ask a grown-up to handle and take the batteries to a dedicated collection bin.
+WasteServ also lists household batteries for its Roadshow Truck and Civic
+Amenity Sites; the game must not describe a battery bin as the only real route.
+
+Cooking oil and paint:
+https://www.wsm.com.mt/en/roadshow
+https://www.wsm.com.mt/en/ca-sites
+The Roadshow Truck lists cooking oil and paints/solvents among accepted waste.
+It has a locality schedule; no nationwide fixed collection day is asserted.
+Civic Amenity Sites are also an accepted route. Cooking oil is explicitly
+identified so the game does not imply that the Roadshow accepts engine oil.
+Oil containers with oil inside are different from empty recyclable containers.
+
+Bulky household furniture:
+https://www.wsm.com.mt/en/bulky-waste
+https://www.wastecollection.mt/
+Use clearly broken or worn-out chairs, sofas, mattresses, tables, wardrobes
+and bed frames. Teach booking with the Local Council before putting items out.
+Council booking details and item conditions can vary. A Civic Amenity Site is
+another option. Usable furniture may instead be passed on for reuse.
+
+Game interpretation:
+There are always three visible destinations. A special round has one special
+service and two familiar bags, held fixed throughout that minute. Its lesson
+explains one item type, and only that type of special item enters that round.
+Ordinary items are sampled from the two visible bag categories. Item routes
+support more than one accepted visible destination where officially valid.
+The game does not require all waste to have exactly one possible real route.
+No live collection dates, points, telephone numbers or quantity limits are
+hardcoded into the lesson. Official links are provided for grown-ups.
+
+This is household education, not a commercial waste disposal guide. Recheck
+operator guidance before extending the catalogue or changing accepted routes.
