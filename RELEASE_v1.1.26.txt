@@ -1,8 +1,0 @@
-Bag Day Malta frontend v1.1.26 - package 41
-Deploy the accompanying API v1.1.18/database stage FIRST.
-REUSE marketplace shortcut, colourful calendar and stable selected date.
-Help animations setting is ON by default and remembered; no 30-day expiry.
-Occasional game/calendar/REUSE prompts share the same setting.
-GPS nearby locality with Home fallback, editable manual selection and search.
-Optional original price/purchase year; all listings remain FREE.
-No advert dots; swipe, keys, ten-second rotation and inline pause remain.

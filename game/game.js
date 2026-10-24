@@ -14,7 +14,7 @@
  const belt=byId('conveyor'),itemsLayer=byId('fallingItems'),hand=byId('pushHand'),bags=[...document.querySelectorAll('#gameBags button')];
  const pace=()=>({travel:Math.max(5.2,12-(level-1)*.55),interval:Math.max(1.5,6-(level-1)*.35)});
  const heightFor=item=>Math.max(1,belt.clientHeight-item.node.offsetHeight);
- function measure(name,params={}){if(parent!==window)parent.postMessage({type:'bag-day-game-analytics',name,params},location.protocol==='file:'?'*':location.origin)}
+ function measure(name,params={}){if(parent!==window)parent.postMessage({type:'bag-day-game-analytics',name,params},location.protocol==='file:'?'*':location.origin);else window.BAG_DAY_ANALYTICS?.event(name,params)}
  function abandon(){if(['running','paused','info'].includes(mode))measure('game_round_abandon',{level,mode:practice?'practice':'timed'})}
  function showOnly(id){for(const name of ['gameMenu','gamePlay','gameResults'])byId(name).hidden=name!==id;}
  function renderMenu(){
@@ -55,7 +55,7 @@
   }
   notifyWin();(level<100?byId('playNextLevel'):byId('exitWin')).focus({preventScroll:true});
  }
- function closeGame(){abandon();cancelAnimationFrame(raf);mode='closed';hideHint();if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-close'},location.protocol==='file:'?'*':location.origin);else location.replace('../');}
+ function closeGame(){abandon();cancelAnimationFrame(raf);mode='closed';hideHint();if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-close'},location.protocol==='file:'?'*':location.origin);else if(new URLSearchParams(location.search).get('from')==='home'&&history.length>1)history.back();else location.replace('../');}
  function fillDeck(){
   const count=Math.min(catalog.length,6+Math.floor((level-1)/2)*3);deck=catalog.slice(0,count).slice();
   for(let n=deck.length-1;n>0;n--){const index=Math.floor(Math.random()*(n+1));[deck[n],deck[index]]=[deck[index],deck[n]];}
@@ -151,6 +151,7 @@
   if(!practice && elapsed>=60){finishRound();return;}raf=requestAnimationFrame(tick);
  }
  function startRound(next=Number(byId('levelChoice').value),isPractice=false){
+  if(window.BAG_DAY_GAME_ZOOM?.guard({next,isPractice}))return;
   byId('winPanel').hidden=true;byId('gamePlay').inert=false;notifyWin();
   abandon();level=Math.max(1,Math.min(unlocked,Number(next)||1));rememberLevel(level);practice=isPractice;measure('game_round_start',{level,mode:practice?'practice':'timed'});elapsed=0;hits=0;misses=0;items=[];mistakes=new Map();deck=[];nextSpawn=0;selected=null;drag=null;
   itemsLayer.replaceChildren();byId('pausePanel').hidden=true;byId('feedback').classList.remove('shown');bags.forEach(bag=>bag.classList.remove('target','good','bad'));hideHint();
@@ -207,7 +208,12 @@
  renderMenu();
  setInterval(()=>{if(mode==='menu')renderRecords();},60000);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&mode==='menu')renderRecords();});
- if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-ready'},location.protocol==='file:'?'*':location.origin);else location.replace('../');
+ if(window.parent!==window)window.parent.postMessage({type:'bag-day-game-ready'},location.protocol==='file:'?'*':location.origin);else {window.BAG_DAY_ANALYTICS?.start();window.BAG_DAY_ANALYTICS?.event('game_ready');}
+ window.BAG_DAY_BACK?.register('round',{isOpen:()=>!['menu','closed'].includes(mode),close:renderMenu});
+ window.BAG_DAY_BACK?.register('pause',{isOpen:()=>mode==='paused',close:resume});
+ // Register information last, so Back closes it before its underlying round.
+ window.BAG_DAY_BACK?.register('information',{isOpen:()=>window.BAG_INFO?.isOpen()===true,close:()=>window.BAG_INFO.close()});
+ window.BAG_DAY_GAME_ZOOM?.restore(startRound);
  // This worker owns only /game/ assets, never the collection app's cache.
  if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{});
 })();

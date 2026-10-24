@@ -1,0 +1,68 @@
+BAG DAY MALTA - SCREEN ZOOM AND PANNING
+Package 48 | Website v1.1.33 | Based on package 47 / v1.1.32
+
+WHAT CHANGED
+- REUSE keeps its normal-sized page layout while magnified, with the outer
+  page clipping removed so the browser can pan around the enlarged view.
+- Game now opens as its own page, like REUSE, with initial-scale=1.
+- Settings opens in its own page entry at initial-scale=1. Close or mobile
+  Back returns to the previous Home document. Saved Settings are reread on
+  return, including Home locality, location mode, appearance and help setting.
+- Home is not forcibly zoomed or reloaded when opening these screens. Browser
+  Back can restore its previous zoom and position using native history.
+- Every PLAY entry (including replay and next level) checks pinch zoom before
+  starting a round. If magnified, it attempts one fresh-document reset while
+  retaining the requested level. If that still fails, it blocks the round and
+  shows: 'The game cannot be played while zoomed in. Pinch the screen to zoom
+  out fully.' No help panel appears if the reset succeeds.
+- In that panel, pinch out, then tap 'I have zoomed out' and press Play again.
+- The working Home/calendar swipe protections are preserved: magnified drags
+  pan rather than change day/month. Normal navigation resumes after zoom-out.
+- REUSE and Settings use their opening rules rather than saved per-screen zoom.
+- No inactivity timer resets zoom. Game progress and consent-gated analytics
+  are retained. No account or backend changes are required.
+
+DEPLOY WEBSITE
+1. Extract this ZIP.
+2. Open COPY_TO_GITHUB. Copy everything INSIDE it into the root of your
+   existing Bag Day WEBSITE repository, replacing matching files and merging
+   folders. Do not copy the COPY_TO_GITHUB folder itself.
+3. Keep your existing CNAME, .git folder, live configuration text files and
+   repository configuration. This ZIP contains no CNAME.
+4. In GitHub Desktop, review the changes and use this commit summary:
+   Improve screen zoom, game entry and REUSE panning - v1.1.33
+5. Click Commit to main, then Push origin. Wait for GitHub Pages to finish.
+6. Close and reopen Bag Day. Check Settings shows v1.1.33.
+   If it still shows an older version, refresh once while online and reopen.
+
+BACKEND
+Frontend only. Do not run API deployment PowerShell scripts, database scripts,
+SQL migrations or any backend commands for this release.
+
+PHONE CHECKS
+1. Zoom Home. Open REUSE: it should start at normal zoom. Magnify REUSE and
+   pan left/right/up/down. Open an item and check enlarged details too.
+2. Press mobile/browser Back: Home should return at its previous zoom.
+3. From zoomed Home, open Settings: it should start at normal zoom. Change
+   zoom and a preference there, then Back. Check Home's previous zoom and
+   the saved preference. Open Settings again: it should start at normal zoom.
+4. From zoomed Home, open Game: its menu should start at normal zoom. Press
+   Play: the round should start without a zoom warning. Check Pause, Resume,
+   game information, replay and Back to menu, then close Game to return Home.
+5. In the game menu, deliberately pinch in, then press Play. A page reset
+   should start the requested round if normal zoom is restored. If your
+   browser retains zoom, the pinch-out panel should appear and prevent play.
+6. Calendar: while magnified, pan without changing month. At normal size,
+   swipe between the available months. Home day swipes follow the same rule.
+7. Leave REUSE/Home magnified for more than 15 seconds: zoom must remain.
+
+VALIDATION / LIMITATIONS
+22 automated behavioural checks pass; all 53 JS/module files pass syntax
+checks; all 65 core and 37 game precache assets exist.
+Native pinch/pan, document-entry zoom and history restoration still require
+these phone checks. Chromium was unavailable in the build environment.
+Initial zoom and history restoration are browser-owned: there is no portable
+JavaScript setter for pinch scale. The game includes a checked manual fallback
+rather than disabling accessibility zoom or claiming reset is guaranteed.
+
+This ZIP does not deploy anything to your live website or database.

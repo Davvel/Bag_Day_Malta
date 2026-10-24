@@ -2,6 +2,7 @@
   'use strict';
   const data = window.WASTE_DATA;
   const $ = id => document.getElementById(id);
+  const settingsPage = new URLSearchParams(location.search).get('panel') === 'settings';
   const gesturesBlocked = () => window.BAG_DAY_VIEWPORT?.gesturesBlocked() === true;
   const appearanceKey='bag-day-appearance-v1';
   function applyAppearance(){
@@ -32,6 +33,7 @@
     splash.hidden = true;
     appContent.inert = false;
     if(welcomeNeeded){openWelcome();return;}
+    if(settingsPage){openSettings();return;}
     queueSupportInvitation();
   }
 
@@ -901,6 +903,10 @@
   let settingsClosing=false, settingsOpener=null;
   function openSettings(){
     if(welcomeNeeded || !$('welcomeOverlay').hidden || settingsClosing||!$('settingsOverlay').hidden)return;
+    if(!settingsPage){
+      const url=new URL(location.href);url.searchParams.set('panel','settings');
+      location.assign(url.href);return;
+    }
     analyticsEvent('settings_open');
     settingsOpener=document.activeElement;
     $('settingsOverlay').hidden=false;
@@ -914,6 +920,11 @@
   }
   async function closeSettings(direction=-1){
     if(!selected||settingsClosing||$('settingsOverlay').hidden)return;
+    if(settingsPage){
+      if(document.referrer && new URL(document.referrer).origin===location.origin && history.length>1)history.back();
+      else {const url=new URL(location.href);url.searchParams.delete('panel');location.replace(url.href);}
+      return;
+    }
     settingsClosing=true;
     const panel=$('settingsDialog');
     await Promise.all([
@@ -1123,6 +1134,13 @@
   syncViewport();
   window.addEventListener('resize',syncViewport);
   window.visualViewport?.addEventListener('resize',syncViewport);
+  window.addEventListener('pageshow',()=>{
+    const saved=localStorage.getItem(localityKey);
+    const savedFollow=localStorage.getItem(followLocationKey)==='true';
+    if(saved!==selected||savedFollow!==followLocation)temporaryView=null;
+    if(names.includes(saved))selected=saved;
+    followLocation=savedFollow;syncHelp();syncAnalyticsChoices();applyAppearance();render();
+  });
   render();
   loadDonation();
   loadAnalytics();
@@ -1136,6 +1154,7 @@
   if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
   // Hardware Back uses the same close routines as each panel's own controls.
   for(const [id,close] of [['settingsOverlay',closeSettings],['supportOverlay',closeSupport],['wasteOverlay',closeWasteGuide],['timeOverlay',closeTimeInfo],['calendarOverlay',closeCalendar],['localityOverlay',closeLocalityPicker]]){
+    if(id==='settingsOverlay' && settingsPage)continue;
     window.BAG_DAY_BACK?.register(id,{isOpen:()=>!$(id).hidden,close});
   }
   window.BAG_DAY_BACK?.register('supportConfirmation',{isOpen:()=>!$('supportOverlay').hidden&&!$('supportConfirm').hidden,close:backSupportStep});
