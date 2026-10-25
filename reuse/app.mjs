@@ -1,18 +1,19 @@
-import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.44';
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.44';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.44';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.44';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.44';
-import {emojiCandidates} from './custom-emoji.mjs?v=1.1.44';
-import {request,esc} from './client.mjs';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.44';
-import {titleIcons} from './title-icons.mjs?v=1.1.44';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.44';
+import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.47';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.47';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.47';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.47';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.47';
+import {emojiCandidates} from './custom-emoji.mjs?v=1.1.47';
+import {request,esc} from './client.mjs?v=1.1.47';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.47';
+import {titleIcons} from './title-icons.mjs?v=1.1.47';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.47';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='',searchQuery='',searchTimer=null;
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
 const iconState=createIconState({storage:iconSessionStorage});
-const contactCache=new Map(),revealing=new Set();let currentDetail=null,sponsorKey='';
+const revealing=new Set();let currentDetail=null,sponsorKey='';
+let lastFeedRenderKey='';
 let closeListingHelp=()=>{};
 const itemTitle=item=>item.title||titleSlice(String(item.description||''))||'Free item';
 const hasPhone=item=>!!(item.has_phone??(item.contact_mode==='PHONE'));
@@ -23,7 +24,7 @@ const failed=(operation,e)=>track('reuse_action_error',{operation,status_code:Nu
 const date=s=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',day:'numeric',month:'short',year:'numeric'}).format(new Date(s));
 const choices=(selected='')=>localities.map(l=>`<option value="${esc(l.locality_id)}" ${l.locality_id===selected?'selected':''}>${esc(l.name)}</option>`).join('');
 function message(s){$('#message').textContent=s;$('#message').hidden=!s;const detail=detailsDialog.querySelector('#detailError');if(detailsDialog.open&&detail){detail.textContent=s;detail.hidden=!s}}
-function account(){const signed=!!me;if(!signed)contactCache.clear();$('#signin').hidden=signed;$('#signout').hidden=!signed;$('#mineTab').hidden=!signed;$('#mineTab').textContent='My items'}
+function account(){const signed=!!me;$('#signin').hidden=signed;$('#signout').hidden=!signed;$('#mineTab').hidden=!signed;$('#mineTab').textContent='My items'}
 function tabs(){for(const [id,v] of [['browseTab','browse'],['mineTab','mine']])v===view?$('#'+id).setAttribute('aria-current','page'):$('#'+id).removeAttribute('aria-current')}
 async function run(fn,button){if(loading)return;loading=true;if(button)button.disabled=true;try{await fn()}catch(e){if(e.status===401){me=null;account()}message(e.message)}finally{loading=false;if(button?.isConnected)button.disabled=false}}
 async function refreshMe(){try{me=await request('/reuse/me')}catch(e){if(e.status===401)me=null;else throw e}account()}
@@ -69,19 +70,20 @@ async function defaultToGps(){
  renderSponsors();
 }
 
-async function feed(){
+async function feed({quiet=false}={}){
  const target=$('#feed'),requestNumber=++feedRequest,selected=allLocalities?'':locality,pageNumber=page;if(!localities.length){target.innerHTML='<p class="empty">No localities are available yet.</p>';return}
  if(!allLocalities&&!selected){target.innerHTML='<p class="empty">Choose a collection locality or tick All localities to see free items.</p>';$('#feedSummary').textContent='';$('#next').hidden=true;return}
- target.innerHTML='<p class="muted">Looking for a second life…</p>';
- $('#next').hidden=true;
+ if(!quiet){target.innerHTML='<p class="muted">Looking for a second life…</p>';$('#next').hidden=true;}
  const query=new URLSearchParams({limit:'20',offset:String(pageNumber*20)});if(selected)query.set('locality_id',selected);if(searchQuery.trim())query.set('q',searchQuery.trim());
  const data=await request('/public/reuse/items?'+query);if(view!=='browse'||requestNumber!==feedRequest||!target.isConnected)return;
  const items=newestFirst(data.items.filter(i=>Date.parse(i.delete_at)>Date.now()));
+ const renderKey=JSON.stringify([data.revision,selected,searchQuery,pageNumber,items.map(i=>i.item_id)]);if(quiet&&lastFeedRenderKey===renderKey)return;lastFeedRenderKey=renderKey;const feedScroll=$('#reuseScroll'),previousScroll=feedScroll?.scrollTop||0;
  track('reuse_search',{has_search:searchQuery.trim()?1:0,search_scope:selected?'locality':'all',result_count:items.length,page_index:pageNumber});
  const area=selected?(localities.find(l=>l.locality_id===selected)?.name||'this locality'):'all localities';
  $('#feedSummary').textContent=(items.length||searchQuery.trim())?`${items.length} free ${items.length===1?'item':'items'}${pageNumber?' on this page':''} · ${area} · Newest first`:'';
  target.innerHTML=items.map(i=>itemRow(i)).join('')||(searchQuery.trim()?'<div class="empty"><h3>No matching free items</h3><p>Try another word or change the locality filter.</p></div>':'<div class="empty"><span class="empty-reuse" aria-hidden="true">♻</span><h3>Room for another useful life</h3><p>No free items here yet. Have something to pass on?</p><button id="emptyGive">Give something away</button></div>');
- for(const row of target.querySelectorAll('.item-row')){const item=items.find(i=>i.item_id===row.dataset.itemId);row.onclick=()=>run(async()=>{if(me)await refreshMe();openDetails(item)});window.BAG_DAY_ANALYTICS?.observe(row,'reuse_item_impression',{has_phone:hasPhone(item)?1:0,has_url:publicURL(item.external_url)?1:0},'reuse:'+item.item_id)}
+ if(quiet&&feedScroll)feedScroll.scrollTop=previousScroll;
+ for(const row of target.querySelectorAll('.item-row')){const item=items.find(i=>i.item_id===row.dataset.itemId);row.onclick=()=>run(async()=>openDetails(item));window.BAG_DAY_ANALYTICS?.observe(row,'reuse_item_impression',{has_phone:hasPhone(item)?1:0,has_url:publicURL(item.external_url)?1:0},'reuse:'+item.item_id)}
  if($('#emptyGive'))$('#emptyGive').onclick=()=>give('empty_state');$('#next').hidden=data.items.length<20;
 }
 function ownerName(item,owned=false){
@@ -120,13 +122,13 @@ function openDetails(item){
  if($('#detailAdvert')){const click=()=>track('reuse_advert_click');$('#detailAdvert').addEventListener('click',click);$('#detailAdvert').addEventListener('auxclick',e=>{if(e.button===1)click()})}
  if(owned){if($('#editDetail'))$('#editDetail').onclick=()=>{detailsDialog.close();itemForm(item)};if($('#takeDetail'))$('#takeDetail').onclick=e=>endItem(item,'TAKEN',e.currentTarget);if($('#withdrawDetail'))$('#withdrawDetail').onclick=e=>endItem(item,'WITHDRAW',e.currentTarget)}
  if(!detailsDialog.open)detailsDialog.showModal();detailsDialog.scrollTop=0;
- if(!owned&&me&&contactCache.has(item.item_id))showPhone(item,contactCache.get(item.item_id));
+ // A reopened listing must revalidate availability before revealing its number.
  if(!owned)track('reuse_item_open',{has_phone:hasPhone(item)?1:0,has_url:link?1:0});
 }
 async function reveal(item){
- if(!me||revealing.has(item.item_id))return;const session=me,button=$('#revealPhone');if(contactCache.has(item.item_id)){showPhone(item,contactCache.get(item.item_id));return}
+ if(!me||revealing.has(item.item_id))return;const session=me,button=$('#revealPhone');
  revealing.add(item.item_id);if(button){button.disabled=true;button.textContent='Opening number…'}
- try{const data=await request('/reuse/items/'+encodeURIComponent(item.item_id)+'/contact');if(!me||me!==session)return;contactCache.set(item.item_id,data.contact_phone);track('reuse_phone_revealed');if(detailsDialog.open&&currentDetail?.item.item_id===item.item_id)showPhone(item,data.contact_phone)}
+ try{const data=await request('/reuse/items/'+encodeURIComponent(item.item_id)+'/contact');if(!me||me!==session)return;track('reuse_phone_revealed');if(detailsDialog.open&&currentDetail?.item.item_id===item.item_id)showPhone(item,data.contact_phone)}
  catch(e){if(e.status===401){me=null;account();await signIn(()=>reveal(item))}else{failed('phone',e);if(detailsDialog.open&&currentDetail?.item.item_id===item.item_id)contactMessage(e.message)}}
  finally{revealing.delete(item.item_id);if(button?.isConnected){button.disabled=false;button.textContent='View phone number'}}
 }
@@ -263,7 +265,7 @@ function itemForm(old){
  itemDialog.innerHTML=`<button id="closeItem" class="close" aria-label="Close item form">×</button><span class="eyebrow">A NEW SECOND LIFE</span><h2 id="itemTitle">${old?'Edit your item':'What are you passing on?'}</h2><form id="itemForm"><label>Title<span class="title-entry"><span id="selectedEmojis" class="item-symbols" data-count="1" role="img" hidden></span><input id="listingTitle" name="title" required aria-describedby="titleCount" placeholder="e.g. Small wooden bookcase" value="${esc(old?itemTitle(old):'')}"></span><span id="titleCount" class="counter"></span></label><fieldset class="emoji-picker"><legend>Title icon <span class="muted small">optional</span></legend><div id="iconSummary" class="icon-summary" hidden><button type="button" id="editIcon" class="quiet" aria-controls="iconEditor" aria-expanded="false">Edit Icon</button></div><div id="iconEditor"><div class="icon-controls"><div class="emoji-tools"><button type="button" id="manualIcons" class="quiet" aria-controls="emojiChoices" aria-expanded="false">Manual Select</button><button type="button" id="quickIcons" class="quiet" disabled>Auto Find</button></div></div><p id="aiCooldown" class="field-hint" role="status"></p><p id="emojiHint" class="field-hint" role="status"></p><div class="icon-edit-actions"><button type="button" id="clearIcons" class="quiet" aria-label="Clear selected icon" hidden>Clear icon</button><button type="button" id="keepIcon" class="quiet" hidden>Keep current</button></div><details id="emojiChoices"><summary>Search icons</summary><input id="emojiSearch" type="search" maxlength="512" placeholder="Search icons or paste an emoji" aria-label="Search icons or paste an emoji" aria-describedby="emojiSearchStatus"><p id="emojiSearchStatus" class="field-hint" role="status" aria-live="polite"></p><div id="emojiPalette" class="emoji-palette"></div></details></div><input type="hidden" id="itemEmojis" name="item_emojis"></fieldset><label>Description<textarea id="description" name="description" maxlength="500" rows="3" required placeholder="Condition, collection details and anything useful to know.">${esc(old?.description||'')}</textarea><span id="descriptionCount" class="counter"></span></label>${attributeFields(old)}<label>Collection locality<select name="locality_id" required>${choices(old?.locality_id||c.locality_id)}</select></label><label id="phoneField">Phone number<input id="phone" name="contact_phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="32" value="${esc(old?old.contact_phone||'':c.contact_phone||'')}" placeholder="9912 3456 or +356 9912 3456"><span class="field-hint">8 digits, optionally starting with 356 or +356. Visible only after Google sign-in.</span></label><label id="linkField"><span>Advert URL <span class="muted">(optional)</span></span><input id="link" name="external_url" type="url" maxlength="2048" value="${esc(old?.external_url||'')}" placeholder="https://…"><span class="field-hint">You can add a link as well as a phone number. If you leave the URL empty, a phone number is required. Anyone can open the link without signing in.</span></label><label class="check"><input id="free" type="checkbox" required><span>This item is completely free. No payment or purchase is required.</span></label><p class="muted small">${old?(me.trusted_autopublish?'Your edits publish automatically. The original expiry date stays the same.':'Edits are reviewed again. The original expiry date stays the same.'):'Listings expire automatically. The expiry date appears in item details.'}</p><div id="itemError" class="notice" role="alert" hidden></div><div class="form-actions"><button>${old?'Save changes':'Submit free item'}</button><button type="button" id="cancelItem" class="quiet">Cancel</button></div></form>`;
  const collectAttributes=bindAttributes(old);
  const validateContacts=()=>{const phone=$('#phone'),link=$('#link'),digits=phone.value.replace(/[\s().-]/g,'');phone.required=!link.value.trim();link.required=!phone.value.trim();phone.setCustomValidity(digits&&!/^(?:\+?356)?[0-9]{8}$/.test(digits)?'Enter 8 digits, optionally starting with 356 or +356.':'');link.setCustomValidity(link.value.trim()&&!/^https:\/\//i.test(link.value.trim())?'Use a complete https:// advert URL.':'')};$('#phone').oninput=$('#link').oninput=validateContacts;validateContacts();const count=()=>{$('#descriptionCount').textContent=$('#description').value.length+' / 500';const title=$('#listingTitle'),length=titleLength(title.value);$('#titleCount').textContent=length+' / 40';$('#titleCount').classList.toggle('over-limit',length>40);title.setCustomValidity(length>40?'Use up to 40 visible characters.':title.value.includes('\0')?'Remove the invalid character.':'')};$('#description').oninput=count;count();bindEmojiPicker(old?.item_emojis||'',()=>({title:$('#listingTitle').value.trim(),description:$('#description').value.trim(),...collectAttributes()}),old?(submittedTime(old)===null?0:submittedTime(old)+30*60000):Infinity);$('#listingTitle').oninput=count;$('#closeItem').onclick=$('#cancelItem').onclick=()=>itemDialog.close();itemDialog.showModal();$('#listingTitle').focus();
- $('#itemForm').onsubmit=async e=>{e.preventDefault();if(loading)return;loading=true;e.submitter.disabled=true;try{const b={...Object.fromEntries(new FormData(e.target)),...collectAttributes(),free_only:$('#free').checked,...(old?{revision:old.revision}:{item_id:id})};b.original_price_cents=priceToCents(b.original_price_eur);delete b.original_price_eur;b.purchase_year=b.purchase_year.trim()?Number(b.purchase_year):null;track('reuse_item_submit',{operation:old?'edit':'create',...contactStats(b)});const r=await request('/reuse/items'+(old?'/'+old.item_id:''),{method:old?'PATCH':'POST',body:b});if(!r.replayed)track(old?'reuse_item_edit_saved':'reuse_item_submitted',{...contactStats(b),listing_state:r.item.status==='LIVE'?'live':'pending'});itemDialog.close();await mine();message(r.item.status==='LIVE'?'Your free item is now available.':'Your item is waiting for approval.')}catch(err){failed(old?'edit':'create',err);$('#itemError').textContent=err.message;$('#itemError').hidden=false}finally{loading=false;if(e.submitter?.isConnected)e.submitter.disabled=false}};
+ $('#itemForm').onsubmit=async e=>{e.preventDefault();if(loading)return;loading=true;e.submitter.disabled=true;try{const b={...Object.fromEntries(new FormData(e.target)),...collectAttributes(),free_only:$('#free').checked,...(old?{revision:old.revision}:{item_id:id})};b.original_price_cents=priceToCents(b.original_price_eur);delete b.original_price_eur;b.purchase_year=b.purchase_year.trim()?Number(b.purchase_year):null;track('reuse_item_submit',{operation:old?'edit':'create',...contactStats(b)});const r=await request('/reuse/items'+(old?'/'+old.item_id:''),{method:old?'PATCH':'POST',body:b});if(!r.replayed)track(old?'reuse_item_edit_saved':'reuse_item_submitted',{...contactStats(b),listing_state:r.item.status==='LIVE'?'live':'pending'});itemDialog.close();await mine();message(r.item.status==='LIVE'?(r.publication_pending?'Your item is saved. Its public listing update is pending and will retry automatically.':'Your free item is now available.'):'Your item is waiting for approval.')}catch(err){failed(old?'edit':'create',err);$('#itemError').textContent=err.message;$('#itemError').hidden=false}finally{loading=false;if(e.submitter?.isConnected)e.submitter.disabled=false}};
 }
 loginDialog.addEventListener('cancel',()=>{track('reuse_signin_cancel');afterLogin=null});
 $('#signin').onclick=()=>signIn(()=>view==='mine'?mine():browse());$('#signout').onclick=()=>run(async()=>{detailsDialog.close();itemDialog.close();await request('/auth/public/logout',{method:'POST',body:{}});track('reuse_signout');me=null;account();message('');await browse()});$('#closeSignin').onclick=()=>{track('reuse_signin_cancel');afterLogin=null;loginDialog.close()};$('#mineTab').onclick=()=>{track('reuse_my_items_open');run(mine)};$('#browseTab').onclick=()=>run(browse);
@@ -284,7 +286,7 @@ window.addEventListener('bag-day-sponsors-ready',sizeDock);window.addEventListen
 const viewport=window.visualViewport;
 function fitViewport(){const root=document.documentElement,layout=window.BAG_DAY_VIEWPORT?.layout()||{height:window.innerHeight,width:window.innerWidth,top:0,left:0};root.classList.toggle('short-viewport',layout.height<=450);root.style.setProperty('--usable-height',layout.height+'px');root.style.setProperty('--usable-width',layout.width+'px');root.style.setProperty('--viewport-top',layout.top+'px');root.style.setProperty('--viewport-left',layout.left+'px');sizeDock()}
 window.addEventListener('resize',fitViewport);if(viewport){viewport.addEventListener('resize',fitViewport);viewport.addEventListener('scroll',fitViewport)}fitViewport();
-function refreshVisibleState(){renderSponsors();refreshItemAges()}window.addEventListener('pageshow',refreshVisibleState);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshVisibleState()});setInterval(refreshVisibleState,60000);
+function refreshVisibleState(){renderSponsors();refreshItemAges();if(!document.hidden&&view==='browse'&&$('#feed')&&!detailsDialog.open&&!itemDialog.open&&!loginDialog.open&&!window.BAG_DAY_VIEWPORT?.gesturesBlocked()&&!document.activeElement?.matches('input,textarea,select'))run(()=>feed({quiet:true}))}window.addEventListener('pageshow',refreshVisibleState);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshVisibleState()});setInterval(refreshVisibleState,60000);
 for(const dialog of [detailsDialog,itemDialog,loginDialog])dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close()});
 start();
 

@@ -597,6 +597,7 @@
     dayOffset=Math.round((date-maltaToday())/86400000);
     window.BAG_DAY_SPONSORS.render(locality,date);
     $('localityName').textContent=locality;
+    if($('noticeboardShortcut'))$('noticeboardShortcut').href='noticeboard/?'+new URLSearchParams({locality});
     $('localityButton').setAttribute('aria-label',`${locality}. Choose a locality`);
     const fullDate=new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(date);
     $('date').textContent=new Intl.DateTimeFormat('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(date);
@@ -905,7 +906,7 @@
   function openSettings(){
     if(welcomeNeeded || !$('welcomeOverlay').hidden || settingsClosing||!$('settingsOverlay').hidden)return;
     if(!settingsPage){
-      const url=new URL(location.href);url.searchParams.set('panel','settings');url.searchParams.set('v','1.1.44');
+      const url=new URL(location.href);url.searchParams.set('panel','settings');url.searchParams.set('v','1.1.47');
       location.assign(url.href);return;
     }
     analyticsEvent('settings_open');
