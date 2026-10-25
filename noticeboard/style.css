@@ -28,3 +28,15 @@ input,select,textarea{background:var(--nb-card);color:var(--nb-ink);border-color
 :root[data-theme=dark] .notice-unpublished{background:#302d25}
 :root[data-theme=dark] .publication-state.unknown{background:#263b4b;color:#d3dce6}
 :root[data-theme=dark] dialog::backdrop{background:#0009}
+
+/* One compact REUSE-style advert dock; content scrolls clear of its height. */
+body:has(.noticeboard-sponsor-dock) .shell{padding-bottom:calc(36px + var(--noticeboard-dock-height,0px))}
+.noticeboard-sponsor-dock{position:fixed;z-index:10;bottom:0;left:0;right:0;padding:7px max(16px,calc((100% - 618px)/2)) max(8px,env(safe-area-inset-bottom));background:var(--nb-card);border-top:1px solid var(--nb-border)}
+.noticeboard-sponsor-dock .sponsor-panel{display:flex;flex-direction:column;gap:4px}
+.noticeboard-sponsor-dock .sponsor-heading{color:var(--nb-secondary);font-weight:700}
+.noticeboard-sponsor-dock .sponsor-link{color:#142d47;text-decoration:none;font-weight:750;border-radius:9px}
+.noticeboard-sponsor-dock .sponsor-slot-1{background:#f8dcc1}.noticeboard-sponsor-dock .sponsor-slot-2{background:#d9edda}.noticeboard-sponsor-dock .sponsor-slot-3{background:#e2dcf4}
+.noticeboard-sponsor-dock .sponsor-link::after{content:'↗';margin-left:auto;padding-left:8px;flex:none}
+.noticeboard-sponsor-dock .sponsor-link-image::after{content:none}
+
+body:has(.noticeboard-sponsor-dock) #usageConsent{bottom:calc(var(--noticeboard-dock-height,0px) + 10px)!important;max-height:calc(100dvh - var(--noticeboard-dock-height,0px) - 20px);overflow:auto}

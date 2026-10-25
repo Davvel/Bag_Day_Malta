@@ -2,8 +2,8 @@
 (() => {
  'use strict';
  if(window.BAG_DAY_ANALYTICS)return;
- const VERSION='1.1.56',scriptURL=new URL(document.currentScript.src),root=new URL('../',scriptURL);
- const area=location.pathname.startsWith(new URL('reuse/',root).pathname)?'reuse':location.pathname.startsWith(new URL('game/',root).pathname)?'game':'home';
+ const VERSION='1.1.57',scriptURL=new URL(document.currentScript.src),root=new URL('../',scriptURL);
+ const area=location.pathname.startsWith(new URL('noticeboard/',root).pathname)?'noticeboard':location.pathname.startsWith(new URL('reuse/',root).pathname)?'reuse':location.pathname.startsWith(new URL('game/',root).pathname)?'game':'home';
  const consentKey='bag-day-analytics-consent-v1',excludeKey='bag-day-analytics-exclude-v1';
  const get=k=>{try{return localStorage.getItem(k)}catch{return null}},put=(k,v)=>{try{localStorage.setItem(k,v)}catch{}};
  // Unlisted device-testing links, applied before any analytics can start.
@@ -29,11 +29,11 @@
  }return out;}
  let id='',ready=false,loading=null,configured=false,lastAttempt=0,state='waiting_for_consent',queue=[],pageCounted=false,hiddenAt=0;
  const seen=new Set(),actions=new Set(),watches=new Set();
- const safeLocation=()=>new URL(area==='reuse'?'reuse/':area==='game'?'game/':'./',root).href;
+ const safeLocation=()=>new URL(area==='noticeboard'?'noticeboard/':area==='reuse'?'reuse/':area==='game'?'game/':'./',root).href;
  const safeReferrer=()=>{try{return new URL(document.referrer).origin+'/'}catch{return ''}};
  function emit(name,params={}){if(!allowed()||!ready)return false;try{window.gtag('event',name,{...params,app_version:VERSION,app_area:area,display_mode:matchMedia('(display-mode: standalone)').matches?'standalone':'browser',page_location:safeLocation(),page_referrer:safeReferrer(),send_to:id});return true}catch{return false}}
  function daily(){const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),key='bag-day-analytics-last-day-v1';if(get(key)!==date&&emit('bagday_daily_use'))put(key,date)}
- function activate(){if(!allowed()||!ready)return;if(!pageCounted){emit('page_view',{page_title:area==='reuse'?'REUSE · Bag Day Malta':area==='game'?'The 1 Minute Sorting Game':'Bag Day Malta'});emit('bagday_open');if(area==='reuse')emit('reuse_open',{entry_point:location.hash==='#mine'||location.hash==='#join'?'settings':'direct'});pageCounted=true}daily();const pending=queue;queue=[];for(const e of pending)if(Date.now()-e.at<30000)emit(e.name,e.params);window.dispatchEvent(new Event('bag-day-analytics-ready'))}
+ function activate(){if(!allowed()||!ready)return;if(!pageCounted){emit('page_view',{page_title:area==='noticeboard'?'Community noticeboard · Bag Day Malta':area==='reuse'?'REUSE · Bag Day Malta':area==='game'?'The 1 Minute Sorting Game':'Bag Day Malta'});emit('bagday_open');if(area==='reuse')emit('reuse_open',{entry_point:location.hash==='#mine'||location.hash==='#join'?'settings':'direct'});pageCounted=true}daily();const pending=queue;queue=[];for(const e of pending)if(Date.now()-e.at<30000)emit(e.name,e.params);window.dispatchEvent(new Event('bag-day-analytics-ready'))}
  async function start(){
   if(!allowed()){state=get(excludeKey)==='true'?'excluded':'waiting_for_consent';return}
   if(ready){activate();return}if(loading)return loading;if(Date.now()-lastAttempt<60000)return;
@@ -48,7 +48,7 @@
    if(!configured){window.dataLayer=window.dataLayer||[];window.gtag=function(){window.dataLayer.push(arguments)};
     window.gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
     window.gtag('consent','update',{analytics_storage:'granted'});window.gtag('js',new Date());
-    window.gtag('config',id,{send_page_view:false,page_location:safeLocation(),page_referrer:safeReferrer(),page_title:area==='reuse'?'REUSE · Bag Day Malta':area==='game'?'The 1 Minute Sorting Game':'Bag Day Malta',allow_google_signals:false,allow_ad_personalization_signals:false});
+    window.gtag('config',id,{send_page_view:false,page_location:safeLocation(),page_referrer:safeReferrer(),page_title:area==='noticeboard'?'Community noticeboard · Bag Day Malta':area==='reuse'?'REUSE · Bag Day Malta':area==='game'?'The 1 Minute Sorting Game':'Bag Day Malta',allow_google_signals:false,allow_ad_personalization_signals:false});
     configured=true;
    }else window.gtag('consent','update',{analytics_storage:'granted'});
    if(document.querySelector('script[data-bagday-ga-loaded="true"]')){ready=true;state='ready';activate();return}
