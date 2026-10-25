@@ -54,6 +54,6 @@
   const message=!total?'Give it a go.':passed?'Nicely sorted.':percent>=70?'You’re nearly there.':percent>=50?'Keep going. You’ve got this.':'A little practice. Another go.';
   return {total,percent,accuracy,required,shortfall,passed,heading,message};
  }
- const artURL=id=>`assets/items/${id}.webp?v=1.1.49`;
+ const artURL=id=>`assets/items/${id}.webp?v=1.1.50`;
  window.SORTING_CONTENT={outcome,artURL,destinations,lessons,chooseLesson,specialGuides,classic,plan,accepts,laneFor,deck};
 })();
