@@ -7,7 +7,8 @@
   window.addEventListener('pageshow',()=>{try{sessionStorage.removeItem(returnKey)}catch{}});
   const settingsEntry = new URLSearchParams(location.search).get('panel') === 'settings';
   document.documentElement.dataset.entryScreen = settingsEntry ? 'settings' : returning ? 'return' : 'home';
-  const ASSETS = [
+  const SPLASH_ART='icons/splash-features-v1.png';let splashArtworkReadyAt=0;
+  const ASSETS = [SPLASH_ART,
     'icons/bag-organic-real.webp', 'icons/bag-mixed-real.webp',
     'icons/bag-recycle-real.webp', 'icons/glass-real.webp',
     'icons/card-botanical.svg', 'icons/card-recycling.svg',
@@ -41,14 +42,14 @@
       image.decoding = 'async'; image.fetchPriority = index < 4 ? 'high' : 'auto';
       image.onload = async () => {
         const decoded = await decode(image);
-        if (decoded !== false && image.naturalWidth > 0) loaded.add(url);
+        if (decoded !== false && image.naturalWidth > 0){loaded.add(url);if(path===SPLASH_ART)splashArtworkReadyAt=performance.now();}
         resolve();
       };
       image.onerror = () => resolve();
       image.src = url;
     });
   }
-  const ready = within(Promise.all(ASSETS.map(preload)), MAX_MS).then(() => { settled = true; });
+  const ready = within(Promise.all(ASSETS.filter(path=>!(settingsEntry||returning)||path!==SPLASH_ART).map(preload)), MAX_MS).then(() => { settled = true; });
   function imageURL(path, fallback) {
     return settled && !loaded.has(new URL(path, root).href) ? fallback : path;
   }
@@ -76,7 +77,7 @@
           await ready;
           beforeReveal();
           await within(visibleImages(content), MAX_MS - (performance.now() - started));
-          await delay(Math.max(0, MIN_MS - (performance.now() - visibleAt)));
+          await delay(Math.max(0, MIN_MS - (performance.now() - Math.max(visibleAt,splashArtworkReadyAt))));
         }
       } finally {
         const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;

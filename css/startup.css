@@ -11,3 +11,16 @@ body.app-loading #appContent{opacity:0;pointer-events:none}
 
 /* Entry policy is set in the head, before the Settings document can paint. */
 html[data-entry-screen=settings] #splashScreen,html[data-entry-screen=return] #splashScreen{display:none!important}
+
+/* Option B: shared brand above a simple four-feature pictorial grid. */
+.startup-screen{padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:#071b38}
+.startup-screen .splash-content{display:grid;grid-template-rows:auto minmax(0,1fr) auto auto auto;justify-items:center;align-items:center;width:min(100%,460px);height:100%;max-height:100%;gap:clamp(6px,1.8dvh,16px)}
+#splashScreen .startup-brand .bag-day-logo{width:min(260px,65vw);height:auto}
+.startup-features{width:100%;height:100%;min-height:0;min-width:0;overflow:hidden}
+.startup-features img{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain}
+.startup-screen .startup-maker{font-size:15px;color:#b6c6d6;line-height:1.2}
+.startup-screen .splash-version{margin:0;font-size:11px;line-height:1.2;color:#93adca}
+.startup-dots{display:flex;gap:8px;align-items:center;justify-content:center;height:10px}.startup-dots i{width:8px;height:8px;border-radius:50%;background:#8cebd3}.startup-dots i:nth-child(2){background:#2bc9ed}.startup-dots i:nth-child(3){background:#477493}
+@media(max-height:480px) and (min-width:480px){.startup-screen .splash-content{max-width:760px;width:100%;grid-template-columns:minmax(120px,.85fr) minmax(0,1.4fr);grid-template-rows:1fr auto auto auto;column-gap:20px;gap:8px 20px}.startup-screen .startup-brand{grid-column:1;grid-row:1;align-self:end}#splashScreen .startup-brand .bag-day-logo{width:min(220px,30vw)}.startup-features{grid-column:2;grid-row:1/5}.startup-screen .startup-maker{grid-column:1;grid-row:2}.startup-screen .splash-version{grid-column:1;grid-row:3}.startup-dots{grid-column:1;grid-row:4}}
+
+#splashScreen .startup-brand{max-width:100%;min-width:0}
