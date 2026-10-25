@@ -205,3 +205,12 @@ button.put-out-instruction{width:100%;border:0;background:transparent;color:inhe
 #councilPanel{grid-template-columns:35px minmax(0,1fr) 64px}
 #councilPanel .council-noticeboard{width:64px;height:64px;min-width:64px}
 #councilPanel .council-noticeboard img{width:64px;height:64px;object-fit:contain}
+
+/* Fit each artwork slot to the illustration, rather than stretching to the card.
+   The same rules cover organic, mixed, recyclable and glass illustrations. */
+#dashboard #collectionCardBody .collection-figures .collection-item{justify-content:center;gap:4px}
+#dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:auto;aspect-ratio:2 / 3;flex:0 1 auto;width:min(100%,320px);max-width:320px;min-height:0;max-height:calc(100% - 20px);margin:0}
+#dashboard #collectionCardBody .collection-figures .bag-figure.bag-button[data-waste-type="glass"]{aspect-ratio:1226 / 1283}
+#dashboard #collectionCardBody .collection-figures .bag-figure.bag-button:has(img[src$=".svg"]){aspect-ratio:184 / 208}
+#dashboard #collectionCardBody .collection-figures .bag-button img{object-fit:contain;object-position:center bottom}
+#dashboard #collectionCardBody .collection-figures :is(.bag-click-hint,.collection-item-label){flex:none;margin:0;padding:0;line-height:1.2}

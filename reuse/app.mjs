@@ -1,13 +1,13 @@
-import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.52';
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.52';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.52';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.52';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.52';
-import {emojiCandidates} from './custom-emoji.mjs?v=1.1.52';
-import {request,esc} from './client.mjs?v=1.1.52';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.52';
-import {titleIcons} from './title-icons.mjs?v=1.1.52';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.52';
+import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.53';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.53';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.53';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.53';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.53';
+import {emojiCandidates} from './custom-emoji.mjs?v=1.1.53';
+import {request,esc} from './client.mjs?v=1.1.53';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.53';
+import {titleIcons} from './title-icons.mjs?v=1.1.53';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.53';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='',searchQuery='',searchTimer=null;
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
