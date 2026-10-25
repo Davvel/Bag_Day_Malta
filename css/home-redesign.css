@@ -191,3 +191,12 @@ button.put-out-instruction{width:100%;border:0;background:transparent;color:inhe
 .hospice-battery-copy small{font:400 11px/1.2 system-ui;color:#4c6a61}
 .hospice-battery-link .hospice-external{width:19px;height:19px;flex:none;color:#55766b}
 .hospice-battery-link:focus-visible{outline:2px solid #9fe4c4;outline-offset:2px}
+
+/* Noticeboard access sits beside the council heading, outside the three actions. */
+#councilPanel{grid-template-columns:35px minmax(0,1fr) 44px}
+#councilPanel .council-identity{min-width:0}
+#councilPanel .council-identity strong{min-width:0;overflow-wrap:anywhere}
+#councilPanel .council-noticeboard{grid-column:3;grid-row:1;display:grid;place-items:center;align-self:center;justify-self:end;width:44px;height:44px;min-width:44px;border:0;border-radius:10px;background:transparent;text-decoration:none;touch-action:auto}
+#councilPanel .council-noticeboard img{display:block;width:40px;height:40px;filter:drop-shadow(0 2px 2px #0003)}
+#councilPanel .council-noticeboard:hover{background:#ffffff14}
+#councilPanel .council-noticeboard:focus-visible{outline:2px solid #ffe09a;outline-offset:1px}

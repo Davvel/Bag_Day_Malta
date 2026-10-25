@@ -21,7 +21,7 @@
   function bannerURLs(value){
     const u=new URL(value);
     if(u.origin==='https://bagdaymalta.eu'&&u.pathname.toLowerCase()==='/images/sponsors/google.png'){
-      u.searchParams.set('v','1.1.47');
+      u.searchParams.set('v','1.1.48');
       // Keep the published path; try the alternative case for Windows/GitHub uploads.
       const original=u.href;
       u.pathname=u.pathname.endsWith('/google.png')?'/images/sponsors/Google.png':'/images/sponsors/google.png';
@@ -103,6 +103,11 @@
     council.replaceChildren();
     const details=councilRows.find(r=>canonical(r.locality||r.council)===canonical(locality));
     const name=document.createElement('strong');name.textContent=details?.councilname||locality+' Local Council';const emblem=document.createElement('span');emblem.className='council-emblem';emblem.innerHTML='<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12 16 5l12 7H4ZM7 14v11m6-11v11m6-11v11m6-11v11M4 27h24"/></svg>';emblem.setAttribute('aria-hidden','true');const identity=document.createElement('div');identity.className='council-identity';identity.append(name);council.append(emblem,identity);
+    const noticeboard=document.createElement('a');noticeboard.className='council-noticeboard';
+    const noticeURL=new URL('noticeboard/',siteRoot);noticeURL.searchParams.set('locality',locality);noticeboard.href=noticeURL.href;
+    noticeboard.title='Community noticeboard';noticeboard.setAttribute('aria-label','Open community noticeboard for '+locality);
+    const boardIcon=document.createElement('img');boardIcon.src=new URL('icons/community-billboard.svg',siteRoot).href;boardIcon.alt='';boardIcon.width=40;boardIcon.height=40;noticeboard.append(boardIcon);council.append(noticeboard);
+
     const actions=document.createElement('div');actions.className='council-actions';
     const actionContent=(node,icon,label)=>{
       const image=document.createElement('img');image.src=new URL('icons/council-'+icon+'.svg',siteRoot).href;image.alt='';image.width=26;image.height=26;

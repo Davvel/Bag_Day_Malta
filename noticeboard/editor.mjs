@@ -1,4 +1,4 @@
-import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.47';
+import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.48';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false;
 const pageId=location.pathname.match(/EditorPage[1-9]\d*/)?.[0]||new URLSearchParams(location.search).get('page');
 function message(text){let el=document.querySelector('#message');if(!el){el=document.createElement('p');el.id='message';el.className='status error';el.setAttribute('role','alert');root.prepend(el)}el.textContent=text}
