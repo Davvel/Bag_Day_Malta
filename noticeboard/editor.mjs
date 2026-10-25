@@ -1,6 +1,6 @@
-import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.51';
-import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.51';
-import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.51';
+import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.52';
+import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.52';
+import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.52';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0;
 let legacyPageId=location.pathname.match(/^\/EditorPage[1-9]\d*\/?$/)?.[0].replaceAll('/','')||new URLSearchParams(location.search).get('page');
 function message(text){let el=document.querySelector('#message');if(!el){el=document.createElement('p');el.id='message';el.className='status error';el.setAttribute('role','alert');root.prepend(el)}el.textContent=text}

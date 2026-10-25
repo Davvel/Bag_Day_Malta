@@ -8,3 +8,23 @@
 .publication-state.unpublished{color:#704500;background:#fff0be}.publication-state.published{color:#176044;background:#e2f4eb}.publication-state.unknown{color:#5c6069;background:#eef0f3}
 .notice-unpublished{border-left:4px solid #e9a526!important;background:#fffaf0;padding:12px;border-radius:10px}.nb-cell>.publication-state{align-self:flex-start;margin-bottom:8px}
 .nb-toolbar{align-items:flex-end}.nb-toolbar>label{margin:0}.nb-toolbar>#nbaddpage{margin:0;min-height:44px}.editor-card>.publication-state{margin-bottom:8px}
+
+/* Shared Home appearance, including overview, details and editor dialogs. */
+:root{--nb-bg:#e9f1f8;--nb-card:#fff;--nb-ink:#163653;--nb-secondary:#42647e;--nb-border:#bfd5e5;--nb-soft:#e5eff6;--nb-danger-bg:#fff0ee;--nb-danger:#a22e22;--nb-primary:#137f71}
+:root[data-theme=dark]{--nb-bg:#0b1421;--nb-card:#10283e;--nb-ink:#f7f8fc;--nb-secondary:#b6c6d6;--nb-border:#245573;--nb-soft:#18374d;--nb-danger-bg:#49292d;--nb-danger:#ffb7aa;--nb-primary:#127e72}
+body{background:var(--nb-bg);color:var(--nb-ink)}.brand span{color:var(--nb-primary)}
+.muted,.hint,.notice-description,.scroll-hint,.empty,.footer,.section-heading .count{color:var(--nb-secondary)}
+.notice,.editor-card,.panel,dialog{background:var(--nb-card);color:var(--nb-ink);border-color:var(--nb-border)}
+input,select,textarea{background:var(--nb-card);color:var(--nb-ink);border-color:var(--nb-border)}
+.locality select,.editor-locality select{background:var(--nb-soft);color:var(--nb-ink);border-color:var(--nb-border)}
+.secondary,.status{background:var(--nb-soft);color:var(--nb-ink)}.danger,.status.error{background:var(--nb-danger-bg);color:var(--nb-danger)}
+.publication-bar{background:var(--nb-soft);border-color:var(--nb-border)}
+:root[data-theme=dark] .section{--accent:#86c9ff;--tint:#102e48;--line:#245573}
+:root[data-theme=dark] .section.council{--accent:#9ce8cf;--tint:#12382f;--line:#2f6859}
+:root[data-theme=dark] .section.church{--accent:#d9c1ff;--tint:#29243f;--line:#594878}
+:root[data-theme=dark] .brand span{color:#8fe2cc}
+:root[data-theme=dark] .pill,:root[data-theme=dark] .publication-state.published{background:#173f36;color:#a2e7cb}
+:root[data-theme=dark] .expired,:root[data-theme=dark] .publication-state.unpublished{background:#483c22;color:#ffe09a}
+:root[data-theme=dark] .notice-unpublished{background:#302d25}
+:root[data-theme=dark] .publication-state.unknown{background:#263b4b;color:#d3dce6}
+:root[data-theme=dark] dialog::backdrop{background:#0009}

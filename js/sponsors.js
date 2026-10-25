@@ -21,7 +21,7 @@
   function bannerURLs(value){
     const u=new URL(value);
     if(u.origin==='https://bagdaymalta.eu'&&u.pathname.toLowerCase()==='/images/sponsors/google.png'){
-      u.searchParams.set('v','1.1.51');
+      u.searchParams.set('v','1.1.52');
       // Keep the published path; try the alternative case for Windows/GitHub uploads.
       const original=u.href;
       u.pathname=u.pathname.endsWith('/google.png')?'/images/sponsors/Google.png':'/images/sponsors/google.png';
@@ -106,7 +106,7 @@
     const noticeboard=document.createElement('a');noticeboard.className='council-noticeboard';
     const noticeURL=new URL('noticeboard/',siteRoot);noticeURL.searchParams.set('locality',locality);noticeboard.href=noticeURL.href;
     noticeboard.title='Community noticeboard';noticeboard.setAttribute('aria-label','Open community noticeboard for '+locality);
-    const boardIcon=document.createElement('img');boardIcon.src=new URL('icons/community-billboard.svg',siteRoot).href;boardIcon.alt='';boardIcon.width=40;boardIcon.height=40;noticeboard.append(boardIcon);council.append(noticeboard);
+    const boardIcon=document.createElement('img');boardIcon.src=new URL('icons/community-notices.png',siteRoot).href;boardIcon.alt='';boardIcon.width=64;boardIcon.height=64;noticeboard.append(boardIcon);council.append(noticeboard);
 
     const actions=document.createElement('div');actions.className='council-actions';
     const actionContent=(node,icon,label)=>{

@@ -12,3 +12,8 @@
 @media(max-width:360px){.topbar{grid-template-columns:76px minmax(0,1fr) 110px}.topbar .top-actions{gap:4px}.topbar .icon-button{width:34px;height:34px;min-width:34px}.topbar .reuse-shortcut img{width:34px;height:34px}.topbar #title{font-size:18px}}
 
 .help-disabled .tap-demo .bag-button img{animation:none}
+
+.notice-tip{position:fixed;z-index:41;pointer-events:none;max-width:min(290px,calc(100vw - 20px));padding:10px 13px;border:1px solid #79b7d5;border-radius:13px;background:#e5f3fb;color:#123453;box-shadow:0 5px 18px #00172840;font:700 13px/1.35 system-ui;text-align:center}
+.notice-tip::after{content:"";position:absolute;left:var(--tip-pointer,80%);bottom:-7px;width:12px;height:12px;background:inherit;border-right:1px solid #79b7d5;border-bottom:1px solid #79b7d5;transform:translateX(-50%) rotate(45deg)}
+[data-theme=dark] .notice-tip{background:#173d57;color:#f4f8ff;border-color:#4e87a8}
+[data-theme=dark] .notice-tip::after{border-color:#4e87a8}.help-disabled .notice-tip{display:none!important}

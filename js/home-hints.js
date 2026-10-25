@@ -1,13 +1,13 @@
 (() => {
  const key='bag-day-home-hints-v1';let saved;try{saved=JSON.parse(localStorage.getItem(key)||'null');}catch(_){}
  saved=saved||{firstUse:Date.now(),launches:0,lastInvite:0};saved.launches=(saved.launches||0)+1;
- saved.hintsSeen=Array.isArray(saved.hintsSeen)?saved.hintsSeen.filter(n=>[0,1,2].includes(n)):[];
+ saved.hintsSeen=Array.isArray(saved.hintsSeen)?saved.hintsSeen.filter(n=>[0,1,2,3].includes(n)):[];
  function store(){try{localStorage.setItem(key,JSON.stringify(saved));}catch(_){}}store();
- let active=false,stage=0,nextAt=Date.now()+2000,animations=[],glove=null,generation=0,bubble=null,inviteTimer=null,inviteAttempt=Date.now()+8000;
+ let active=false,stage=0,nextAt=Date.now()+2000,animations=[],glove=null,generation=0,bubble=null,noticeBubble=null,inviteTimer=null,inviteAttempt=Date.now()+8000;
  const help=()=>window.BAG_DAY_HELP?.enabled()!==false;
  const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
  const ready=()=>!window.BAG_DAY_VIEWPORT?.gesturesBlocked()&&help()&&!document.hidden&&!document.getElementById('dashboard')?.hidden&&!document.getElementById('appContent')?.inert&&document.getElementById('splashScreen')?.hidden&&[...document.querySelectorAll('.overlay')].every(n=>n.hidden)&&!window.BAG_INFO?.isOpen()&&!document.getElementById('bagArea')?.hasAttribute('data-hint-moving')&&document.getElementById('bagArea')?.getAttribute('aria-busy')!=='true';
- function clear(){generation++;animations.forEach(a=>a.cancel());animations=[];glove?.remove();glove=null;active=false;}
+ function clear(){generation++;animations.forEach(a=>a.cancel());animations=[];glove?.remove();glove=null;noticeBubble?.remove();noticeBubble=null;active=false;}
  function stop(event){
   if(bubble&&!bubble.contains(event.target))dismiss();
   if(!ready())return;
@@ -18,22 +18,23 @@
  function dismiss(){clearTimeout(inviteTimer);bubble?.remove();bubble=null;}
  window.addEventListener('bag-day-gesture-cancel',()=>{clear();dismiss();nextAt=Date.now()+15000;});
  function hint(index){
-  const target=document.querySelector(index===0?'.collection-figures .bag-button':index===1?'#nextDay':'#bagArea');
+  const target=document.querySelector(index===0?'.collection-figures .bag-button':index===1?'#nextDay':index===2?'#bagArea':'.council-noticeboard');
   if(!target||target.disabled||!target.getClientRects().length)return false;
-  const rect=target.getBoundingClientRect(),duration=index===2?2200:index===0?1800:1600;
+  const rect=target.getBoundingClientRect(),duration=index===3?4200:index===2?2200:index===0?1800:1600;
+  if(index===3){if(rect.top<0||rect.bottom>innerHeight||rect.right<0||rect.left>innerWidth)return false;noticeBubble=document.createElement('aside');noticeBubble.className='notice-tip';noticeBubble.textContent='Check Your Community Notice Boards';noticeBubble.setAttribute('role','status');document.body.append(noticeBubble);const width=noticeBubble.getBoundingClientRect().width,height=noticeBubble.getBoundingClientRect().height,left=Math.max(10,Math.min(innerWidth-width-10,rect.right-width));noticeBubble.style.left=left+'px';noticeBubble.style.top=Math.max(8,rect.top-height-10)+'px';noticeBubble.style.setProperty('--tip-pointer',Math.max(16,Math.min(width-16,rect.left+rect.width/2-left))+'px');}
   glove=document.createElement('img');glove.src='icons/hint-hand.svg';glove.className='sequence-glove';glove.alt='';glove.setAttribute('aria-hidden','true');
   const size=index===2?112:70;glove.style.width=size+'px';glove.style.left=(index===2?rect.left+rect.width*.58:rect.left+rect.width*.5-size*.35)+'px';glove.style.top=(index===2?rect.top+rect.height*.52:rect.top+rect.height*.45)+'px';document.body.append(glove);
   active=true;const token=++generation;
   if(index===2){animations=[target.animate([{transform:'translateX(0)'},{transform:'translateX(-55px)',offset:.55},{transform:'translateX(0)'}],{duration,easing:'ease-in-out'}),glove.animate([{opacity:0,transform:'translateX(20px)'},{opacity:1,transform:'translateX(0)',offset:.2},{opacity:1,transform:'translateX(-55px)',offset:.55},{opacity:0,transform:'translateX(-55px)',offset:.75},{opacity:0}],{duration})];}
   else {animations=[glove.animate([{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'translateY(0)',offset:.25},{opacity:1,transform:'translateY(-8px) scale(.92)',offset:.5},{opacity:1,transform:'translateY(0)',offset:.7},{opacity:0,transform:'translateY(15px)'}],{duration}),target.animate([{transform:'scale(1)'},{transform:'scale(1)',offset:.4},{transform:'scale(.95)',offset:.5},{transform:'scale(1)',offset:.65},{transform:'scale(1)'}],{duration})];}
   animations[0].onfinish=()=>{if(token!==generation)return;clear();if(!saved.hintsSeen.includes(index)){saved.hintsSeen.push(index);store();}
-   stage=(index+1)%3;nextAt=Date.now()+(stage===0?45000:3000);};return true;
+   stage=(index+1)%4;nextAt=Date.now()+(stage===0?45000:3000);};return true;
  }
  setInterval(()=>{
   const now=Date.now();
   if(!ready()){if(active){clear();stage=0;}nextAt=now+2000;inviteAttempt=now+8000;dismiss();return;}
   if(reduced()){if(active)clear();}
-  else if(!bubble&&!active&&now>=nextAt){if(!hint(stage)){stage=(stage+1)%3;nextAt=now+2000;}}
+  else if(!bubble&&!active&&now>=nextAt){if(!hint(stage)){stage=(stage+1)%4;nextAt=now+2000;}}
  const play=document.getElementById('gameModeButton'),reuse=document.getElementById('reuseModeButton');
  const available=['calendar',...(!play?.hidden?['game']:[]),...(reuse?['reuse']:[])];
  const choice=window.BAG_DAY_HELP?.nextTip(window.BAG_DAY_HELP.tipState(),now,available);
