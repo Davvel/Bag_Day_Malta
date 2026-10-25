@@ -1,0 +1,10 @@
+/* One shared visual identity. Replace icons/bag-day-malta-brand.svg to rebrand. */
+.bag-day-logo{display:block;width:132px;height:auto;max-width:100%;object-fit:contain}
+#appContent .topbar .brand{gap:0;min-width:0}
+#appContent .topbar #brandPlainMark{display:block;width:96px;height:auto;background:none;padding:0;border:0}
+#appContent .topbar #brandPlainMark img,#appContent .topbar #brandSupportButton img{display:block;width:96px;height:auto;max-width:100%;object-fit:contain}
+#appContent .topbar #brandSupportButton{width:96px;height:auto;min-width:0;padding:0;border:0;background:none;border-radius:9px;box-shadow:none}
+#appContent .topbar{grid-template-columns:100px minmax(0,1fr) 122px}
+.startup-screen .startup-brand{display:block;line-height:1}.startup-screen .startup-brand .bag-day-logo{width:min(280px,75vw)}
+.top .brand .bag-day-logo{width:100px}.shell .topbar .brand{letter-spacing:0;line-height:1}.shell .topbar .brand .bag-day-logo{width:132px}
+@media(max-width:360px){#appContent .topbar{grid-template-columns:84px minmax(0,1fr) 110px}#appContent .topbar #brandPlainMark,#appContent .topbar #brandSupportButton{width:82px}#appContent .topbar #brandPlainMark img,#appContent .topbar #brandSupportButton img{width:82px}.top .brand .bag-day-logo{width:84px}}

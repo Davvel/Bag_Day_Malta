@@ -9,7 +9,7 @@
     'icons/bag-recycle-real.webp', 'icons/glass-real.webp',
     'icons/card-botanical.svg', 'icons/card-recycling.svg',
     'icons/council-backdrop.svg', 'icons/bag-organic.svg',
-    'icons/bag-mixed.svg', 'icons/bag-recycle.svg', 'icons/glass-carrier.svg', 'icons/reuse-free-stuff-v1.png', 'icons/community-notices.png'
+    'icons/bag-mixed.svg', 'icons/bag-recycle.svg', 'icons/glass-carrier.svg', 'icons/reuse-free-stuff-v1.png', 'icons/community-notices.png', 'icons/bag-day-malta-brand.svg'
   ];
   const MIN_MS = 2000, MAX_MS = 10000, FADE_MS = 400;
   const started = performance.now(), loaded = new Set(), images = [];
