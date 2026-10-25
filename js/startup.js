@@ -2,8 +2,11 @@
 (() => {
   'use strict';
   const root = new URL('../', document.currentScript.src);
+  const returnKey='bag-day-return-home-v1';let returning=false;try{const at=Number(sessionStorage.getItem(returnKey));sessionStorage.removeItem(returnKey);returning=at>0&&Date.now()>=at&&Date.now()-at<30000}catch{}
+  returning=returning||performance.getEntriesByType?.('navigation')?.[0]?.type==='back_forward';
+  window.addEventListener('pageshow',()=>{try{sessionStorage.removeItem(returnKey)}catch{}});
   const settingsEntry = new URLSearchParams(location.search).get('panel') === 'settings';
-  document.documentElement.dataset.entryScreen = settingsEntry ? 'settings' : 'home';
+  document.documentElement.dataset.entryScreen = settingsEntry ? 'settings' : returning ? 'return' : 'home';
   const ASSETS = [
     'icons/bag-organic-real.webp', 'icons/bag-mixed-real.webp',
     'icons/bag-recycle-real.webp', 'icons/glass-real.webp',
@@ -66,7 +69,7 @@
     revealing = (async () => {
       const splash = document.getElementById('splashScreen'), content = document.getElementById('appContent');
       try {
-        if (settingsEntry) {
+        if (settingsEntry || returning) {
           beforeReveal();
         } else {
           const visibleAt = await splashVisible;
@@ -78,8 +81,8 @@
       } finally {
         const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
         document.body.classList.remove('app-loading');
-        if (!settingsEntry) splash.classList.add('splash-leaving');
-        if (!settingsEntry && !reduced) await delay(FADE_MS);
+        if (!settingsEntry && !returning) splash.classList.add('splash-leaving');
+        if (!settingsEntry && !returning && !reduced) await delay(FADE_MS);
         splash.hidden = true; content.inert = false;
         onComplete();
       }
