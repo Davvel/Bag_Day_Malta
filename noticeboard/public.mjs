@@ -1,4 +1,5 @@
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.48';
+import {localityNames,enabledSections,localityKey} from './routes.mjs?v=1.1.49';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.49';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog'),back=document.querySelector('#back');let pages=[],locality='',loaded=false,error='',generation=0,renderedLocality='',renderedDate='';const scrolls=new Map();
 const params=()=>new URLSearchParams(location.search),section=()=>sections[params().get('section')]?params().get('section'):null;
 function navigate(kind){for(const el of root.querySelectorAll('[data-list]'))scrolls.set(el.dataset.list,el.scrollTop);const u=new URL(location.href);if(kind)u.searchParams.set('section',kind);else u.searchParams.delete('section');u.searchParams.set('locality',locality);history.pushState({noticeboard:true},'',u);render();window.scrollTo(0,0)}
@@ -7,15 +8,16 @@ function card(item){const d=new Date(item.end_date+'T12:00:00Z'),chip=item.kind=
 function render(){
  if(dialog.open)return;
  if(renderedLocality===locality)for(const el of root.querySelectorAll('.overview [data-list]'))scrolls.set(el.dataset.list,el.scrollTop);renderedLocality=locality;renderedDate=today();
- const kind=section(),names=[...new Set(pages.map(p=>p.locality_name))];if(locality&&!names.includes(locality))names.push(locality);names.sort((a,b)=>a.localeCompare(b,'en'));
+ const names=localityNames(window.WASTE_DATA?.localities||[],pages,locality);locality=names.find(n=>localityKey(n)===localityKey(locality))||locality;const enabled=enabledSections(pages,locality);let kind=section();if(loaded&&kind&&!enabled.includes(kind)){const u=new URL(location.href);u.searchParams.delete('section');history.replaceState(history.state,'',u);kind=null;}
  root.innerHTML=`<h1>${kind?sections[kind].name:'Community noticeboard'}</h1><div class="locality"><label class="sr-only" for="locality" hidden>Locality</label><select id="locality" aria-label="Choose locality">${names.map(n=>`<option ${n===locality?'selected':''}>${esc(n)}</option>`).join('')}</select></div>${error?`<p class="status error" role="alert">${esc(error)} <button id="retry" class="secondary">Try again</button></p>`:''}${!loaded&&!error?'<p class="status">Loading notices…</p>':''}<div id="sections"></div><p class="footer">Notices stay visible through their final date.<br>Events are shown in date order.</p>`;
  const container=root.querySelector('#sections');let lookup=new Map();
- for(const key of kind?[kind]:Object.keys(sections)){
-  const info=sections[key],page=pages.find(p=>p.locality_name===locality&&p.section===key),items=visibleItems(page?.csv,today());for(const item of items)lookup.set(item.entry_id,item);
+ for(const key of kind?[kind]:enabled){
+  const info=sections[key],page=pages.find(p=>localityKey(p.locality_name)===localityKey(locality)&&p.section===key),items=visibleItems(page?.csv,today());for(const item of items)lookup.set(item.entry_id,item);
   const s=document.createElement('section');s.className=`section ${key} ${kind?'detail-list':'overview'}`;
   s.innerHTML=`${kind?'<div class="section-heading">':`<a class="section-heading" href="?${new URLSearchParams({locality,section:key})}" data-section="${key}">`}<span class="section-symbol">${icon(info.icon)}</span><h2>${info.name}</h2><span class="count">${items.length} ${items.length===1?'notice':'notices'}</span>${kind?'':icon('next')}${kind?'</div>':'</a>'}<div class="notice-list" data-list="${key}" tabindex="0" role="region" aria-label="${info.name} notices">${items.length?items.map(card).join(''):`<p class="empty">${loaded?'No current notices.':'Notices will appear here.'}</p>`}</div>${!kind&&items.length>3?'<p class="scroll-hint">Swipe up for more · Tap heading to view all</p>':''}`;container.append(s);
   if(!kind)s.querySelector('.notice-list').scrollTop=scrolls.get(key)||0;
  }
+ if(loaded&&!enabled.length)container.innerHTML='<p class="empty">No current notices for this locality.</p>';
  root.querySelector('#locality').onchange=e=>{locality=e.target.value;scrolls.clear();const u=new URL(location.href);u.searchParams.set('locality',locality);history.replaceState(history.state,'',u);render()};
  root.querySelectorAll('[data-section]').forEach(a=>a.onclick=e=>{e.preventDefault();navigate(a.dataset.section)});
  root.querySelectorAll('[data-entry]').forEach(b=>b.onclick=()=>{const item=lookup.get(b.dataset.entry);dialog.innerHTML=`<span class="pill">${item.kind==='info'?'Information':esc(new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(new Date(item.end_date+'T12:00:00Z')))}</span><h2 style="margin-top:14px">${esc(item.title)}</h2><p class="modal-text">${esc(item.description)}</p><div class="toolbar">${item.kind==='event'?`<a class="primary" href="${esc(calendarURL(item,locality))}" target="_blank" rel="noopener">${icon('calendar')} Add to Google Calendar</a>`:''}<button class="secondary" id="closeNotice">Close</button></div>`;dialog.querySelector('#closeNotice').onclick=()=>dialog.close();dialog.showModal()});

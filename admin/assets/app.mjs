@@ -1,8 +1,8 @@
-import {renderNoticeboard} from './noticeboard.mjs';
+import {renderNoticeboard} from './noticeboard.mjs?v=1.1.49';
 import {renderCommunity} from './community.mjs';
 import {renderReuse} from './reuse.mjs';
 import {generateExport} from './exporter.mjs';
-import {CONFIG} from './config.mjs';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
+import {CONFIG} from './config.mjs?v=1.1.49';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
 const $=s=>document.querySelector(s),api=new BagDayAPI(CONFIG.apiBase),tabs={noticeboard:'Noticeboard & editors',dashboard:'Overview',localities:'Localities',sponsors:'Sponsors',slots:'Slot allocations',community:'Community adverts',reusePeople:'REUSE contributors',reuseItems:'REUSE items',access:'Administrator access',settings:'Settings'};
 let reuseSummary={pending_enrolments:0,pending_items:0};
 let current='dashboard',me=null,data={localities:[],sponsors:[],slots:[],users:[]},capacity=3,selected=new Set(),lastReport=null,lastSummary='',busy=false,pageSeq=0;let deferredInstall;const root=$('#root'),dialog=$('#dialog');

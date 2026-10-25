@@ -905,7 +905,7 @@
   function openSettings(){
     if(welcomeNeeded || !$('welcomeOverlay').hidden || settingsClosing||!$('settingsOverlay').hidden)return;
     if(!settingsPage){
-      const url=new URL(location.href);url.searchParams.set('panel','settings');url.searchParams.set('v','1.1.48');
+      const url=new URL(location.href);url.searchParams.set('panel','settings');url.searchParams.set('v','1.1.49');
       location.assign(url.href);return;
     }
     analyticsEvent('settings_open');
