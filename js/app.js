@@ -629,7 +629,8 @@
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
       const label={organic:'Organic',mixed:'Mixed waste',recycle:'Recyclables'}[schedule.bag];
       const figures=`<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}<span class="bag-click-hint">Tap bag for info</span></div>${schedule.glass?`<div class="collection-item glass-item">${bagButton('glass',c.glassBottles)}<span class="collection-item-label">Glass bottles</span></div>`:''}</div>`;
-      $('collectionCardBody').innerHTML=`<div class="collection-card"><h2 class="collection-heading"><span class="collection-type-icon" aria-hidden="true">${schedule.bag==='organic'?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3C9 2 3 8 5 15c2 6 12 6 15-12Z" fill="currentColor"/><path d="M4 21 15 9" stroke="#ba8c52" stroke-width="2"/></svg>':schedule.bag==='recycle'?'♻':'▣'}</span>${label}</h2><div class="collection-main">${figures}<div class="collection-timing"><button type="button" class="put-out-instruction" data-time-info aria-label="Put-out times. More information"><span><span aria-hidden="true">◷</span> Put out between</span><strong>${displayClock(formatTime(time))} <span class="time-between">and</span> ${displayClock(time)}</strong></button><button type="button" class="collection-start" data-time-info aria-label="Collection starts at ${time}. More information"><span><svg class="timing-truck" viewBox="0 0 24 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 3h12v11H2Z M14 7h4l4 4v3h-8"/><circle cx="6" cy="15" r="2"/><circle cx="18" cy="15" r="2"/></svg> Collection starts <span class="info-circle" aria-hidden="true">i</span></span><strong>${displayClock(time)}</strong></button></div></div></div>`;
+      const batteryBanner=date.getUTCDay()>=1&&date.getUTCDay()<=5?`<a class="hospice-battery-link" href="https://batterybin.mt/" target="_blank" rel="noopener noreferrer" aria-label="Batteries for Hospice: find a collection point (opens a new tab)"><img src="icons/hospice-battery.svg" width="26" height="36" alt=""><span class="hospice-battery-copy"><strong>Batteries for Hospice</strong><small>Find a collection point</small></span><svg class="hospice-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 3h7v7m0-7L10 14M10 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></svg></a>`:'';
+      $('collectionCardBody').innerHTML=`<div class="collection-card"><h2 class="collection-heading"><span class="collection-type-icon" aria-hidden="true">${schedule.bag==='organic'?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3C9 2 3 8 5 15c2 6 12 6 15-12Z" fill="currentColor"/><path d="M4 21 15 9" stroke="#ba8c52" stroke-width="2"/></svg>':schedule.bag==='recycle'?'♻':'▣'}</span>${label}</h2><div class="collection-main">${figures}<div class="collection-timing"><button type="button" class="put-out-instruction" data-time-info aria-label="Put-out times. More information"><span><span aria-hidden="true">◷</span> Put out between</span><strong>${displayClock(formatTime(time))} <span class="time-between">and</span> ${displayClock(time)}</strong></button><button type="button" class="collection-start" data-time-info aria-label="Collection starts at ${time}. More information"><span><svg class="timing-truck" viewBox="0 0 24 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 3h12v11H2Z M14 7h4l4 4v3h-8"/><circle cx="6" cy="15" r="2"/><circle cx="18" cy="15" r="2"/></svg> Collection starts <span class="info-circle" aria-hidden="true">i</span></span><strong>${displayClock(time)}</strong></button></div></div>${batteryBanner}</div>`;
 
     }
     const different=!followLocation && !temporaryView && detected&&detected!==selected&&!promptIsDismissed();
@@ -904,7 +905,7 @@
   function openSettings(){
     if(welcomeNeeded || !$('welcomeOverlay').hidden || settingsClosing||!$('settingsOverlay').hidden)return;
     if(!settingsPage){
-      const url=new URL(location.href);url.searchParams.set('panel','settings');url.searchParams.set('v','1.1.43');
+      const url=new URL(location.href);url.searchParams.set('panel','settings');url.searchParams.set('v','1.1.44');
       location.assign(url.href);return;
     }
     analyticsEvent('settings_open');
@@ -976,6 +977,7 @@
   }
 
   $('bagArea').addEventListener('click',e=>{
+    if(e.target.closest('.hospice-battery-link'))analyticsEvent('battery_collection_click');
     const timeTrigger=e.target.closest('[data-time-info]');
     if(timeTrigger){openTimeInfo(timeTrigger);return;}
     const trigger=e.target.closest('[data-waste-type]');

@@ -21,7 +21,7 @@
   function bannerURLs(value){
     const u=new URL(value);
     if(u.origin==='https://bagdaymalta.eu'&&u.pathname.toLowerCase()==='/images/sponsors/google.png'){
-      u.searchParams.set('v','1.1.43');
+      u.searchParams.set('v','1.1.44');
       // Keep the published path; try the alternative case for Windows/GitHub uploads.
       const original=u.href;
       u.pathname=u.pathname.endsWith('/google.png')?'/images/sponsors/Google.png':'/images/sponsors/google.png';
@@ -104,11 +104,20 @@
     const details=councilRows.find(r=>canonical(r.locality||r.council)===canonical(locality));
     const name=document.createElement('strong');name.textContent=details?.councilname||locality+' Local Council';const emblem=document.createElement('span');emblem.className='council-emblem';emblem.innerHTML='<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12 16 5l12 7H4ZM7 14v11m6-11v11m6-11v11m6-11v11M4 27h24"/></svg>';emblem.setAttribute('aria-hidden','true');const identity=document.createElement('div');identity.className='council-identity';identity.append(name);council.append(emblem,identity);
     const actions=document.createElement('div');actions.className='council-actions';
+    const actionContent=(node,icon,label)=>{
+      const image=document.createElement('img');image.src=new URL('icons/council-'+icon+'.svg',siteRoot).href;image.alt='';image.width=26;image.height=26;
+      const caption=document.createElement('span');caption.textContent=label;node.replaceChildren(image,caption);
+    };
     const placement=window.WASTE_DATA.localities.find(r=>canonical(r[0])===canonical(details?.locality||details?.council||''))?.[0];
     const councilParams=placement?{placement_locality:placement}:{};
-    if(details&&safeURL(details.website||details.websiteurl)){const a=link('Website ↗',safeURL(details.website||details.websiteurl),'council-link');a.rel='noopener noreferrer';a.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('council_website_click',councilParams));actions.append(a);}
+    if(details&&safeURL(details.website||details.websiteurl)){const a=link('Website ↗',safeURL(details.website||details.websiteurl),'council-link');a.rel='noopener noreferrer';actionContent(a,'website','Council Website');a.setAttribute('aria-label','Open '+locality+' council website (opens a new tab)');a.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('council_website_click',councilParams));actions.append(a);}
     const phone=(details?.bulkytelephone||details?.phone||'').replace(/[^+0-9]/g,'');
-    if(phone.length>=8){const a=document.createElement('button');a.type='button';a.className='council-link council-bulky';a.textContent='Bulky Refuse Collection';a.setAttribute('aria-haspopup','dialog');a.setAttribute('aria-controls','bulkyOverlay');a.onclick=()=>window.BAG_DAY_BULKY.open({locality,council:name.textContent,phone,website:safeURL(details?.website||details?.websiteurl),dedicated:!!details?.bulkytelephone,analyticsPlacement:placement});actions.append(a);}
+    if(phone.length>=8){const a=document.createElement('button');a.type='button';a.className='council-link council-bulky';actionContent(a,'bulky','Bulky Refuse');a.setAttribute('aria-label','Bulky refuse collection information for '+locality);a.setAttribute('aria-haspopup','dialog');a.setAttribute('aria-controls','bulkyOverlay');a.onclick=()=>window.BAG_DAY_BULKY.open({locality,council:name.textContent,phone,website:safeURL(details?.website||details?.websiteurl),dedicated:!!details?.bulkytelephone,analyticsPlacement:placement});actions.append(a);}
+    const truck=link('', 'https://www.wsm.com.mt/en/roadshow','council-link council-roadshow');
+    actionContent(truck,'truck','WasteServ Truck');truck.rel='noopener noreferrer';
+    truck.setAttribute('aria-label','WasteServ Roadshow Truck: check the official schedule for cooking oil, batteries and more (opens a new tab)');
+    truck.title='Check the official schedule for cooking oil, batteries and more';
+    truck.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('roadshow_schedule_click',councilParams));actions.append(truck);
     const whatsapp=(details?.whatsapp||details?.whatsappnumber||'').replace(/\D/g,'');
     const whatsappMode=(details?.whatsappmode||'disabled').toLowerCase();
     if(window.BAG_DAY_WHATSAPP_VISIBLE===true&&whatsappMode==='enabled'&&whatsapp.length>=8){const a=link('WhatsApp ↗','https://wa.me/'+(whatsapp.length===8?'356':'')+whatsapp,'council-link');a.rel='noopener noreferrer';a.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('council_whatsapp_click',councilParams));actions.append(a);}

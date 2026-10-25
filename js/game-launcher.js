@@ -19,7 +19,7 @@
   try{
    if(location.protocol!=='file:'){const r=await fetch('./game/index.html',{cache:'no-store',signal:request.signal});if(!r.ok)throw new Error('Missing game');}
    if(!opening||request.signal.aborted)return;
-   track('game_open');location.assign('./game/index.html?from=home&v=1.1.43&theme='+encodeURIComponent(document.documentElement.dataset.theme||'dark'));
+   track('game_open');location.assign('./game/index.html?from=home&v=1.1.44&theme='+encodeURIComponent(document.documentElement.dataset.theme||'dark'));
   }catch{if(opening){track('game_unavailable');message.textContent='The game is unavailable. Bag Day is ready to use.';}}
   finally{clearTimeout(timer);}
  });
