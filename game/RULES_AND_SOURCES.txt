@@ -1,4 +1,4 @@
-Sorting Game content review - 24 October 2026 - v1.1.50
+Sorting Game content review - 24 October 2026 - v1.1.51
 
 Household bags:
 https://www.wastecollection.mt/
@@ -49,7 +49,7 @@ This is household education, not a commercial waste disposal guide. Recheck
 operator guidance before extending the catalogue or changing accepted routes.
 
 
-ROUND SELECTION (v1.1.50)
+ROUND SELECTION (v1.1.51)
 Levels 1-10: Classic. Level 11+: fresh draw per round, 60% Classic;
 40% shared equally between Battery bin, Roadshow Truck and Bulky collection.
 Within a destination its lessons are selected with equal probability.

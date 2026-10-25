@@ -17,3 +17,10 @@
 .publication-state.unpublished{color:#704500;background:#fff0be}.publication-state.published{color:#176044;background:#e2f4eb}.publication-state.unknown{color:#5c6069;background:#eef0f3}
 .notice-unpublished{border-left:4px solid #e9a526!important;background:#fffaf0;padding:12px;border-radius:10px}.nb-cell>.publication-state{align-self:flex-start;margin-bottom:8px}
 .nb-toolbar{align-items:flex-end}.nb-toolbar>label{margin:0}.nb-toolbar>#nbaddpage{margin:0;min-height:44px}.editor-card>.publication-state{margin-bottom:8px}
+
+/* Match the locality field and action boxes, excluding label margins. */
+.nb-toolbar>label{margin:0}.nb-toolbar>label>select{display:block;height:44px;margin:7px 0 0;padding:10px}
+.nb-toolbar>#nbaddpage{height:44px;min-height:44px;margin:0;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+.nb-toolbar>#nbcount{height:44px;display:inline-flex;align-items:center;margin:0}
+.nb-toolbar>#nbaddpage:disabled{background:#e1e6e4;color:#6c7973;border-color:#d2dad6;opacity:1;cursor:not-allowed}
+@media(max-width:600px){.nb-toolbar>label{flex-basis:100%;max-width:none;min-width:0}.nb-toolbar>#nbaddpage{height:auto;min-height:44px;white-space:normal;text-align:center}.nb-toolbar>#nbcount{height:auto}}
