@@ -229,3 +229,7 @@ html,body{height:var(--game-height,100dvh)}
 .share-facebook-button{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:46px;background:#1877f2;border:1px solid #4b96fb;color:#fff;font-weight:700;border-radius:12px}
 .facebook-glyph{display:inline-grid;place-items:center;font-family:Arial,sans-serif;font-weight:900;font-size:20px;line-height:1;width:20px;height:20px;color:#fff}
 .share-records-dialog .share-facebook-note{font-size:.72rem;line-height:1.35;text-align:center;color:#b5cbd8;margin:10px 0 0}
+
+/* Lobby navigation uses the same rounded Home affordance as the other screens. */
+#gameMenu #closeGameMenu.game-home-button{position:absolute;top:14px;left:14px;right:auto;z-index:2;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:1px solid #78a6bb70;border-radius:12px;background:#123d59;color:#fff;box-shadow:none}
+#gameMenu .game-home-button svg{display:block;width:24px;height:24px}
