@@ -1,0 +1,23 @@
+/* Public-facing Bag Day Malta responsive shell v1.1.60.
+   No public page grows wider than the visible viewport height (1:1 max),
+   or 1000px on taller monitors. Portrait screens keep their natural width.
+   Admin and Noticeboard editors deliberately do not load this stylesheet. */
+:root{--public-content-max:min(1000px, 100dvh)}
+/* Home */
+#appContent .app{width:100%;max-width:var(--public-content-max);margin-inline:auto}
+/* REUSE: align header, navigation, results and sponsor content */
+:root[data-screen="reuse"]{--shell-width:var(--public-content-max)}
+body:has(#reuseScroll) .top,
+body:has(#reuseScroll) .tabs{max-width:calc(var(--public-content-max) - 24px)}
+body:has(#reuseScroll) #reuseScroll{max-width:var(--public-content-max)}
+body:has(#reuseScroll) .sponsor-dock{padding-left:max(12px, calc((100% - var(--public-content-max) + 24px)/2));padding-right:max(12px, calc((100% - var(--public-content-max) + 24px)/2))}
+/* Community Noticeboard public reader */
+body:has(.noticeboard-header) .shell{width:100%;max-width:var(--public-content-max);margin-inline:auto}
+body:has(.noticeboard-header) .noticeboard-sponsor-dock .sponsor-panel{max-width:calc(var(--public-content-max) - 24px);margin-inline:auto}
+/* Sorting Game: retain vertical viewport gameplay and existing mobile controls */
+.sort-game{width:100%;max-width:var(--public-content-max);margin-inline:auto}
+/* Game's legacy landscape CSS temporarily removes all width limits; cap it
+   again only on non-touch laptop/desktop sized displays. */
+@media (orientation:landscape) and (max-height:600px) and (hover:hover) and (pointer:fine){
+  .sort-game{max-width:var(--public-content-max)!important}
+}
