@@ -216,7 +216,7 @@ html,body{height:var(--game-height,100dvh)}
 
 
 /* v1.1.63: uncluttered, compact achievement sharing */
-.share-records-button{display:block;width:min(100%,520px);margin:10px auto 4px;background:#203b52;border:1px solid #65869b;color:#f5fbff;min-height:44px}
+.share-records-button{display:block;width:var(--lobby-width);margin:10px auto 4px;background:#203b52;border:1px solid #65869b;color:#f5fbff;min-height:44px}
 .share-records-dialog{width:min(92vw,430px);padding:18px;max-height:90dvh}
 .share-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .share-records-dialog .share-dialog-head h2{margin:0 0 10px;font-size:1.25rem}
