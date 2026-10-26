@@ -248,3 +248,36 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
 #councilPanel .council-noticeboard{width:46px;height:52px;min-width:46px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;border:1px solid #ffffff45;border-radius:12px;color:#fff;background:#103e67!important}
 #councilPanel .council-noticeboard svg{width:24px;height:24px;display:block}
 #councilPanel .council-noticeboard span{font-size:9px;font-weight:700;line-height:1}
+
+
+/* v1.1.64 — intrinsic home card sizing, no viewport-height clipping */
+#dashboard #collectionStage{height:auto!important;min-height:0!important;overflow:visible!important;flex:none!important}
+#dashboard #bagArea{height:auto!important;min-height:0!important;overflow:hidden!important}
+#dashboard #collectionCardBody{height:auto!important;min-height:0!important}
+#dashboard #collectionCardBody .collection-card{box-sizing:border-box;height:auto!important;min-height:0!important;overflow:visible!important;gap:14px;padding:16px!important}
+#dashboard #collectionCardBody .collection-main{height:auto!important;min-height:0!important;overflow:visible!important;display:flex;align-items:center;gap:16px;flex:none!important}
+#dashboard #collectionCardBody .collection-figures{min-height:0!important;height:auto!important;align-items:center!important;flex:none!important}
+#dashboard #collectionCardBody .collection-item{min-height:0!important;height:auto!important;overflow:visible!important;flex:1 1 auto}
+#dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:clamp(175px,33vw,430px)!important;max-height:none!important;min-height:0!important;aspect-ratio:auto!important;width:min(100%,320px)!important;flex:none!important;overflow:visible!important;position:relative!important}
+#dashboard #collectionCardBody .bag-button img{position:static!important;inset:auto!important;display:block;width:100%!important;height:100%!important;max-height:100%!important;object-fit:contain!important}
+#dashboard #collectionCardBody .collection-timing{flex:1 1 0!important;min-width:0!important;width:auto!important;overflow:visible!important;gap:10px}
+#dashboard #collectionCardBody .hospice-battery-link{display:flex!important;position:relative!important;margin:0!important;flex:none!important}
+#dashboard #collectionCardBody .collection-heading{font-size:clamp(23px,3.7vw,38px)!important;gap:7px;min-width:0}
+#dashboard #collectionCardBody .collection-day-tag{font-size:clamp(15px,2vw,23px)!important}
+#dashboard #collectionCardBody .put-out-instruction>strong{font-size:clamp(17px,2.6vw,30px)!important;white-space:normal!important;display:flex!important;flex-wrap:wrap;gap:3px;justify-content:center}
+#dashboard #collectionCardBody .collection-start strong{font-size:clamp(22px,3vw,34px)!important}
+@media(min-width:560px){
+ #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)){flex-direction:row!important;justify-content:space-around!important}
+ #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)) .collection-figures{width:46%!important;flex:0 1 46%!important}
+ #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)) .collection-timing{width:50%!important;flex:1 1 50%!important}
+}
+@media(max-width:559px){
+ #dashboard #collectionCardBody .collection-main{flex-direction:column!important;gap:14px!important}
+ #dashboard #collectionCardBody .collection-figures{width:100%!important;flex:none!important}
+ #dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:clamp(185px,65vw,320px)!important}
+ #dashboard #collectionCardBody .collection-timing{width:100%!important;flex:none!important}
+ #dashboard #collectionCardBody .collection-heading{font-size:clamp(21px,5.5vw,31px)!important}
+}
+/* Real glass collection may contain two illustrations: keep the source's compact grid arrangement. */
+#dashboard #collectionCardBody .collection-figures:has(.glass-item) .bag-figure.bag-button{max-width:100%!important;height:clamp(110px,24vw,230px)!important}
+@media(max-width:359px){#dashboard #collectionCardBody .collection-card{padding:11px!important}#dashboard #collectionCardBody .collection-type-icon{width:36px;height:36px;font-size:23px}#dashboard #collectionCardBody .collection-day-tag{font-size:14px!important}}

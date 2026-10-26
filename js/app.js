@@ -639,19 +639,11 @@
   }
 
 
+  // The collection card grows with its content. A short desktop window scrolls
+  // instead of squeezing/obscuring the collection times or battery link.
   function syncDayNavigationLayout(){
     if($('dashboard').hidden)return;
-    const dashboard=$('dashboard'),app=dashboard.closest('.app');
-    const outer=node=>{const s=getComputedStyle(node);return node.getBoundingClientRect().height+(parseFloat(s.marginTop)||0)+(parseFloat(s.marginBottom)||0);};
-    const extras=[...dashboard.children].filter(n=>n!==$('collectionStage')&&!n.hidden);
-    const appStyle=getComputedStyle(app);
-    const sponsorCount=Number(dashboard.dataset.sponsorCount)||0;
-    // Only visible adverts use space. One sponsor never reserves two empty rows.
-    const extrasHeight=extras.reduce((a,n)=>a+outer(n),0);
-    const layoutHeight=window.BAG_DAY_VIEWPORT?.layout().height||window.innerHeight;
-    const space=layoutHeight-outer(document.querySelector('.topbar'))-(parseFloat(appStyle.paddingTop)||0)-(parseFloat(appStyle.paddingBottom)||0)-extrasHeight-16;
-    const minimum=sponsorCount===0?320:240;
-    dashboard.style.setProperty('--collection-space',Math.max(minimum,space)+'px');
+    $('dashboard').style.removeProperty('--collection-space');
   }
 
   window.addEventListener('bag-day-sponsors-ready',()=>{render();});

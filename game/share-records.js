@@ -25,23 +25,45 @@
   const filename='BagDayMalta_SortingGame_Records.png';
   function download(blob){const a=document.createElement('a');const obj=URL.createObjectURL(blob);a.href=obj;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(obj),1500);}
   const feedback=text=>{status.textContent=text;};
-  button.addEventListener('click',()=>{feedback('Challenge your friends to beat your Sorting Game records.');dialog.showModal();});
+  let previewUrl=null;
+  async function openPreview(){
+    dialog.showModal();
+    $('shareRecordsPreviewStatus').hidden=false;
+    try {
+      const blob=await makeImage(records());
+      if(previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrl=URL.createObjectURL(blob);
+      $('shareRecordsPreview').src=previewUrl;
+      $('shareRecordsPreview').hidden=false;
+      $('shareRecordsPreviewStatus').hidden=true;
+    } catch {
+      $('shareRecordsPreviewStatus').textContent='Preview unavailable in this browser.';
+    }
+  }
+  button.addEventListener('click',openPreview);
   $('shareRecordsClose').addEventListener('click',()=>dialog.close());
-  $('shareRecordsNative').addEventListener('click',async()=>{
+  dialog.addEventListener('close',()=>{
+    if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}
+    $('shareRecordsPreview').removeAttribute('src');
+    $('shareRecordsPreview').hidden=true;
+  });
+  $('shareRecordsFacebook').addEventListener('click',async()=>{
     const r=records();
-    try{
+    try {
       const blob=await makeImage(r);
       const file=new File([blob],filename,{type:'image/png'});
+      // Native share can offer Facebook with the actual card image on supported devices.
       if(navigator.share && navigator.canShare?.({files:[file]})){
-        await navigator.share({files:[file],title:'My Bag Day Malta Sorting Game records',text:message(r),url});
-        feedback('Sharing options opened.');
-      }else if(navigator.share){
-        await navigator.share({title:'My Sorting Game records',text:message(r),url});
-        feedback('Link sharing options opened. You can also save the achievement picture below.');
-      }else{download(blob);feedback('Achievement picture saved. Upload it to Facebook, or use the Facebook link button.');}
-    }catch(e){if(e?.name!=='AbortError')feedback('Sharing was unavailable. Try saving the picture or copying the game link.');}
+        try {
+          await navigator.share({files:[file],title:'My Bag Day Malta Sorting Game records',text:message(r),url});
+          return;
+        }catch(e){if(e?.name==='AbortError')return;}
+      }
+    } catch {}
+    // Facebook does not permit a website to attach a custom image to its URL sharer.
+    const destination='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url);
+    const opened=window.open(destination,'_blank','noopener,noreferrer');
+    if(!opened) window.location.href=destination;
+    feedback('Facebook shares the game link. It may not include your personal achievement picture.');
   });
-  $('shareRecordsDownload').addEventListener('click',async()=>{try{download(await makeImage(records()));feedback('Achievement picture saved to your device.');}catch{feedback('Unable to create the picture in this browser.');}});
-  $('shareRecordsFacebook').addEventListener('click',()=>{const destination='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url);window.open(destination,'_blank','noopener,noreferrer');feedback('Facebook sharing opened. To show your scores, attach the saved achievement picture to your post.');});
-  $('shareRecordsCopy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(message(records()));feedback('Your records and the game link were copied.');}catch{feedback('Copy unavailable. Game link: '+url);}});
 })();
