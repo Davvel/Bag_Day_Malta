@@ -1,4 +1,4 @@
-// Shared curated REUSE palette, v1.1.58. No service credentials.
+// Shared curated REUSE palette, v1.1.59. No service credentials.
 export const EMOJI_PALETTE=[
   {
     "symbol": "🪑",

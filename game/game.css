@@ -198,3 +198,8 @@ html,body{height:var(--game-height,100dvh)}
 .review-list details details{margin-top:8px}.review-list .review-item{font-size:.85rem}.review-list .review-item p{font-size:.8rem;margin-bottom:0}
 @keyframes retry-arrive{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.retry-outcome{animation:none}}
+
+/* v1.1.59: larger, more legible item captions */
+.falling-item span{font-size:clamp(.88rem,2.8vw,1.04rem)!important;line-height:1.2!important;overflow-wrap:anywhere}
+@media(max-width:360px){.falling-item span{font-size:.84rem!important}}
+@media(orientation:landscape) and (max-height:600px){.sort-game{max-width:none!important;width:100%!important}.menu-panel{width:100%!important;max-width:none!important}.falling-item span{font-size:.88rem!important}}

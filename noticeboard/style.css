@@ -42,3 +42,14 @@ body:has(.noticeboard-sponsor-dock) .shell{padding-bottom:calc(36px + var(--noti
 body:has(.noticeboard-sponsor-dock) #usageConsent{bottom:calc(var(--noticeboard-dock-height,0px) + 10px)!important;max-height:calc(100dvh - var(--noticeboard-dock-height,0px) - 20px);overflow:auto}
 
 .publication-bar button:disabled{opacity:.45;cursor:not-allowed;}
+
+/* v1.1.59: readable full-width noticeboard and discoverable locality switcher */
+.shell{width:100%;max-width:none;padding-left:clamp(10px,1.8vw,24px);padding-right:clamp(10px,1.8vw,24px)}
+.locality{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.locality-prompt{margin:0;font-size:clamp(13px,2vw,16px);font-weight:650;color:var(--nb-ink,#ecf5ff)}
+.locality-prompt strong{color:#70d8d6}
+.locality select{width:auto;min-width:min(270px,100%);max-width:100%;cursor:pointer;border:2px solid #5eb9c9;border-radius:16px;padding:12px 32px 12px 14px}
+.noticeboard-header .quick-home{flex:0 0 auto}
+.quick-home{display:grid;place-items:center;width:38px;height:38px;border:1px solid #477c9b;border-radius:12px;background:#173b58;color:white;text-decoration:none}
+.quick-home svg{width:22px;height:22px}
+@media(max-width:520px){.noticeboard-header{gap:6px}.noticeboard-title{font-size:clamp(17px,4.2vw,24px)}.quick-home{width:34px;height:34px}}

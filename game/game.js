@@ -26,8 +26,8 @@
   byId('startGame').disabled=false;byId('startGame').textContent='Play ▶';
   abandon();
   byId('winPanel').hidden=true;byId('gamePlay').inert=false;notifyWin();
-  cancelAnimationFrame(raf);raf=null;mode='menu';drag=null;selected=null;hideHint();byId('pausePanel').hidden=true;byId('gamePlay').classList.remove('running');itemsLayer.replaceChildren();items=[];
-  unlocked=storage.read();level=Math.min(level,unlocked);const menu=byId('levelChoice');menu.replaceChildren();
+  const modeBeforeMenu=mode;cancelAnimationFrame(raf);raf=null;mode='menu';drag=null;selected=null;hideHint();byId('pausePanel').hidden=true;byId('gamePlay').classList.remove('running');itemsLayer.replaceChildren();items=[];
+  unlocked=storage.read();level=Math.min(modeBeforeMenu==='won'?unlocked:level,unlocked);const menu=byId('levelChoice');menu.replaceChildren();
   for(let n=1;n<=unlocked;n++){const option=document.createElement('option');option.value=n;option.textContent=String(n);menu.append(option);}menu.value=String(level);
   renderRecords();showOnly('gameMenu');notifyPause();notifyRound();
  }
@@ -105,7 +105,7 @@
  }
  // Spawn as soon as the top-middle card footprint is clear.
  function ensureSupply(){
-  if(mode!=='running'||elapsed>=60)return;
+  if(mode!=='running'||elapsed>=55)return;
   const cardHeight=items[0]?.node.offsetHeight||0;
   const occupied=items.some(item=>item.lane===1&&item.y*heightFor(item)+.01<cardHeight);
   if(!occupied)spawn();
@@ -265,7 +265,7 @@
   mode='results';drag=null;hideHint();const total=hits+misses,accuracy=total?Math.round(hits/total*100):0,passed=!practice&&total>0&&hits*5>=total*4;
   measure('game_round_complete',{level,mode:practice?'practice':'timed',score:hits,mistakes:misses,accuracy,duration_seconds:Math.round(elapsed),outcome:passed?'passed':'retry'});
   if(!practice && elapsed>=60)window.SORTING_STATS.complete({level,hits,passed});
-  if(passed){unlocked=Math.max(unlocked,Math.min(100,level+1));storage.write(unlocked);}
+  if(passed){unlocked=Math.max(unlocked,Math.min(100,level+1));storage.write(unlocked);rememberLevel(unlocked);}
   if(passed){celebrate(accuracy);return;}
   const result=content.outcome(hits,misses);
   byId('resultsTitle').textContent=`Level ${level}`;
@@ -312,7 +312,7 @@
  byId('levelChoice').onchange=()=>{level=Math.max(1,Math.min(unlocked,Number(byId('levelChoice').value)||1));rememberLevel(level);};
  byId('startGame').onclick=()=>startRound();
  byId('pauseGame').onclick=pause;byId('resumeGame').onclick=resume;byId('closePause').onclick=resume;
- byId('playNextLevel').onclick=()=>startRound(level+1,false);byId('exitWin').onclick=()=>{renderMenu();byId('startGame').focus();};
+ byId('playNextLevel').onclick=()=>startRound(Math.min(unlocked,level+1),false);byId('exitWin').onclick=()=>{renderMenu();byId('startGame').focus();};
  byId('replayLevel').onclick=()=>startRound(level,false,round);
  // Only interaction with falling objects resets the two-second help delay.
  function recordObjectInteraction(){lastInput=performance.now();hideHint();}
