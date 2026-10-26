@@ -1,10 +1,11 @@
-import {sponsorPublication,readSponsorPublication} from './sponsor-publication.mjs?v=1.1.71';
-import {renderNoticeboard} from './noticeboard.mjs?v=1.1.71';
-import {renderCommunity} from './community.mjs?v=1.1.71';
+import {renderFinance} from './sponsor-finance.mjs?v=1.1.72';
+import {sponsorPublication,readSponsorPublication} from './sponsor-publication.mjs?v=1.1.72';
+import {renderNoticeboard} from './noticeboard.mjs?v=1.1.72';
+import {renderCommunity} from './community.mjs?v=1.1.72';
 import {renderReuse} from './reuse.mjs';
 import {generateExport} from './exporter.mjs';
-import {CONFIG} from './config.mjs?v=1.1.71';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
-const $=s=>document.querySelector(s),api=new BagDayAPI(CONFIG.apiBase),tabs={dashboard:'Overview',localities:'Localities',noticeboard:'Noticeboard & editors',sponsors:'Sponsors',slots:'Slot allocations',community:'Community adverts',reusePeople:'REUSE contributors',reuseItems:'REUSE items',access:'Administrator access',settings:'Settings'};
+import {CONFIG} from './config.mjs?v=1.1.72';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
+const $=s=>document.querySelector(s),api=new BagDayAPI(CONFIG.apiBase),tabs={dashboard:'Overview',localities:'Localities',noticeboard:'Noticeboard & editors',sponsors:'Sponsors',slots:'Slot allocations',finance:'Purchase Orders & Payments',community:'Community adverts',reusePeople:'REUSE contributors',reuseItems:'REUSE items',access:'Administrator access',settings:'Settings'};
 let reuseSummary={pending_enrolments:0,pending_items:0};
 let current='dashboard',me=null,data={localities:[],sponsors:[],slots:[],users:[]},capacity=3,selected=new Set(),lastReport=null,lastSummary='',busy=false,pageSeq=0;let deferredInstall;const root=$('#root'),dialog=$('#dialog');
 function flash(t){$('#toast').textContent=t;$('#toast').hidden=false;setTimeout(()=>$('#toast').hidden=true,6000)}
@@ -27,6 +28,7 @@ async function navigate(page){
   if(page==='localities'||page==='sponsors')await refreshRefs();
   if(page==='slots'){await refreshRefs();data.slots=await api.all('/sponsor-slots')}
   if(page==='access')data.users=await api.all('/admin/users');if(seq!==pageSeq)return;
+  if(page==='finance'){await renderFinance({container:$('#app'),api,esc,onError:error,isCurrent:()=>seq===pageSeq});return}
   if(page==='noticeboard'){await renderNoticeboard({container:$('#app'),api,esc,onError:error,isCurrent:()=>seq===pageSeq});return}
   if(page==='community'){await renderCommunity({container:$('#app'),api,esc,dialog,flash,onError:error,isCurrent:()=>seq===pageSeq});return}
   if(page==='reusePeople'||page==='reuseItems'){
