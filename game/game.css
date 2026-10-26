@@ -203,3 +203,13 @@ html,body{height:var(--game-height,100dvh)}
 .falling-item span{font-size:clamp(.88rem,2.8vw,1.04rem)!important;line-height:1.2!important;overflow-wrap:anywhere}
 @media(max-width:360px){.falling-item span{font-size:.84rem!important}}
 @media(orientation:landscape) and (max-height:600px){.sort-game{max-width:none!important;width:100%!important}.menu-panel{width:100%!important;max-width:none!important}.falling-item span{font-size:.88rem!important}}
+
+/* Optional social sharing (does not affect gameplay). */
+.share-records-button{width:100%;margin:10px 0 4px;background:#215a68;border-color:#68aeba;color:#fff;min-height:44px}
+.share-records-dialog{width:min(92vw,430px);max-height:85dvh;overflow-y:auto;border:1px solid #638d9e;border-radius:20px;padding:22px;background:#1b3042;color:#edf7fc;box-shadow:0 20px 60px #0009}
+.share-records-dialog::backdrop{background:#00111bcc}
+.share-records-dialog h2{margin:0 0 10px;font-size:1.3rem}
+.share-records-dialog p{line-height:1.4}
+.share-record-actions{display:grid;gap:9px}
+.share-record-actions button{min-height:44px}
+.share-record-note{font-size:.79rem;color:#c4d9e5;margin-bottom:0}
