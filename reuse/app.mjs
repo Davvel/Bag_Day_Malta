@@ -1,14 +1,14 @@
-import {showUntilLimits,showUntilFromExpiry} from './show-until.mjs?v=1.1.68';
-import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.59';
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.59';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.59';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.59';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.59';
-import {emojiCandidates} from './custom-emoji.mjs?v=1.1.59';
-import {request,esc} from './client.mjs?v=1.1.59';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.59';
-import {titleIcons} from './title-icons.mjs?v=1.1.59';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.59';
+import {showUntilLimits,showUntilFromExpiry} from './show-until.mjs?v=1.1.69';
+import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.69';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.69';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.69';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.69';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.69';
+import {emojiCandidates} from './custom-emoji.mjs?v=1.1.69';
+import {request,esc} from './client.mjs?v=1.1.69';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.69';
+import {titleIcons} from './title-icons.mjs?v=1.1.69';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.69';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='',searchQuery='',searchTimer=null;
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
@@ -292,4 +292,4 @@ function refreshVisibleState(){renderSponsors();refreshItemAges();if(!document.h
 for(const dialog of [detailsDialog,itemDialog,loginDialog])dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close()});
 start();
 
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('../service-worker.js').catch(()=>{}));
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('../service-worker.js',{updateViaCache:'none'}).catch(()=>{}));

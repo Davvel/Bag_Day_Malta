@@ -1,9 +1,9 @@
-import {sponsorPublication,readSponsorPublication} from './sponsor-publication.mjs?v=1.1.59';
-import {renderNoticeboard} from './noticeboard.mjs?v=1.1.59';
-import {renderCommunity} from './community.mjs?v=1.1.59';
+import {sponsorPublication,readSponsorPublication} from './sponsor-publication.mjs?v=1.1.69';
+import {renderNoticeboard} from './noticeboard.mjs?v=1.1.69';
+import {renderCommunity} from './community.mjs?v=1.1.69';
 import {renderReuse} from './reuse.mjs';
 import {generateExport} from './exporter.mjs';
-import {CONFIG} from './config.mjs?v=1.1.59';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
+import {CONFIG} from './config.mjs?v=1.1.69';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
 const $=s=>document.querySelector(s),api=new BagDayAPI(CONFIG.apiBase),tabs={dashboard:'Overview',localities:'Localities',noticeboard:'Noticeboard & editors',sponsors:'Sponsors',slots:'Slot allocations',community:'Community adverts',reusePeople:'REUSE contributors',reuseItems:'REUSE items',access:'Administrator access',settings:'Settings'};
 let reuseSummary={pending_enrolments:0,pending_items:0};
 let current='dashboard',me=null,data={localities:[],sponsors:[],slots:[],users:[]},capacity=3,selected=new Set(),lastReport=null,lastSummary='',busy=false,pageSeq=0;let deferredInstall;const root=$('#root'),dialog=$('#dialog');
@@ -77,6 +77,6 @@ async function signout(){await action(async()=>{try{await api.request('/auth/log
 async function install(){if(deferredInstall){await deferredInstall.prompt();deferredInstall=null;if($('#install'))$('#install').hidden=true}}
 window.UI={checkSponsors,generateCSVs,navigate,edit,close,listRows,select,selectAll,deleteRecords,template,upload,exportRecords,checkLocs,candidateCount,slotRows,cancelSlots,cancelOne,editSlot,reportCSV,accessAction,signout,install};
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;if($('#install'))$('#install').hidden=false});window.addEventListener('online',()=>{if($('#offline'))$('#offline').hidden=true});window.addEventListener('offline',()=>{if($('#offline'))$('#offline').hidden=false});
-if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});
+if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).catch(()=>{});
 login();
 if(!CONFIG.googleClientId){api.request('/auth/public/client-config').then(r=>{if(r.google_client_id){CONFIG.googleClientId=r.google_client_id;$('#googleSetupMessage')?.remove();if($('#google'))loadGoogle()}else if($('#googleSetupMessage'))$('#googleSetupMessage').textContent='Google sign-in is not configured yet. Use emergency ADMIN.'}).catch(()=>{if($('#googleSetupMessage'))$('#googleSetupMessage').textContent='Google sign-in is unavailable. Use emergency ADMIN.'})}

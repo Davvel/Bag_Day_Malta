@@ -344,5 +344,5 @@
  window.BAG_DAY_BACK?.register('orientation',{isOpen:()=>orientationPanel.open,close:renderMenu});
  window.BAG_DAY_GAME_ZOOM?.restore(startRound);
  // This worker owns only /game/ assets, never the collection app's cache.
- if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{});
+ if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js',{scope:'./',updateViaCache:'none'}).catch(()=>{});
 })();
