@@ -106,7 +106,7 @@
     const noticeboard=document.createElement('a');noticeboard.className='council-noticeboard';
     const noticeURL=new URL('noticeboard/',siteRoot);noticeURL.searchParams.set('locality',locality);noticeboard.href=noticeURL.href;
     noticeboard.title='Community noticeboard';noticeboard.setAttribute('aria-label','Open community noticeboard for '+locality);
-    noticeboard.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3.5h6M9 9h6M9 13h6M9 17h4"/></svg><span>Notices</span>';council.append(noticeboard);
+    noticeboard.innerHTML='<svg viewBox="0 0 40 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="36" height="24" rx="3" fill="currentColor" fill-opacity=".08"/><path d="M5 5h30v18H5Z" stroke-opacity=".4"/><g transform="rotate(-8 12 13)"><rect x="7" y="7" width="10" height="13" rx="1" fill="currentColor" fill-opacity=".13"/><circle cx="12" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><path d="M9.5 12h5m-5 3h4" stroke-width="1"/></g><g transform="rotate(7 27 14)"><rect x="22" y="8" width="11" height="13" rx="1" fill="currentColor" fill-opacity=".13"/><circle cx="27.5" cy="9.5" r="1.3" fill="currentColor" stroke="none"/><path d="M24.5 13h6m-6 3h4" stroke-width="1"/></g></svg><span>Notices</span>';council.append(noticeboard);
 
     const actions=document.createElement('div');actions.className='council-actions';
     const actionContent=(node,icon,label)=>{

@@ -296,3 +296,8 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
  #dashboard #collectionCardBody .collection-timing{gap:5px}
  #dashboard.home-hide-battery #collectionCardBody .hospice-battery-link{display:none!important}
 }
+
+/* v1.1.67: equally prominent day labels and a wider pinned-notice board. */
+#dashboard #collectionCardBody .collection-heading .collection-day-tag{font-size:inherit!important;line-height:inherit;font-weight:inherit}
+#councilPanel .council-noticeboard{width:64px;min-width:64px;height:52px}
+#councilPanel .council-noticeboard svg{width:38px;height:28px;flex:none}
