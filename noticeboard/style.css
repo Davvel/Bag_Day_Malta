@@ -40,3 +40,5 @@ body:has(.noticeboard-sponsor-dock) .shell{padding-bottom:calc(36px + var(--noti
 .noticeboard-sponsor-dock .sponsor-link-image::after{content:none}
 
 body:has(.noticeboard-sponsor-dock) #usageConsent{bottom:calc(var(--noticeboard-dock-height,0px) + 10px)!important;max-height:calc(100dvh - var(--noticeboard-dock-height,0px) - 20px);overflow:auto}
+
+.publication-bar button:disabled{opacity:.45;cursor:not-allowed;}
