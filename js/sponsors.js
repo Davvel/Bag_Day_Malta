@@ -63,7 +63,7 @@
       a.classList.add('sponsor-link-image');a.replaceChildren(image);image.src=candidates[0];
     }
     const placement=window.WASTE_DATA.localities.find(row=>canonical(row[0])===canonical(locality))?.[0];
-    const params=entry.kind==='paid'?{sponsor_id:entry.id,placement_locality:placement,booking_month:entry.month,booking_year:entry.year,sponsor_slot:entry.position,data_source:sponsorStale?'saved':'live'}:{community_advert_id:entry.advert_id,placement_locality:placement};
+    const params=entry.kind==='paid'?{sponsor_id:entry.id,sponsor_name:entry.sponsorName,placement_locality:placement,booking_month:entry.month,booking_year:entry.year,sponsor_slot:entry.position,data_source:sponsorStale?'saved':'live'}:{community_advert_id:entry.advert_id,placement_locality:placement};
     const currentParams=()=>({...params,advert_kind:entry.kind,advert_format:a.classList.contains('sponsor-link-image')?'image':'text'});
     const eventPrefix=entry.kind==='paid'?'sponsor':'community';
     const key=entry.kind==='paid'?['sponsor',entry.id,canonical(locality),entry.year,entry.month,entry.position].join(':'):['community',entry.advert_id,canonical(locality),window.BAG_DAY_ADVERT_POLICY.dayKey(today)].join(':');
@@ -132,7 +132,7 @@
     if(actions.childElementCount)council.append(actions);
     window.BAG_DAY_ANALYTICS?.observe(council,'council_impression',councilParams,'council:'+(placement||'generic'));
     }
-    const today=sponsorDate(),paid=bookings(slotRows,locality,today,sponsorRows).map(r=>({id:String(r.sponsorid).trim().toUpperCase(),kind:'paid',displayText:r.advert.displaytext,imageURL:safeURL(r.advert.imageurl),url:safeURL(r.advert.url),month:Number(r.month),year:Number(r.year),position:Number(r.slot)}));
+    const today=sponsorDate(),paid=bookings(slotRows,locality,today,sponsorRows).map(r=>({id:String(r.sponsorid).trim().toUpperCase(),kind:'paid',sponsorName:r.advert.sponsorname,displayText:r.advert.displaytext,imageURL:safeURL(r.advert.imageurl),url:safeURL(r.advert.url),month:Number(r.month),year:Number(r.year),position:Number(r.slot)}));
     const snapshot=window.BAG_DAY_COMMUNITY.snapshot(),community=snapshot.adverts.map(a=>({...a,id:'COMMUNITY_'+a.advert_id,kind:'community',displayText:a.display_text,imageURL:safeURL(a.banner_url),url:safeURL(a.destination_url)}));
     const dashboard=document.getElementById('dashboard'),plan=window.BAG_DAY_ADVERT_POLICY.plan(paid,community,snapshot.capacity,!!dashboard,new Date(),dashboard?date:null);
     renderPlacement(panel,plan.primary.entries,plan.primary.mode,locality,today,'primary');

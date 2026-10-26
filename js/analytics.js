@@ -1,8 +1,8 @@
-/* Shared, consent-gated GA4 measurement. No account, contact or free-text fields. */
+/* Shared, consent-gated GA4 measurement. No account, contact or listing free-text fields. Registered sponsor names are allowed. */
 (() => {
  'use strict';
  if(window.BAG_DAY_ANALYTICS)return;
- const VERSION='1.1.59',scriptURL=new URL(document.currentScript.src),root=new URL('../',scriptURL);
+ const VERSION='1.1.68',scriptURL=new URL(document.currentScript.src),root=new URL('../',scriptURL);
  const area=location.pathname.startsWith(new URL('noticeboard/',root).pathname)?'noticeboard':location.pathname.startsWith(new URL('reuse/',root).pathname)?'reuse':location.pathname.startsWith(new URL('game/',root).pathname)?'game':'home';
  const consentKey='bag-day-analytics-consent-v1',excludeKey='bag-day-analytics-exclude-v1';
  const get=k=>{try{return localStorage.getItem(k)}catch{return null}},put=(k,v)=>{try{localStorage.setItem(k,v)}catch{}};
@@ -24,6 +24,7 @@
   if(enums[k]?.includes(v))out[k]=v;
   else if(numeric[k]&&typeof v==='number'&&Number.isFinite(v)&&v>=numeric[k][0]&&v<=numeric[k][1])out[k]=Math.round(v);
   else if(k==='community_advert_id'&&/^[A-Za-z0-9_-]{1,100}$/.test(String(v)))out[k]=String(v);
+  else if(k==='sponsor_name'&&typeof v==='string'&&v.trim()&&!/[\u0000-\u001f\u007f]/.test(v))out[k]=Array.from(v.trim()).slice(0,100).join('');
   else if(k==='sponsor_id'&&/^[A-Za-z0-9_-]{1,80}$/.test(String(v)))out[k]=String(v);
   else if(k==='placement_locality'&&window.WASTE_DATA?.localities?.some(r=>r[0]===v))out[k]=v;
  }return out;}
