@@ -1,9 +1,9 @@
-import {sponsorPublication,readSponsorPublication} from './sponsor-publication.mjs?v=1.1.69';
-import {renderNoticeboard} from './noticeboard.mjs?v=1.1.69';
-import {renderCommunity} from './community.mjs?v=1.1.69';
+import {sponsorPublication,readSponsorPublication} from './sponsor-publication.mjs?v=1.1.70';
+import {renderNoticeboard} from './noticeboard.mjs?v=1.1.70';
+import {renderCommunity} from './community.mjs?v=1.1.70';
 import {renderReuse} from './reuse.mjs';
 import {generateExport} from './exporter.mjs';
-import {CONFIG} from './config.mjs?v=1.1.69';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
+import {CONFIG} from './config.mjs?v=1.1.70';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
 const $=s=>document.querySelector(s),api=new BagDayAPI(CONFIG.apiBase),tabs={dashboard:'Overview',localities:'Localities',noticeboard:'Noticeboard & editors',sponsors:'Sponsors',slots:'Slot allocations',community:'Community adverts',reusePeople:'REUSE contributors',reuseItems:'REUSE items',access:'Administrator access',settings:'Settings'};
 let reuseSummary={pending_enrolments:0,pending_items:0};
 let current='dashboard',me=null,data={localities:[],sponsors:[],slots:[],users:[]},capacity=3,selected=new Set(),lastReport=null,lastSummary='',busy=false,pageSeq=0;let deferredInstall;const root=$('#root'),dialog=$('#dialog');

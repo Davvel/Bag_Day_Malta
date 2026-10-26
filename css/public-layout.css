@@ -12,8 +12,11 @@ body:has(#reuseScroll) .tabs{max-width:calc(var(--public-content-max) - 24px)}
 body:has(#reuseScroll) #reuseScroll{max-width:var(--public-content-max)}
 body:has(#reuseScroll) .sponsor-dock{padding-left:max(12px, calc((100% - var(--public-content-max) + 24px)/2));padding-right:max(12px, calc((100% - var(--public-content-max) + 24px)/2))}
 /* Community Noticeboard public reader */
-body:has(.noticeboard-header) .shell{width:100%;max-width:var(--public-content-max);margin-inline:auto}
-body:has(.noticeboard-header) .noticeboard-sponsor-dock .sponsor-panel{max-width:calc(var(--public-content-max) - 24px);margin-inline:auto}
+body:has(.noticeboard-header){--noticeboard-inline-padding:clamp(10px,1.8vw,24px)}
+body:has(.noticeboard-header) .shell{width:100%;max-width:var(--public-content-max);margin-inline:auto;padding-inline:var(--noticeboard-inline-padding)}
+/* Match the actual shell edges, including its responsive padding and width cap. */
+body:has(.noticeboard-header) .noticeboard-sponsor-dock{padding-inline:max(var(--noticeboard-inline-padding),calc((100% - var(--public-content-max))/2 + var(--noticeboard-inline-padding)))}
+body:has(.noticeboard-header) .noticeboard-sponsor-dock .sponsor-panel{width:100%;max-width:none;margin-inline:0}
 /* Sorting Game: retain vertical viewport gameplay and existing mobile controls */
 .sort-game{width:100%;max-width:var(--public-content-max);margin-inline:auto}
 /* Game's legacy landscape CSS temporarily removes all width limits; cap it
