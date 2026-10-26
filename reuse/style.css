@@ -119,3 +119,10 @@ html[data-screen=reuse][data-zoomed=true] :is(main,dialog,.sponsor-viewport){tou
 
 /* v1.1.59: unmistakable home shortcut */
 .top .quick-home{flex:0 0 auto;display:grid;place-items:center;width:38px;height:38px;border:1px solid #477c9b;border-radius:12px;color:#effaff;background:#153c5b;text-decoration:none}.quick-home svg{width:22px;height:22px}@media(max-width:430px){.top .quick-home{width:32px;height:32px}}
+
+/* v1.1.61: one Home icon, no redundant browse banner */
+.top{display:grid!important;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:8px}
+.top>.quick-home{grid-column:1;min-width:44px;width:44px;height:44px}
+.top>.section-title{grid-column:2;text-align:center}
+.top>.header-actions{grid-column:3}
+.tabs:has(#browseTab[hidden]){display:none!important}

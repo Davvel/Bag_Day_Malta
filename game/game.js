@@ -164,7 +164,7 @@
   face.classList.toggle('urgent',!practice&&remaining>0&&remaining<=5);
  }
  const orientationPanel=byId('orientationPanel');
- const landscape=()=>window.matchMedia('(orientation: landscape)').matches;
+ const landscape=()=>window.matchMedia('(orientation: landscape)').matches && window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width,screen.height)<600 && window.innerWidth<900;
  let orientationIntent=null;
  function closeOrientation(){if(orientationPanel.open)orientationPanel.close();}
  function showOrientation(intent=null){

@@ -53,3 +53,13 @@ body:has(.noticeboard-sponsor-dock) #usageConsent{bottom:calc(var(--noticeboard-
 .quick-home{display:grid;place-items:center;width:38px;height:38px;border:1px solid #477c9b;border-radius:12px;background:#173b58;color:white;text-decoration:none}
 .quick-home svg{width:22px;height:22px}
 @media(max-width:520px){.noticeboard-header{gap:6px}.noticeboard-title{font-size:clamp(17px,4.2vw,24px)}.quick-home{width:34px;height:34px}}
+
+/* v1.1.61 public reader compact header */
+.noticeboard-header{display:grid!important;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px}
+.noticeboard-header .quick-home{grid-column:1;width:44px;height:44px;min-width:44px}
+.noticeboard-header .noticeboard-title{grid-column:2;min-width:0;text-align:center;white-space:nowrap;font-size:clamp(15px,2.7vw,25px);margin:0;letter-spacing:-.03em}
+.noticeboard-header>span:last-child{grid-column:3}
+.locality{flex-wrap:nowrap;gap:9px;margin:8px 0 12px}
+.locality-prompt{white-space:nowrap;font-size:clamp(12px,2.2vw,16px)}
+.locality select{flex:1;min-width:0;width:auto;max-width:340px;padding:8px 25px 8px 10px}
+@media(max-width:390px){.locality{gap:5px}.locality-prompt{font-size:11px}.locality select{font-size:12px;padding:7px 18px 7px 6px}}

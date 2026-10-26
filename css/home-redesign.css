@@ -231,3 +231,20 @@ button.put-out-instruction{width:100%;border:0;background:transparent;color:inhe
 /* Keep Android gesture/navigation area opaque in dark appearance. */
 html[data-theme=dark],html[data-theme=dark] body{background-color:#0b1421!important;color-scheme:dark}
 html[data-theme=light],html[data-theme=light] body{color-scheme:light}
+
+/* v1.1.61: public home improvements */
+#dashboard{padding-top:3px!important}
+#dashboard>.collection-date{min-height:48px!important;padding-bottom:3px!important;margin-bottom:3px!important}
+#dayNavigation{min-height:40px!important}
+#dayNavigation .nav-button{min-height:40px!important;height:40px!important}
+#collectionCardBody .collection-day-tag{font-size:clamp(17px,3.5vw,24px)!important;font-weight:750!important}
+#collectionCardBody .collection-card{height:auto!important;min-height:max(400px,var(--home-card-min-height,400px));overflow:visible!important}
+#collectionCardBody .collection-main{overflow:visible!important;min-height:220px!important;flex-shrink:0}
+#collectionCardBody .collection-timing{flex-shrink:0;min-width:0}
+#collectionCardBody .hospice-battery-link{position:relative;flex:none;margin-top:12px}
+@media(max-height:850px){#collectionCardBody .hospice-battery-link{display:none!important}}
+@media(max-height:650px){#dashboard>.collection-date{min-height:43px!important}#dayNavigation{min-height:38px!important}#collectionCardBody .collection-card{min-height:390px!important}}
+/* Style the notice icon like the adjacent outlined action icons */
+#councilPanel .council-noticeboard{width:46px;height:52px;min-width:46px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;border:1px solid #ffffff45;border-radius:12px;color:#fff;background:#103e67!important}
+#councilPanel .council-noticeboard svg{width:24px;height:24px;display:block}
+#councilPanel .council-noticeboard span{font-size:9px;font-weight:700;line-height:1}

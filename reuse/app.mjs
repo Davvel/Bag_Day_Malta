@@ -25,7 +25,7 @@ const date=s=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',day:'nume
 const choices=(selected='')=>localities.map(l=>`<option value="${esc(l.locality_id)}" ${l.locality_id===selected?'selected':''}>${esc(l.name)}</option>`).join('');
 function message(s){$('#message').textContent=s;$('#message').hidden=!s;const detail=detailsDialog.querySelector('#detailError');if(detailsDialog.open&&detail){detail.textContent=s;detail.hidden=!s}}
 function account(){const signed=!!me;$('#signin').hidden=signed;$('#signout').hidden=!signed;$('#mineTab').hidden=!signed;$('#mineTab').textContent='My items'}
-function tabs(){for(const [id,v] of [['browseTab','browse'],['mineTab','mine']])v===view?$('#'+id).setAttribute('aria-current','page'):$('#'+id).removeAttribute('aria-current')}
+function tabs(){const browseTab=$('#browseTab');browseTab.hidden=view==='browse'||$('#mineTab').hidden;for(const [id,v] of [['browseTab','browse'],['mineTab','mine']])v===view?$('#'+id).setAttribute('aria-current','page'):$('#'+id).removeAttribute('aria-current')}
 async function run(fn,button){if(loading)return;loading=true;if(button)button.disabled=true;try{await fn()}catch(e){if(e.status===401){me=null;account()}message(e.message)}finally{loading=false;if(button?.isConnected)button.disabled=false}}
 async function refreshMe(){try{me=await request('/reuse/me')}catch(e){if(e.status===401)me=null;else throw e}account()}
 async function signIn(next){track('reuse_signin_open');afterLogin=next;$('#signinError').hidden=true;$('#googleButton').replaceChildren();loginDialog.showModal();

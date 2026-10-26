@@ -106,7 +106,7 @@
     const noticeboard=document.createElement('a');noticeboard.className='council-noticeboard';
     const noticeURL=new URL('noticeboard/',siteRoot);noticeURL.searchParams.set('locality',locality);noticeboard.href=noticeURL.href;
     noticeboard.title='Community noticeboard';noticeboard.setAttribute('aria-label','Open community noticeboard for '+locality);
-    const boardIcon=document.createElement('img');boardIcon.src=new URL('icons/community-notices.png',siteRoot).href;boardIcon.alt='';boardIcon.width=64;boardIcon.height=64;noticeboard.append(boardIcon);council.append(noticeboard);
+    noticeboard.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3.5h6M9 9h6M9 13h6M9 17h4"/></svg><span>Notices</span>';council.append(noticeboard);
 
     const actions=document.createElement('div');actions.className='council-actions';
     const actionContent=(node,icon,label)=>{
