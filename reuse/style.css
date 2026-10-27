@@ -131,3 +131,5 @@ html[data-screen=reuse][data-zoomed=true] :is(main,dialog,.sponsor-viewport){tou
 .reuse-centres-help{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center}
 .reuse-centres-help a{display:inline-block;white-space:nowrap;font-size:clamp(11px,3.5vw,16px);max-width:100%}
 #showUntil{width:100%;min-width:0;min-height:44px;box-sizing:border-box}
+
+.item-row .item-symbols{width:60px;min-height:60px;font-size:40px}.item-row .item-symbols[data-count="1"]{font-size:40px}.remaining-days{white-space:nowrap;color:var(--accent)}

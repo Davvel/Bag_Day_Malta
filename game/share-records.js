@@ -47,23 +47,8 @@
     $('shareRecordsPreview').removeAttribute('src');
     $('shareRecordsPreview').hidden=true;
   });
-  $('shareRecordsFacebook').addEventListener('click',async()=>{
-    const r=records();
-    try {
-      const blob=await makeImage(r);
-      const file=new File([blob],filename,{type:'image/png'});
-      // Native share can offer Facebook with the actual card image on supported devices.
-      if(navigator.share && navigator.canShare?.({files:[file]})){
-        try {
-          await navigator.share({files:[file],title:'My Bag Day Malta Sorting Game records',text:message(r),url});
-          return;
-        }catch(e){if(e?.name==='AbortError')return;}
-      }
-    } catch {}
-    // Facebook does not permit a website to attach a custom image to its URL sharer.
+  $('shareRecordsFacebook').addEventListener('click',()=>{
     const destination='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url);
-    const opened=window.open(destination,'_blank','noopener,noreferrer');
-    if(!opened) window.location.href=destination;
-    feedback('Facebook shares the game link. It may not include your personal achievement picture.');
+    window.location.href=destination;
   });
 })();
