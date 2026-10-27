@@ -133,3 +133,5 @@ html[data-screen=reuse][data-zoomed=true] :is(main,dialog,.sponsor-viewport){tou
 #showUntil{width:100%;min-width:0;min-height:44px;box-sizing:border-box}
 
 .item-row .item-symbols{width:60px;min-height:60px;font-size:40px}.item-row .item-symbols[data-count="1"]{font-size:40px}.remaining-days{white-space:nowrap;color:var(--accent)}
+
+.required-mark,.required-error{color:#ff8585;font-weight:700}.required-error{font-size:13px;margin:8px 0}.required-error[hidden]{display:none}.field-invalid{border:2px solid #ff8585!important}#itemError:not([hidden]),#enrolError:not([hidden]){color:#ffb0b0;border-color:#ff8585;background:#512b30}

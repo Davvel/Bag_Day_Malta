@@ -1,6 +1,6 @@
 /* Single source of truth for the frontend release. Change the version here only. */
 (()=>{
- const config=Object.freeze({version:'1.1.75'});
+ const config=Object.freeze({version:'1.1.76'});
  globalThis.BAG_DAY_CONFIG=config;
  if(typeof document==='undefined')return; // Also imported by the offline workers.
  function showVersion(){
