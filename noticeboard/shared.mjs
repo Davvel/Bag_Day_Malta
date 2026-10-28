@@ -17,7 +17,7 @@ export async function request(path,{method='GET',body,token}={}){const r=await f
 export function decodePublishedCSV(csv){
  const records=parseCSV(csv);if(!records.some(r=>r.record_type==='manifest'&&r.format_version==='1'))throw Error('The noticeboard file has an unsupported format.');
  const pages=new Map();for(const r of records)if(r.record_type==='page')pages.set(r.page_id,{page_id:r.page_id,locality_id:r.locality_id,locality_name:r.locality_name,section:r.section,published_at:r.published_at||null,items:[]});
- const field=s=>'"'+String(s??'').replaceAll('"','""')+'"',cols=['entry_id','kind','title','description','end_date'];
+ const field=s=>'"'+String(s??'').replaceAll('"','""')+'"',cols=['entry_id','kind','title','description','end_date','link_url','link_title'];
  for(const r of records)if(r.record_type==='entry'&&pages.has(r.page_id))pages.get(r.page_id).items.push(r);
  return [...pages.values()].map(({items,...p})=>({...p,csv:cols.join(',')+'\r\n'+items.map(r=>cols.map(k=>field(r[k])).join(',')).join('\r\n')+(items.length?'\r\n':'')}));
 }
