@@ -35,7 +35,7 @@ ${url}`;
     if(step<2){
       scene.innerHTML='<div class="guide-action">'+(step===0?'① Copy result':'② Post on Facebook')+'</div><div class="guide-pointer"><span class="guide-hand">👆</span></div>'+(step===0?'<span class="guide-bubble" hidden>Score copied</span>':'');
     }else{
-      scene.innerHTML='<div class="guide-facebook-head">Facebook · Create post</div><div class="guide-post-box"><span class="guide-post-placeholder">What’s on your mind?</span><span class="guide-post-text" hidden></span></div><div class="guide-post-button">Post</div><div class="guide-pointer"><span class="guide-hand">👆</span></div>';
+      scene.innerHTML='<span class="guide-bubble guide-paste-bubble" hidden>Paste</span><div class="guide-facebook-head">Facebook · Create post</div><div class="guide-post-box"><span class="guide-post-placeholder">What’s on your mind?</span><span class="guide-post-text" hidden></span><svg class="guide-paste-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H5v16h14V5h-4M9 3h6v4H9zM12 10v7m-3-3 3 3 3-3"/></svg></div><div class="guide-post-button">Post</div><div class="guide-pointer"><span class="guide-hand">👆</span></div>';
     }
     caption.textContent=['Tap Copy result.','Tap Post on Facebook.','Tap the post box and paste your result.'][step];
   }
@@ -54,20 +54,25 @@ ${url}`;
     later(3000,()=>scene.classList.add('guide-tap'));
     later(5000,()=>scene.classList.add('guide-scene-out'));
     later(5250,()=>guideStep(2));
-    later(5750,()=>scene.classList.add('guide-tap'));
+    later(5750,()=>{
+      scene.classList.add('guide-tap');
+      scene.querySelector('.guide-paste-bubble').hidden=false;
+      caption.textContent='Paste your copied result here.';
+    });
     later(6000,()=>{
       scene.querySelector('.guide-post-placeholder').hidden=true;
       const preview=scene.querySelector('.guide-post-text');
       preview.textContent=text.value;preview.hidden=false;
       caption.textContent='Result pasted. Now tap Post.';
     });
-    later(7000,()=>{
+    later(8000,()=>{
+      scene.querySelector('.guide-paste-bubble').hidden=true;
       scene.classList.remove('guide-tap');
       scene.classList.add('guide-post-tap');
       caption.textContent='Tap Post.';
     });
-    later(8000,()=>guide.classList.add('guide-fade'));
-    later(8250,stopGuide);
+    later(9000,()=>guide.classList.add('guide-fade'));
+    later(9250,stopGuide);
   });
   // The tap that starts Help is allowed through; the next click anywhere dismisses it.
   document.addEventListener('click',event=>{
