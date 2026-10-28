@@ -238,25 +238,41 @@ html,body{height:var(--game-height,100dvh)}
 
 /* Sharing lesson: example content is decorative; the written steps always remain visible. */
 
-.share-preview-wrap{position:relative}
-.share-guide-overlay{position:absolute;inset:0;z-index:2;background:#102435f7;border:1px solid #8db9cf;border-radius:12px;padding:14px 12px;box-shadow:0 12px 35px #0008;transition:opacity .8s;overflow:auto}
+
+.share-records-dialog{box-sizing:border-box;width:min(calc(100vw - 20px),430px);max-height:calc(100dvh - 20px);padding:16px}
+.share-preview-wrap{position:relative;margin-bottom:12px}
+.share-preview-label{font-size:.95rem;margin:4px 0 8px}
+.share-post-preview{border:1px solid #638d9e;border-radius:12px;padding:16px;background:#102435;text-align:left;font-size:clamp(13px,3.6vw,16px);line-height:1.4}
+.share-post-brand{font-size:1.22em;font-weight:750}
+.share-post-subtitle{font-size:.95em;margin:2px 0 18px}
+.share-stat{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin:14px 0}
+.share-stat strong{flex:none;font-size:1.1em}
+.share-post-play{margin-top:18px;font-weight:700;overflow-wrap:anywhere}
+.share-post-play span{font-weight:400;font-size:.95em}
+.share-records-text[hidden]{display:none}
+.share-guide-overlay{position:absolute;inset:0;z-index:2;display:grid;align-items:center;background:#102435fa;border:1px solid #8db9cf;border-radius:12px;padding:34px 14px 14px;transition:opacity .35s;overflow:hidden}
 .share-guide-overlay[hidden]{display:none}
-.share-guide-overlay>strong{display:block;padding-right:32px;font-size:.9rem}
-.share-guide-close{position:absolute;right:8px;top:7px;border:1px solid #b5cbd8;border-radius:50%;width:30px;height:30px;background:#203b52;color:white;font-size:23px;line-height:1}
-.share-guide-scene{position:relative;margin-top:10px;background:#f0f4fa;border-radius:9px;color:#142438;padding:10px;font-size:12px;line-height:1.5}
-.guide-example{padding:4px}
-.guide-action,.guide-post-button{background:#1877f2;color:white;text-align:center;border-radius:7px;padding:7px;margin-top:8px;font-weight:700}
-.guide-facebook-head{font-weight:750;color:#1665c8;margin-bottom:8px}
-.guide-post-box{position:relative;background:white;border:1px solid #abbaca;border-radius:7px;min-height:135px;padding:8px}
-.guide-paste-menu{position:absolute;left:22px;top:42px;background:#23364b;color:white;padding:7px 18px;border-radius:6px}
-.guide-hand{position:absolute;font-size:30px;pointer-events:none;animation:guideHand 2s ease-in-out infinite}
-.guide-hand-action,.guide-hand-post{right:25%;bottom:0}
-.guide-hand-hold{left:38%;top:90px}
-.guide-post-tap{animation:guideTap 2s ease-in-out infinite}
-.guide-highlight{box-shadow:0 0 0 3px #ffe28a,0 0 20px #ffe28a!important}
-.share-guide-overlay p{margin:9px 0;font-weight:700;font-size:.9rem;color:#fff}
-.share-guide-overlay small{font-size:.7rem;color:#b5cbd8;line-height:1.4}
+.share-guide-close{position:absolute;right:8px;top:7px;border:1px solid #b5cbd8;border-radius:50%;width:30px;height:30px;background:#203b52;color:white;font-size:23px;line-height:1;z-index:3}
+.share-guide-scene{position:relative;min-height:220px;padding:12px;color:#fff;animation:guideSceneIn .15s ease-out}
+.guide-action,.guide-post-button{background:#277f8d;color:white;text-align:center;border:1px solid #84c5cc;border-radius:10px;padding:12px;font-weight:750}
+.guide-action{margin-top:65px}
+.guide-pointer{position:absolute;left:48%;top:105px;transition:top .35s ease,left .35s ease}
+.guide-hand{display:block;font-size:36px;animation:guidePress 1s ease both}
+.guide-bubble{position:absolute;bottom:45px;left:-55px;white-space:nowrap;background:white;color:#153145;padding:9px 13px;border-radius:12px;box-shadow:0 3px 12px #0004;animation:guideBubble .9s both}
+.guide-bubble::after{content:'';position:absolute;bottom:-9px;left:62px;border-width:10px 8px 0;border-style:solid;border-color:white transparent transparent}
+.guide-facebook-head{font-weight:700;color:#8cbcff;padding-bottom:10px}
+.guide-post-box{height:120px;background:white;border:1px solid #abbaca;border-radius:8px}
+.guide-post-button{margin-top:12px;background:#1877f2}
+.guide-step-2 .guide-pointer{left:42%;top:90px}
+.guide-step-2 .guide-hand{animation-duration:1.5s}
+.guide-step-3 .guide-pointer{left:65%;top:194px}
+.guide-step-3 .guide-hand{animation:guidePress .9s both}
+.guide-step-3 .guide-bubble{display:none}
+.guide-step-3 .guide-post-button{animation:guidePostPress 1s both}
 .guide-fade{opacity:0;pointer-events:none}
-@keyframes guideHand{0%,100%{transform:translateY(6px)}50%{transform:translateY(0)}}
-@keyframes guideTap{0%,100%{box-shadow:0 0 0 3px #ffd55c;transform:scale(1)}50%{box-shadow:0 0 0 5px #ffd55c;transform:scale(.97)}}
-@media(prefers-reduced-motion:reduce){.share-guide-overlay,.guide-hand,.guide-post-tap{animation:none;transition:none}}
+@keyframes guideSceneIn{from{opacity:0}to{opacity:1}}
+@keyframes guidePress{0%{transform:translateY(12px)}35%,55%{transform:translateY(0) scale(.88)}85%,100%{transform:translateY(7px)}}
+@keyframes guideBubble{0%,30%{opacity:0}45%,100%{opacity:1}}
+@keyframes guidePostPress{0%,35%,100%{transform:scale(1)}55%{transform:scale(.96);background:#1054ac}}
+@media(max-height:700px){.share-records-dialog{padding:12px}.share-post-preview{padding:12px}.share-post-subtitle{margin-bottom:10px}.share-stat{margin:10px 0}.share-post-play{margin-top:10px}.share-record-actions{gap:7px}}
+@media(prefers-reduced-motion:reduce){.share-guide-overlay,.guide-pointer{transition:none}.share-guide-scene,.guide-hand,.guide-bubble,.guide-post-button{animation:none!important}}

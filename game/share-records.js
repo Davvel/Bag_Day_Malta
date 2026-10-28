@@ -5,22 +5,21 @@
   if(!button||!dialog||!window.SORTING_STATS)return;
   const url='https://bagdaymalta.eu/game/';
   const text=$('shareRecordsText'),status=$('shareRecordsStatus');
-  const message=r=>`♻️ Bag Day Malta — The Waste Sorting Game
+  const message=r=>`♻️ Bag Day Malta
+The Waste Sorting Game
 
-My personal bests:
-
-🏆 Highest level reached: ${r.highestLevel}
-🎯 Highest level with zero sorting mistakes: ${r.highestPerfectLevel}
-
-⏱️ Most items sorted correctly in 1 minute: ${r.bestRound}
+🏆 Highest Level: ${r.highestLevel}
+⏱️ Most sorted in 1 minute: ${r.bestRound}
 🌟 Most sorted in 1 minute with zero mistakes: ${r.bestPerfectRound}
-
-Can you sort faster? 🫵
 
 Play here 👇
 ${url}`;
   button.addEventListener('click',()=>{
-    text.value=message(window.SORTING_STATS.snapshot());
+    const records=window.SORTING_STATS.snapshot();
+    text.value=message(records);
+    $('shareHighestLevel').textContent=records.highestLevel;
+    $('shareBestRound').textContent=records.bestRound;
+    $('sharePerfectRound').textContent=records.bestPerfectRound;
     status.textContent='Copy your result, open Facebook, then paste it into the post box.';
     dialog.showModal();
   });
@@ -31,27 +30,26 @@ ${url}`;
     guide.hidden=true;guide.classList.remove('guide-fade');
     ['shareRecordsCopy','shareRecordsFacebook'].forEach(id=>$(id).classList.remove('guide-highlight'));
   }
-  const example='♻️ Bag Day Malta<br>🏆 Highest level: 20<br>🎯 Level with zero mistakes: 5<br>⏱️ Most sorted in 1 minute: 22<br>🌟 Zero mistakes in 1 minute: 15<br>bagdaymalta.eu/game/';
   function guideStep(step){
-    ['shareRecordsCopy','shareRecordsFacebook'].forEach(id=>$(id).classList.remove('guide-highlight'));
+    scene.className='share-guide-scene guide-step-'+step;
     if(step<2){
-      $(step===0?'shareRecordsCopy':'shareRecordsFacebook').classList.add('guide-highlight');
-      scene.innerHTML='<div class="guide-example">'+example+'</div><div class="guide-action">'+(step===0?'① Copy result':'② Open Facebook')+'</div><span class="guide-hand guide-hand-action">👆</span>';
-      caption.textContent=step===0?'Copy Your Results':'Open Facebook page';
+      scene.innerHTML='<div class="guide-action">'+(step===0?'① Copy result':'② Open Facebook')+'</div><div class="guide-pointer"><span class="guide-hand">👆</span>'+(step===0?'<span class="guide-bubble">Score Copied</span>':'')+'</div>';
     }else{
-      const pasted=step>=4,posted=step===6;
-      scene.innerHTML='<div class="guide-facebook-head">Facebook · Create post</div><div class="guide-post-box">'+(pasted?example:"What’s on your mind?")+(step===3?'<span class="guide-paste-menu">Paste</span>':'')+'</div><div class="guide-post-button '+(step===5?'guide-post-tap':'')+'">'+(posted?'✓ Posted':'Post')+'</div>'+(step<4?'<span class="guide-hand guide-hand-hold">👆</span>':step===5?'<span class="guide-hand guide-hand-post">👆</span>':'');
-      caption.textContent=['Press and hold in the post box','Choose Paste — paste here','Your results appear. Check your post.','Tap Post to share your results','Your results are shared!'][step-2];
+      scene.innerHTML='<div class="guide-facebook-head">Facebook · Create post</div><div class="guide-post-box"></div><div class="guide-post-button">POST</div><div class="guide-pointer"><span class="guide-hand">👆</span><span class="guide-bubble">Paste here</span></div>';
     }
+    caption.textContent=['Copy result. Score Copied.','Open Facebook.','Press and hold in the post box. Paste here.','Press POST.'][step];
   }
   $('shareGuideHelp').addEventListener('click',()=>{
     stopGuide();guide.hidden=false;
-    const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if(reduced){guideStep(4);caption.textContent='Copy result → Open Facebook → press and hold in the post box → Paste → Post.';return;}
+    guide.classList.toggle('guide-reduced',Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches));
     guideStep(0);
-    [4500,9000,13500,17500,22500,27000].forEach((delay,i)=>guideTimers.push(setTimeout(()=>guideStep(i+1),delay)));
-    guideTimers.push(setTimeout(()=>guide.classList.add('guide-fade'),30500));
-    guideTimers.push(setTimeout(stopGuide,31300));
+    [1000,2000].forEach((delay,i)=>guideTimers.push(setTimeout(()=>guideStep(i+1),delay)));
+    guideTimers.push(setTimeout(()=>{
+      scene.className='share-guide-scene guide-step-3';
+      caption.textContent='Press POST.';
+    },3500));
+    guideTimers.push(setTimeout(()=>guide.classList.add('guide-fade'),4650));
+    guideTimers.push(setTimeout(stopGuide,5000));
   });
   $('shareGuideClose').addEventListener('click',stopGuide);
   dialog.addEventListener('click',event=>{
@@ -66,7 +64,7 @@ ${url}`;
       await navigator.clipboard.writeText(text.value);
       status.textContent='Copied ✓ Now open Facebook and paste it into the post box.';
     } catch {
-      text.focus();text.select();text.setSelectionRange(0,text.value.length);
+      text.hidden=false;text.focus();text.select();text.setSelectionRange(0,text.value.length);
       status.textContent='Copy the selected text using your device’s Copy option, then open Facebook and paste it.';
     }
   });
