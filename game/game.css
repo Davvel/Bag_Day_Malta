@@ -250,29 +250,28 @@ html,body{height:var(--game-height,100dvh)}
 .share-post-play{margin-top:18px;font-weight:700;overflow-wrap:anywhere}
 .share-post-play span{font-weight:400;font-size:.95em}
 .share-records-text[hidden]{display:none}
-.share-guide-overlay{position:absolute;inset:0;z-index:2;display:grid;align-items:center;background:#102435fa;border:1px solid #8db9cf;border-radius:12px;padding:34px 14px 14px;transition:opacity .35s;overflow:hidden}
+.share-guide-overlay{position:absolute;inset:0;z-index:2;display:grid;align-items:center;background:#102435fa;border:1px solid #8db9cf;border-radius:12px;padding:22px 14px 14px;transition:opacity .25s;overflow:hidden;cursor:pointer}
 .share-guide-overlay[hidden]{display:none}
-.share-guide-close{position:absolute;right:8px;top:7px;border:1px solid #b5cbd8;border-radius:50%;width:30px;height:30px;background:#203b52;color:white;font-size:23px;line-height:1;z-index:3}
-.share-guide-scene{position:relative;min-height:220px;padding:12px;color:#fff;animation:guideSceneIn .15s ease-out}
+.share-guide-scene{position:relative;min-height:250px;padding:12px;color:#fff;animation:guideSceneIn .25s ease-out;transition:opacity .25s}
 .guide-action,.guide-post-button{background:#277f8d;color:white;text-align:center;border:1px solid #84c5cc;border-radius:10px;padding:12px;font-weight:750}
-.guide-action{margin-top:65px}
-.guide-pointer{position:absolute;left:48%;top:105px;transition:top .35s ease,left .35s ease}
-.guide-hand{display:block;font-size:36px;animation:guidePress 1s ease both}
-.guide-bubble{position:absolute;bottom:45px;left:-55px;white-space:nowrap;background:white;color:#153145;padding:9px 13px;border-radius:12px;box-shadow:0 3px 12px #0004;animation:guideBubble .9s both}
-.guide-bubble::after{content:'';position:absolute;bottom:-9px;left:62px;border-width:10px 8px 0;border-style:solid;border-color:white transparent transparent}
-.guide-facebook-head{font-weight:700;color:#8cbcff;padding-bottom:10px}
-.guide-post-box{height:120px;background:white;border:1px solid #abbaca;border-radius:8px}
+.guide-action{position:absolute;top:112px;left:12px;right:12px;min-height:48px}
+.guide-pointer{position:absolute;left:calc(50% - 18px);top:151px;opacity:0;pointer-events:none}
+.guide-hand{display:block;font-size:36px;line-height:1}
+.guide-tap .guide-pointer{opacity:1}
+.guide-tap .guide-hand,.guide-post-tap .guide-hand{animation:guidePress .3s ease both}
+.guide-bubble{position:absolute;bottom:calc(100% - 94px);left:50%;transform:translateX(-50%);white-space:nowrap;background:white;color:#153145;padding:9px 13px;border-radius:12px;box-shadow:0 3px 12px #0004;animation:guideSceneIn .15s both}
+.guide-bubble::after{content:'';position:absolute;bottom:-8px;left:calc(50% - 8px);border-width:8px 8px 0;border-style:solid;border-color:white transparent transparent}
+.guide-facebook-head{font-weight:700;color:#8cbcff;padding-bottom:10px;font-size:.9rem}
+.guide-post-box{height:132px;background:white;color:#153145;border:1px solid #abbaca;border-radius:8px;padding:10px;overflow:hidden;font-size:.68rem;line-height:1.3}
+.guide-post-placeholder{color:#687684;font-size:.85rem}
+.guide-post-text{white-space:pre-wrap;display:block}
 .guide-post-button{margin-top:12px;background:#1877f2}
-.guide-step-2 .guide-pointer{left:42%;top:90px}
-.guide-step-2 .guide-hand{animation-duration:1.5s}
-.guide-step-3 .guide-pointer{left:65%;top:194px}
-.guide-step-3 .guide-hand{animation:guidePress .9s both}
-.guide-step-3 .guide-bubble{display:none}
-.guide-step-3 .guide-post-button{animation:guidePostPress 1s both}
-.guide-fade{opacity:0;pointer-events:none}
+.guide-step-2 .guide-pointer{left:42%;top:85px}
+.guide-post-tap .guide-pointer{left:calc(50% - 18px);top:206px;opacity:1}
+.guide-post-tap .guide-post-button{animation:guidePostPress .3s both}
+.guide-scene-out,.guide-fade{opacity:0}
 @keyframes guideSceneIn{from{opacity:0}to{opacity:1}}
-@keyframes guidePress{0%{transform:translateY(12px)}35%,55%{transform:translateY(0) scale(.88)}85%,100%{transform:translateY(7px)}}
-@keyframes guideBubble{0%,30%{opacity:0}45%,100%{opacity:1}}
-@keyframes guidePostPress{0%,35%,100%{transform:scale(1)}55%{transform:scale(.96);background:#1054ac}}
+@keyframes guidePress{0%{transform:translateY(10px)}50%{transform:translateY(0) scale(.88)}100%{transform:translateY(5px)}}
+@keyframes guidePostPress{0%,100%{transform:scale(1)}50%{transform:scale(.96);background:#1054ac}}
 @media(max-height:700px){.share-records-dialog{padding:12px}.share-post-preview{padding:12px}.share-post-subtitle{margin-bottom:10px}.share-stat{margin:10px 0}.share-post-play{margin-top:10px}.share-record-actions{gap:7px}}
-@media(prefers-reduced-motion:reduce){.share-guide-overlay,.guide-pointer{transition:none}.share-guide-scene,.guide-hand,.guide-bubble,.guide-post-button{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.share-guide-overlay,.share-guide-scene,.guide-pointer{transition:none}.share-guide-scene,.guide-hand,.guide-bubble,.guide-post-button{animation:none!important}}

@@ -33,30 +33,51 @@ ${url}`;
   function guideStep(step){
     scene.className='share-guide-scene guide-step-'+step;
     if(step<2){
-      scene.innerHTML='<div class="guide-action">'+(step===0?'① Copy result':'② Open Facebook')+'</div><div class="guide-pointer"><span class="guide-hand">👆</span>'+(step===0?'<span class="guide-bubble">Score Copied</span>':'')+'</div>';
+      scene.innerHTML='<div class="guide-action">'+(step===0?'① Copy result':'② Post on Facebook')+'</div><div class="guide-pointer"><span class="guide-hand">👆</span></div>'+(step===0?'<span class="guide-bubble" hidden>Score copied</span>':'');
     }else{
-      scene.innerHTML='<div class="guide-facebook-head">Facebook · Create post</div><div class="guide-post-box"></div><div class="guide-post-button">POST</div><div class="guide-pointer"><span class="guide-hand">👆</span><span class="guide-bubble">Paste here</span></div>';
+      scene.innerHTML='<div class="guide-facebook-head">Facebook · Create post</div><div class="guide-post-box"><span class="guide-post-placeholder">What’s on your mind?</span><span class="guide-post-text" hidden></span></div><div class="guide-post-button">Post</div><div class="guide-pointer"><span class="guide-hand">👆</span></div>';
     }
-    caption.textContent=['Copy result. Score Copied.','Open Facebook.','Press and hold in the post box. Paste here.','Press POST.'][step];
+    caption.textContent=['Tap Copy result.','Tap Post on Facebook.','Tap the post box and paste your result.'][step];
   }
+  const later=(ms,fn)=>guideTimers.push(setTimeout(fn,ms));
   $('shareGuideHelp').addEventListener('click',()=>{
     stopGuide();guide.hidden=false;
     guide.classList.toggle('guide-reduced',Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches));
     guideStep(0);
-    [1000,2000].forEach((delay,i)=>guideTimers.push(setTimeout(()=>guideStep(i+1),delay)));
-    guideTimers.push(setTimeout(()=>{
-      scene.className='share-guide-scene guide-step-3';
-      caption.textContent='Press POST.';
-    },3500));
-    guideTimers.push(setTimeout(()=>guide.classList.add('guide-fade'),4650));
-    guideTimers.push(setTimeout(stopGuide,5000));
+    later(1000,()=>scene.classList.add('guide-tap'));
+    later(1500,()=>{
+      scene.querySelector('.guide-bubble').hidden=false;
+      caption.textContent='Score copied.';
+    });
+    later(2300,()=>scene.classList.add('guide-scene-out'));
+    later(2550,()=>guideStep(1));
+    later(3000,()=>scene.classList.add('guide-tap'));
+    later(5000,()=>scene.classList.add('guide-scene-out'));
+    later(5250,()=>guideStep(2));
+    later(5750,()=>scene.classList.add('guide-tap'));
+    later(6000,()=>{
+      scene.querySelector('.guide-post-placeholder').hidden=true;
+      const preview=scene.querySelector('.guide-post-text');
+      preview.textContent=text.value;preview.hidden=false;
+      caption.textContent='Result pasted. Now tap Post.';
+    });
+    later(7000,()=>{
+      scene.classList.remove('guide-tap');
+      scene.classList.add('guide-post-tap');
+      caption.textContent='Tap Post.';
+    });
+    later(8000,()=>guide.classList.add('guide-fade'));
+    later(8250,stopGuide);
   });
-  $('shareGuideClose').addEventListener('click',stopGuide);
-  dialog.addEventListener('click',event=>{
-    if(!guide.hidden&&!guide.contains(event.target)&&event.target!==$('shareGuideHelp')&&!$('shareGuideHelp').contains(event.target))stopGuide();
-  });
+  // The tap that starts Help is allowed through; the next click anywhere dismisses it.
+  document.addEventListener('click',event=>{
+    if(guide.hidden)return;
+    event.preventDefault();event.stopImmediatePropagation();stopGuide();
+  },true);
   dialog.addEventListener('close',stopGuide);
-  dialog.addEventListener('cancel',stopGuide);
+  dialog.addEventListener('cancel',event=>{
+    if(!guide.hidden){event.preventDefault();stopGuide();}
+  });
   $('shareRecordsClose').addEventListener('click',()=>{stopGuide();dialog.close();});
   $('shareRecordsCopy').addEventListener('click',async()=>{
     try {
