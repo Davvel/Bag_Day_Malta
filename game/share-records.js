@@ -13,13 +13,13 @@
     status.textContent='Copied ✓ Now open Facebook and paste it into the “What’s on your mind?” area.';
   }
   const message=r=>`♻️ Bag Day Malta
-The Waste Sorting Game
+Waste Sorting Game
 
-🏆 Highest Level: ${r.highestLevel}
-⏱️ Most sorted in 1 minute: ${r.bestRound}
-🌟 Most sorted in 1 minute with zero mistakes: ${r.bestPerfectRound}
+🏆 Highest level: ${r.highestLevel}
+🌟 Highest level (no mistakes): ${r.highestPerfectLevel}
+⏱️ Most sorted in 1 min: ${r.bestRound}
 
-Play here 👇
+Can you beat my scores? 👇
 ${url}`;
   button.addEventListener('click',()=>{
     shareSession++;
@@ -29,7 +29,7 @@ ${url}`;
     text.value=message(records);
     $('shareHighestLevel').textContent=records.highestLevel;
     $('shareBestRound').textContent=records.bestRound;
-    $('sharePerfectRound').textContent=records.bestPerfectRound;
+    $('shareHighestPerfectLevel').textContent=records.highestPerfectLevel;
     status.textContent='Copy your result, open Facebook, then paste it into the post box.';
     dialog.showModal();
   });
