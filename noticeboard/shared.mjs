@@ -21,4 +21,4 @@ export function decodePublishedCSV(csv){
  for(const r of records)if(r.record_type==='entry'&&pages.has(r.page_id))pages.get(r.page_id).items.push(r);
  return [...pages.values()].map(({items,...p})=>({...p,csv:cols.join(',')+'\r\n'+items.map(r=>cols.map(k=>field(r[k])).join(',')).join('\r\n')+(items.length?'\r\n':'')}));
 }
-export async function readPublishedCSV(){const r=await fetch(API+'/public/noticeboard.csv',{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(25000)});if(!r.ok)throw Error('The published noticeboard file is unavailable. Please try again.');return {pages:decodePublishedCSV(await r.text())}}
+export async function readPublishedCSV({fresh=false}={}){const r=await fetch(API+'/public/noticeboard.csv'+(fresh?'?refresh='+Date.now():''),{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(25000)});if(!r.ok)throw Error('The published noticeboard file is unavailable. Please try again.');return {pages:decodePublishedCSV(await r.text())}}

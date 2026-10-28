@@ -1,6 +1,6 @@
-import {noticeStatus,publishedPages,mapLimited} from '../../noticeboard/publication.mjs?v=1.1.87';
-import {editorURL,EDITOR_ROUTES} from '../../noticeboard/routes.mjs?v=1.1.87';
-import {matrixRows,SECTION_NAMES} from './noticeboard-model.mjs?v=1.1.87';
+import {noticeStatus,publishedPages,mapLimited} from '../../noticeboard/publication.mjs?v=1.1.89';
+import {editorURL,EDITOR_ROUTES} from '../../noticeboard/routes.mjs?v=1.1.89';
+import {matrixRows,SECTION_NAMES} from './noticeboard-model.mjs?v=1.1.89';
 const filters=new WeakMap();
 export async function renderNoticeboard({container,api,esc,onError,isCurrent,openPage=null}){
  const data=await api.request('/noticeboard/admin');if(!isCurrent())return;
@@ -42,6 +42,6 @@ export async function renderNoticeboard({container,api,esc,onError,isCurrent,ope
  async function check(){if(checking&&drafts.size)return;checking=true;container.querySelector('#nbcheck').disabled=true;display();let pages;try{pages=await publishedPages()}catch{pages=null}
  await mapLimited(data.pages,async p=>{try{const d=await api.request('/noticeboard/'+p.page_id+'/entries');drafts.set(p.page_id,d);statuses.set(p.page_id,noticeStatus(d.items,pages?(pages.find(n=>n.page_id===p.page_id)||{csv:'',published_at:null}):null))}catch{statuses.set(p.page_id,{state:'unknown'})}});checking=false;if(isCurrent()){container.querySelector('#nbcheck').disabled=false;display()}}
  container.querySelector('#nbcheck').onclick=()=>check();
- container.querySelector('#nbpublish').onclick=e=>perform(e.currentTarget,async()=>{const pending=data.pages.filter(p=>(!selected||p.locality_id===selected)&&statuses.get(p.page_id)?.state==='unpublished');let done=0;for(const p of pending){try{await api.request('/noticeboard/'+p.page_id+'/publish',{method:'POST',body:{revision:drafts.get(p.page_id).page.revision}});done++}catch(err){if(isCurrent())await reload();throw Error(done+' noticeboard(s) published. Remaining changes are still unpublished. '+err.message)}}});
+ container.querySelector('#nbpublish').onclick=e=>perform(e.currentTarget,async()=>{container.querySelector('#nbpublish').textContent='Publishing…';container.querySelector('#nbpublishstate').textContent='Publishing and verifying…';const pending=data.pages.filter(p=>(!selected||p.locality_id===selected)&&statuses.get(p.page_id)?.state==='unpublished');let done=0;for(const p of pending){try{await api.request('/noticeboard/'+p.page_id+'/publish',{method:'POST',body:{revision:drafts.get(p.page_id).page.revision}});done++}catch(err){if(isCurrent())await reload();throw Error(done+' noticeboard(s) published. Remaining changes are still unpublished. '+err.message)}}await check();if(pending.some(p=>statuses.get(p.page_id)?.state!=='published'))throw Error('Publication could not be fully verified. Use Refresh status to check the latest public copy.');});
  display();await check();if(openPage){const page=data.pages.find(p=>p.page_id===openPage);if(page)manage(page)}
 }

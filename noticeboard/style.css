@@ -69,3 +69,5 @@ body:has(.noticeboard-sponsor-dock) #usageConsent{bottom:calc(var(--noticeboard-
 :root[data-theme=dark] .notice-link{color:#70e3eb}
 .notice-list{grid-auto-rows:minmax(104px,auto)}
 .detail-list .notice-list{grid-auto-rows:auto}
+
+.status.success{background:#e2f4eb;color:#176044}:root[data-theme=dark] .status.success{background:#173f36;color:#a2e7cb}

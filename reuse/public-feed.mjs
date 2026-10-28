@@ -1,5 +1,5 @@
-import {REUSE_CONFIG} from './config.mjs?v=1.1.87';
-import {validatePublicFeed,selectPublicItems} from './feed-data.mjs?v=1.1.87';
+import {REUSE_CONFIG} from './config.mjs?v=1.1.89';
+import {validatePublicFeed,selectPublicItems} from './feed-data.mjs?v=1.1.89';
 let cached=null,loadedAt=0,pending=null,epoch=0;
 export function invalidatePublicFeed(){cached=null;loadedAt=0;epoch++;pending=null}
 export async function loadPublicFeed({force=false}={}){
