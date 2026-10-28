@@ -277,8 +277,13 @@ html,body{height:var(--game-height,100dvh)}
 @media(prefers-reduced-motion:reduce){.share-guide-overlay,.share-guide-scene,.guide-pointer{transition:none}.share-guide-scene,.guide-hand,.guide-bubble,.guide-post-button{animation:none!important}}
 
 /* Keep the Paste cue above the field and its clipboard icon inside the field. */
-.guide-step-2{padding-top:44px}
+.guide-step-2{padding-top:76px}
+.guide-step-2 .guide-facebook-head{position:absolute;top:12px;left:12px;right:12px}
 .guide-step-2 .guide-post-box{height:100px}
-.guide-paste-bubble{bottom:auto;top:0;left:auto;right:12px;transform:none;font-size:.85rem;padding:7px 12px}
+.guide-paste-bubble{bottom:auto;top:38px;left:auto;right:12px;max-width:calc(100% - 24px);white-space:normal;text-align:center;transform:none;font-size:.85rem;font-weight:800;padding:7px 12px}
 .guide-paste-bubble::after{left:auto;right:20px}
 .guide-paste-icon{position:absolute;right:10px;bottom:10px;width:24px;height:24px;color:#1877f2}
+
+.share-record-actions .copy-success{background:#237342;border-color:#79d69a;color:#fff}
+.share-record-actions .copy-success:hover{background:#2c8550}
+.share-record-actions button:disabled{opacity:.45;cursor:default}

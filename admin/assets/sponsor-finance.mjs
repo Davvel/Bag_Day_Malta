@@ -1,4 +1,4 @@
-import {expandSelection,monthSummary} from './sponsor-months.mjs?v=1.1.82';
+import {expandSelection,monthSummary} from './sponsor-months.mjs?v=1.1.83';
 const balance=p=>p.collectible_balance_cents??p.balance_cents;
 const euro=n=>new Intl.NumberFormat('en-MT',{style:'currency',currency:'EUR'}).format(n/100);
 function cents(value){if(!/^\d+(\.\d{1,2})?$/.test(String(value)))throw Error('Enter an amount with at most two decimal places.');const [a,b='']=String(value).split('.');const n=Number(a)*100+Number(b.padEnd(2,'0'));if(!Number.isSafeInteger(n))throw Error('Amount is too large.');return n;}
