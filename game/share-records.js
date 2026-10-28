@@ -18,6 +18,7 @@ Waste Sorting Game
 🏆 Highest level: ${r.highestLevel}
 🌟 Highest level (no mistakes): ${r.highestPerfectLevel}
 ⏱️ Most sorted in 1 min: ${r.bestRound}
+🔥 Longest streak: ${r.longestStreak} ${r.longestStreak===1?'day':'days'}
 
 Can you beat my scores? 👇
 ${url}`;
@@ -29,6 +30,7 @@ ${url}`;
     text.value=message(records);
     $('shareHighestLevel').textContent=records.highestLevel;
     $('shareBestRound').textContent=records.bestRound;
+    $('shareLongestStreak').textContent=records.longestStreak+' '+(records.longestStreak===1?'day':'days');
     $('shareHighestPerfectLevel').textContent=records.highestPerfectLevel;
     status.textContent='Copy your result, open Facebook, then paste it into the post box.';
     dialog.showModal();
@@ -43,11 +45,11 @@ ${url}`;
   function guideStep(step){
     scene.className='share-guide-scene guide-step-'+step;
     if(step<2){
-      scene.innerHTML='<div class="guide-action">'+(step===0?'① Copy result':'② Post on Facebook')+'</div><div class="guide-pointer"><span class="guide-hand">👆</span></div>'+(step===0?'<span class="guide-bubble" hidden>Score copied</span>':'');
+      scene.innerHTML='<div class="guide-action">'+(step===0?'① Copy result':'② Open Facebook')+'</div><div class="guide-pointer"><span class="guide-hand">👆</span></div>'+(step===0?'<span class="guide-bubble" hidden>Score copied</span>':'');
     }else{
       scene.innerHTML='<span class="guide-bubble guide-paste-bubble" hidden>PASTE Copied Text Here</span><div class="guide-facebook-head">Facebook · Create post</div><div class="guide-post-box"><span class="guide-post-placeholder">What’s on your mind?</span><span class="guide-post-text" hidden></span><svg class="guide-paste-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H5v16h14V5h-4M9 3h6v4H9zM12 10v7m-3-3 3 3 3-3"/></svg></div><div class="guide-post-button">Post</div><div class="guide-pointer"><span class="guide-hand">👆</span></div>';
     }
-    caption.textContent=['Tap Copy result.','Tap Post on Facebook.','Tap the post box and paste your result.'][step];
+    caption.textContent=['Tap Copy result.','Tap Open Facebook.','Tap the post box and paste your result.'][step];
   }
   const later=(ms,fn)=>guideTimers.push(setTimeout(fn,ms));
   $('shareGuideHelp').addEventListener('click',()=>{
