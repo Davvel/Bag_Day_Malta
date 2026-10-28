@@ -233,3 +233,5 @@ html,body{height:var(--game-height,100dvh)}
 /* Lobby navigation uses the same rounded Home affordance as the other screens. */
 #gameMenu #closeGameMenu.game-home-button{position:absolute;top:14px;left:14px;right:auto;z-index:2;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:1px solid #78a6bb70;border-radius:12px;background:#123d59;color:#fff;box-shadow:none}
 #gameMenu .game-home-button svg{display:block;width:24px;height:24px}
+
+.share-records-text{box-sizing:border-box;width:100%;margin:8px 0 14px;padding:12px;border:1px solid #638d9e;border-radius:12px;background:#102435;color:#f5fbff;font:inherit;font-size:16px;line-height:1.5;resize:vertical;white-space:pre-wrap}

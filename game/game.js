@@ -264,7 +264,7 @@
 
   mode='results';drag=null;hideHint();const total=hits+misses,accuracy=total?Math.round(hits/total*100):0,passed=!practice&&total>0&&hits*5>=total*4;
   measure('game_round_complete',{level,mode:practice?'practice':'timed',score:hits,mistakes:misses,accuracy,duration_seconds:Math.round(elapsed),outcome:passed?'passed':'retry'});
-  if(!practice && elapsed>=60)window.SORTING_STATS.complete({level,hits,passed});
+  if(!practice && elapsed>=60)window.SORTING_STATS.complete({level,hits,passed,misses});
   if(passed){unlocked=Math.max(unlocked,Math.min(100,level+1));storage.write(unlocked);rememberLevel(unlocked);}
   if(passed){celebrate(accuracy);return;}
   const result=content.outcome(hits,misses);

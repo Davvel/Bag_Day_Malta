@@ -1,5 +1,5 @@
-import {publishedRequest,invalidatePublicFeed} from './public-feed.mjs?v=1.1.76';
-import {REUSE_CONFIG} from './config.mjs?v=1.1.76';
+import {publishedRequest,invalidatePublicFeed} from './public-feed.mjs?v=1.1.77';
+import {REUSE_CONFIG} from './config.mjs?v=1.1.77';
 export class ReuseError extends Error{constructor(message,status){super(message);this.status=status}}
 export async function request(path,{method='GET',body}={}){
  if(method==='GET'&&/^\/public\/reuse\/(?:items|localities)(?:\?|$)/.test(path))return publishedRequest(path);
