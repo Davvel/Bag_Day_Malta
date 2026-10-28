@@ -237,33 +237,26 @@ html,body{height:var(--game-height,100dvh)}
 .share-records-text{box-sizing:border-box;width:100%;margin:8px 0 14px;padding:12px;border:1px solid #638d9e;border-radius:12px;background:#102435;color:#f5fbff;font:inherit;font-size:16px;line-height:1.5;resize:vertical;white-space:pre-wrap}
 
 /* Sharing lesson: example content is decorative; the written steps always remain visible. */
-.share-howto{border:1px solid #638d9e;border-radius:12px;padding:12px;margin:0 0 16px;background:#102435}
-.share-howto-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.9rem}
-.share-howto-heading button{font:inherit;font-size:.72rem;padding:7px;border:1px solid #638d9e;border-radius:8px;background:#203b52;color:#fff;min-height:36px}
-.share-demo{height:192px;position:relative;overflow:hidden;margin-top:10px;border-radius:9px;background:#eaf0f7;color:#142438;font-size:12px;line-height:1.5}
-.share-demo-scene{position:absolute;inset:0;padding:9px 12px}
-.share-demo-bar{font-weight:750;border-bottom:1px solid #a9bacb;padding-bottom:5px;margin-bottom:7px}
-.share-demo-scores{font-size:12px}
-.share-demo-copy-button{display:inline-block;background:#1877f2;color:white;border-radius:6px;padding:4px 18px;margin-top:7px;font-weight:700}
-.share-demo-copied{display:inline-block;color:#176135;font-weight:750;margin-left:10px;animation:shareCopied 12s infinite}
-.share-demo-finger{position:absolute;font-size:29px;pointer-events:none}
-.share-demo-copy .share-demo-finger{left:65px;bottom:1px;animation:shareCopyFinger 12s infinite}
-.share-demo-copy{animation:shareCopyScene 12s infinite}
-.share-demo-facebook{animation:shareFacebookScene 12s infinite}
-.share-demo-facebook .share-demo-bar{color:#1665c8}
-.share-demo-post{position:relative;border:1px solid #abbaca;border-radius:7px;background:#fff;height:139px;padding:8px}
-.share-demo-placeholder{color:#607080;animation:sharePlaceholder 12s infinite}
-.share-demo-paste{position:absolute;left:25px;top:35px;background:#23364b;color:white;border-radius:6px;padding:5px 16px;animation:sharePaste 12s infinite}
-.share-demo-result{position:absolute;left:8px;top:8px;animation:shareResult 12s infinite;font-size:12px}
-.share-demo-facebook .share-demo-finger{left:54px;top:93px;animation:sharePaste 12s infinite}
-.share-howto-steps{padding-left:22px;margin:10px 0 6px;font-size:.85rem;line-height:1.6}
-.share-howto small{display:block;color:#b5cbd8;font-size:.72rem}
-.share-guide-paused .share-demo *{animation-play-state:paused!important}
-@keyframes shareCopyScene{0%,39%{opacity:1}44%,95%{opacity:0}100%{opacity:1}}
-@keyframes shareFacebookScene{0%,40%{opacity:0}45%,94%{opacity:1}100%{opacity:0}}
-@keyframes shareCopyFinger{0%,8%{opacity:0;transform:translateY(15px)}15%,23%{opacity:1;transform:translateY(0)}26%,100%{opacity:0}}
-@keyframes shareCopied{0%,23%{opacity:0}27%,39%{opacity:1}44%,100%{opacity:0}}
-@keyframes sharePaste{0%,52%{opacity:0}57%,67%{opacity:1}72%,100%{opacity:0}}
-@keyframes sharePlaceholder{0%,68%{opacity:1}73%,100%{opacity:0}}
-@keyframes shareResult{0%,68%{opacity:0}74%,94%{opacity:1}100%{opacity:0}}
-@media(prefers-reduced-motion:reduce){.share-demo{display:none}.share-howto-heading button{display:none}}
+
+.share-preview-wrap{position:relative}
+.share-guide-overlay{position:absolute;inset:0;z-index:2;background:#102435f7;border:1px solid #8db9cf;border-radius:12px;padding:14px 12px;box-shadow:0 12px 35px #0008;transition:opacity .8s;overflow:auto}
+.share-guide-overlay[hidden]{display:none}
+.share-guide-overlay>strong{display:block;padding-right:32px;font-size:.9rem}
+.share-guide-close{position:absolute;right:8px;top:7px;border:1px solid #b5cbd8;border-radius:50%;width:30px;height:30px;background:#203b52;color:white;font-size:23px;line-height:1}
+.share-guide-scene{position:relative;margin-top:10px;background:#f0f4fa;border-radius:9px;color:#142438;padding:10px;font-size:12px;line-height:1.5}
+.guide-example{padding:4px}
+.guide-action,.guide-post-button{background:#1877f2;color:white;text-align:center;border-radius:7px;padding:7px;margin-top:8px;font-weight:700}
+.guide-facebook-head{font-weight:750;color:#1665c8;margin-bottom:8px}
+.guide-post-box{position:relative;background:white;border:1px solid #abbaca;border-radius:7px;min-height:135px;padding:8px}
+.guide-paste-menu{position:absolute;left:22px;top:42px;background:#23364b;color:white;padding:7px 18px;border-radius:6px}
+.guide-hand{position:absolute;font-size:30px;pointer-events:none;animation:guideHand 2s ease-in-out infinite}
+.guide-hand-action,.guide-hand-post{right:25%;bottom:0}
+.guide-hand-hold{left:38%;top:90px}
+.guide-post-tap{animation:guideTap 2s ease-in-out infinite}
+.guide-highlight{box-shadow:0 0 0 3px #ffe28a,0 0 20px #ffe28a!important}
+.share-guide-overlay p{margin:9px 0;font-weight:700;font-size:.9rem;color:#fff}
+.share-guide-overlay small{font-size:.7rem;color:#b5cbd8;line-height:1.4}
+.guide-fade{opacity:0;pointer-events:none}
+@keyframes guideHand{0%,100%{transform:translateY(6px)}50%{transform:translateY(0)}}
+@keyframes guideTap{0%,100%{box-shadow:0 0 0 3px #ffd55c;transform:scale(1)}50%{box-shadow:0 0 0 5px #ffd55c;transform:scale(.97)}}
+@media(prefers-reduced-motion:reduce){.share-guide-overlay,.guide-hand,.guide-post-tap{animation:none;transition:none}}
