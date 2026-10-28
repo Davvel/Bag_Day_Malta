@@ -1,7 +1,7 @@
-import {noticeLink} from './links.mjs?v=1.1.89';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.89';
-import {localityNames,enabledSections,localityKey} from './routes.mjs?v=1.1.89';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.89';
+import {noticeLink} from './links.mjs?v=1.1.97';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.97';
+import {localityNames,enabledSections,localityKey} from './routes.mjs?v=1.1.97';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.97';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let pages=[],locality='',loaded=false,error='',generation=0,renderedLocality='',renderedDate='';const scrolls=new Map();
 const params=()=>new URLSearchParams(location.search),section=()=>sections[params().get('section')]?params().get('section'):null;
 function navigate(kind){for(const el of root.querySelectorAll('[data-list]'))scrolls.set(el.dataset.list,el.scrollTop);const u=new URL(location.href);if(kind)u.searchParams.set('section',kind);else u.searchParams.delete('section');u.searchParams.set('locality',locality);const steps=history.state?.bagDayHomeSteps;history.pushState({noticeboard:true,...(Number.isInteger(steps)&&steps>0?{bagDayHomeSteps:steps+1}:{})},'',u);render();window.scrollTo(0,0)}

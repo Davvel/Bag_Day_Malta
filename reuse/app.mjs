@@ -1,14 +1,14 @@
-import {showUntilLimits,showUntilFromExpiry,maltaDate} from './show-until.mjs?v=1.1.89';
-import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.89';
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.89';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.89';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.89';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.89';
-import {emojiCandidates} from './custom-emoji.mjs?v=1.1.89';
-import {request,esc} from './client.mjs?v=1.1.89';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.89';
-import {titleIcons} from './title-icons.mjs?v=1.1.89';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.89';
+import {showUntilLimits,showUntilFromExpiry,maltaDate} from './show-until.mjs?v=1.1.97';
+import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.97';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.97';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.97';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.97';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.97';
+import {emojiCandidates} from './custom-emoji.mjs?v=1.1.97';
+import {request,esc} from './client.mjs?v=1.1.97';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.97';
+import {titleIcons} from './title-icons.mjs?v=1.1.97';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.97';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='',searchQuery='',searchTimer=null;
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
