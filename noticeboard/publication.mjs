@@ -1,4 +1,4 @@
-import {parseCSV,today,readPublishedCSV} from './shared.mjs?v=1.1.97';
+import {parseCSV,today,readPublishedCSV} from './shared.mjs?v=1.1.98';
 const fields=['entry_id','kind','title','description','end_date','link_url','link_title'];
 export function noticeStatus(items,published,date=today()){
  if(!published)return {state:'unknown',changed:new Set(),removed:0};

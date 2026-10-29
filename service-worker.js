@@ -1,6 +1,6 @@
-importScripts('./app-config.js?v=1.1.97');
+importScripts('./app-config.js?v=1.1.98');
 const CACHE='bag-day-malta-'+globalThis.BAG_DAY_CONFIG.version;
-const ASSETS=["./noticeboard/links.mjs?v=1.1.97","./app-config.js?v=1.1.97","./reuse/show-until.mjs?v=1.1.97","./reuse/app.mjs?v=1.1.97","./reuse/style.css?v=1.1.97","./js/sponsors.js?v=1.1.97","./js/home-fit.js?v=1.1.97","./css/home-redesign.css?v=1.1.97","./noticeboard/sponsors.mjs?v=1.1.97","./icons/splash-features-v1.png","./js/home-link.js?v=1.1.97","./icons/bag-day-malta-brand.svg","./css/brand.css?v=1.1.97","./noticeboard/routes.mjs?v=1.1.97","./icons/community-notices.png","./noticeboard/appearance.js?v=1.1.97","./reuse/public-feed.mjs?v=1.1.97","./reuse/feed-data.mjs?v=1.1.97","./reuse/config.mjs?v=1.1.97","./reuse/client.mjs?v=1.1.97","./noticeboard/index.html","./noticeboard/style.css?v=1.1.97","./noticeboard/shared.mjs?v=1.1.97","./noticeboard/public.mjs?v=1.1.97","./icons/council-website.svg","./icons/council-bulky.svg","./icons/council-truck.svg","./icons/hospice-battery.svg","./js/zoom-awareness.js?v=1.1.97","./css/zoom-awareness.css?v=1.1.97","./reuse/custom-emoji.mjs?v=1.1.97","./js/help-preferences.js?v=1.1.97","./css/discovery.css?v=1.1.97","./icons/reuse-free-stuff-v1.png","./reuse/purchase-info.mjs?v=1.1.97","./js/startup.js?v=1.1.97","./css/startup.css?v=1.1.97","./js/advert-policy.js?v=1.1.97","./js/community-adverts.js?v=1.1.97","./js/sponsor-carousel.js?v=1.1.97","./css/sponsor-carousel.css?v=1.1.97","./reuse/title-text.mjs?v=1.1.97","./reuse/title-icons.mjs?v=1.1.97","./reuse/ai-icon-state.mjs?v=1.1.97","./reuse/item-attributes.mjs?v=1.1.97","./reuse/emoji-palette.mjs?v=1.1.97","./reuse/item-symbols.mjs?v=1.1.97","./reuse/item-dates.mjs?v=1.1.97","./js/analytics.js?v=1.1.97","./reuse/analytics-ui.js?v=1.1.97","./reuse/location.mjs?v=1.1.97","./reuse/index.html","./reuse/client.mjs","./reuse/config.mjs","./reuse/entry.mjs?v=1.1.97","./icons/card-recycling.svg","./icons/sorting-minute.svg","./js/bulky-refuse.js?v=1.1.97","./icons/council-backdrop.svg","./icons/glass-real.webp","./icons/card-botanical.svg","./js/local-preview-data.js?v=1.1.97","./icons/bag-organic-real.webp","./icons/bag-mixed-real.webp","./icons/bag-recycle-real.webp","./data/councils.csv","./js/info-panel.js?v=1.1.97","./css/info-panel.css?v=1.1.97","./js/home-hints.js?v=1.1.97","./icons/hint-hand.svg","./js/usage-streak.js?v=1.1.97","./js/navigation.js?v=1.1.97","./","./index.html","./css/styles.css?v=1.1.97","./js/data.js?v=1.1.97","./js/app.js?v=1.1.97","./js/waste-guide.js?v=1.1.97","./icons/bag-organic.svg","./icons/bag-mixed.svg","./icons/bag-recycle.svg","./manifest.webmanifest?v=1.1.97","./icons/icon-192.png?v=1.1.97","./icons/icon-512.png?v=1.1.97","./icons/icon-maskable-512.png?v=1.1.97","./icons/apple-touch-icon.png?v=1.1.97","./icons/favicon-32.png?v=1.1.97","./icons/glass-carrier.svg","./icons/zejtunsoft-profile.png"];
+const ASSETS=["./noticeboard/links.mjs?v=1.1.98","./app-config.js?v=1.1.98","./reuse/show-until.mjs?v=1.1.98","./reuse/app.mjs?v=1.1.98","./reuse/style.css?v=1.1.98","./js/sponsors.js?v=1.1.98","./js/home-fit.js?v=1.1.98","./css/home-redesign.css?v=1.1.98","./noticeboard/sponsors.mjs?v=1.1.98","./js/home-link.js?v=1.1.98","./icons/bag-day-malta-brand.svg","./css/brand.css?v=1.1.98","./noticeboard/routes.mjs?v=1.1.98","./icons/community-notices.png","./noticeboard/appearance.js?v=1.1.98","./reuse/public-feed.mjs?v=1.1.98","./reuse/feed-data.mjs?v=1.1.98","./reuse/config.mjs?v=1.1.98","./reuse/client.mjs?v=1.1.98","./noticeboard/index.html","./noticeboard/style.css?v=1.1.98","./noticeboard/shared.mjs?v=1.1.98","./noticeboard/public.mjs?v=1.1.98","./icons/council-website.svg","./icons/council-bulky.svg","./icons/council-truck.svg","./icons/hospice-battery.svg","./js/zoom-awareness.js?v=1.1.98","./css/zoom-awareness.css?v=1.1.98","./reuse/custom-emoji.mjs?v=1.1.98","./js/help-preferences.js?v=1.1.98","./css/discovery.css?v=1.1.98","./icons/reuse-free-stuff-v1.png","./reuse/purchase-info.mjs?v=1.1.98","./js/startup.js?v=1.1.98","./css/startup.css?v=1.1.98","./js/advert-policy.js?v=1.1.98","./js/community-adverts.js?v=1.1.98","./js/sponsor-carousel.js?v=1.1.98","./css/sponsor-carousel.css?v=1.1.98","./reuse/title-text.mjs?v=1.1.98","./reuse/title-icons.mjs?v=1.1.98","./reuse/ai-icon-state.mjs?v=1.1.98","./reuse/item-attributes.mjs?v=1.1.98","./reuse/emoji-palette.mjs?v=1.1.98","./reuse/item-symbols.mjs?v=1.1.98","./reuse/item-dates.mjs?v=1.1.98","./js/analytics.js?v=1.1.98","./reuse/analytics-ui.js?v=1.1.98","./reuse/location.mjs?v=1.1.98","./reuse/index.html","./reuse/client.mjs","./reuse/config.mjs","./reuse/entry.mjs?v=1.1.98","./icons/card-recycling.svg","./icons/sorting-minute.svg","./js/bulky-refuse.js?v=1.1.98","./icons/council-backdrop.svg","./icons/glass-real.webp","./icons/card-botanical.svg","./js/local-preview-data.js?v=1.1.98","./icons/bag-organic-real.webp","./icons/bag-mixed-real.webp","./icons/bag-recycle-real.webp","./data/councils.csv","./js/info-panel.js?v=1.1.98","./css/info-panel.css?v=1.1.98","./js/home-hints.js?v=1.1.98","./icons/hint-hand.svg","./js/usage-streak.js?v=1.1.98","./js/navigation.js?v=1.1.98","./","./index.html","./css/styles.css?v=1.1.98","./js/data.js?v=1.1.98","./js/app.js?v=1.1.98","./js/waste-guide.js?v=1.1.98","./icons/bag-organic.svg","./icons/bag-mixed.svg","./icons/bag-recycle.svg","./manifest.webmanifest?v=1.1.98","./icons/icon-192.png?v=1.1.98","./icons/icon-512.png?v=1.1.98","./icons/icon-maskable-512.png?v=1.1.98","./icons/apple-touch-icon.png?v=1.1.98","./icons/favicon-32.png?v=1.1.98","./icons/glass-carrier.svg","./icons/zejtunsoft-profile.png"];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS.map(asset=>/^(?:\.\/|\.\/index\.html|\.\/reuse\/index\.html)$/.test(asset)?new Request(new URL(asset,self.location.href),{cache:'reload'}):asset))).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('bag-day-malta-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{
@@ -31,6 +31,13 @@ self.addEventListener('fetch',event=>{
     const key=homeDocument?new URL('./index.html',self.location.href).href:noticeDocument?new URL('./noticeboard/index.html',self.location.href).href:event.request;
     event.respondWith((async()=>{
       const cache=await caches.open(CACHE);
+      if(homeDocument){
+        const cached=await cache.match(key);
+        if(cached){
+          event.waitUntil(fetch(event.request,{cache:'no-cache'}).then(response=>response.ok?cache.put(key,response):undefined).catch(()=>{}));
+          return cached;
+        }
+      }
       try{
         const response=await fetch(event.request,{cache:'no-cache'});
         if(response.ok)await cache.put(key,response.clone()).catch(()=>{});
@@ -40,6 +47,17 @@ self.addEventListener('fetch',event=>{
         // search older caches or return a stale query-specific Home copy.
         return (await cache.match(key))||Response.error();
       }
+    })());
+    return;
+  }
+  // Versioned code/styles and local images are immutable within this release.
+  if(url.searchParams.has('v') || /\.(?:svg|png|webp|ico)$/.test(url.pathname)){
+    event.respondWith((async()=>{
+      const cache=await caches.open(CACHE),cached=await cache.match(event.request);
+      if(cached)return cached;
+      const response=await fetch(event.request);
+      if(response.ok)event.waitUntil(cache.put(event.request,response.clone()).catch(()=>{}));
+      return response;
     })());
     return;
   }
