@@ -25,7 +25,7 @@
   const syncHelp=()=>{helpToggle.checked=window.BAG_DAY_HELP?.enabled()!==false;document.body.classList.toggle('help-disabled',!helpToggle.checked)};
   syncHelp();window.addEventListener('bag-day-help-changed',syncHelp);
   helpToggle.onchange=()=>{window.BAG_DAY_HELP?.setEnabled(helpToggle.checked);analyticsEvent('help_preference_changed',{help_state:helpToggle.checked?'on':'off'})};
-  // Home renders immediately; detailed artwork upgrades independently.
+  // Home renders immediately using one lightweight image per collection type.
   const splash = $('splashScreen');
   const appContent = $('appContent');
   const splashEnabled = window.BAG_DAY_CONFIG?.splashEnabled === true;
@@ -302,11 +302,9 @@
   };
   const shownDate = () => { if(!viewedDate){const date=maltaToday();date.setUTCDate(date.getUTCDate()+dayOffset);viewedDate=date.toISOString().slice(0,10);}return new Date(viewedDate+'T12:00:00Z'); };
   const formatTime = time => {const [h,m]=time.split(':').map(Number);return `${String((h+20)%24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;};
-  const artworkURL = (path,fallback) => window.BAG_DAY_STARTUP?.imageURL(path,fallback) || path;
-  const progressiveImage = (type,alt) => window.BAG_DAY_STARTUP?.progressiveImage(type,alt);
-  const bagSvg = type => progressiveImage(type,`${t()[type]} bag with a large waste sorting symbol`) || `<img src="${artworkURL(`icons/bag-${type}-real.webp`,`icons/bag-${type}.svg`)}" decoding="async" alt="${t()[type]} bag with a large waste sorting symbol">`;
+  const bagImage = type => `<img src="icons/bag-${type}-light.webp" width="768" height="1152" decoding="async" fetchpriority="high" alt="${t()[type]} bag with a large waste sorting symbol">`;
   const displayClock = time => {const [h,m]=time.split(':').map(Number);return `<span class="clock-value">${String(h%12||12).padStart(2,'0')}:${String(m).padStart(2,'0')} <small>${h<12?'AM':'PM'}</small></span>`;};
-  const bagButton = (type, label) => `<button type="button" class="bag-figure bag-button" data-waste-type="${type}" aria-label="What goes in ${label.toLowerCase()}?" aria-haspopup="dialog" aria-controls="wasteOverlay">${type==='glass'?(progressiveImage('glass','Empty glass bottles in a reusable collection container') || `<img src="${artworkURL('icons/glass-real.webp','icons/glass-carrier.svg')}" decoding="async" alt="Empty glass bottles in a reusable collection container">`):bagSvg(type)}<span class="tap-hand" aria-hidden="true"><svg viewBox="0 0 40 48"><path d="M14 26V8a4 4 0 0 1 8 0v13c1-4 7-4 8 0 3-3 8-1 8 3v10c0 7-5 12-12 12h-3c-5 0-8-2-11-6L4 29c-3-5 3-9 7-5l3 2Z" fill="#fff" stroke="#123453" stroke-width="2.5" stroke-linejoin="round"/></svg></span></button>`;
+  const bagButton = (type, label) => `<button type="button" class="bag-figure bag-button" data-waste-type="${type}" aria-label="What goes in ${label.toLowerCase()}?" aria-haspopup="dialog" aria-controls="wasteOverlay">${type==='glass'?`<img src="icons/glass-light.webp" width="920" height="962" decoding="async" fetchpriority="high" alt="Empty glass bottles in a reusable collection container">`:bagImage(type)}<span class="tap-hand" aria-hidden="true"><svg viewBox="0 0 40 48"><path d="M14 26V8a4 4 0 0 1 8 0v13c1-4 7-4 8 0 3-3 8-1 8 3v10c0 7-5 12-12 12h-3c-5 0-8-2-11-6L4 29c-3-5 3-9 7-5l3 2Z" fill="#fff" stroke="#123453" stroke-width="2.5" stroke-linejoin="round"/></svg></span></button>`;
 
   let wasteReturnFocus = null;
   let wastePreviousOverflow = '';
@@ -636,7 +634,6 @@
       $('collectionCardBody').innerHTML=`<div class="collection-card"><h2 class="collection-heading"><span class="collection-type-icon" aria-hidden="true">${schedule.bag==='organic'?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3C9 2 3 8 5 15c2 6 12 6 15-12Z" fill="currentColor"/><path d="M4 21 15 9" stroke="#ba8c52" stroke-width="2"/></svg>':schedule.bag==='recycle'?'♻':'▣'}</span>${label} <span class="collection-day-tag">(${dayOffset<=0?'Today':dayOffset===1?'Tomorrow':weekday})</span></h2><div class="collection-main">${figures}<div class="collection-timing"><button type="button" class="put-out-instruction" data-time-info aria-label="Put-out times. More information"><span><span aria-hidden="true">◷</span> Put out between</span><strong>${displayClock(formatTime(time))} <span class="time-between">and</span> ${displayClock(time)}</strong></button><button type="button" class="collection-start" data-time-info aria-label="Collection starts at ${time}. More information"><span><svg class="timing-truck" viewBox="0 0 24 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 3h12v11H2Z M14 7h4l4 4v3h-8"/><circle cx="6" cy="15" r="2"/><circle cx="18" cy="15" r="2"/></svg> Collection starts <span class="info-circle" aria-hidden="true">i</span></span><strong>${displayClock(time)}</strong></button></div></div>${batteryBanner}</div>`;
 
     }
-    window.BAG_DAY_STARTUP?.upgradeImages($('collectionCardBody'));
     const different=!followLocation && !temporaryView && detected&&detected!==selected&&!promptIsDismissed();
     $('locationNotice').hidden=!different;
     if(different)$('noticeText').textContent=`Nearby: ${detected}`;
