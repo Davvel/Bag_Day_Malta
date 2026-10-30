@@ -1,14 +1,14 @@
-import {showUntilLimits,showUntilFromExpiry,maltaDate} from './show-until.mjs?v=1.1.107';
-import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.107';
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.107';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.107';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.107';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.107';
-import {emojiCandidates} from './custom-emoji.mjs?v=1.1.107';
-import {request,esc} from './client.mjs?v=1.1.107';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.107';
-import {titleIcons} from './title-icons.mjs?v=1.1.107';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.107';
+import {showUntilLimits,showUntilFromExpiry,maltaDate} from './show-until.mjs?v=1.1.108';
+import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.108';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.108';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.108';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.108';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.108';
+import {emojiCandidates} from './custom-emoji.mjs?v=1.1.108';
+import {request,esc} from './client.mjs?v=1.1.108';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.108';
+import {titleIcons} from './title-icons.mjs?v=1.1.108';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.108';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='',searchQuery='',searchTimer=null;
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}

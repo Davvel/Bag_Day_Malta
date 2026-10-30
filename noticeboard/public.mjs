@@ -1,8 +1,8 @@
-import {noticeLink} from './links.mjs?v=1.1.107';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.107';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.107';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.107';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,monthCells,moveMonth} from './discovery.mjs?v=1.1.107';
+import {noticeLink} from './links.mjs?v=1.1.108';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.108';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.108';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.108';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,monthCells,moveMonth} from './discovery.mjs?v=1.1.108';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
 let pages=[],loaded=false,error='',generation=0,renderedDate='',lookup=new Map(),expanded=new Set(),selectedDay='',swipe=null,suppressUntil=0,searchTimer=0;
 const params=()=>new URLSearchParams(location.search);
