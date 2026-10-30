@@ -1,8 +1,8 @@
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.102';
-import {normaliseNoticeURL,noticeLink} from './links.mjs?v=1.1.102';
-import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.102';
-import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.102';
-import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.102';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.103';
+import {normaliseNoticeURL,noticeLink} from './links.mjs?v=1.1.103';
+import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.103';
+import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.103';
+import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.103';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0;
 function updateEditorTitle(){const title=(activeSection?sections[activeSection].name:'Community')+' Noticeboard Editor';const header=document.querySelector('#noticeboardTitle');if(header)header.textContent=title;document.title=title+' · Bag Day Malta'}
 updateEditorTitle();
