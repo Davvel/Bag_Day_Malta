@@ -1,11 +1,11 @@
-import {slotPublication} from './slot-publication.mjs?v=1.1.108';
-import {renderFinance} from './sponsor-finance.mjs?v=1.1.108';
-import {sponsorPublication,readSponsorPublication} from './sponsor-publication.mjs?v=1.1.108';
-import {renderNoticeboard} from './noticeboard.mjs?v=1.1.108';
-import {renderCommunity} from './community.mjs?v=1.1.108';
+import {slotPublication} from './slot-publication.mjs?v=1.1.109';
+import {renderFinance} from './sponsor-finance.mjs?v=1.1.109';
+import {sponsorPublication,readSponsorPublication} from './sponsor-publication.mjs?v=1.1.109';
+import {renderNoticeboard} from './noticeboard.mjs?v=1.1.109';
+import {renderCommunity} from './community.mjs?v=1.1.109';
 import {renderReuse} from './reuse.mjs';
 import {generateExport,publishingSettings} from './exporter.mjs';
-import {CONFIG} from './config.mjs?v=1.1.108';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
+import {CONFIG} from './config.mjs?v=1.1.109';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
 const $=s=>document.querySelector(s),api=new BagDayAPI(CONFIG.apiBase),tabs={dashboard:'Overview',localities:'Localities',noticeboard:'Noticeboard & editors',sponsors:'Sponsors',slots:'Slot allocations',finance:'Purchase Orders & Payments',community:'Community adverts',reusePeople:'REUSE contributors',reuseItems:'REUSE items',access:'Administrator access',settings:'Settings'};
 let reuseSummary={pending_enrolments:0,pending_items:0};
 let current='dashboard',me=null,data={localities:[],sponsors:[],slots:[],users:[]},capacity=3,selected=new Set(),lastReport=null,lastSummary='',busy=false,pageSeq=0;let deferredInstall;const root=$('#root'),dialog=$('#dialog');

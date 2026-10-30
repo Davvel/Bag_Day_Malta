@@ -1149,7 +1149,21 @@
   }else{
     document.body.classList.remove('app-loading');finishSplash();
   }
-  if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).catch(()=>{}));
+  if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
+    try{
+      const registration=await navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'});
+      let lastCheck=0;
+      const check=()=>{
+        if(document.visibilityState==='hidden'||Date.now()-lastCheck<60000)return;
+        lastCheck=Date.now();registration.update().catch(()=>{});
+      };
+      check();
+      document.addEventListener('visibilitychange',check);
+      window.addEventListener('pageshow',check);
+      window.addEventListener('online',check);
+      // Apply new documents on the next navigation; never reload an active form/game.
+    }catch{}
+  });
   // Hardware Back uses the same close routines as each panel's own controls.
   for(const [id,close] of [['settingsOverlay',closeSettings],['supportOverlay',closeSupport],['wasteOverlay',closeWasteGuide],['timeOverlay',closeTimeInfo],['calendarOverlay',closeCalendar],['localityOverlay',closeLocalityPicker]]){
     if(id==='settingsOverlay' && settingsPage)continue;

@@ -1,7 +1,11 @@
-importScripts('./app-config.js?v=1.1.108');
+importScripts('./app-config.js?v=1.1.109');
 const CACHE='bag-day-malta-'+globalThis.BAG_DAY_CONFIG.version;
-const ASSETS=["./noticeboard/editor-help.mjs?v=1.1.108","./noticeboard/discovery.mjs?v=1.1.108","./noticeboard/symbol-picker.mjs?v=1.1.108","./icons/sunday-features.webp","./css/sunday-hub.css?v=1.1.108","./js/sunday-hub.js?v=1.1.108","./icons/bag-organic-light.webp","./icons/bag-mixed-light.webp","./icons/bag-recycle-light.webp","./icons/glass-light.webp","./noticeboard/links.mjs?v=1.1.108","./app-config.js?v=1.1.108","./reuse/show-until.mjs?v=1.1.108","./reuse/app.mjs?v=1.1.108","./reuse/style.css?v=1.1.108","./js/sponsors.js?v=1.1.108","./js/home-fit.js?v=1.1.108","./css/home-redesign.css?v=1.1.108","./noticeboard/sponsors.mjs?v=1.1.108","./js/home-link.js?v=1.1.108","./icons/bag-day-malta-brand.svg","./css/brand.css?v=1.1.108","./noticeboard/routes.mjs?v=1.1.108","./icons/community-notices.png","./noticeboard/appearance.js?v=1.1.108","./reuse/public-feed.mjs?v=1.1.108","./reuse/feed-data.mjs?v=1.1.108","./reuse/config.mjs?v=1.1.108","./reuse/client.mjs?v=1.1.108","./noticeboard/index.html","./noticeboard/style.css?v=1.1.108","./noticeboard/shared.mjs?v=1.1.108","./noticeboard/public.mjs?v=1.1.108","./icons/council-website.svg","./icons/council-bulky.svg","./icons/council-truck.svg","./icons/hospice-battery.svg","./js/zoom-awareness.js?v=1.1.108","./css/zoom-awareness.css?v=1.1.108","./reuse/custom-emoji.mjs?v=1.1.108","./js/help-preferences.js?v=1.1.108","./css/discovery.css?v=1.1.108","./icons/reuse-free-stuff-v1.png","./reuse/purchase-info.mjs?v=1.1.108","./js/startup.js?v=1.1.108","./css/startup.css?v=1.1.108","./js/advert-policy.js?v=1.1.108","./js/community-adverts.js?v=1.1.108","./js/sponsor-carousel.js?v=1.1.108","./css/sponsor-carousel.css?v=1.1.108","./reuse/title-text.mjs?v=1.1.108","./reuse/title-icons.mjs?v=1.1.108","./reuse/ai-icon-state.mjs?v=1.1.108","./reuse/item-attributes.mjs?v=1.1.108","./reuse/emoji-palette.mjs?v=1.1.108","./reuse/item-symbols.mjs?v=1.1.108","./reuse/item-dates.mjs?v=1.1.108","./js/analytics.js?v=1.1.108","./reuse/analytics-ui.js?v=1.1.108","./reuse/location.mjs?v=1.1.108","./reuse/index.html","./reuse/client.mjs","./reuse/config.mjs","./reuse/entry.mjs?v=1.1.108","./icons/card-recycling.svg","./icons/sorting-minute.svg","./js/bulky-refuse.js?v=1.1.108","./icons/council-backdrop.svg","./icons/card-botanical.svg","./js/local-preview-data.js?v=1.1.108","./data/councils.csv","./js/info-panel.js?v=1.1.108","./css/info-panel.css?v=1.1.108","./js/home-hints.js?v=1.1.108","./icons/hint-hand.svg","./js/usage-streak.js?v=1.1.108","./js/navigation.js?v=1.1.108","./","./index.html","./css/styles.css?v=1.1.108","./js/data.js?v=1.1.108","./js/app.js?v=1.1.108","./js/waste-guide.js?v=1.1.108","./manifest.webmanifest?v=1.1.108","./icons/icon-192.png?v=1.1.108","./icons/icon-512.png?v=1.1.108","./icons/icon-maskable-512.png?v=1.1.108","./icons/apple-touch-icon.png?v=1.1.108","./icons/favicon-32.png?v=1.1.108","./icons/zejtunsoft-profile.png"];
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS.map(asset=>/^(?:\.\/|\.\/index\.html|\.\/reuse\/index\.html)$/.test(asset)?new Request(new URL(asset,self.location.href),{cache:'reload'}):asset))).then(()=>self.skipWaiting()));});
+const ASSETS=["./noticeboard/editor-help.mjs?v=1.1.109","./noticeboard/discovery.mjs?v=1.1.109","./noticeboard/symbol-picker.mjs?v=1.1.109","./icons/sunday-features.webp","./css/sunday-hub.css?v=1.1.109","./js/sunday-hub.js?v=1.1.109","./icons/bag-organic-light.webp","./icons/bag-mixed-light.webp","./icons/bag-recycle-light.webp","./icons/glass-light.webp","./noticeboard/links.mjs?v=1.1.109","./app-config.js?v=1.1.109","./reuse/show-until.mjs?v=1.1.109","./reuse/app.mjs?v=1.1.109","./reuse/style.css?v=1.1.109","./js/sponsors.js?v=1.1.109","./js/home-fit.js?v=1.1.109","./css/home-redesign.css?v=1.1.109","./noticeboard/sponsors.mjs?v=1.1.109","./js/home-link.js?v=1.1.109","./icons/bag-day-malta-brand.svg","./css/brand.css?v=1.1.109","./noticeboard/routes.mjs?v=1.1.109","./icons/community-notices.png","./noticeboard/appearance.js?v=1.1.109","./reuse/public-feed.mjs?v=1.1.109","./reuse/feed-data.mjs?v=1.1.109","./reuse/config.mjs?v=1.1.109","./reuse/client.mjs?v=1.1.109","./noticeboard/index.html","./noticeboard/style.css?v=1.1.109","./noticeboard/shared.mjs?v=1.1.109","./noticeboard/public.mjs?v=1.1.109","./icons/council-website.svg","./icons/council-bulky.svg","./icons/council-truck.svg","./icons/hospice-battery.svg","./js/zoom-awareness.js?v=1.1.109","./css/zoom-awareness.css?v=1.1.109","./reuse/custom-emoji.mjs?v=1.1.109","./js/help-preferences.js?v=1.1.109","./css/discovery.css?v=1.1.109","./icons/reuse-free-stuff-v1.png","./reuse/purchase-info.mjs?v=1.1.109","./js/startup.js?v=1.1.109","./css/startup.css?v=1.1.109","./js/advert-policy.js?v=1.1.109","./js/community-adverts.js?v=1.1.109","./js/sponsor-carousel.js?v=1.1.109","./css/sponsor-carousel.css?v=1.1.109","./reuse/title-text.mjs?v=1.1.109","./reuse/title-icons.mjs?v=1.1.109","./reuse/ai-icon-state.mjs?v=1.1.109","./reuse/item-attributes.mjs?v=1.1.109","./reuse/emoji-palette.mjs?v=1.1.109","./reuse/item-symbols.mjs?v=1.1.109","./reuse/item-dates.mjs?v=1.1.109","./js/analytics.js?v=1.1.109","./reuse/analytics-ui.js?v=1.1.109","./reuse/location.mjs?v=1.1.109","./reuse/index.html","./reuse/client.mjs","./reuse/config.mjs","./reuse/entry.mjs?v=1.1.109","./icons/card-recycling.svg","./icons/sorting-minute.svg","./js/bulky-refuse.js?v=1.1.109","./icons/council-backdrop.svg","./icons/card-botanical.svg","./js/local-preview-data.js?v=1.1.109","./data/councils.csv","./js/info-panel.js?v=1.1.109","./css/info-panel.css?v=1.1.109","./js/home-hints.js?v=1.1.109","./icons/hint-hand.svg","./js/usage-streak.js?v=1.1.109","./js/navigation.js?v=1.1.109","./","./index.html","./css/styles.css?v=1.1.109","./js/data.js?v=1.1.109","./js/app.js?v=1.1.109","./js/waste-guide.js?v=1.1.109","./manifest.webmanifest?v=1.1.109","./icons/icon-192.png?v=1.1.109","./icons/icon-512.png?v=1.1.109","./icons/icon-maskable-512.png?v=1.1.109","./icons/apple-touch-icon.png?v=1.1.109","./icons/favicon-32.png?v=1.1.109","./icons/zejtunsoft-profile.png"];
+self.addEventListener('install',event=>{
+  event.waitUntil(caches.open(CACHE)
+    .then(cache=>cache.addAll(ASSETS.map(asset=>new Request(new URL(asset,self.location.href),{cache:'reload'}))))
+    .then(()=>self.skipWaiting()));
+});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('bag-day-malta-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET')return;
@@ -22,8 +26,7 @@ self.addEventListener('fetch',event=>{
     event.respondWith(fetch(event.request,{cache:'no-store'}));
     return;
   }
-  // Revalidate HTML instead of allowing a previously visited Settings query
-  // to reuse an older document from the browser's HTTP cache.
+  // Online navigation always fetches the latest HTML; cached pages are offline fallbacks.
   if(event.request.mode==='navigate'){
     const homeRoot=new URL('./',self.location.href);
     const homeDocument=url.pathname===homeRoot.pathname||url.pathname===new URL('./index.html',self.location.href).pathname;
@@ -31,15 +34,8 @@ self.addEventListener('fetch',event=>{
     const key=homeDocument?new URL('./index.html',self.location.href).href:noticeDocument?new URL('./noticeboard/index.html',self.location.href).href:event.request;
     event.respondWith((async()=>{
       const cache=await caches.open(CACHE);
-      if(homeDocument){
-        const cached=await cache.match(key);
-        if(cached){
-          event.waitUntil(fetch(event.request,{cache:'no-cache'}).then(response=>response.ok?cache.put(key,response):undefined).catch(()=>{}));
-          return cached;
-        }
-      }
       try{
-        const response=await fetch(event.request,{cache:'no-cache'});
+        const response=await fetch(event.request,{cache:'no-store'});
         if(response.ok)await cache.put(key,response.clone()).catch(()=>{});
         return response;
       }catch{
