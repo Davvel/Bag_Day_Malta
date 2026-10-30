@@ -1,0 +1,27 @@
+/* Scoped to Sundays: keep weekday collection layout and the existing sponsor dock. */
+#dashboard[data-sunday="true"] #collectionStage{height:auto!important;min-height:0!important;flex:none!important}
+#dashboard[data-sunday="true"] #bagArea{height:auto!important;min-height:0!important;border:0;background:transparent;box-shadow:none;border-radius:0;overflow:visible}
+#dashboard[data-sunday="true"] #collectionCardBody{height:auto!important}
+#dashboard[data-sunday="true"] #councilPanel{display:none}
+.sunday-hub{color:#102438;text-align:left;display:grid;gap:10px;padding:1px 0 6px}
+.sunday-rest{display:flex;align-items:center;gap:12px;background:linear-gradient(115deg,#e0f3dc,#eaf7e5);border:1px solid #cce8c5;border-radius:18px;padding:15px 16px}
+.sunday-rest>svg{width:48px;height:48px;flex:none}
+.sunday-rest h2{color:#102438;font-size:clamp(18px,4.8vw,26px);line-height:1.2;margin:0 0 5px;font-weight:800;letter-spacing:-.025em}
+.sunday-rest p{color:#294b41;font-size:clamp(12px,3.3vw,15px);line-height:1.4;margin:0}
+.sunday-features{display:grid;gap:10px}
+.sunday-card{--action:#007f78;display:grid;grid-template-columns:29% minmax(0,1fr);align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:13px 14px 13px 8px;margin:0;border:1px solid #c8e7ce;border-radius:18px;background:linear-gradient(115deg,#e9f6e8,#f1faef);box-shadow:0 4px 12px #0000000d;color:#102438;text-decoration:none;text-align:left;font:inherit;cursor:pointer;min-height:116px}
+.sunday-card[hidden]{display:none}
+.sunday-art{width:100%;aspect-ratio:1;display:block;background-image:url('../icons/sunday-features.webp');background-repeat:no-repeat;background-size:300% 100%;background-position:0% 50%;pointer-events:none}
+.sunday-game{--action:#086cbd;background:linear-gradient(115deg,#e1f3ff,#f1fbff);border-color:#c3e6f9}
+.sunday-game .sunday-art{background-position:50% 50%}
+.sunday-notices{--action:#143a5b;background:linear-gradient(115deg,#fff6dd,#fffcf0);border-color:#efe0b0}
+.sunday-notices .sunday-art{background-position:100% 50%}
+.sunday-copy{display:grid;gap:5px;min-width:0}
+.sunday-copy>strong{font-size:clamp(17px,4.5vw,25px);font-weight:800;line-height:1.2;letter-spacing:-.025em;color:#102438}
+.sunday-copy>span:not(.sunday-action){font-size:clamp(12px,3.3vw,16px);line-height:1.4;color:#30465a}
+.sunday-action{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 8px;min-height:44px;box-sizing:border-box;border-radius:12px;background:var(--action);color:#fff;font-size:clamp(12px,3.3vw,17px);font-weight:700;line-height:1.25;margin-top:3px;text-align:center}
+.sunday-action>span{font-size:25px;line-height:.8}
+.sunday-card:hover{box-shadow:0 6px 18px #0002}
+.sunday-card:focus-visible{outline:3px solid #ec9a24;outline-offset:3px}
+@media(min-width:560px){.sunday-card{grid-template-columns:120px minmax(0,1fr);padding:12px 24px 12px 14px}.sunday-art{max-width:120px}.sunday-action{max-width:350px}.sunday-rest{padding:17px 24px}}
+@media(max-width:359px){.sunday-card{gap:6px;padding:10px 9px 10px 4px;grid-template-columns:26% minmax(0,1fr)}.sunday-rest{padding:12px 10px;gap:8px}.sunday-rest>svg{width:34px;height:34px}.sunday-copy>strong{font-size:16px}.sunday-action{font-size:12px}}

@@ -623,8 +623,12 @@
     requestAnimationFrame(syncDayNavigationLayout);
     const schedule=scheduleFor(date);
     $('dashboard').dataset.bag=schedule.bag||'none';
+    const isSunday=date.getUTCDay()===0&&!schedule.bag;
+    $('dashboard').dataset.sunday=String(isSunday);
     window.BAG_DAY_ANALYTICS?.observe($('collectionStage'),'schedule_view',{bag_type:schedule.bag||'none',day_offset:dayOffset},'schedule:'+date.toISOString().slice(0,10)+':'+(schedule.bag||'none')+':'+!!schedule.glass);
-    if(!schedule.bag){
+    if(isSunday){
+      $('collectionCardBody').innerHTML=window.BAG_DAY_SUNDAY.markup(date,dayOffset===0,locality);
+    }else if(!schedule.bag){
       $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="no-collection-message"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div></div></div>`;
     }else{
       const row=rowFor(locality),time=date.getUTCDay()===6&&row[2]?row[2]:row[1];
