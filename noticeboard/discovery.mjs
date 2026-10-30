@@ -1,4 +1,4 @@
-import {visibleItems,today,addDays} from './shared.mjs?v=1.1.104';
+import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.105';
 export const eventSymbol=item=>item.icon_emoji||'📌';
 export const longDate=date=>new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
 export function eventIndex(pages,date=today()){
@@ -20,3 +20,19 @@ export function monthCells(month){
  return [...Array(start).fill(null),...Array.from({length},(_,i)=>month+'-'+String(i+1).padStart(2,'0'))];
 }
 export function moveMonth(month,delta){const d=new Date(month+'-01T12:00:00Z');d.setUTCMonth(d.getUTCMonth()+delta);return d.toISOString().slice(0,7)}
+
+// Blank search restores the selected locality's normal three-board overview.
+// Nonblank search includes events AND information without a future date limit.
+export function filterNoticeBoards(pages,{q='',locality='',allLocalities=false}={},date=today()){
+ const words=key(q).trim().split(/\s+/).filter(Boolean),searching=words.length>0;
+ const candidates=pages.filter(p=>searching&&allLocalities||key(p.locality_name)===key(locality));
+ const items=candidates.flatMap(p=>visibleItems(p.csv,date).map(i=>({...i,locality:p.locality_name,section:p.section,page_id:p.page_id}))).filter(i=>words.every(w=>key([i.title,i.description,i.locality].join(' ')).includes(w)));
+ return ['police','council','church'].map(section=>({section,items:items.filter(i=>i.section===section).sort(compareNotices)})).filter(g=>!searching||g.items.length>0);
+}
+export function highlightNotice(value,query=''){
+ const text=String(value||''),lower=text.toLocaleLowerCase('en'),words=[...new Set(String(query).trim().toLocaleLowerCase('en').split(/\s+/).filter(Boolean))];
+ if(!words.length)return esc(text);
+ const ranges=[];for(const word of words){let from=0,index;while((index=lower.indexOf(word,from))!==-1){ranges.push([index,index+word.length]);from=index+word.length;}}
+ ranges.sort((a,b)=>a[0]-b[0]);const merged=[];for(const range of ranges){const last=merged[merged.length-1];if(last&&range[0]<=last[1])last[1]=Math.max(last[1],range[1]);else merged.push([...range]);}
+ let result='',from=0;for(const [start,end] of merged){result+=esc(text.slice(from,start))+'<mark>'+esc(text.slice(start,end))+'</mark>';from=end;}return result+esc(text.slice(from));
+}

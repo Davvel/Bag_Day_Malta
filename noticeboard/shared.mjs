@@ -10,11 +10,12 @@ export function parseCSV(csv){
  for(let i=0;i<csv.length;i++){const c=csv[i];if(c==='"'){if(quoted&&csv[i+1]==='"'){cell+='"';i++}else quoted=!quoted}else if(c===','&&!quoted){row.push(cell);cell=''}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&csv[i+1]==='\n')i++;row.push(cell);if(row.some(Boolean))result.push(row);row=[];cell=''}else cell+=c}
  if(cell||row.length){row.push(cell);result.push(row)}const keys=result.shift()||[];return result.map(values=>Object.fromEntries(keys.map((k,i)=>[k,values[i]||''])));
 }
-export function visibleItems(csv,date=today()){return parseCSV(csv||'').filter(r=>['event','info'].includes(r.kind)&&/^\d{4}-\d{2}-\d{2}$/.test(r.end_date)&&r.end_date>=date).sort((a,b)=>{
+export function compareNotices(a,b){
  if(a.kind!==b.kind)return a.kind==='info'?-1:1;
  if(a.kind==='info'){const order=(b.updated_at||b.created_at||'').localeCompare(a.updated_at||a.created_at||'');if(order)return order;}
  return a.end_date.localeCompare(b.end_date)||a.entry_id.localeCompare(b.entry_id);
-}).slice(0,20)}
+}
+export function visibleItems(csv,date=today()){return parseCSV(csv||'').filter(r=>['event','info'].includes(r.kind)&&/^\d{4}-\d{2}-\d{2}$/.test(r.end_date)&&r.end_date>=date).sort(compareNotices).slice(0,20)}
 export function calendarURL(item,locality){const start=item.end_date.replaceAll('-',''),end=addDays(item.end_date,1).replaceAll('-','');return 'https://calendar.google.com/calendar/render?'+new URLSearchParams({action:'TEMPLATE',text:item.title,dates:`${start}/${end}`,details:item.description,location:locality,ctz:'Europe/Malta'})}
 export async function request(path,{method='GET',body,token}={}){const r=await fetch(API+path,{method,cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(25000),headers:{...(body?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{})},...(body?{body:JSON.stringify(body)}:{})});let data;try{data=await r.json()}catch{throw Error('The noticeboard service is unavailable. Please try again.')}if(!r.ok)throw Object.assign(Error(data.error?.message||'Could not complete the request'),{status:r.status});return data}
 

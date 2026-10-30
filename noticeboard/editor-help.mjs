@@ -1,4 +1,4 @@
-import {today} from './shared.mjs?v=1.1.104';
+import {today} from './shared.mjs?v=1.1.105';
 let popup=null,opener=null;
 function cleanState(){const state={...history.state};delete state.bagDaySlotHelp;return state;}
 // A reload has no open dialog, so discard only this dialog's transient marker.
