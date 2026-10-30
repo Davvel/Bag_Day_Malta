@@ -150,4 +150,3 @@ body:has(.noticeboard-sponsor-dock) #usageConsent{bottom:calc(var(--noticeboard-
 /* One search field: focus belongs to the wrapper, never a nested input box. */
 .notice-search-input:focus-within{border-color:#1d8f83;outline:none;box-shadow:none}
 .notice-search-input input,.notice-search-input input:focus,.notice-search-input input:focus-visible{border:0;outline:none;box-shadow:none;border-radius:0;background:transparent;appearance:none;-webkit-appearance:none}
-#editForm input[type="date"]:disabled{opacity:.45;background:#83909a26;cursor:not-allowed}
