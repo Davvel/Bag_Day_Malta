@@ -94,3 +94,31 @@ body:has(.noticeboard-sponsor-dock) #usageConsent{bottom:calc(var(--noticeboard-
 .calendar-event-symbol{font-size:24px;line-height:1.15}
 .calendar-event-title{display:block;width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;line-height:1.4;font-weight:600;text-decoration:underline;text-underline-offset:2px;color:var(--accent)}
 @media(max-width:420px){.calendar-event-title{font-size:10px}.event-symbols button[data-open]{min-height:56px}.calendar-event-symbol{font-size:23px}}
+
+/* v1.1.104: prominent symbols, actionable dates and consistent close controls. */
+.notice-with-symbol{display:grid;grid-template-columns:64px minmax(0,1fr) 76px;gap:14px;padding:16px 14px;align-items:center}
+.notice-symbol{display:grid;place-items:center;width:64px;min-height:86px;border:0;border-radius:14px;background:var(--tint,var(--nb-soft));color:inherit;font-size:46px;line-height:1.15;padding:6px;cursor:pointer}
+.notice-symbol span{display:block;max-width:100%;overflow:hidden}
+.notice-date-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:112px;padding:7px 5px;border:2px solid var(--accent,#4ba6ce);border-radius:14px;background:var(--nb-soft);color:var(--accent,var(--nb-ink));text-decoration:none;box-shadow:0 2px 4px #0002}
+.notice-date-add .date-chip{background:transparent;color:inherit;min-height:60px;width:auto}.notice-date-add .date-chip strong{font-size:29px}
+.date-add-action{display:flex;align-items:center;justify-content:center;gap:4px;border-top:1px solid var(--nb-border);width:100%;padding-top:5px;font-size:12px;font-weight:700;color:var(--nb-ink)}
+.date-add-action svg{width:19px;height:19px}.notice-date-add:hover{filter:brightness(1.12)}
+.notice-info-tag{font-size:12px;color:var(--nb-secondary);text-align:center}
+.notice-modal-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:-24px;background:var(--nb-card);padding:4px 0 10px;z-index:2}
+.notice-modal-heading .pill{margin-top:6px}.notice-modal-heading h2{margin:7px 0}
+.notice-circle-close{width:44px;min-width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--nb-border);border-radius:50%;background:var(--nb-soft);color:var(--nb-ink);padding:10px;cursor:pointer}
+.notice-circle-close svg{width:22px;height:22px}
+.slot-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid var(--nb-border);background:var(--nb-soft);border-radius:12px;margin:12px 0}.slot-summary p{margin:0;font-size:15px}
+.slot-help-button{display:grid;place-items:center;width:44px;min-width:44px;height:44px;background:var(--nb-card);border:1px solid var(--nb-border);color:var(--nb-ink);border-radius:50%;padding:10px}
+.slot-help-dialog{width:min(94%,600px)}.slot-help-dialog p{font-size:15px;line-height:1.55}.slot-help-dialog .hint{font-size:13px}
+.publication-bar{padding:18px;gap:14px;overflow:visible}
+#publish.publish-attention{background:#b93620;color:#fff;border:2px solid #ffb987;box-shadow:0 0 0 3px #f0804033;font-size:17px;font-weight:800;min-height:52px;transform-origin:center}
+#publish.publish-attention:not(:disabled){animation:notice-publish-pulse 2.6s ease-in-out infinite}
+#publish.publish-attention:disabled{animation:none;transform:none}
+.publication-state.unpublished{background:#8d291d;color:#fff;border:1px solid #ffac8e;font-weight:750;font-size:14px}
+@keyframes notice-publish-pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 2px #f0804033;filter:brightness(1)}50%{transform:scale(1.035);box-shadow:0 0 0 7px #f0804055;filter:brightness(1.18)}}
+@media(prefers-reduced-motion:reduce){#publish.publish-attention:not(:disabled){animation:none;transform:none;box-shadow:0 0 0 4px #ffb98766}}
+@media(max-width:420px){.notice-with-symbol{grid-template-columns:44px minmax(0,1fr) 60px;gap:8px;padding:12px 8px}.notice-symbol{width:44px;min-height:76px;font-size:34px;padding:3px;border-radius:10px}.notice-date-add{min-height:104px;padding:5px 3px;border-radius:11px}.notice-date-add .date-chip strong{font-size:27px}.date-add-action{font-size:11px;gap:2px}.date-add-action svg{width:17px;height:17px}.notice-with-symbol .notice-link{font-size:15px}.slot-summary{padding:8px 10px}.slot-summary p{font-size:14px}#publish.publish-attention{font-size:15px}.publication-bar{padding:16px 12px}}
+:root[data-theme=dark] .publication-state.unpublished{background:#8d291d;color:#fff;border-color:#ffac8e}
+#noticeDialog .toolbar:empty{display:none}
+.notice-with-symbol .notice-link{font-size:16px}

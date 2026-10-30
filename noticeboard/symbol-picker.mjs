@@ -1,6 +1,6 @@
-import {EMOJI_PALETTE} from '../reuse/emoji-palette.mjs?v=1.1.103';
-import {isEmoji} from '../reuse/custom-emoji.mjs?v=1.1.103';
-import {esc,request} from './shared.mjs?v=1.1.103';
+import {EMOJI_PALETTE} from '../reuse/emoji-palette.mjs?v=1.1.104';
+import {isEmoji} from '../reuse/custom-emoji.mjs?v=1.1.104';
+import {esc,request} from './shared.mjs?v=1.1.104';
 const events=[['📌','pin announcement'],['🎉','celebration festa party'],['🎵','music concert'],['🎭','theatre drama'],['🎲','bingo games'],['⛪','church mass parish'],['🚧','road works closure'],['🚓','police safety'],['🏛️','council meeting'],['⚽','football sport'],['🎨','art exhibition'],['📚','books library'],['🩸','blood donation'],['🌳','environment tree'],['🧹','cleanup'],['🍽️','food dinner'],['🚶','walk hike'],['🎄','christmas'],['🐣','easter'],['🚌','bus transport'],['💃','dance'],['🎬','cinema film'],['❤️','health charity'],['🎤','talk singing'],['🏃','run race']].map(([symbol,name])=>({symbol,name,group:'Events'}));
 const palette=[...events,...EMOJI_PALETTE].filter((v,i,a)=>a.findIndex(x=>x.symbol===v.symbol)===i);
 let calls=[],lastInput='',lastSymbol='';

@@ -1,4 +1,4 @@
-import {today} from './shared.mjs?v=1.1.103';
+import {today} from './shared.mjs?v=1.1.104';
 let observed=false;
 export function syncNoticeboardSponsors(locality){
  const dock=document.querySelector('#sponsorDock'),panel=document.querySelector('#sponsorPanel');if(!dock||!panel)return;
