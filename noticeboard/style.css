@@ -146,3 +146,8 @@ body:has(.noticeboard-sponsor-dock) #usageConsent{bottom:calc(var(--noticeboard-
 .section.search-matches{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
 .section.search-matches .section-heading{padding-bottom:0}.section.search-matches .section-controls{margin:0;align-items:center}.section.search-matches .notice-list{grid-column:1/-1}
 @media(max-width:559px){.notice-search{padding:8px 10px;margin:10px 0 14px}.notice-search-heading>label{font-size:14px;max-width:120px;line-height:1.25}.notice-search-heading .notice-scope{font-size:12px;line-height:1.25;gap:5px;max-width:170px}.notice-switch{min-width:44px;width:44px}.notice-switch-track{width:42px}.notice-switch input:checked+.notice-switch-track:after{left:17px}.section.search-matches{display:block}.section.search-matches .section-controls{margin:8px 0 10px}}
+
+/* One search field: focus belongs to the wrapper, never a nested input box. */
+.notice-search-input:focus-within{border-color:#1d8f83;outline:none;box-shadow:none}
+.notice-search-input input,.notice-search-input input:focus,.notice-search-input input:focus-visible{border:0;outline:none;box-shadow:none;border-radius:0;background:transparent;appearance:none;-webkit-appearance:none}
+#editForm input[type="date"]:disabled{opacity:.45;background:#83909a26;cursor:not-allowed}
