@@ -387,3 +387,6 @@ dialog.map-pin-modal{box-sizing:border-box;width:min(760px,calc(100% - 24px));ma
 .notice-required{color:#d73333;font-weight:800}:root[data-theme=dark] .notice-required{color:#ff9f9f}.map-source a{color:var(--nb-secondary)}
 
 .notice-map-marker svg{display:block;width:36px;height:44px}
+
+/* Date badges open notice details; Calendar action lives inside details. */
+button.notice-date-add{font:inherit;cursor:pointer;width:100%}

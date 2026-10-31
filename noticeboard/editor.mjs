@@ -1,12 +1,12 @@
-import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.126';
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.126';
-import {loadOptions,optionSelect,noticeTags,multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.126';
-import {openSlotHelp} from './editor-help.mjs?v=1.1.126';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.126';
-import {normaliseNoticeURL,noticeLink} from './links.mjs?v=1.1.126';
-import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.126';
-import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.126';
-import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.126';
+import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.127';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.127';
+import {loadOptions,optionSelect,noticeTags,multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.127';
+import {openSlotHelp} from './editor-help.mjs?v=1.1.127';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.127';
+import {normaliseNoticeURL,noticeLink} from './links.mjs?v=1.1.127';
+import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.127';
+import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.127';
+import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.127';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0;
 function updateEditorTitle(){const title=(activeSection?sections[activeSection].name:'Community')+' Noticeboard Editor';const header=document.querySelector('#noticeboardTitle');if(header)header.textContent=title;document.title=title+' · Bag Day Malta'}
 updateEditorTitle();

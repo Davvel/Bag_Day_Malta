@@ -1,12 +1,12 @@
-import {mapURL} from './locations.mjs?v=1.1.126';
-import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.126';
-import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.126';
-import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.126';
-import {noticeLink} from './links.mjs?v=1.1.126';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.126';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.126';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.126';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.126';
+import {mapURL} from './locations.mjs?v=1.1.127';
+import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.127';
+import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.127';
+import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.127';
+import {noticeLink} from './links.mjs?v=1.1.127';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.127';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.127';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.127';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.127';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
 let pages=[],loaded=false,error='',filterWarning='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,renderEpoch=0,searchTimer=null;
 const params=()=>new URLSearchParams(location.search);
@@ -68,7 +68,7 @@ function badge(item){if(item.kind==='info')return `<span class="notice-emoji" ar
  const d=new Date(item.end_date+'T12:00:00Z');return `<span class="date-weekday">${d.toLocaleDateString('en-GB',{weekday:'short',timeZone:'UTC'}).toUpperCase()}</span><strong>${d.getUTCDate()}</strong><span>${d.toLocaleDateString('en-GB',{month:'short',timeZone:'UTC'}).toUpperCase()}</span>`;}
 function card(item,search=false){
  const id=String(lookup.size);lookup.set(id,item);
- return `<article class="notice notice-with-symbol"><button type="button" class="notice-symbol" data-open="${id}" aria-label="Read ${esc(item.title)}"><span aria-hidden="true">${esc(eventSymbol(item))}</span></button><div class="notice-copy"><button class="notice-open" data-open="${id}"><span class="notice-title">${highlightNotice(item.title,search?params().get('q')||'':'')}</span><span class="notice-description">${highlightNotice(item.description,search?params().get('q')||'':'')}</span></button>${noticeLink(item)}</div>${item.kind==='event'?`<a class="notice-date-add" href="${esc(calendarURL(item,item.locality||locality))}" target="_blank" rel="noopener" aria-label="${esc(longDate(item.end_date))}. Add ${esc(item.title)} to Google Calendar" title="Add to Google Calendar"><span class="date-chip">${badge(item)}</span><span class="date-add-action">${icon('calendar')}<span>Add</span></span></a>`:'<span class="notice-info-tag">Info</span>'}</article>`;
+ return `<article class="notice notice-with-symbol"><button type="button" class="notice-symbol" data-open="${id}" aria-label="Read ${esc(item.title)}"><span aria-hidden="true">${esc(eventSymbol(item))}</span></button><div class="notice-copy"><button class="notice-open" data-open="${id}"><span class="notice-title">${highlightNotice(item.title,search?params().get('q')||'':'')}</span><span class="notice-description">${highlightNotice(item.description,search?params().get('q')||'':'')}</span></button>${noticeLink(item)}</div>${item.kind==='event'?`<button type="button" class="notice-date-add" data-open="${id}" aria-label="Read ${esc(item.title)}, ${esc(longDate(item.end_date))}" title="Open notice details"><span class="date-chip">${badge(item)}</span></button>`:'<span class="notice-info-tag">Info</span>'}</article>`;
 }
 function showDetails(item){const source=sections[item.section||section()]||{name:'Community',icon:'info'},url=mapURL(item);dialog.className='notice-detail-modal '+(item.section||'');dialog.setAttribute('aria-labelledby','noticeDetailTitle');dialog.innerHTML=`<header class="notice-detail-titlebar"><div class="notice-detail-source">${icon(source.icon)}<div><strong>${esc(source.name)}</strong><span>${item.kind==='event'?esc(longDate(item.end_date)):'Information'}</span></div></div><button type="button" class="notice-detail-close" id="closeNotice" aria-label="Close notice" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="notice-detail-body"><h2 id="noticeDetailTitle">${esc(item.title)}</h2><div class="notice-place">${url?`<a class="notice-place-icon" href="${esc(url)}" target="_blank" rel="noopener" aria-label="Open location in Google Maps">${icon('pin')}</a>`:icon('pin')}<div><strong>${esc(item.locality||locality)}</strong>${item.where_text?`<p>${esc(item.where_text)}</p>`:''}${url?`<a href="${esc(url)}" target="_blank" rel="noopener">Open in Google Maps ↗</a>`:''}</div></div><p class="modal-text">${esc(item.description)}</p>${noticeLink(item)}<div class="toolbar">${item.kind==='event'?`<a class="primary" href="${esc(calendarURL(item,item.locality||locality))}" target="_blank" rel="noopener">${icon('calendar')} Add to Google Calendar</a>`:''}</div></div>`;dialog.querySelector('#closeNotice').onclick=closeEntry;dialog.showModal();}
 
