@@ -1,13 +1,13 @@
-import {animateCalendarGrid,slideCalendarPages} from './calendar-motion.mjs?v=1.1.119';
-import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth} from './calendar-model.mjs?v=1.1.119';
-import {loadOptions,optionSelect,noticeTags} from './options.mjs?v=1.1.119';
-import {noticeLink} from './links.mjs?v=1.1.119';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.119';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.119';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.119';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.119';
+import {animateCalendarGrid,slideCalendarPages} from './calendar-motion.mjs?v=1.1.120';
+import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth} from './calendar-model.mjs?v=1.1.120';
+import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.120';
+import {noticeLink} from './links.mjs?v=1.1.120';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.120';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.120';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.120';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.120';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
-let pages=[],loaded=false,error='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,renderEpoch=0,searchTimer=null;
+let pages=[],loaded=false,error='',filterWarning='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,renderEpoch=0,searchTimer=null;
 const params=()=>new URLSearchParams(location.search);
 const savedLocality=()=>{try{return localStorage.getItem('bag-day-locality-v1')}catch{return null}};
 const homeLocality=savedLocality()||'Żejtun';
@@ -38,7 +38,7 @@ function returnToCalendar(){if(history.state?.noticeDay)history.back();else navi
 function searchOptions(){const p=params();return {q:p.get('q')||'',locality,allLocalities:p.get('all')==='1',category:p.get('category')||'',audience:p.get('audience')==='all'?'':p.get('audience')||''}}
 const sourceOrder=['council','church','police'];
 let activeTab='council';
-function compactToolbar(names){const mode=view(),o=searchOptions();return `<div class="notice-controls"><div class="notice-half-row search-view-row"><form id="noticeSearch" class="inline-search" role="search"><input id="noticeQuery" type="search" name="q" aria-label="Search notices" placeholder="Search notices…" autocomplete="off" value="${esc(o.q)}"><button aria-label="Search notices" type="submit">${icon('search')}</button></form><div class="view-switch" role="group" aria-label="Noticeboard view"><button type="button" data-view="list" aria-pressed="${mode==='list'}">List</button><button type="button" data-view="calendar" aria-pressed="${mode!=='list'}">Calendar</button></div></div><div class="notice-half-row locality-controls"><label class="compact-locality"><select id="locality" aria-label="Noticeboard locality"><option value="" ${o.allLocalities?'selected':''}>All localities</option>${names.map(n=>`<option value="${esc(n)}" ${!o.allLocalities&&n===locality?'selected':''}>${esc(n)}</option>`).join('')}</select></label><label class="locality-scope"><span>All localities</span><span class="locality-toggle"><input id="localityScope" type="checkbox" role="switch" aria-label="Show all localities" ${o.allLocalities?'checked':''}><span aria-hidden="true"></span></span></label></div><div class="notice-half-row category-audience-row"><select id="noticeCategory" aria-label="Category">${optionSelect('categories',o.category,true)}</select><select id="noticeAudience" aria-label="Audience">${optionSelect('audiences',o.audience,true)}</select></div><div class="show-all-row"><button type="button" id="noticeShowAll" title="Clear search, category and audience; keep current locality scope">Show All</button></div></div>`}
+function compactToolbar(names){const mode=view(),o=searchOptions();return `<div class="notice-controls"><div class="notice-half-row search-view-row"><form id="noticeSearch" class="inline-search" role="search"><input id="noticeQuery" type="search" name="q" aria-label="Search notices" placeholder="Search notices…" autocomplete="off" value="${esc(o.q)}"><button aria-label="Search notices" type="submit">${icon('search')}</button></form><div class="view-switch" role="group" aria-label="Noticeboard view"><button type="button" data-view="list" aria-pressed="${mode==='list'}">${icon('list')}<span>List</span></button><button type="button" data-view="calendar" aria-pressed="${mode!=='list'}">${icon('calendar')}<span>Calendar</span></button></div></div><div class="notice-half-row locality-controls"><label class="compact-locality"><select id="locality" aria-label="Noticeboard locality"><option value="" ${o.allLocalities?'selected':''}>All localities</option>${names.map(n=>`<option value="${esc(n)}" ${!o.allLocalities&&n===locality?'selected':''}>${esc(n)}</option>`).join('')}</select></label><label class="locality-scope"><span>All localities</span><span class="locality-toggle"><input id="localityScope" type="checkbox" role="switch" aria-label="Show all localities" ${o.allLocalities?'checked':''}><span aria-hidden="true"></span></span></label></div><div class="notice-half-row category-audience-row"><select id="noticeCategory" aria-label="Category">${optionSelect('categories',o.category,true)}</select><select id="noticeAudience" aria-label="Audience">${optionSelect('audiences',o.audience,true)}</select></div></div>`}
 function sourcePanel(){return `<div class="source-panel section council" id="sourcePanel"><div class="source-tabs" role="tablist" aria-label="Noticeboard source">${sourceOrder.map(k=>`<button type="button" role="tab" class="source-tab ${k}" id="source-${k}" data-source-tab="${k}" aria-selected="false" aria-controls="sections">${icon(sections[k].icon)}<span>${esc(sections[k].name)}</span></button>`).join('')}</div><div id="sections" role="tabpanel" aria-labelledby="source-council"></div></div>`}
 function chooseSource(groups,mode=view(),month=currentMonth(),requested=params().get('tab')){return noticeboardTab(groups.flatMap(g=>g.items),{view:mode,month,day:params().get('day')||'',requested})}
 function showAllNotices(){clearTimeout(searchTimer);searchTimer=null;navigate({q:null,category:null,audience:null,section:null,sources:null,tab:null,help:null,filters:null,entry:null,page:null},{replace:view()==='day'})}
@@ -104,11 +104,12 @@ function renderBoards(){
  root.querySelector('#moreDayResults')?.addEventListener('click',()=>{dayLimit+=NOTICE_SEARCH_PAGE_SIZE;renderBoards();root.querySelector('#moreDayResults')?.focus({preventScroll:true})});
 }
 function render(){
+ const oldQuery=root.querySelector('#noticeQuery'),editing=oldQuery&&document.activeElement===oldQuery,draft=oldQuery?.value,caret=oldQuery?.selectionStart;
  clearTimeout(searchTimer);searchTimer=null;const feedScroll=root.querySelector('#sections')?.scrollTop||0;
  const p=params();renderEpoch++;renderedURL=location.href;renderedDate=today();locality=p.get('locality')||locality;
  const names=localityNames(window.WASTE_DATA?.localities||[],pages,locality);locality=names.find(n=>localityKey(n)===localityKey(locality))||locality;syncNoticeboardSponsors(locality);
  const heading=document.querySelector('#noticeboardTitle');if(heading)heading.textContent='Community notices';document.body.dataset.noticeView=view();
- root.innerHTML=`${compactToolbar(names)}${error?`<p class="status error" role="alert">${esc(error)} <button id="retry" class="secondary">Try again</button></p>`:''}${sourcePanel()}`;
+ root.innerHTML=`${compactToolbar(names)}${error?`<p class="status error" role="alert">${esc(error)} <button id="retry" class="secondary">Try again</button></p>`:''}${filterWarning?`<p class="status filter-warning" role="status">${esc(filterWarning)} <button id="retryFilters" class="secondary">Try again</button></p>`:''}${sourcePanel()}`;
  renderBoards();if(p.get('entry')||history.state?.noticeEntry)root.querySelector('#sections').scrollTop=feedScroll;
  root.querySelector('#locality').onchange=e=>navigate({tab:null,locality:e.target.value||locality,all:e.target.value?null:'1',entry:null,page:null});
  root.querySelector('#localityScope').onchange=e=>navigate({tab:null,all:e.target.checked?'1':null,locality,entry:null,page:null});
@@ -116,12 +117,13 @@ function render(){
  root.querySelector('#noticeSearch').onsubmit=e=>{e.preventDefault();updateTextSearch(e.target.elements.q.value)};
  root.querySelector('#noticeQuery').addEventListener('input',e=>queueTextSearch(e.target.value,e.isComposing));
  root.querySelector('#noticeQuery').addEventListener('compositionend',e=>queueTextSearch(e.target.value));
- root.querySelector('#noticeShowAll').onclick=showAllNotices;
+ document.querySelector('#noticeShowAll').onclick=showAllNotices;
  root.querySelectorAll('[data-source-tab]').forEach(b=>{b.onclick=()=>{navigate({tab:b.dataset.sourceTab,section:null,sources:null,entry:null,page:null},{replace:view()==='day'});root.querySelector('#source-'+b.dataset.sourceTab)?.focus({preventScroll:true})};b.addEventListener('keydown',e=>{const index=sourceOrder.indexOf(b.dataset.sourceTab);let next;if(e.key==='ArrowRight')next=(index+1)%3;else if(e.key==='ArrowLeft')next=(index+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();root.querySelector('#source-'+sourceOrder[next]).onclick()})});
  root.querySelector('#noticeCategory').onchange=e=>applyInline({category:e.target.value});
  root.querySelector('#noticeAudience').onchange=e=>applyInline({audience:e.target.value});
  root.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{if(b.dataset.view==='calendar'&&view()==='day'){returnToCalendar();return}if(b.dataset.view===view())return;navigate({view:b.dataset.view,tab:null,entry:null,page:null})});
- root.querySelector('#retry')?.addEventListener('click',load);
+ if(editing){const field=root.querySelector('#noticeQuery');field.value=draft;field.focus({preventScroll:true});try{field.setSelectionRange(caret,caret)}catch{}queueTextSearch(draft)}
+ root.querySelector('#retry')?.addEventListener('click',load);root.querySelector('#retryFilters')?.addEventListener('click',load);
  const entry=p.get('entry');if(entry){const page=pages.find(r=>p.get('page')?r.page_id===p.get('page'):r.section===section()&&localityKey(r.locality_name)===localityKey(locality)),item=visibleItems(page?.csv,today()).find(i=>i.entry_id===entry);if(item){if(dialog.open)dialog.close();showDetails({...item,locality:page.locality_name,section:page.section,page_id:page.page_id})}else if(loaded){if(dialog.open)dialog.close();const el=document.createElement('p');el.className='status';el.textContent='This notice has expired or is no longer published.';root.prepend(el)}}else if(dialog.open)dialog.close();
 }
 async function selectCalendarMonth(target){
@@ -147,6 +149,11 @@ for(const name of ['touchcancel','bag-day-gesture-cancel'])window.addEventListen
 for(const name of ['blur','pagehide','pageshow'])window.addEventListener(name,()=>{swipe=null});
 dialog.addEventListener('cancel',e=>{e.preventDefault();closeEntry()});
 async function load(){
- try{await loadOptions()}catch(e){error='Notice filters could not load. '+e.message;render();return;}const seq=++generation;try{const data=await readPublishedCSV();if(seq!==generation)return;pages=data.pages;loaded=true;error='';try{localStorage.setItem('bagday-noticeboard-public-v1',JSON.stringify({saved_at:Date.now(),pages}))}catch{}render()}catch(e){if(seq!==generation)return;error=loaded?'Showing saved notices. Connect to refresh.':e.message;render()}}
+ const seq=++generation;
+ // Each completion updates independently; a slow filter request cannot delay notices.
+ const filterTask=loadOptions().then(()=>{if(seq!==generation)return;filterWarning=optionsWarning;render()},()=>{if(seq!==generation)return;filterWarning=optionsWarning||'Categories and audiences are temporarily unavailable. Try again to load them.';render()});
+ const noticeTask=readPublishedCSV().then(data=>{if(seq!==generation)return;pages=data.pages;loaded=true;error='';try{localStorage.setItem('bagday-noticeboard-public-v1',JSON.stringify({saved_at:Date.now(),pages}))}catch{}render()},()=>{if(seq!==generation)return;error=loaded?'Showing saved notices. Connect to refresh.':'Notices could not load. Please try again.';render()});
+ await Promise.allSettled([filterTask,noticeTask]);
+}
 try{const saved=JSON.parse(localStorage.getItem('bagday-noticeboard-public-v1')||'null');if(Array.isArray(saved?.pages)){pages=saved.pages;loaded=true}}catch{}
 window.addEventListener('popstate',handlePopState);window.addEventListener('pageshow',render);document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();load()}});setInterval(()=>{if(!document.hidden&&renderedDate!==today())render()},60000);window.addEventListener('online',load);render();load();

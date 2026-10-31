@@ -263,3 +263,11 @@ html[data-zoomed="true"] .public-notices #sections{overflow:visible;flex:none}
 .public-notices .source-panel .result-locality{font-size:21px;margin:0 0 8px}
 html[data-zoomed="true"] .public-notices #root>.source-panel{overflow:visible;flex:none}
 @media(max-width:350px){.source-tab{font-size:12px;gap:3px}.source-tab svg{width:17px;height:17px}.public-notices .locality-controls .locality-scope{font-size:12px;padding-inline:4px}.public-notices .category-audience-row select{font-size:13px}}
+/* v1.1.120: reset shares header space; labelled view icons stay compact. */
+.public-notices .shell .noticeboard-header{grid-template-columns:32px minmax(0,1fr) 78px}
+.public-notices #noticeShowAll.header-reset{justify-self:end;width:78px;min-height:30px;padding:3px 5px;border-color:#6391a9;background:#173b58;color:#fff;font-size:11px;line-height:1.15;white-space:normal}
+.public-notices .search-view-row .view-switch button{display:flex;align-items:center;justify-content:center;gap:5px}
+.public-notices .view-switch button svg{width:18px;height:18px;flex:none}
+.public-notices .filter-warning{flex-shrink:0;padding:6px 8px;margin:0 0 5px;font-size:12px;background:var(--nb-soft);color:var(--nb-secondary)}
+.public-notices .filter-warning button{padding:4px 7px;font-size:12px}
+@media(max-width:350px){.public-notices .noticeboard-header .noticeboard-title{font-size:16px!important}.public-notices .search-view-row .view-switch button{font-size:12px;gap:3px}.public-notices .view-switch button svg{width:16px;height:16px}}
