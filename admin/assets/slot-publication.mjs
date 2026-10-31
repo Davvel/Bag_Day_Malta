@@ -1,4 +1,4 @@
-import {sponsorPublication} from './sponsor-publication.mjs?v=1.1.121';
+import {sponsorPublication} from './sponsor-publication.mjs?v=1.1.122';
 export function slotPublication(row,published,localities,sponsors,at=new Date()){
  const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit'}).formatToParts(at),get=k=>parts.find(p=>p.type===k).value;
  const current=get('year')+'-'+get('month')+'-01';

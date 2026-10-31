@@ -290,3 +290,7 @@ html[data-zoomed="true"] .public-notices #root>.source-panel{overflow:visible;fl
 .source-panel.council #sections{border-top-left-radius:0}
 .source-panel.police #sections{border-top-right-radius:0}
 .public-notices .source-panel #sections{position:relative;z-index:0}
+
+/* List swipes share the browser's vertical scrolling and native pinch zoom. */
+body.public-notices[data-notice-view="list"] #sections{touch-action:pan-y pinch-zoom}
+html[data-zoomed="true"] body.public-notices[data-notice-view="list"] #sections{touch-action:auto}
