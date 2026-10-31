@@ -1,11 +1,11 @@
-import {esc,icon} from './shared.mjs?v=1.1.127';
-import {localityCentre,validPin} from './locations.mjs?v=1.1.127';
+import {esc,icon} from './shared.mjs?v=1.1.128';
+import {localityCentre,validPin} from './locations.mjs?v=1.1.128';
 let leafletTask;
 function loadLeaflet(){
  if(window.L)return Promise.resolve(window.L);
  if(!leafletTask)leafletTask=new Promise((resolve,reject)=>{
-  const css=document.createElement('link');css.rel='stylesheet';css.href='/noticeboard/vendor/leaflet/leaflet.css?v=1.1.127';document.head.append(css);
-  const script=document.createElement('script');script.src='/noticeboard/vendor/leaflet/leaflet.js?v=1.1.127';script.onload=()=>resolve(window.L);script.onerror=()=>{leafletTask=null;reject(Error('Map library unavailable'))};document.head.append(script);
+  const css=document.createElement('link');css.rel='stylesheet';css.href='/noticeboard/vendor/leaflet/leaflet.css?v=1.1.128';document.head.append(css);
+  const script=document.createElement('script');script.src='/noticeboard/vendor/leaflet/leaflet.js?v=1.1.128';script.onload=()=>resolve(window.L);script.onerror=()=>{leafletTask=null;reject(Error('Map library unavailable'))};document.head.append(script);
  });return leafletTask;
 }
 export function locationFields(item={}){const hasPin=validPin(item.latitude,item.longitude);return `<label><span>Where <span class="notice-required">*</span></span><input name="where_text" required maxlength="300" placeholder="Venue, address or meeting point" value="${esc(item.where_text||'')}"></label><input type="hidden" name="latitude" value="${hasPin?esc(item.latitude):''}"><input type="hidden" name="longitude" value="${hasPin?esc(item.longitude):''}"><div class="location-actions"><button type="button" class="secondary" id="chooseMapPin">${icon('pin')}<span>${hasPin?'Change map pin':'Choose map pin'}</span></button><button type="button" class="secondary" id="removeMapPin" ${hasPin?'':'hidden'}>Remove pin</button><span class="hint" id="pinStatus">${hasPin?'Map pin saved':'Map pin optional'}</span></div><p class="hint">Describe where to meet. You can also choose an exact point on the map.</p>`}

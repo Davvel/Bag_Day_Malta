@@ -16,13 +16,15 @@ export function compareNotices(a,b){
  return a.end_date.localeCompare(b.end_date)||a.entry_id.localeCompare(b.entry_id);
 }
 export function visibleItems(csv,date=today()){return parseCSV(csv||'').filter(r=>['event','info'].includes(r.kind)&&/^\d{4}-\d{2}-\d{2}$/.test(r.end_date)&&r.end_date>=date).sort(compareNotices).slice(0,20)}
-export function calendarURL(item,locality){const start=item.end_date.replaceAll('-',''),end=addDays(item.end_date,1).replaceAll('-','');return 'https://calendar.google.com/calendar/render?'+new URLSearchParams({action:'TEMPLATE',text:item.title,dates:`${start}/${end}`,details:item.description,location:[item.where_text,locality].filter(Boolean).join(', '),ctz:'Europe/Malta'})}
+export function calendarURL(item,locality){const start=item.end_date.replaceAll('-',''),end=addDays(item.end_date,1).replaceAll('-','');const timed=item.start_time&&item.end_time;
+ const dates=timed?[item.start_time,item.end_time].map(time=>start+'T'+time.replace(':','')+'00').join('/'):start+'/'+end;
+ return 'https://calendar.google.com/calendar/render?'+new URLSearchParams({action:'TEMPLATE',text:item.title,dates,details:item.description,location:[item.where_text,locality].filter(Boolean).join(', '),ctz:'Europe/Malta'})}
 export async function request(path,{method='GET',body,token}={}){const r=await fetch(API+path,{method,cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(25000),headers:{...(body?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{})},...(body?{body:JSON.stringify(body)}:{})});let data;try{data=await r.json()}catch{throw Error('The noticeboard service is unavailable. Please try again.')}if(!r.ok)throw Object.assign(Error(data.error?.message||'Could not complete the request'),{status:r.status});return data}
 
 export function decodePublishedCSV(csv){
  const records=parseCSV(csv);if(!records.some(r=>r.record_type==='manifest'&&r.format_version==='1'))throw Error('The noticeboard file has an unsupported format.');
  const pages=new Map();for(const r of records)if(r.record_type==='page')pages.set(r.page_id,{page_id:r.page_id,locality_id:r.locality_id,locality_name:r.locality_name,section:r.section,published_at:r.published_at||null,items:[]});
- const field=s=>'"'+String(s??'').replaceAll('"','""')+'"',cols=['entry_id','kind','title','description','end_date','link_url','link_title','icon_emoji','category_id','audience_id','where_text','latitude','longitude','updated_at','created_at'];
+ const field=s=>'"'+String(s??'').replaceAll('"','""')+'"',cols=['entry_id','kind','title','description','end_date','link_url','link_title','icon_emoji','category_id','audience_id','where_text','latitude','longitude','start_time','end_time','updated_at','created_at'];
  for(const r of records)if(r.record_type==='entry'&&pages.has(r.page_id))pages.get(r.page_id).items.push(r);
  return [...pages.values()].map(({items,...p})=>({...p,csv:cols.join(',')+'\r\n'+items.map(r=>cols.map(k=>field(r[k])).join(',')).join('\r\n')+(items.length?'\r\n':'')}));
 }

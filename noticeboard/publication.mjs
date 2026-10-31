@@ -1,6 +1,6 @@
 const normalField=(key,value)=>['latitude','longitude'].includes(key)&&value!==null&&value!==undefined&&value!==''?String(Number(value)):String(value??'');
-import {parseCSV,today,readPublishedCSV} from './shared.mjs?v=1.1.127';
-const fields=['entry_id','kind','title','description','end_date','link_url','link_title','icon_emoji','category_id','audience_id','where_text','latitude','longitude','updated_at'];
+import {parseCSV,today,readPublishedCSV} from './shared.mjs?v=1.1.128';
+const fields=['entry_id','kind','title','description','end_date','link_url','link_title','icon_emoji','category_id','audience_id','where_text','latitude','longitude','start_time','end_time','updated_at'];
 export function noticeStatus(items,published,date=today()){
  if(!published)return {state:'unknown',changed:new Set(),removed:0};
  const live=items.filter(i=>i.end_date>=date),old=parseCSV(published.csv||'').filter(i=>i.end_date>=date),map=new Map(old.map(i=>[i.entry_id,i]));

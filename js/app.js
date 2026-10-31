@@ -70,133 +70,44 @@
   if(!welcomeDraft || typeof welcomeDraft!=='object' || Array.isArray(welcomeDraft))welcomeDraft=null;
   let welcomeNeeded=localStorage.getItem(welcomeCompleteKey)!=='true' && (!!welcomeDraft || !selected);
   if(!welcomeNeeded && selected){localStorage.setItem(welcomeCompleteKey,'true');localStorage.removeItem(welcomeDraftKey);}
-  if(welcomeNeeded){
-    welcomeDraft={step:Math.min(3,Math.max(1,Number(welcomeDraft?.step)||1)),locality:names.includes(welcomeDraft?.locality)?welcomeDraft.locality:'',mode:['auto','home'].includes(welcomeDraft?.mode)?welcomeDraft.mode:null};
-    if(!welcomeDraft.locality)welcomeDraft.step=1;
-    else if(!welcomeDraft.mode && welcomeDraft.step===3)welcomeDraft.step=2;
-    localStorage.setItem(welcomeDraftKey,JSON.stringify(welcomeDraft));
-  }
-  let welcomeBusy=false,welcomeReadyTimer;
-  let welcomeChoiceTimer=null,welcomeChoiceAnimation=null;
-  function stopWelcomeChoiceCue(){
-    clearTimeout(welcomeChoiceTimer);welcomeChoiceTimer=null;
-    welcomeChoiceAnimation?.cancel();welcomeChoiceAnimation=null;
-    $('welcomeChoiceHand').hidden=true;
-  }
-  function queueWelcomeChoiceCue(delay=3000){
-    if(window.BAG_DAY_HELP?.enabled()===false || !welcomeNeeded || welcomeDraft.step!==2 || welcomeDraft.mode || welcomeBusy || document.hidden || $('welcomeOverlay').hidden){stopWelcomeChoiceCue();return;}
-    if(welcomeChoiceTimer || welcomeChoiceAnimation || !$('welcomeChoiceHand').hidden)return;
-    welcomeChoiceTimer=setTimeout(()=>{
-      welcomeChoiceTimer=null;
-      if(window.BAG_DAY_HELP?.enabled()===false || !welcomeNeeded || welcomeDraft.step!==2 || welcomeDraft.mode || document.hidden)return;
-      const hand=$('welcomeChoiceHand');hand.hidden=false;
-      hand.classList.toggle('still-hand',!!reducedMotion());
-      if(reducedMotion()){hand.style.left='';hand.style.top='';return;}
-      const group=$('welcomeModes').getBoundingClientRect();
-      const auto=$('welcomeAuto').querySelector('.welcome-choice-mark').getBoundingClientRect();
-      const home=$('welcomeHome').querySelector('.welcome-choice-mark').getBoundingClientRect();
-      hand.style.left=`${auto.left-group.left+auto.width/2-17}px`;
-      hand.style.top=`${auto.top-group.top+auto.height/2-8}px`;
-      const distance=home.top-auto.top;
-      welcomeChoiceAnimation=hand.animate([
-        {opacity:0,transform:'translateY(12px)',offset:0},
-        {opacity:1,transform:'translateY(0)',offset:.12},
-        {opacity:1,transform:'translateY(-5px) scale(.92)',offset:.24},
-        {opacity:1,transform:'translateY(0)',offset:.34},
-        {opacity:1,transform:`translateY(${distance}px)`,offset:.60},
-        {opacity:1,transform:`translateY(${distance-5}px) scale(.92)`,offset:.72},
-        {opacity:1,transform:`translateY(${distance}px)`,offset:.82},
-        {opacity:0,transform:`translateY(${distance+12}px)`,offset:1}
-      ],{duration:2600,easing:'ease-in-out',fill:'forwards'});
-      const animation=welcomeChoiceAnimation;
-      animation.finished.then(()=>{
-        if(welcomeChoiceAnimation!==animation)return;
-        animation.cancel();hand.hidden=true;welcomeChoiceAnimation=null;
-        queueWelcomeChoiceCue(5000);
-      }).catch(()=>{});
-    },delay);
-  }
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopWelcomeChoiceCue();else queueWelcomeChoiceCue();});
-  window.addEventListener('resize',()=>{stopWelcomeChoiceCue();queueWelcomeChoiceCue();});
-  window.addEventListener('bag-day-help-changed',()=>{stopWelcomeChoiceCue();queueWelcomeChoiceCue();});
-
-  function saveWelcomeDraft(){localStorage.setItem(welcomeDraftKey,JSON.stringify(welcomeDraft));}
-  function welcomeFocus(){
-    const step=welcomeNeeded?welcomeDraft.step:4;
-    const target=step===1?$('welcomeLocality'):step===2?$('welcomeAuto'):step===3?$('welcomeTitle3'):$('welcomeStart');
-    target.focus({preventScroll:true});
-    $('welcomeDialog').scrollTop=0;
-  }
-  function renderWelcome(){
-    const step=welcomeNeeded?welcomeDraft.step:4;
-    ['welcomeStep1','welcomeStep2','welcomeStep3','welcomeReady'].forEach((id,i)=>$(id).hidden=i+1!==step);
-    $('welcomeDialog').setAttribute('aria-labelledby',['welcomeTitle','welcomeTitle2','welcomeTitle3','welcomeTitle4'][step-1]);
-    $('welcomeProgress').hidden=step===4;
-    $('welcomeStepLabel').textContent=`Step ${step} of 3`;
-    [...document.querySelectorAll('.welcome-dots i')].forEach((dot,i)=>{dot.classList.toggle('active',i+1===step);dot.classList.toggle('done',i+1<step);});
-    $('welcomeNavigation').hidden=step===4;
-    $('welcomeBack').hidden=step===1;
-    $('welcomeNext').hidden=step>=3;
-    $('welcomeNext').disabled=step===1?!welcomeDraft.locality:!welcomeDraft.mode;
-    if(welcomeNeeded){
-      $('welcomeLocality').value=welcomeDraft.locality;
-      $('welcomeAuto').setAttribute('aria-pressed',String(welcomeDraft.mode==='auto'));
-      $('welcomeHome').setAttribute('aria-pressed',String(welcomeDraft.mode==='home'));
-    }
-    queueWelcomeChoiceCue();
-  }
+  let suggestedHome=names.includes(welcomeDraft?.locality) ? welcomeDraft.locality : '';
   function openWelcome(){
     if(!welcomeNeeded || !splash.hidden || !$('welcomeOverlay').hidden)return;
-    for(const name of names){const option=document.createElement('option');option.value=name;option.textContent=name;$('welcomeLocality').append(option);}
-    $('welcomeOverlay').hidden=false;appContent.inert=true;
-    renderWelcome();
-    $('welcomeDialog').animate([{transform:'translateY(22px)',opacity:0},{transform:'translateY(0)',opacity:1}],{duration:reducedMotion()?0:320,easing:'ease-out'});
-    welcomeFocus();detectLocation();
-  }
-  async function moveWelcome(step){
-    if(welcomeBusy || !welcomeNeeded)return;
-    welcomeBusy=true;stopWelcomeChoiceCue();
-    const direction=step>welcomeDraft.step?1:-1;
-    const body=$('welcomeBody');
-    await body.animate([{opacity:1,transform:'translateX(0)'},{opacity:0,transform:`translateX(${-direction*18}px)`}],{duration:reducedMotion()?0:120}).finished;
-    welcomeDraft.step=step;saveWelcomeDraft();renderWelcome();
-    await body.animate([{opacity:0,transform:`translateX(${direction*18}px)`},{opacity:1,transform:'translateX(0)'}],{duration:reducedMotion()?0:180,easing:'ease-out'}).finished;
-    welcomeBusy=false;welcomeFocus();queueWelcomeChoiceCue();
+    const select=$('welcomeLocality');
+    for(const name of names)select.add(new Option(name,name));
+    select.value=suggestedHome;
+    $('welcomeNext').disabled=!select.value;
+    $('welcomeOverlay').hidden=false;
+    appContent.inert=true;
+    select.focus({preventScroll:true});
   }
   function suggestWelcomeLocality(){
     if(!welcomeNeeded)return;
-    if(!welcomeDraft.locality && detected){welcomeDraft.locality=detected;saveWelcomeDraft();renderWelcome();}
-    $('welcomeGps').textContent=detected?`Your location suggests ${detected}. Choose the locality you call home.`:'Location is unavailable. Choose your home from the list.';
+    if(detected && !$('welcomeLocality').value){
+      suggestedHome=detected;
+      $('welcomeLocality').value=detected;
+      $('welcomeNext').disabled=false;
+    }
+    $('welcomeGps').textContent=detected?'Suggested locality: '+detected+'. Confirm below.':'Location is unavailable. Choose your home from the list.';
   }
-  function finishWelcome(allow){
-    if(welcomeBusy || !welcomeNeeded || welcomeDraft.step!==3)return;
-    saveHomeLocality(welcomeDraft.locality);
-    followLocation=welcomeDraft.mode==='auto';temporaryView=null;
-    localStorage.setItem(followLocationKey,String(followLocation));
-    localStorage.setItem(welcomeCompleteKey,'true');localStorage.removeItem(welcomeDraftKey);
-    welcomeNeeded=false;
-    setAnalyticsChoice(allow);analyticsEvent('onboarding_complete');render();
-    $('welcomeSummary').textContent=`Home: ${selected} · ${followLocation?'Auto':'Home'} mode. You can change your choices in Settings.`;
-    renderWelcome();welcomeFocus();
-    welcomeReadyTimer=setTimeout(closeWelcome,1800);
-  }
-  function closeWelcome(){
-    if(welcomeNeeded)return;
-    clearTimeout(welcomeReadyTimer);$('welcomeOverlay').hidden=true;appContent.inert=false;$('settingsButton').focus({preventScroll:true});
-  }
-  $('welcomeLocality').onchange=()=>{welcomeDraft.locality=$('welcomeLocality').value;saveWelcomeDraft();renderWelcome();};
-  $('welcomeLocate').onclick=()=>{lastGpsAttempt=0;$('welcomeGps').textContent='Finding your locality…';detectLocation();};
-  for(const mode of ['auto','home'])$(mode==='auto'?'welcomeAuto':'welcomeHome').onclick=()=>{welcomeDraft.mode=mode;saveWelcomeDraft();renderWelcome();};
-  $('welcomeNext').onclick=()=>{
-    if(welcomeDraft.step===1&&welcomeDraft.locality){saveHomeLocality(welcomeDraft.locality);moveWelcome(2);}
-    else if(welcomeDraft.step===2&&welcomeDraft.mode){followLocation=welcomeDraft.mode==='auto';localStorage.setItem(followLocationKey,String(followLocation));moveWelcome(3);}
+  $('welcomeLocality').onchange=()=>{
+    suggestedHome=$('welcomeLocality').value;
+    localStorage.setItem(welcomeDraftKey,JSON.stringify({locality:suggestedHome}));
+    $('welcomeNext').disabled=!suggestedHome;
   };
-  $('welcomeBack').onclick=()=>moveWelcome(welcomeDraft.step-1);
-  $('welcomeAllow').onclick=()=>finishWelcome(true);
-  $('welcomeDecline').onclick=()=>finishWelcome(false);
-  $('welcomeStart').onclick=closeWelcome;
+  $('welcomeLocate').onclick=()=>{lastGpsAttempt=0;$('welcomeGps').textContent='Finding your locality…';detectLocation();};
+  $('welcomeNext').onclick=()=>{
+    const locality=$('welcomeLocality').value;
+    if(!welcomeNeeded || !names.includes(locality))return;
+    dayOffset=0;viewedDate=null;saveHomeLocality(locality);
+    followLocation=false;temporaryView=null;
+    localStorage.setItem(followLocationKey,'false');
+    localStorage.setItem(welcomeCompleteKey,'true');localStorage.removeItem(welcomeDraftKey);
+    welcomeNeeded=false;$('welcomeOverlay').hidden=true;appContent.inert=false;
+    render();$('bagArea').setAttribute('tabindex','-1');$('bagArea').focus({preventScroll:true});
+  };
   $('welcomeOverlay').addEventListener('keydown',e=>{
-    if(e.key==='Escape'){e.preventDefault();if(!welcomeNeeded)closeWelcome();return;}
+    if(e.key==='Escape'){e.preventDefault();return;}
     if(e.key!=='Tab')return;
     const nodes=[...$('welcomeDialog').querySelectorAll('button,select,a[href]')].filter(n=>!n.disabled&&n.getClientRects().length);
     const first=nodes[0],last=nodes[nodes.length-1];
@@ -1120,7 +1031,7 @@
   panel.addEventListener('touchend',()=>finishSettingsGesture(),{passive:true});
   panel.addEventListener('touchcancel',()=>finishSettingsGesture(true),{passive:true});
   document.addEventListener('keydown',e=>{if(!splash.hidden || !$('welcomeOverlay').hidden)return;if(!$('localityOverlay').hidden){localityKeydown(e);return;}if(!$('calendarOverlay').hidden){calendarKeydown(e);return;}if(!$('timeOverlay').hidden){timeInfoKeydown(e);return;}if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();if(e.key==='Tab'){const nodes=[...$('settingsDialog').querySelectorAll('button:not([hidden]),select,input')].filter(n=>!n.disabled);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
-  document.addEventListener('visibilitychange',()=>{queueSupportInvitation();if(!document.hidden){render();loadDonation();detectLocation();}});
+  document.addEventListener('visibilitychange',()=>{queueSupportInvitation();if(!document.hidden){render();loadDonation();if(followLocation&&!welcomeNeeded)detectLocation();}});
   setInterval(()=>{if(dayOffset<=0&&!homeGesture&&!changingDay)render();},60000);
   function syncViewport(){
     const height=window.BAG_DAY_VIEWPORT?.layout().height||window.innerHeight;
@@ -1143,7 +1054,7 @@
   render();
   loadDonation();
   loadAnalytics();
-  if(!welcomeNeeded)detectLocation();
+  if(!welcomeNeeded&&followLocation)detectLocation();
   if(window.BAG_DAY_STARTUP){
     window.BAG_DAY_STARTUP.reveal({beforeReveal:render,onComplete:finishSplash}).catch(()=>{});
   }else{

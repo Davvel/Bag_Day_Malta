@@ -1,5 +1,5 @@
-import {matchesSelection} from './selection.mjs?v=1.1.127';
-import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.127';
+import {matchesSelection} from './selection.mjs?v=1.1.128';
+import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.128';
 export const eventSymbol=item=>item.icon_emoji||'📌';
 export const longDate=date=>new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
 export function eventIndex(pages,date=today()){
