@@ -214,3 +214,22 @@ html[data-zoomed="true"] body.public-notices .shell{height:auto;min-height:100dv
 html[data-zoomed="true"] .public-notices #sections{overflow:visible;flex:none}
 .public-notices .shell .noticeboard-header{grid-template-columns:32px minmax(0,1fr) 32px;gap:5px}
 .public-notices .day-events{padding-top:0}
+/* v1.1.118: clear grouped result headings and compact help. */
+.public-notices .source-checks{align-items:center;justify-content:space-between;gap:3px}
+.public-notices .source-checks label{font-size:13px;gap:3px}
+.notice-help{border:0;background:transparent;color:var(--nb-ink);font-size:12px;padding:4px;min-height:32px;white-space:nowrap}
+.notice-help-tips{padding-left:20px;font-size:14px}.notice-help-tips li{margin-bottom:9px}
+.public-notices .compact-locality select{font-size:18px;font-weight:750}
+.result-group-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--accent)}
+.result-group-heading h2{font-size:17px}.result-group-icon{display:grid;place-items:center}.result-group-icon svg{width:27px;height:27px}
+.result-locality{font-size:21px;font-weight:750;margin:0 0 3px;overflow-wrap:anywhere}
+.result-filters{font-size:12px;color:var(--nb-secondary);margin:0 0 8px}
+.public-notices .result-group{padding:10px;margin-bottom:8px}
+.day-results-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px}
+.day-results-heading h2{font-size:16px}
+.day-circle-close{display:grid;place-items:center;flex:none;width:36px;height:36px;border:2px solid var(--nb-border);border-radius:50%;background:var(--nb-soft);color:var(--nb-ink);font-size:25px;line-height:1;padding:0}
+.public-notices .day-list-panel{background:transparent;border:0;padding:0}
+.calendar-grid-window{position:relative;overflow:hidden}
+.calendar-incoming{position:absolute;inset:0;width:100%;pointer-events:none;background:var(--nb-card)}
+.public-notices .steady-calendar .event-month-grid{grid-template-rows:repeat(6,clamp(44px,calc((100svh - 290px - var(--noticeboard-dock-height,0px))/6),82px))}
+@media(max-width:350px){.public-notices .source-checks label{font-size:12px}.notice-help{font-size:11px}.public-notices .source-checks input{width:14px;height:14px}}
