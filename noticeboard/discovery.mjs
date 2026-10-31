@@ -1,4 +1,4 @@
-import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.118';
+import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.119';
 export const eventSymbol=item=>item.icon_emoji||'📌';
 export const longDate=date=>new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
 export function eventIndex(pages,date=today()){
@@ -45,4 +45,11 @@ export function pageNoticeResults(groups,limit=NOTICE_SEARCH_PAGE_SIZE,byLocalit
  const all=groups.flatMap(g=>g.items).sort(byLocality?compareLocalityNotices:(a,b)=>compareNotices(a,b)||a.locality.localeCompare(b.locality)||a.section.localeCompare(b.section));
  const selected=new Set(all.slice(0,Math.max(0,limit)));
  return {total:all.length,shown:selected.size,groups:groups.map(g=>({...g,items:g.items.filter(i=>selected.has(i))})).filter(g=>g.items.length)};
+}
+
+// Automatic source selection considers all filtered results for the visible period.
+export function noticeboardTab(items,{view='list',month='',day='',requested=null}={}){
+ const order=['council','church','police'];if(order.includes(requested))return requested;
+ const period=items.filter(i=>view==='calendar'?i.kind==='event'&&i.end_date.startsWith(month):view==='day'?i.kind==='event'&&i.end_date===day:true);
+ const available=order.filter(k=>period.some(i=>i.section===k));return available.length===1?available[0]:'council';
 }
