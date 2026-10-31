@@ -272,7 +272,7 @@ html[data-zoomed="true"] .public-notices #root>.source-panel{overflow:visible;fl
 .public-notices .filter-warning button{padding:4px 7px;font-size:12px}
 @media(max-width:350px){.public-notices .noticeboard-header .noticeboard-title{font-size:16px!important}.public-notices .search-view-row .view-switch button{font-size:12px;gap:3px}.public-notices .view-switch button svg{width:16px;height:16px}}
 
-/* v1.1.121: the selected tab and its panel form one continuous folder. */
+/* v1.1.123: the selected tab and its panel form one continuous folder. */
 .public-notices #root>.source-panel{border:0;border-radius:0;background:transparent;overflow:visible}
 .source-tabs{border-bottom:2px solid white;align-items:stretch;position:relative}
 .source-tab{position:relative;gap:4px;padding:6px 4px;min-height:46px;border:2px solid transparent;border-bottom:0;border-radius:13px 13px 0 0;background:var(--nb-card)}
@@ -290,7 +290,4 @@ html[data-zoomed="true"] .public-notices #root>.source-panel{overflow:visible;fl
 .source-panel.council #sections{border-top-left-radius:0}
 .source-panel.police #sections{border-top-right-radius:0}
 .public-notices .source-panel #sections{position:relative;z-index:0}
-
-/* List swipes share the browser's vertical scrolling and native pinch zoom. */
-body.public-notices[data-notice-view="list"] #sections{touch-action:pan-y pinch-zoom}
-html[data-zoomed="true"] body.public-notices[data-notice-view="list"] #sections{touch-action:auto}
+.notice-multiselect{position:relative;min-width:0;margin:1.2rem 0;padding:1rem;border:1px solid var(--border,#28566d);border-radius:14px}.notice-multiselect legend{font-weight:700;padding:0 .35rem}.selection-count{display:block;text-align:right;font-size:.9rem;color:var(--muted,#b4ccdd)}.notice-multiselect .hint{margin:.35rem 0 .75rem}.selection-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.7rem}.selection-chip{background:#1664ad;color:#fff;border:1px solid #3186d0;border-radius:12px;padding:.65rem .8rem;min-height:44px;max-width:100%;overflow-wrap:anywhere;text-align:left}.notice-multiselect summary{display:inline-block;cursor:pointer;padding:.65rem .9rem;min-height:44px;box-sizing:border-box}.selection-choices{display:grid;gap:.3rem;max-height:250px;overflow:auto;margin-top:.65rem}.selection-choices label{display:flex;align-items:center;gap:.65rem;margin:0;padding:.5rem;min-height:44px}.selection-choices input{width:22px;height:22px;margin:0;flex:0 0 22px}.selection-choices label:has(input:disabled){opacity:.5}

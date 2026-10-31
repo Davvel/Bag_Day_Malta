@@ -1,13 +1,13 @@
-import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.122';
-import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth} from './calendar-model.mjs?v=1.1.122';
-import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.122';
-import {noticeLink} from './links.mjs?v=1.1.122';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.122';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.122';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.122';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.122';
+import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.123';
+import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth} from './calendar-model.mjs?v=1.1.123';
+import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.123';
+import {noticeLink} from './links.mjs?v=1.1.123';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.123';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.123';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.123';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.123';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
-let pages=[],loaded=false,error='',filterWarning='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,listBusy=false,dragEpoch=0,renderEpoch=0,searchTimer=null;
+let pages=[],loaded=false,error='',filterWarning='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,renderEpoch=0,searchTimer=null;
 const params=()=>new URLSearchParams(location.search);
 const savedLocality=()=>{try{return localStorage.getItem('bag-day-locality-v1')}catch{return null}};
 const homeLocality=savedLocality()||'Żejtun';
@@ -40,7 +40,7 @@ const sourceOrder=['council','church','police'];
 let activeTab='council';
 const retainedTab=()=>view()==='list'?null:activeTab;
 function compactToolbar(names){const mode=view(),o=searchOptions();return `<div class="notice-controls"><div class="notice-half-row search-view-row"><form id="noticeSearch" class="inline-search" role="search"><input id="noticeQuery" type="search" name="q" aria-label="Search notices" placeholder="Search notices…" autocomplete="off" value="${esc(o.q)}"><button aria-label="Search notices" type="submit">${icon('search')}</button></form><div class="view-switch" role="group" aria-label="Noticeboard view"><button type="button" data-view="list" aria-pressed="${mode==='list'}">${icon('list')}<span>List</span></button><button type="button" data-view="calendar" aria-pressed="${mode!=='list'}">${icon('calendar')}<span>Calendar</span></button></div></div><div class="notice-half-row locality-controls"><label class="compact-locality"><select id="locality" aria-label="Noticeboard locality"><option value="" ${o.allLocalities?'selected':''}>All localities</option>${names.map(n=>`<option value="${esc(n)}" ${!o.allLocalities&&n===locality?'selected':''}>${esc(n)}</option>`).join('')}</select></label><label class="locality-scope"><span>All localities</span><span class="locality-toggle"><input id="localityScope" type="checkbox" role="switch" aria-label="Show all localities" ${o.allLocalities?'checked':''}><span aria-hidden="true"></span></span></label></div><div class="notice-half-row category-audience-row"><select id="noticeCategory" aria-label="Category">${optionSelect('categories',o.category,true)}</select><select id="noticeAudience" aria-label="Audience">${optionSelect('audiences',o.audience,true)}</select></div></div>`}
-function sourcePanel(){return `<div class="source-panel section council" id="sourcePanel"><div class="source-tabs" role="tablist" aria-label="Noticeboard source">${sourceOrder.map(k=>`<button type="button" role="tab" class="source-tab ${k}" id="source-${k}" data-source-tab="${k}" aria-selected="false" aria-controls="sections">${icon(sections[k].icon)}<span class="source-label">${esc(sections[k].name)}</span><span class="source-count" id="count-${k}" aria-hidden="true">0</span></button>`).join('')}</div><div id="sections" ${view()==='list'?'data-list-surface':''} role="tabpanel" aria-labelledby="source-council"></div></div>`}
+function sourcePanel(){return `<div class="source-panel section council" id="sourcePanel"><div class="source-tabs" role="tablist" aria-label="Noticeboard source">${sourceOrder.map(k=>`<button type="button" role="tab" class="source-tab ${k}" id="source-${k}" data-source-tab="${k}" aria-selected="false" aria-controls="sections">${icon(sections[k].icon)}<span class="source-label">${esc(sections[k].name)}</span><span class="source-count" id="count-${k}" aria-hidden="true">0</span></button>`).join('')}</div><div id="sections" role="tabpanel" aria-labelledby="source-council"></div></div>`}
 function chooseSource(groups,mode=view(),month=currentMonth(),requested=params().get('tab')){return noticeboardTab(groups.flatMap(g=>g.items),{view:mode,month,day:params().get('day')||'',requested})}
 function showAllNotices(){clearTimeout(searchTimer);searchTimer=null;navigate({q:null,category:null,audience:null,section:null,sources:null,tab:retainedTab(),help:null,filters:null,entry:null,page:null},{replace:view()==='day'})}
 function updateTextSearch(value){
@@ -146,44 +146,37 @@ async function selectCalendarMonth(target){
  }finally{clearDrag();monthBusy=false}
 }
 function changeMonth(delta){return selectCalendarMonth(moveMonth(currentMonth(),delta))}
-async function changeListTab(direction){
- if(view()!=='list'||listBusy||blocked())return;
- const index=sourceOrder.indexOf(activeTab),next=sourceOrder[index+direction],surface=root.querySelector('#sections'),epoch=renderEpoch,gestureEpoch=dragEpoch;
- const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
- listBusy=true;
- const animate=async(element,frames)=>{if(!element?.animate||reduced)return;const animation=element.animate(frames,{duration:180,easing:'ease-out'});try{await animation.finished}catch{}finally{animation.cancel()}};
- try{
-  const start=surface.style.transform||'translateX(0px)';
-  if(!next){await animate(surface,[{transform:start},{transform:`translateX(${-direction*18}px)`},{transform:'translateX(0px)'}]);return}
-  await animate(surface,[{transform:start,opacity:1},{transform:`translateX(${-direction*70}px)`,opacity:0}]);
-  if(blocked()||view()!=='list'||epoch!==renderEpoch||gestureEpoch!==dragEpoch)return;
-  navigate({tab:next,section:null,sources:null,entry:null,page:null});
-  await animate(root.querySelector('#sections'),[{transform:`translateX(${direction*70}px)`,opacity:0},{transform:'translateX(0px)',opacity:1}]);
- }finally{surface.style.transform='';listBusy=false}
-}
 const blocked=()=>window.BAG_DAY_VIEWPORT?.gesturesBlocked()||Number(window.visualViewport?.scale||1)>1.01;
-function clearDrag(){dragEpoch++;const list=root.querySelector?.('[data-list-surface]');if(list)list.style.transform='';const surface=root.querySelector?.('[data-month-surface]');if(surface){surface.style.transform='';surface.style.filter='';delete surface.dataset.dragX}swipe=null}
-root.addEventListener('touchstart',e=>{clearDrag();if(blocked()||monthBusy||listBusy||e.touches.length!==1||!(view()==='list'?e.target.closest('[data-list-surface]'):e.target.closest('[data-calendar]'))||e.target.closest('input,select'))return;const t=e.touches[0];swipe={x:t.clientX,y:t.clientY,dx:0,dy:0,axis:null,mode:view()};},{passive:true});
+function clearDrag(){const surface=root.querySelector?.('[data-month-surface]');if(surface){surface.style.transform='';surface.style.filter='';delete surface.dataset.dragX}swipe=null}
+root.addEventListener('touchstart',e=>{clearDrag();if(blocked()||monthBusy||e.touches.length!==1||!e.target.closest('[data-calendar]')||e.target.closest('input,select'))return;const t=e.touches[0];swipe={x:t.clientX,y:t.clientY,dx:0,dy:0,axis:null};},{passive:true});
 root.addEventListener('touchmove',e=>{
  if(blocked()||e.touches.length!==1){clearDrag();return}if(!swipe)return;
  const t=e.touches[0];swipe.dx=t.clientX-swipe.x;swipe.dy=t.clientY-swipe.y;
  if(!swipe.axis&&Math.max(Math.abs(swipe.dx),Math.abs(swipe.dy))>6)swipe.axis=Math.abs(swipe.dx)>Math.abs(swipe.dy)*1.5?'x':'y';
  if(swipe.axis!=='x')return;if(e.cancelable)e.preventDefault();
- const surface=root.querySelector?.(swipe.mode==='list'?'[data-list-surface]':'[data-month-surface]');if(!surface)return;
+ const surface=root.querySelector?.('[data-month-surface]');if(!surface)return;
  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;if(reduced)return;
  const width=surface.getBoundingClientRect().width||300,dx=Math.max(-width*.65,Math.min(width*.65,swipe.dx));
- if(swipe.mode==='list'){const next=sourceOrder[sourceOrder.indexOf(activeTab)+(dx<0?1:-1)];surface.style.transform=`translateX(${dx*(next?1:.2)}px)`;return}
  surface.dataset.dragX=String(dx);surface.style.transform=pageTurnTransform(dx,width);surface.style.filter=`brightness(${1-Math.abs(dx)/width*.16})`;
 },{passive:false});
 root.addEventListener('touchend',e=>{
  const g=swipe;swipe=null;if(!g||e.touches.length||blocked()){clearDrag();return}
- if(g.mode==='list'){if(g.axis==='x'){suppressUntil=performance.now()+500;if(Math.abs(g.dx)>55){changeListTab(g.dx<0?1:-1);return}const surface=root.querySelector('[data-list-surface]'),start=surface?.style.transform;if(start&&surface.animate&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){const a=surface.animate([{transform:start},{transform:'translateX(0px)'}],{duration:140,easing:'ease-out'});a.finished.catch(()=>{}).finally(()=>a.cancel())}}clearDrag();return}
  if(g.axis==='x'){suppressUntil=performance.now()+500;if(Math.abs(g.dx)>55){changeMonth(g.dx<0?1:-1);return}}
  settleCalendarDrag(root.querySelector?.('[data-month-surface]'));
 },{passive:true});
-root.addEventListener('click',e=>{if(e.detail&&performance.now()<suppressUntil&&e.target.closest('#sections')){e.preventDefault();e.stopImmediatePropagation()}},true);
 for(const name of ['touchcancel','bag-day-gesture-cancel','blur','pagehide','pageshow'])window.addEventListener(name,clearDrag);
 dialog.addEventListener('cancel',e=>{e.preventDefault();closeEntry()});
+// List gestures preserve vertical scrolling and leave magnified panning to the browser.
+let listSwipe=null,listSettling=false;
+const listSurface=()=>root.querySelector('#sections');
+const reducedMotion=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+function clearListDrag(){listSwipe=null;const el=listSurface();if(el){el.style.transform='';el.style.transition='';el.style.opacity=''}}
+function settleList(){const el=listSurface();if(el){el.style.transition=reducedMotion()?'':'transform 180ms ease-out';el.style.transform=''}listSwipe=null}
+root.addEventListener('touchstart',e=>{if(listSettling)return;clearListDrag();if(view()!=='list'||blocked()||e.touches.length!==1||!e.target.closest('#sourcePanel')||e.target.closest('input,select,textarea,summary'))return;const t=e.touches[0];listSwipe={x:t.clientX,y:t.clientY,dx:0,dy:0,axis:null}},{passive:true});
+root.addEventListener('touchmove',e=>{if(blocked()||e.touches.length!==1){clearListDrag();return}if(!listSwipe)return;const t=e.touches[0],g=listSwipe;g.dx=t.clientX-g.x;g.dy=t.clientY-g.y;if(!g.axis&&Math.max(Math.abs(g.dx),Math.abs(g.dy))>8)g.axis=Math.abs(g.dx)>Math.abs(g.dy)*1.5?'x':'y';if(g.axis!=='x')return;if(e.cancelable)e.preventDefault();const el=listSurface();if(!el||reducedMotion())return;const next=sourceOrder.indexOf(activeTab)+(g.dx<0?1:-1),edge=next<0||next>=sourceOrder.length;el.style.transition='none';el.style.transform=`translateX(${Math.max(-160,Math.min(160,g.dx*(edge?.2:.65)))}px)`},{passive:false});
+root.addEventListener('touchend',async e=>{const g=listSwipe;listSwipe=null;if(!g||e.touches.length||blocked()||view()!=='list'){clearListDrag();return}if(g.axis!=='x'){settleList();return}suppressUntil=performance.now()+500;const next=sourceOrder.indexOf(activeTab)+(g.dx<0?1:-1);if(Math.abs(g.dx)<55||next<0||next>=sourceOrder.length){settleList();return}listSettling=true;try{const el=listSurface();if(el&&!reducedMotion()){el.style.transition='transform 120ms ease-out, opacity 120ms ease-out';el.style.transform=`translateX(${g.dx<0?-160:160}px)`;el.style.opacity='0';await new Promise(resolve=>setTimeout(resolve,120))}if(blocked()||view()!=='list')return;navigate({tab:sourceOrder[next],entry:null,page:null},{scroll:false});const panel=listSurface();if(panel)panel.scrollTop=0}finally{clearListDrag();listSettling=false}},{passive:true});
+root.addEventListener('click',e=>{if(e.detail&&performance.now()<suppressUntil){e.preventDefault();e.stopImmediatePropagation()}},true);
+for(const name of ['touchcancel','bag-day-gesture-cancel','blur','pagehide','pageshow'])window.addEventListener(name,clearListDrag);
 async function load(){
  const seq=++generation;
  // Each completion updates independently; a slow filter request cannot delay notices.

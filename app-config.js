@@ -1,6 +1,6 @@
 /* Single source of truth for the frontend release. Change the version here only. */
 (()=>{
- const config=Object.freeze({version:'1.1.122',splashEnabled:false});
+ const config=Object.freeze({version:'1.1.123',splashEnabled:false});
  globalThis.BAG_DAY_CONFIG=config;
  if(typeof document==='undefined')return; // Also imported by the offline workers.
  function showVersion(){
