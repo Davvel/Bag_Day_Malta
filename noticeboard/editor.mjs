@@ -1,11 +1,11 @@
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.115';
-import {loadOptions,optionSelect,noticeTags} from './options.mjs?v=1.1.115';
-import {openSlotHelp} from './editor-help.mjs?v=1.1.115';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.115';
-import {normaliseNoticeURL,noticeLink} from './links.mjs?v=1.1.115';
-import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.115';
-import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.115';
-import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.115';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.116';
+import {loadOptions,optionSelect,noticeTags} from './options.mjs?v=1.1.116';
+import {openSlotHelp} from './editor-help.mjs?v=1.1.116';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.116';
+import {normaliseNoticeURL,noticeLink} from './links.mjs?v=1.1.116';
+import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.116';
+import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.116';
+import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.116';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0;
 function updateEditorTitle(){const title=(activeSection?sections[activeSection].name:'Community')+' Noticeboard Editor';const header=document.querySelector('#noticeboardTitle');if(header)header.textContent=title;document.title=title+' · Bag Day Malta'}
 updateEditorTitle();

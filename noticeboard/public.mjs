@@ -1,21 +1,28 @@
-import {calendarDays,calendarContext,calendarMonthCells} from './calendar-model.mjs?v=1.1.115';
-import {loadOptions,optionSelect,noticeTags,optionLabel} from './options.mjs?v=1.1.115';
-import {noticeLink} from './links.mjs?v=1.1.115';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.115';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.115';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.115';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth} from './discovery.mjs?v=1.1.115';
+import {animateCalendarGrid} from './calendar-motion.mjs?v=1.1.116';
+import {calendarDays,calendarContext,calendarMonthCells,calendarBounds,boundedCalendarMonth} from './calendar-model.mjs?v=1.1.116';
+import {loadOptions,optionSelect,noticeTags,optionLabel} from './options.mjs?v=1.1.116';
+import {noticeLink} from './links.mjs?v=1.1.116';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.116';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.116';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.116';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth} from './discovery.mjs?v=1.1.116';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog'),filterDialog=document.querySelector('#filterDialog');
-let pages=[],loaded=false,error='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',pendingFilters=null,renderedURL=location.href;
+let pages=[],loaded=false,error='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',pendingFilters=null,renderedURL=location.href,monthBusy=false,renderEpoch=0;
 const params=()=>new URLSearchParams(location.search);
 const savedLocality=()=>{try{return localStorage.getItem('bag-day-locality-v1')}catch{return null}};
-let locality=params().get('locality')||savedLocality()||'Żejtun';
+const homeLocality=savedLocality()||'Żejtun';
+let locality=params().get('locality')||homeLocality;
+// New visits and reloads return to the saved Home locality. In-document Back
+// and browser history restoration retain the current browsing context.
+const restoringVisit=performance.getEntriesByType?.('navigation')?.[0]?.type==='back_forward'&&history.state?.noticeboard;
+if(!restoringVisit&&!params().get('entry')){const u=new URL(location.href);u.searchParams.set('locality',homeLocality);u.searchParams.delete('all');history.replaceState(history.state,'',u);locality=homeLocality;}
+
 if(params().get('audience')==='all'||params().get('view')==='search'){
  const u=new URL(location.href);if(u.searchParams.get('audience')==='all')u.searchParams.delete('audience');if(u.searchParams.get('view')==='search')u.searchParams.delete('view');history.replaceState(history.state,'',u);
 }
 function section(){return sections[params().get('section')]?params().get('section'):null}
 function view(){return ['calendar','day'].includes(params().get('view'))?params().get('view'):'list'}
-function currentMonth(){const m=params().get('month')||'';return /^\d{4}-(0[1-9]|1[0-2])$/.test(m)?m:today().slice(0,7)}
+function currentMonth(){return boundedCalendarMonth(params().get('month'),today())}
 function href(patch){const u=new URL(location.href);for(const [k,v] of Object.entries(patch)){if(v===null||v==='')u.searchParams.delete(k);else u.searchParams.set(k,v)}return u.pathname+u.search}
 function rememberPosition(){history.replaceState({...history.state,noticeScroll:window.scrollY||0,noticeLimit:searchLimit,noticeDayLimit:dayLimit},'',location.href)}
 function restorePosition(){searchLimit=history.state?.noticeLimit||NOTICE_SEARCH_PAGE_SIZE;dayLimit=history.state?.noticeDayLimit||NOTICE_SEARCH_PAGE_SIZE;renderBoards();requestAnimationFrame(()=>window.scrollTo(0,history.state?.noticeScroll||0))}
@@ -31,20 +38,20 @@ function returnToCalendar(){if(history.state?.noticeDay)history.back();else navi
 function searchOptions(){const p=params();return {q:p.get('q')||'',locality,allLocalities:p.get('all')==='1',category:p.get('category')||'',audience:p.get('audience')==='all'?'':p.get('audience')||''}}
 function contextText(){const o=searchOptions();return calendarContext({...o,section:sections[section()]?.name||'',category:o.category?optionLabel('categories',o.category):'',audience:o.audience?optionLabel('audiences',o.audience):''})}
 function filterCount(){const o=searchOptions();return [o.category,o.audience,o.q.trim()].filter(Boolean).length}
-function compactToolbar(names){const mode=view(),all=params().get('all')==='1',count=filterCount();return `<div class="notice-controls"><div class="compact-toolbar"><label class="compact-locality"><span class="sr-only">Locality</span><select id="locality" aria-label="Change noticeboard locality"><option value="*" ${all?'selected':''}>All localities</option>${names.map(n=>`<option value="${esc(n)}" ${!all&&n===locality?'selected':''}>${esc(n)}</option>`).join('')}</select></label><div class="view-switch" role="group" aria-label="Noticeboard view"><button type="button" data-view="list" aria-pressed="${mode==='list'}">List</button><button type="button" data-view="calendar" aria-pressed="${mode!=='list'}">Calendar</button></div><button type="button" id="openFilters" class="filter-button" aria-haspopup="dialog" aria-controls="filterDialog">${icon('filter')}<span>Filters${count?' · '+count:''}</span></button></div><button class="compact-context" id="contextFilters" aria-label="${esc(contextText())}. Edit filters" title="${esc(contextText())}">${esc(contextText())}</button></div>`}
+function compactToolbar(names){const mode=view(),all=params().get('all')==='1',count=filterCount();return `<div class="notice-controls"><div class="compact-toolbar"><div class="locality-controls"><label class="compact-locality"><span class="sr-only">Locality</span><select id="locality" aria-label="Change noticeboard locality">${names.map(n=>`<option value="${esc(n)}" ${n===locality?'selected':''}>${esc(n)}</option>`).join('')}</select></label><label class="locality-scope"><span>All localities</span><span class="locality-toggle"><input id="localityScope" type="checkbox" role="switch" aria-label="Show notices in all localities" ${all?'checked':''}><span aria-hidden="true"></span></span></label></div><div class="view-switch" role="group" aria-label="Noticeboard view"><button type="button" data-view="list" aria-pressed="${mode==='list'}">List</button><button type="button" data-view="calendar" aria-pressed="${mode!=='list'}">Calendar</button></div><button type="button" id="openFilters" class="filter-button" aria-haspopup="dialog" aria-controls="filterDialog">${icon('filter')}<span>Filters${count?' · '+count:''}</span></button></div><button class="compact-context" id="contextFilters" aria-label="${esc(contextText())}. Edit filters" title="${esc(contextText())}">${esc(contextText())}</button></div>`}
 function openFilters(){if(filterDialog.open)return;rememberPosition();history.pushState({...history.state,noticeFilter:true},'',href({filters:'1',entry:null,page:null}));renderFilterPanel()}
 function closeFilters(){if(history.state?.noticeFilter)history.back();else{history.replaceState(history.state,'',href({filters:null}));filterDialog.close()}}
 function renderFilterPanel(){
  if(filterDialog.open)return;const o=searchOptions();
- filterDialog.innerHTML=`<div class="sheet-handle" aria-hidden="true"></div><div class="filter-sheet-heading"><h2>Filter notices</h2><button type="button" id="closeFilters" class="sheet-close" aria-label="Close filters">×</button></div><form id="filterForm"><label>Search<input type="search" name="q" autocomplete="off" placeholder="Find a notice…" value="${esc(o.q)}"></label><fieldset class="scope-choice"><legend>Localities</legend><label><input type="radio" name="scope" value="local" ${!o.allLocalities?'checked':''}> This locality</label><label><input type="radio" name="scope" value="all" ${o.allLocalities?'checked':''}> All localities</label></fieldset><label>Noticeboard<select name="section"><option value="">All noticeboards</option>${Object.entries(sections).map(([id,s])=>`<option value="${id}" ${section()===id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label><label>Category<select name="category">${optionSelect('categories',o.category,true)}</select></label><label>Target audience<select name="audience">${optionSelect('audiences',o.audience,true)}</select></label><div class="filter-actions"><button type="button" class="secondary" id="clearFilters">Clear</button><button class="primary" type="submit">Apply filters</button></div></form>`;
+ filterDialog.innerHTML=`<div class="filter-sheet-heading"><h2>Filter notices</h2><button type="button" id="closeFilters" class="sheet-close" aria-label="Close filters">×</button></div><form id="filterForm"><label>Search<input type="search" name="q" autocomplete="off" placeholder="Find a notice…" value="${esc(o.q)}"></label><label>Noticeboard<select name="section"><option value="">All noticeboards</option>${Object.entries(sections).map(([id,s])=>`<option value="${id}" ${section()===id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label><label>Category<select name="category">${optionSelect('categories',o.category,true)}</select></label><label>Target audience<select name="audience">${optionSelect('audiences',o.audience,true)}</select></label><div class="filter-actions"><button type="button" class="secondary" id="clearFilters">Clear</button><button class="primary" type="submit">Apply filters</button></div></form>`;
  filterDialog.querySelector('#closeFilters').onclick=closeFilters;
  const form=filterDialog.querySelector('#filterForm');
- filterDialog.querySelector('#clearFilters').onclick=()=>{for(const key of ['q','section','category','audience'])form.elements[key].value='';form.elements.scope.value='local'};
+ filterDialog.querySelector('#clearFilters').onclick=()=>{for(const key of ['q','section','category','audience'])form.elements[key].value=''};
  form.onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));applyFilters(data)};
  filterDialog.showModal();
 }
 function applyFilters(data){
- const patch={q:String(data.q||'').trim(),section:sections[data.section]?data.section:null,category:data.category||null,audience:data.audience==='all'?null:data.audience||null,all:data.scope==='all'?'1':null,filters:null,entry:null,page:null};
+ const patch={q:String(data.q||'').trim(),section:sections[data.section]?data.section:null,category:data.category||null,audience:data.audience==='all'?null:data.audience||null,filters:null,entry:null,page:null};
  const previous=view()==='calendar'?(history.state?.noticeScroll||0):0;
  pendingFilters={patch,previous};filterDialog.close();if(history.state?.noticeFilter){history.back();return}commitFilters();
 }
@@ -65,11 +72,11 @@ function card(item,search=false){
 }
 function showDetails(item){dialog.innerHTML=`<div class="notice-modal-heading"><span class="pill">${esc(eventSymbol(item))} ${item.kind==='event'?esc(longDate(item.end_date)):'Information'}</span><button type="button" class="notice-circle-close" id="closeNotice" aria-label="Close notice" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><h2>${esc(item.title)}</h2><p class="hint">${esc(item.locality||locality)} · ${esc(sections[item.section||section()]?.name||'Community')}</p>${noticeTags(item)}<p class="modal-text">${esc(item.description)}</p>${noticeLink(item)}<div class="toolbar">${item.kind==='event'?`<a class="primary" href="${esc(calendarURL(item,item.locality||locality))}" target="_blank" rel="noopener">${icon('calendar')} Add to Google Calendar</a>`:''}</div>`;dialog.querySelector('#closeNotice').onclick=closeEntry;dialog.showModal();}
 function calendarHTML(items){
- const month=currentMonth(),day=params().get('day'),byDate=calendarDays(items),all=searchOptions().allLocalities,monthName=new Date(month+'-01T12:00:00Z').toLocaleDateString('en-GB',{month:'long',year:'numeric',timeZone:'UTC'});
- return `<div class="events-calendar steady-calendar" data-calendar data-month="${month}"><div class="steady-month-nav"><button type="button" class="month-arrow" data-month-step="-1" aria-label="Previous month">‹</button><label class="month-picker"><span>${esc(monthName)}</span><input type="month" id="eventMonth" value="${month}" aria-label="Calendar month"></label><button type="button" class="month-arrow" data-month-step="1" aria-label="Next month">›</button></div><div class="event-weekdays" aria-hidden="true">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<span>${d}</span>`).join('')}</div><div class="event-month-grid">${calendarMonthCells(month).map(date=>{
+ const limits=calendarBounds(today()),month=currentMonth(),day=params().get('day'),byDate=calendarDays(items),all=searchOptions().allLocalities,monthName=new Date(month+'-01T12:00:00Z').toLocaleDateString('en-GB',{month:'long',year:'numeric',timeZone:'UTC'});
+ return `<div class="events-calendar steady-calendar" data-calendar data-month="${month}"><div class="steady-month-nav"><button type="button" class="month-arrow" data-month-step="-1" aria-label="Previous month">‹</button><label class="month-picker"><span>${esc(monthName)}</span><input type="month" id="eventMonth" min="${limits.min}" max="${limits.max}" value="${month}" aria-label="Calendar month"></label><button type="button" class="month-arrow" data-month-step="1" aria-label="Next month">›</button></div><div class="event-weekdays" aria-hidden="true">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<span>${d}</span>`).join('')}</div><div class="calendar-grid-window"><div class="event-month-grid" data-month-surface>${calendarMonthCells(month).map(date=>{
  if(!date)return '<div class="empty-day" aria-hidden="true"></div>';const entries=byDate.get(date)||[],count=entries.length;
  return `<button type="button" class="event-day calendar-day ${date===today()?'is-today':''} ${date===day?'is-selected':''}" data-day="${date}" aria-pressed="${date===day}" aria-label="${esc(longDate(date))}: ${count} ${count===1?'notice':'notices'}"><span class="day-number">${Number(date.slice(-2))}</span>${count?`<span class="calendar-count"><strong>${count}</strong><span>${count===1?'notice':'notices'}</span></span>${!all?`<span class="calendar-day-symbols" aria-hidden="true">${entries.slice(0,2).map(i=>esc(eventSymbol(i))).join('')}</span>`:''}`:''}</button>`;
- }).join('')}</div><p class="calendar-footnote" role="status">${[...byDate.keys()].some(d=>d.startsWith(month))?'Tap a date to see its notices.':'No matching dated notices this month.'}</p></div>`;
+ }).join('')}</div></div><p class="calendar-footnote" role="status">${[...byDate.keys()].some(d=>d.startsWith(month))?'Tap a date to see its notices.':'No matching dated notices this month.'}</p></div>`;
 }
 function dayListHTML(items){
  const day=params().get('day')||'',valid=/^\d{4}-\d{2}-\d{2}$/.test(day)&&!Number.isNaN(Date.parse(day)),selected=valid?(calendarDays(items).get(day)||[]):[],identity=JSON.stringify([searchIdentity,section(),day]);
@@ -96,24 +103,37 @@ function renderBoards(){
  root.querySelectorAll('[data-open]').forEach(b=>b.onclick=e=>{if(e.detail&&(blocked()||performance.now()<suppressUntil))return;openEntry(lookup.get(b.dataset.open))});
  root.querySelectorAll('[data-day]').forEach(b=>b.onclick=e=>{if(e.detail&&(blocked()||performance.now()<suppressUntil))return;history.replaceState(history.state,'',href({day:b.dataset.day}));navigate({view:'day',day:b.dataset.day,month:currentMonth(),entry:null,page:null},{day:true});});
  root.querySelectorAll('[data-month-step]').forEach(b=>b.onclick=()=>changeMonth(Number(b.dataset.monthStep)));
- root.querySelector('#eventMonth')?.addEventListener('change',e=>{if(/^\d{4}-(0[1-9]|1[0-2])$/.test(e.target.value))navigate({month:e.target.value},{replace:true,scroll:false})});
+ root.querySelector('#eventMonth')?.addEventListener('change',e=>{if(/^\d{4}-(0[1-9]|1[0-2])$/.test(e.target.value))selectCalendarMonth(e.target.value)});
  root.querySelector('#backCalendar')?.addEventListener('click',returnToCalendar);
  root.querySelector('#moreDayResults')?.addEventListener('click',()=>{dayLimit+=NOTICE_SEARCH_PAGE_SIZE;renderBoards();root.querySelector('#moreDayResults')?.focus({preventScroll:true})});
 }
 function render(){
- const p=params();renderedURL=location.href;renderedDate=today();locality=p.get('locality')||locality;
+ const p=params();renderEpoch++;renderedURL=location.href;renderedDate=today();locality=p.get('locality')||locality;
  const names=localityNames(window.WASTE_DATA?.localities||[],pages,locality);locality=names.find(n=>localityKey(n)===localityKey(locality))||locality;syncNoticeboardSponsors(locality);
  const heading=document.querySelector('#noticeboardTitle');if(heading)heading.textContent='Community notices';document.body.dataset.noticeView=view();
  root.innerHTML=`${compactToolbar(names)}${error?`<p class="status error" role="alert">${esc(error)} <button id="retry" class="secondary">Try again</button></p>`:''}<div id="sections"></div>`;
  renderBoards();
- root.querySelector('#locality').onchange=e=>navigate({locality:e.target.value==='*'?locality:e.target.value,all:e.target.value==='*'?'1':null,day:null,view:view()==='day'?'calendar':view(),entry:null,page:null});
+ root.querySelector('#locality').onchange=e=>navigate({locality:e.target.value,all:null,day:null,view:view()==='day'?'calendar':view(),entry:null,page:null});
+ root.querySelector('#localityScope').onchange=e=>navigate({all:e.target.checked?'1':null,locality:e.target.checked?locality:homeLocality,day:null,view:view()==='day'?'calendar':view(),entry:null,page:null});
  root.querySelector('#openFilters').onclick=openFilters;root.querySelector('#contextFilters').onclick=openFilters;
  root.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{if(b.dataset.view==='calendar'&&view()==='day'){returnToCalendar();return}if(b.dataset.view===view())return;navigate({view:b.dataset.view,entry:null,page:null})});
  root.querySelector('#retry')?.addEventListener('click',load);
  if(p.get('filters')==='1'){if(!filterDialog.open)renderFilterPanel()}else if(filterDialog.open)filterDialog.close();
  const entry=p.get('entry');if(entry){const page=pages.find(r=>p.get('page')?r.page_id===p.get('page'):r.section===section()&&localityKey(r.locality_name)===localityKey(locality)),item=visibleItems(page?.csv,today()).find(i=>i.entry_id===entry);if(item){if(dialog.open)dialog.close();showDetails({...item,locality:page.locality_name,section:page.section,page_id:page.page_id})}else if(loaded){if(dialog.open)dialog.close();const el=document.createElement('p');el.className='status';el.textContent='This notice has expired or is no longer published.';root.prepend(el)}}else if(dialog.open)dialog.close();
 }
-function changeMonth(delta){if(view()!=='calendar')return;const month=moveMonth(currentMonth(),delta);if(month<'0001-01'||month>'9999-12')return;navigate({month},{replace:true,scroll:false})}
+async function selectCalendarMonth(target){
+ if(view()!=='calendar'||monthBusy||filterDialog.open||blocked())return;
+ const before=currentMonth(),direction=target<before?-1:1,{min,max}=calendarBounds(today()),surface=root.querySelector('[data-month-surface]'),reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
+ if(target===before)return;monthBusy=true;const epoch=renderEpoch;
+ try{
+  if(target<min||target>max){const note=root.querySelector('.calendar-footnote');if(note)note.textContent=target<min?'The current month is the earliest available.':'You can browse up to six months ahead.';await animateCalendarGrid(surface,direction,'bounce',reduced);return}
+  await animateCalendarGrid(surface,direction,'out',reduced);
+  if(blocked()||filterDialog.open||view()!=='calendar'||epoch!==renderEpoch)return;
+  navigate({month:target},{replace:true,scroll:false});
+  await animateCalendarGrid(root.querySelector('[data-month-surface]'),direction,'in',reduced);
+ }finally{monthBusy=false}
+}
+function changeMonth(delta){return selectCalendarMonth(moveMonth(currentMonth(),delta))}
 filterDialog.addEventListener('cancel',e=>{e.preventDefault();closeFilters()});
 const blocked=()=>window.BAG_DAY_VIEWPORT?.gesturesBlocked()||Number(window.visualViewport?.scale||1)>1.01;
 root.addEventListener('touchstart',e=>{swipe=null;if(blocked()||e.touches.length!==1||!e.target.closest('[data-calendar]')||e.target.closest('input,select'))return;const t=e.touches[0];swipe={x:t.clientX,y:t.clientY,dx:0,dy:0};},{passive:true});
