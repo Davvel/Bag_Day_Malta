@@ -1,4 +1,4 @@
-import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.109';
+import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.110';
 export const eventSymbol=item=>item.icon_emoji||'📌';
 export const longDate=date=>new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
 export function eventIndex(pages,date=today()){
@@ -35,4 +35,13 @@ export function highlightNotice(value,query=''){
  const ranges=[];for(const word of words){let from=0,index;while((index=lower.indexOf(word,from))!==-1){ranges.push([index,index+word.length]);from=index+word.length;}}
  ranges.sort((a,b)=>a[0]-b[0]);const merged=[];for(const range of ranges){const last=merged[merged.length-1];if(last&&range[0]<=last[1])last[1]=Math.max(last[1],range[1]);else merged.push([...range]);}
  let result='',from=0;for(const [start,end] of merged){result+=esc(text.slice(from,start))+'<mark>'+esc(text.slice(start,end))+'</mark>';from=end;}return result+esc(text.slice(from));
+}
+
+// One shared result budget across all categories; deterministic order keeps Show more stable.
+export const NOTICE_SEARCH_PAGE_SIZE=20;
+export const automaticNoticeSearch=q=>Array.from(String(q||'').trim()).length>=3;
+export function pageNoticeResults(groups,limit=NOTICE_SEARCH_PAGE_SIZE){
+ const all=groups.flatMap(g=>g.items).sort((a,b)=>compareNotices(a,b)||a.locality.localeCompare(b.locality)||a.section.localeCompare(b.section));
+ const selected=new Set(all.slice(0,Math.max(0,limit)));
+ return {total:all.length,shown:selected.size,groups:groups.map(g=>({...g,items:g.items.filter(i=>selected.has(i))})).filter(g=>g.items.length)};
 }
