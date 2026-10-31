@@ -291,3 +291,32 @@ html[data-zoomed="true"] .public-notices #root>.source-panel{overflow:visible;fl
 .source-panel.police #sections{border-top-right-radius:0}
 .public-notices .source-panel #sections{position:relative;z-index:0}
 .notice-multiselect{position:relative;min-width:0;margin:1.2rem 0;padding:1rem;border:1px solid var(--border,#28566d);border-radius:14px}.notice-multiselect legend{font-weight:700;padding:0 .35rem}.selection-count{display:block;text-align:right;font-size:.9rem;color:var(--muted,#b4ccdd)}.notice-multiselect .hint{margin:.35rem 0 .75rem}.selection-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.7rem}.selection-chip{background:#1664ad;color:#fff;border:1px solid #3186d0;border-radius:12px;padding:.65rem .8rem;min-height:44px;max-width:100%;overflow-wrap:anywhere;text-align:left}.notice-multiselect summary{display:inline-block;cursor:pointer;padding:.65rem .9rem;min-height:44px;box-sizing:border-box}.selection-choices{display:grid;gap:.3rem;max-height:250px;overflow:auto;margin-top:.65rem}.selection-choices label{display:flex;align-items:center;gap:.65rem;margin:0;padding:.5rem;min-height:44px}.selection-choices input{width:22px;height:22px;margin:0;flex:0 0 22px}.selection-choices label:has(input:disabled){opacity:.5}
+
+/* Combined calendar: fixed Council / Church / Police stripe order. */
+.source-count{background:var(--nb-soft);color:var(--nb-secondary)}
+.source-count.has-notices{background:#ffda55;color:#172b3d}
+.public-notices .source-panel.combined-calendar #sections{border:1px solid var(--nb-border);border-radius:16px;margin-top:0;background:var(--nb-card);padding:9px}
+.public-notices .combined-calendar .calendar-panel{background:var(--nb-card)}
+.public-notices .combined-calendar .calendar-incoming{background:var(--nb-card)}
+.combined-calendar .month-picker{gap:8px;font-size:18px;min-width:0;white-space:nowrap}
+.combined-calendar .month-picker .source-count{width:27px;height:27px;font-size:12px}
+.calendar-sector-legend{display:flex;justify-content:center;gap:15px;margin:10px 0;font-size:12px;color:var(--nb-secondary)}
+.calendar-sector-legend>span{display:flex;align-items:center;gap:5px}
+.calendar-sector-legend i{width:14px;height:7px;border-radius:3px;background:var(--sector-fill);display:block}
+.sector-council{--sector-fill:#9ce8cf;--sector-ink:#12382f}
+.sector-church{--sector-fill:#d9c1ff;--sector-ink:#29243f}
+.sector-police{--sector-fill:#86c9ff;--sector-ink:#102e48}
+.public-notices .combined-calendar .event-month-grid{grid-template-rows:repeat(6,clamp(106px,calc((100svh - 325px - var(--noticeboard-dock-height,0px))/6),130px));gap:4px}
+.public-notices .combined-calendar .calendar-day{padding:5px 3px;gap:6px;justify-content:space-between;background:var(--nb-card);border-color:var(--nb-border);color:var(--nb-ink)}
+.public-notices .combined-calendar .calendar-day.is-selected{outline:2px solid #e9b52f;outline-offset:-2px;background:var(--nb-soft)}
+.public-notices .combined-calendar .calendar-day.is-today{box-shadow:inset 0 0 0 2px #49bfc6}
+.calendar-sector-stripes{display:grid;grid-template-rows:repeat(3,minmax(20px,1fr));gap:4px;width:100%;flex:1;min-height:68px;max-height:94px}
+.calendar-sector{display:flex;align-items:center;justify-content:center;gap:3px;min-width:0;border-radius:4px;background:var(--nb-soft);line-height:1;white-space:nowrap;font-size:12px}
+.calendar-sector.has-notices{background:var(--sector-fill);color:var(--sector-ink)}
+.sector-notice-icon{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:15px;line-height:1;flex:none}
+.calendar-sector strong{font-size:12px;font-variant-numeric:tabular-nums}
+.day-source-heading{display:flex;align-items:center;gap:7px;font-size:16px;color:var(--accent);margin:12px 0 4px}
+.day-source-heading svg{width:21px;height:21px}
+.public-notices .combined-calendar .day-list-panel .result-group{border-left:4px solid var(--accent);padding:4px 0 4px 9px;margin:12px 0}
+.public-notices .combined-calendar .day-list-panel .result-locality{font-size:15px;color:var(--nb-secondary);margin-bottom:8px}
+@media(max-width:360px){.public-notices .source-panel.combined-calendar #sections{padding:6px}.combined-calendar .month-picker{font-size:16px;gap:5px}.combined-calendar .month-arrow{min-width:36px}.calendar-sector{gap:2px}.calendar-sector strong{font-size:11px}.sector-notice-icon{font-size:14px}.calendar-sector-legend{gap:12px}.public-notices .combined-calendar .calendar-day{padding-inline:2px}}
