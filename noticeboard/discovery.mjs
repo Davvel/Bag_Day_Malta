@@ -1,4 +1,4 @@
-import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.120';
+import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.121';
 export const eventSymbol=item=>item.icon_emoji||'📌';
 export const longDate=date=>new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
 export function eventIndex(pages,date=today()){
@@ -51,5 +51,5 @@ export function pageNoticeResults(groups,limit=NOTICE_SEARCH_PAGE_SIZE,byLocalit
 export function noticeboardTab(items,{view='list',month='',day='',requested=null}={}){
  const order=['council','church','police'];if(order.includes(requested))return requested;
  const period=items.filter(i=>view==='calendar'?i.kind==='event'&&i.end_date.startsWith(month):view==='day'?i.kind==='event'&&i.end_date===day:true);
- const available=order.filter(k=>period.some(i=>i.section===k));return available.length===1?available[0]:'council';
+ const available=order.filter(k=>period.some(i=>i.section===k));return view==='calendar'?(available[0]||'council'):available.length===1?available[0]:'council';
 }
