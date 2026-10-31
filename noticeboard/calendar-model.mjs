@@ -1,3 +1,3 @@
-import {compareLocalityNotices} from './discovery.mjs?v=1.1.112';
+import {compareLocalityNotices} from './discovery.mjs?v=1.1.113';
 export function calendarDays(items){const days=new Map();for(const item of items)if(item.kind==='event'){if(!days.has(item.end_date))days.set(item.end_date,[]);days.get(item.end_date).push(item)}for(const rows of days.values())rows.sort(compareLocalityNotices);return days}
 export function calendarContext({section='',category='',audience='',locality='',allLocalities=false,q=''}={}){const subject=category==='Activities & outings'?'Activities':category||'Notices',who=section?section+' ':'';return 'Showing '+(!category?'all ':'')+who+subject+(audience?' for '+audience:'')+' in '+(allLocalities?'all localities':locality)+(q?' matching “'+q+'”':'')}

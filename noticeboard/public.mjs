@@ -1,10 +1,10 @@
-import {calendarDays,calendarContext} from './calendar-model.mjs?v=1.1.112';
-import {loadOptions,optionSelect,noticeTags,optionLabel} from './options.mjs?v=1.1.112';
-import {noticeLink} from './links.mjs?v=1.1.112';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.112';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.112';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.112';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,automaticNoticeSearch,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,monthCells,moveMonth} from './discovery.mjs?v=1.1.112';
+import {calendarDays,calendarContext} from './calendar-model.mjs?v=1.1.113';
+import {loadOptions,optionSelect,noticeTags,optionLabel} from './options.mjs?v=1.1.113';
+import {noticeLink} from './links.mjs?v=1.1.113';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.113';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.113';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.113';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,automaticNoticeSearch,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,monthCells,moveMonth} from './discovery.mjs?v=1.1.113';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
 let pages=[],loaded=false,error='',generation=0,renderedDate='',lookup=new Map(),expanded=new Set(),selectedDay='',swipe=null,suppressUntil=0,searchTimer=0;
 const params=()=>new URLSearchParams(location.search);
