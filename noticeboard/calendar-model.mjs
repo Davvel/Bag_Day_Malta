@@ -1,5 +1,5 @@
-import {monthCells,moveMonth} from './discovery.mjs?v=1.1.125';
-import {compareLocalityNotices} from './discovery.mjs?v=1.1.125';
+import {monthCells,moveMonth} from './discovery.mjs?v=1.1.126';
+import {compareLocalityNotices} from './discovery.mjs?v=1.1.126';
 export function calendarDays(items){const days=new Map();for(const item of items)if(item.kind==='event'){if(!days.has(item.end_date))days.set(item.end_date,[]);days.get(item.end_date).push(item)}for(const rows of days.values())rows.sort(compareLocalityNotices);return days}
 export const calendarSourceOrder=['council','church','police'];
 export const cappedNoticeCount=count=>count>9?'9+':String(count);

@@ -1,5 +1,5 @@
-import {matchesSelection} from './selection.mjs?v=1.1.125';
-import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.125';
+import {matchesSelection} from './selection.mjs?v=1.1.126';
+import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.126';
 export const eventSymbol=item=>item.icon_emoji||'📌';
 export const longDate=date=>new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
 export function eventIndex(pages,date=today()){
@@ -27,7 +27,7 @@ export function moveMonth(month,delta){const d=new Date(month+'-01T12:00:00Z');d
 export function filterNoticeBoards(pages,{q='',locality='',allLocalities=false,category='',audience=''}={},date=today()){
  const words=key(q).trim().split(/\s+/).filter(Boolean),searching=allLocalities||words.length>0||!!category||!!audience;
  const candidates=pages.filter(p=>allLocalities||key(p.locality_name)===key(locality));
- const items=candidates.flatMap(p=>visibleItems(p.csv,date).map(i=>({...i,locality:p.locality_name,section:p.section,page_id:p.page_id}))).filter(i=>matchesSelection(i.category_id||'other',category)&&matchesSelection(i.audience_id||'all',audience,{legacyAll:true})&&words.every(w=>key([i.title,i.description,i.locality].join(' ')).includes(w)));
+ const items=candidates.flatMap(p=>visibleItems(p.csv,date).map(i=>({...i,locality:p.locality_name,section:p.section,page_id:p.page_id}))).filter(i=>matchesSelection(i.category_id??'other',category)&&matchesSelection(i.audience_id??'all',audience,{legacyAll:true})&&words.every(w=>key([i.title,i.description,i.locality].join(' ')).includes(w)));
  return ['police','council','church'].map(section=>({section,items:items.filter(i=>i.section===section).sort(allLocalities?compareLocalityNotices:compareNotices)})).filter(g=>!searching||g.items.length>0);
 }
 export function highlightNotice(value,query=''){
