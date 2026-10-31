@@ -179,3 +179,38 @@ dialog.filter-sheet{position:fixed;inset:auto 0 0;margin:0 auto;width:min(100%,5
 /* Locality scope belongs to the browsing toolbar; filters are centred. */
 .locality-controls{display:flex;align-items:center;gap:8px;min-width:0}.locality-controls .compact-locality{flex:1;min-width:0}.locality-scope{display:flex;align-items:center;gap:7px;margin:0;font-size:11px;font-weight:650;white-space:nowrap}.locality-toggle{position:relative;width:42px;height:25px;display:block;flex-shrink:0}.locality-toggle input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;z-index:1;cursor:pointer}.locality-toggle>span{display:block;width:100%;height:100%;border:1px solid var(--nb-border);border-radius:20px;background:#557589}.locality-toggle>span:after{content:'';display:block;width:19px;height:19px;margin:2px;border-radius:50%;background:white;box-shadow:0 1px 3px #0004;transition:transform .15s}.locality-toggle input:checked+span{background:var(--nb-primary)}.locality-toggle input:checked+span:after{transform:translateX(17px)}.locality-toggle input:focus-visible+span{outline:3px solid #49bfc6;outline-offset:3px}.calendar-grid-window{overflow:hidden;padding:2px;margin:-2px}.event-month-grid[data-month-surface]{will-change:transform;touch-action:pan-y pinch-zoom}html[data-zoomed=true] .calendar-grid-window{overflow:visible}html[data-zoomed=true] .event-month-grid[data-month-surface]{touch-action:auto;will-change:auto}
 dialog.filter-sheet{inset:0;margin:auto;width:min(calc(100% - 24px),560px);max-width:calc(100% - 24px);height:fit-content;max-height:90svh;border:1px solid var(--nb-border);border-radius:20px;padding:16px 18px}.filter-sheet .filter-actions{padding-bottom:4px}.compact-toolbar{grid-template-columns:minmax(0,1fr) auto auto}@media(max-width:560px){.compact-toolbar{grid-template-columns:1fr auto}.locality-controls{grid-column:1/-1}.locality-scope{font-size:12px}.locality-controls .compact-locality select{font-size:14px}.view-switch{justify-self:start}.filter-button{justify-self:end}.steady-calendar .event-month-grid{grid-template-rows:repeat(6,clamp(44px,calc((100svh - 380px - var(--noticeboard-dock-height,0px))/6),82px))}}@media(prefers-reduced-motion:reduce){.locality-toggle>span:after{transition:none}}
+
+/* v1.1.117: compact inline discovery; only the feed scrolls. */
+body.public-notices .shell{height:100dvh;display:flex;flex-direction:column;padding-top:5px;padding-bottom:calc(var(--noticeboard-dock-height,0px) + 5px)}
+.public-notices .noticeboard-header{flex-shrink:0;min-height:36px!important;padding:2px 6px!important;margin-bottom:5px;border-radius:10px!important}
+.public-notices .noticeboard-header .quick-home{width:32px;height:32px;min-height:32px;min-width:32px;padding:5px}
+.public-notices .noticeboard-header .noticeboard-title{font-size:18px!important;margin:0!important}
+.public-notices #root{display:flex;flex-direction:column;min-height:0;flex:1}
+.public-notices .notice-controls{flex-shrink:0;margin:0}
+.public-notices #sections{min-height:0;flex:1;overflow-y:auto;scrollbar-gutter:stable;overscroll-behavior-y:contain;padding-bottom:6px}
+.inline-search{display:flex;height:34px;margin:0 0 5px;border:1px solid var(--nb-border);border-radius:8px;background:var(--nb-card)}
+.inline-search input{min-width:0;flex:1;width:100%;border:0;border-radius:8px;background:transparent;color:var(--nb-ink);padding:4px 8px;font-size:16px}
+.inline-search button{border:0;background:transparent;color:var(--nb-ink);width:38px;padding:5px}
+.inline-search svg{width:20px;height:20px}
+.public-notices .locality-controls{display:flex;gap:7px;margin:0;align-items:center}
+.public-notices .compact-locality{flex:1;min-width:0}
+.public-notices .compact-locality select{width:100%;height:34px;min-height:0;padding:3px 7px;font-size:16px;border-radius:8px}
+.public-notices .locality-scope{font-size:12px;gap:5px;white-space:nowrap}
+.inline-filter-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:5px;margin-top:5px;align-items:center}
+.inline-filter-row>select{width:100%;min-width:0;height:34px;border:1px solid var(--nb-border);border-radius:8px;padding:3px 2px;background:var(--nb-card);color:var(--nb-ink);font-size:12px}
+.public-notices .view-switch{justify-self:stretch;border-radius:8px}
+.public-notices .view-switch button{min-height:32px;padding:4px 6px;font-size:12px}
+.source-checks{display:flex;justify-content:space-around;gap:6px}
+.source-checks label{display:flex;align-items:center;gap:4px;min-height:32px;margin:0;font-size:14px;color:var(--nb-ink)}
+.source-checks input{margin:0;width:16px;height:16px;accent-color:#138b8b}
+.notice-filter-divider{border:0;border-top:3px solid #3da9b6;margin:1px 0 7px}
+.public-notices .section{margin:0 0 8px;padding:8px}
+.public-notices .section-heading{display:none}
+.public-notices .notice{padding:9px;gap:9px}
+.public-notices .notice-title{font-size:17px}.public-notices .notice-description{font-size:14px}
+.public-notices .day-list-heading{display:none}.public-notices .day-total{font-size:14px;margin:4px 0 8px}
+.calendar-return{width:100%;min-height:34px;padding:4px 8px;margin-bottom:5px;border:1px solid var(--nb-border);border-radius:8px;background:var(--nb-soft);color:var(--nb-ink);font-weight:700}
+html[data-zoomed="true"] body.public-notices .shell{height:auto;min-height:100dvh}
+html[data-zoomed="true"] .public-notices #sections{overflow:visible;flex:none}
+.public-notices .shell .noticeboard-header{grid-template-columns:32px minmax(0,1fr) 32px;gap:5px}
+.public-notices .day-events{padding-top:0}

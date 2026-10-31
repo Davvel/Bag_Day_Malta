@@ -1,11 +1,11 @@
-import {animateCalendarGrid} from './calendar-motion.mjs?v=1.1.116';
-import {calendarDays,calendarContext,calendarMonthCells,calendarBounds,boundedCalendarMonth} from './calendar-model.mjs?v=1.1.116';
-import {loadOptions,optionSelect,noticeTags,optionLabel} from './options.mjs?v=1.1.116';
-import {noticeLink} from './links.mjs?v=1.1.116';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.116';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.116';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.116';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth} from './discovery.mjs?v=1.1.116';
+import {animateCalendarGrid} from './calendar-motion.mjs?v=1.1.117';
+import {calendarDays,calendarContext,calendarMonthCells,calendarBounds,boundedCalendarMonth} from './calendar-model.mjs?v=1.1.117';
+import {loadOptions,optionSelect,noticeTags,optionLabel} from './options.mjs?v=1.1.117';
+import {noticeLink} from './links.mjs?v=1.1.117';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.117';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.117';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.117';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth} from './discovery.mjs?v=1.1.117';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog'),filterDialog=document.querySelector('#filterDialog');
 let pages=[],loaded=false,error='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',pendingFilters=null,renderedURL=location.href,monthBusy=false,renderEpoch=0;
 const params=()=>new URLSearchParams(location.search);
@@ -24,13 +24,13 @@ function section(){return sections[params().get('section')]?params().get('sectio
 function view(){return ['calendar','day'].includes(params().get('view'))?params().get('view'):'list'}
 function currentMonth(){return boundedCalendarMonth(params().get('month'),today())}
 function href(patch){const u=new URL(location.href);for(const [k,v] of Object.entries(patch)){if(v===null||v==='')u.searchParams.delete(k);else u.searchParams.set(k,v)}return u.pathname+u.search}
-function rememberPosition(){history.replaceState({...history.state,noticeScroll:window.scrollY||0,noticeLimit:searchLimit,noticeDayLimit:dayLimit},'',location.href)}
-function restorePosition(){searchLimit=history.state?.noticeLimit||NOTICE_SEARCH_PAGE_SIZE;dayLimit=history.state?.noticeDayLimit||NOTICE_SEARCH_PAGE_SIZE;renderBoards();requestAnimationFrame(()=>window.scrollTo(0,history.state?.noticeScroll||0))}
+function rememberPosition(){history.replaceState({...history.state,noticeScroll:root.querySelector('#sections')?.scrollTop||0,noticeLimit:searchLimit,noticeDayLimit:dayLimit},'',location.href)}
+function restorePosition(){searchLimit=history.state?.noticeLimit||NOTICE_SEARCH_PAGE_SIZE;dayLimit=history.state?.noticeDayLimit||NOTICE_SEARCH_PAGE_SIZE;renderBoards();requestAnimationFrame(()=>root.querySelector('#sections')?.scrollTo?.(0,history.state?.noticeScroll||0))}
 function navigate(patch,{replace=false,entry=false,scroll=true,day=false}={}){
- if(dialog.open)dialog.close();if(!replace)rememberPosition();
+ const feedPosition=root.querySelector('#sections')?.scrollTop||0;if(dialog.open)dialog.close();if(!replace)rememberPosition();
  const steps=history.state?.bagDayHomeSteps,returnCalendar=day?href({view:'calendar',day:patch.day,month:currentMonth(),entry:null,page:null,filters:null}):history.state?.returnCalendar;
  const state={noticeboard:true,noticeEntry:entry,noticeDay:day,...(returnCalendar?{returnCalendar}:{}),...(Number.isInteger(steps)&&steps>0?{bagDayHomeSteps:steps+(replace?0:1)}:{})};
- history[replace?'replaceState':'pushState'](state,'',href(patch));render();if(scroll&&!entry)window.scrollTo(0,0);
+ history[replace?'replaceState':'pushState'](state,'',href(patch));render();if(!scroll&&root.querySelector('#sections'))root.querySelector('#sections').scrollTop=feedPosition;if(scroll&&!entry)root.querySelector('#sections')?.scrollTo?.(0,0);
 }
 function openEntry(item){navigate({entry:item.entry_id,page:item.page_id},{entry:true,scroll:false})}
 function closeEntry(){if(history.state?.noticeEntry)history.back();else navigate({entry:null,page:null},{replace:true,scroll:false})}
@@ -38,7 +38,8 @@ function returnToCalendar(){if(history.state?.noticeDay)history.back();else navi
 function searchOptions(){const p=params();return {q:p.get('q')||'',locality,allLocalities:p.get('all')==='1',category:p.get('category')||'',audience:p.get('audience')==='all'?'':p.get('audience')||''}}
 function contextText(){const o=searchOptions();return calendarContext({...o,section:sections[section()]?.name||'',category:o.category?optionLabel('categories',o.category):'',audience:o.audience?optionLabel('audiences',o.audience):''})}
 function filterCount(){const o=searchOptions();return [o.category,o.audience,o.q.trim()].filter(Boolean).length}
-function compactToolbar(names){const mode=view(),all=params().get('all')==='1',count=filterCount();return `<div class="notice-controls"><div class="compact-toolbar"><div class="locality-controls"><label class="compact-locality"><span class="sr-only">Locality</span><select id="locality" aria-label="Change noticeboard locality">${names.map(n=>`<option value="${esc(n)}" ${n===locality?'selected':''}>${esc(n)}</option>`).join('')}</select></label><label class="locality-scope"><span>All localities</span><span class="locality-toggle"><input id="localityScope" type="checkbox" role="switch" aria-label="Show notices in all localities" ${all?'checked':''}><span aria-hidden="true"></span></span></label></div><div class="view-switch" role="group" aria-label="Noticeboard view"><button type="button" data-view="list" aria-pressed="${mode==='list'}">List</button><button type="button" data-view="calendar" aria-pressed="${mode!=='list'}">Calendar</button></div><button type="button" id="openFilters" class="filter-button" aria-haspopup="dialog" aria-controls="filterDialog">${icon('filter')}<span>Filters${count?' · '+count:''}</span></button></div><button class="compact-context" id="contextFilters" aria-label="${esc(contextText())}. Edit filters" title="${esc(contextText())}">${esc(contextText())}</button></div>`}
+function selectedSections(){const raw=params().get('sources');return raw===null?(section()?[section()]:Object.keys(sections)):raw.split(',').filter(k=>sections[k])}
+function compactToolbar(names){const mode=view(),o=searchOptions(),selected=selectedSections();return `<div class="notice-controls"><form id="noticeSearch" class="inline-search" role="search"><input id="noticeQuery" type="search" name="q" aria-label="Search notices" placeholder="Search notices…" autocomplete="off" value="${esc(o.q)}"><button aria-label="Search notices" type="submit">${icon('search')}</button></form><div class="locality-controls"><label class="compact-locality"><select id="locality" aria-label="Noticeboard locality"><option value="" ${o.allLocalities?'selected':''}>All localities</option>${names.map(n=>`<option value="${esc(n)}" ${!o.allLocalities&&n===locality?'selected':''}>${esc(n)}</option>`).join('')}</select></label><label class="locality-scope"><span>All localities</span><span class="locality-toggle"><input id="localityScope" type="checkbox" role="switch" aria-label="Show all localities" ${o.allLocalities?'checked':''}><span aria-hidden="true"></span></span></label></div><div class="inline-filter-row"><select id="noticeCategory" aria-label="Category">${optionSelect('categories',o.category,true)}</select><select id="noticeAudience" aria-label="Audience">${optionSelect('audiences',o.audience,true)}</select><div class="view-switch" role="group" aria-label="Noticeboard view"><button type="button" data-view="list" aria-pressed="${mode==='list'}">List</button><button type="button" data-view="calendar" aria-pressed="${mode!=='list'}">Calendar</button></div></div><div class="source-checks">${['church','police','council'].map(k=>`<label><input type="checkbox" data-source="${k}" ${selected.includes(k)?'checked':''}>${k==='council'?'Council':esc(sections[k].name)}</label>`).join('')}</div>${mode==='day'?'<button type="button" class="calendar-return" id="toolbarCalendar">← Back to calendar</button>':''}<hr class="notice-filter-divider"></div>`}
 function openFilters(){if(filterDialog.open)return;rememberPosition();history.pushState({...history.state,noticeFilter:true},'',href({filters:'1',entry:null,page:null}));renderFilterPanel()}
 function closeFilters(){if(history.state?.noticeFilter)history.back();else{history.replaceState(history.state,'',href({filters:null}));filterDialog.close()}}
 function renderFilterPanel(){
@@ -60,7 +61,7 @@ function handlePopState(){
  if(pendingFilters){commitFilters();return}
  const previous=new URL(renderedURL),current=new URL(location.href);
  if(previous.searchParams.get('view')==='day'&&!previous.searchParams.get('entry')&&current.searchParams.get('view')==='calendar'){
-  for(const key of ['locality','all','section','category','audience','q','month','day']){const value=previous.searchParams.get(key);if(value)current.searchParams.set(key,value);else current.searchParams.delete(key)}history.replaceState(history.state,'',current);
+  for(const key of ['locality','all','section','sources','category','audience','q','month','day']){const value=previous.searchParams.get(key);if(value)current.searchParams.set(key,value);else current.searchParams.delete(key)}history.replaceState(history.state,'',current);
  }
  if(dialog.open)dialog.close();render();restorePosition();
 }
@@ -86,18 +87,18 @@ function dayListHTML(items){
 function renderBoards(){
  const p=params(),kind=section(),options=searchOptions(),mode=view(),identity=JSON.stringify([options,kind]);
  if(identity!==searchIdentity){searchIdentity=identity;searchLimit=history.state?.noticeLimit||NOTICE_SEARCH_PAGE_SIZE}
- const allGroups=filterNoticeBoards(pages,options,today()).filter(g=>!kind||g.section===kind),container=root.querySelector('#sections');if(!container)return;
+ const allGroups=filterNoticeBoards(pages,options,today()).filter(g=>selectedSections().includes(g.section)),container=root.querySelector('#sections');if(!container)return;
  lookup=new Map();container.replaceChildren();
  if(mode==='calendar'||mode==='day'){
   const panel=document.createElement('section');panel.className='section '+(kind||'combined')+' detail-list '+(mode==='calendar'?'calendar-panel':'day-list-panel');
   panel.innerHTML=mode==='calendar'?calendarHTML(allGroups.flatMap(g=>g.items)):dayListHTML(allGroups.flatMap(g=>g.items));container.append(panel);
  }else{
   const result=pageNoticeResults(allGroups,searchLimit,options.allLocalities);
-  const normalOverview=!kind&&!options.allLocalities&&!options.q&&!options.category&&!options.audience;
+  const normalOverview=selectedSections().length===3&&!kind&&!options.allLocalities&&!options.q&&!options.category&&!options.audience;
   const displayGroups=normalOverview?allGroups.map(g=>result.groups.find(r=>r.section===g.section)||{section:g.section,items:[],empty:g.items.length===0}).filter(g=>g.items.length||g.empty):result.groups;
   for(const group of displayGroups){if(group.empty){const panel=document.createElement('section');panel.className='section '+group.section+' empty-board-banner';panel.innerHTML=`<span class="empty-board-icon">${icon(sections[group.section].icon)}</span><span>No ${esc(sections[group.section].name)} Notices found for ${esc(locality)}.</span>`;container.append(panel);continue}const info=sections[group.section],panel=document.createElement('section');panel.className='section '+group.section+' detail-list';panel.innerHTML=`<div class="section-heading"><span class="section-symbol">${icon(info.icon)}</span><h2>${esc(info.name)}</h2><a class="heading-calendar" href="${esc(href({section:group.section,view:'calendar',entry:null,page:null}))}" data-route aria-label="Open ${info.name} calendar">${icon('calendar')}</a><span class="count">${group.items.length} ${group.items.length===1?'notice':'notices'}</span></div><div class="notice-list">${group.items.map(i=>card(i,true)).join('')}</div>`;container.append(panel)}
   if(!result.total&&!normalOverview){const empty=document.createElement('p');empty.className='empty';empty.textContent=loaded?'No matching notices.':'Loading notices…';container.append(empty)}
-  if(result.total){const paging=document.createElement('div');paging.className='notice-search-paging';paging.innerHTML=`<p role="status">Showing ${result.shown} of ${result.total} matching notices</p>${result.shown<result.total?'<button type="button" class="secondary" id="moreNoticeResults">Show more</button>':''}`;container.append(paging);paging.querySelector('#moreNoticeResults')?.addEventListener('click',()=>{searchLimit+=NOTICE_SEARCH_PAGE_SIZE;renderBoards();root.querySelector('#moreNoticeResults')?.focus({preventScroll:true})})}
+  if(result.shown<result.total){const paging=document.createElement('div');paging.className='notice-search-paging';paging.innerHTML=`${result.shown<result.total?'<button type="button" class="secondary" id="moreNoticeResults">Show more</button>':''}`;container.append(paging);paging.querySelector('#moreNoticeResults')?.addEventListener('click',()=>{searchLimit+=NOTICE_SEARCH_PAGE_SIZE;renderBoards();root.querySelector('#moreNoticeResults')?.focus({preventScroll:true})})}
  }
  root.querySelectorAll('[data-route]').forEach(a=>a.onclick=e=>{e.preventDefault();const u=new URL(a.href);navigate({section:u.searchParams.get('section'),view:u.searchParams.get('view'),entry:null,page:null});});
  root.querySelectorAll('[data-open]').forEach(b=>b.onclick=e=>{if(e.detail&&(blocked()||performance.now()<suppressUntil))return;openEntry(lookup.get(b.dataset.open))});
@@ -108,14 +109,21 @@ function renderBoards(){
  root.querySelector('#moreDayResults')?.addEventListener('click',()=>{dayLimit+=NOTICE_SEARCH_PAGE_SIZE;renderBoards();root.querySelector('#moreDayResults')?.focus({preventScroll:true})});
 }
 function render(){
+ const feedScroll=root.querySelector('#sections')?.scrollTop||0;
  const p=params();renderEpoch++;renderedURL=location.href;renderedDate=today();locality=p.get('locality')||locality;
  const names=localityNames(window.WASTE_DATA?.localities||[],pages,locality);locality=names.find(n=>localityKey(n)===localityKey(locality))||locality;syncNoticeboardSponsors(locality);
  const heading=document.querySelector('#noticeboardTitle');if(heading)heading.textContent='Community notices';document.body.dataset.noticeView=view();
  root.innerHTML=`${compactToolbar(names)}${error?`<p class="status error" role="alert">${esc(error)} <button id="retry" class="secondary">Try again</button></p>`:''}<div id="sections"></div>`;
- renderBoards();
- root.querySelector('#locality').onchange=e=>navigate({locality:e.target.value,all:null,day:null,view:view()==='day'?'calendar':view(),entry:null,page:null});
- root.querySelector('#localityScope').onchange=e=>navigate({all:e.target.checked?'1':null,locality:e.target.checked?locality:homeLocality,day:null,view:view()==='day'?'calendar':view(),entry:null,page:null});
- root.querySelector('#openFilters').onclick=openFilters;root.querySelector('#contextFilters').onclick=openFilters;
+ renderBoards();if(p.get('entry')||history.state?.noticeEntry)root.querySelector('#sections').scrollTop=feedScroll;
+ root.querySelector('#locality').onchange=e=>navigate({locality:e.target.value||locality,all:e.target.value?null:'1',day:null,view:view()==='day'?'calendar':view(),entry:null,page:null});
+ root.querySelector('#localityScope').onchange=e=>navigate({all:e.target.checked?'1':null,locality,day:null,view:view()==='day'?'calendar':view(),entry:null,page:null});
+ const applyInline=patch=>navigate({...patch,entry:null,page:null,day:null,view:view()==='day'?'calendar':view()});
+ root.querySelector('#noticeSearch').onsubmit=e=>{e.preventDefault();applyInline({q:e.target.elements.q.value.trim()})};
+ root.querySelector('#noticeQuery').addEventListener('input',e=>{if(!e.target.value)applyInline({q:null})});
+ root.querySelector('#noticeCategory').onchange=e=>applyInline({category:e.target.value});
+ root.querySelector('#noticeAudience').onchange=e=>applyInline({audience:e.target.value});
+ root.querySelectorAll('[data-source]').forEach(c=>c.onchange=()=>applyInline({section:null,sources:[...root.querySelectorAll('[data-source]')].filter(x=>x.checked).map(x=>x.dataset.source).join(',')||'none'}));
+ root.querySelector('#toolbarCalendar')?.addEventListener('click',returnToCalendar);
  root.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{if(b.dataset.view==='calendar'&&view()==='day'){returnToCalendar();return}if(b.dataset.view===view())return;navigate({view:b.dataset.view,entry:null,page:null})});
  root.querySelector('#retry')?.addEventListener('click',load);
  if(p.get('filters')==='1'){if(!filterDialog.open)renderFilterPanel()}else if(filterDialog.open)filterDialog.close();
