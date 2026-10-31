@@ -1,11 +1,11 @@
-import {slotPublication} from './slot-publication.mjs?v=1.1.114';
-import {renderFinance} from './sponsor-finance.mjs?v=1.1.114';
-import {sponsorPublication,readSponsorPublication} from './sponsor-publication.mjs?v=1.1.114';
-import {renderNoticeboard} from './noticeboard.mjs?v=1.1.114';
-import {renderCommunity} from './community.mjs?v=1.1.114';
+import {slotPublication} from './slot-publication.mjs?v=1.1.115';
+import {renderFinance} from './sponsor-finance.mjs?v=1.1.115';
+import {sponsorPublication,readSponsorPublication} from './sponsor-publication.mjs?v=1.1.115';
+import {renderNoticeboard} from './noticeboard.mjs?v=1.1.115';
+import {renderCommunity} from './community.mjs?v=1.1.115';
 import {renderReuse} from './reuse.mjs';
 import {generateExport,publishingSettings} from './exporter.mjs';
-import {CONFIG} from './config.mjs?v=1.1.114';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
+import {CONFIG} from './config.mjs?v=1.1.115';import {BagDayAPI} from './api.mjs';import {esc,csv,parseCSV,importRows,months} from './data.mjs';
 const $=s=>document.querySelector(s),api=new BagDayAPI(CONFIG.apiBase),tabs={dashboard:'Overview',localities:'Localities',noticeboard:'Noticeboard & editors',sponsors:'Sponsors',slots:'Slot allocations',finance:'Purchase Orders & Payments',community:'Community adverts',reusePeople:'REUSE contributors',reuseItems:'REUSE items',access:'Administrator access',settings:'Settings'};
 let reuseSummary={pending_enrolments:0,pending_items:0};
 let current='dashboard',me=null,data={localities:[],sponsors:[],slots:[],users:[]},capacity=3,selected=new Set(),lastReport=null,lastSummary='',busy=false,pageSeq=0;let deferredInstall;const root=$('#root'),dialog=$('#dialog');
@@ -19,7 +19,7 @@ function login(message=''){me=null;root.innerHTML=`<div class="login-wrap"><sect
 function loadGoogle(){const render=()=>{if(!$('#google'))return;google.accounts.id.initialize({client_id:CONFIG.googleClientId,callback:r=>action(async()=>signedIn(await api.loginGoogle(r.credential)))});google.accounts.id.renderButton($('#google'),{theme:'outline',size:'large',width:320})};if(window.google?.accounts)return render();let script=document.querySelector('#google-script');if(!script){script=document.createElement('script');script.id='google-script';script.src='https://accounts.google.com/gsi/client';script.async=true;document.head.append(script)}script.onload=render;script.onerror=()=>error(Error('Google sign-in could not load. Use emergency ADMIN.'))}
 async function signedIn(r){me=r.user;await refreshRefs();shell();await navigate(location.hash==='#reuse-people'?'reusePeople':location.hash==='#reuse-items'?'reuseItems':'dashboard')}
 async function refreshRefs(){const [ls,ss,st]=await Promise.all([api.all('/localities'),api.all('/sponsors'),api.request('/settings')]);data.localities=ls;data.sponsors=ss;capacity=st.maximum_sponsor_positions}
-function shell(){root.innerHTML=`<aside><div class="brand-mark">B</div><h2>Bag Day<small>ADMINISTRATION</small></h2><nav id="nav"></nav><div class="sidebottom"><span>${esc(me.display_name)}<br>Administrator · v${esc(CONFIG.version)}</span><p><button class="secondary" onclick="UI.signout()">Sign out</button></p></div></aside><main><header><span>Workspace / <b id="crumb">Overview</b></span><div class="header-actions"><div class="statusbar"><span class="dot"></span>Connected to Cloudflare</div></div></header><div id="offline" class="message warn" ${navigator.onLine?'hidden':''}>You are offline. Private records cannot be refreshed or changed.</div><div id="error" class="message error" role="alert" hidden></div><div id="app"></div></main>`}
+function shell(){root.innerHTML=`<aside><div class="brand-mark">B</div><h2>Bag Day<small>ADMINISTRATION</small></h2><nav id="nav"></nav><div class="sidebottom"><span>${esc(me.display_name)}<br>Administrator · v${esc(CONFIG.version)}</span><p><button class="secondary" onclick="UI.signout()">Sign out</button></p></div></aside><main><header><span>Workspace / <b id="crumb">Overview</b></span><div class="header-actions"><span class="admin-version" aria-label="Admin frontend version ${esc(CONFIG.version)}">v${esc(CONFIG.version)}</span><div class="statusbar"><span class="dot"></span>Connected to Cloudflare</div></div></header><div id="offline" class="message warn" ${navigator.onLine?'hidden':''}>You are offline. Private records cannot be refreshed or changed.</div><div id="error" class="message error" role="alert" hidden></div><div id="app"></div></main>`}
 async function navigate(page){
  const seq=++pageSeq;current=page;selected.clear();$('#error').hidden=true;
  try{
