@@ -1,4 +1,4 @@
-import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.111';
+import {visibleItems,today,addDays,compareNotices,esc} from './shared.mjs?v=1.1.112';
 export const eventSymbol=item=>item.icon_emoji||'📌';
 export const longDate=date=>new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
 export function eventIndex(pages,date=today()){
@@ -24,10 +24,10 @@ export function moveMonth(month,delta){const d=new Date(month+'-01T12:00:00Z');d
 // Blank search restores the selected locality's normal three-board overview.
 // Nonblank search includes events AND information without a future date limit.
 export function filterNoticeBoards(pages,{q='',locality='',allLocalities=false,category='',audience=''}={},date=today()){
- const words=key(q).trim().split(/\s+/).filter(Boolean),searching=words.length>0||!!category||!!audience;
- const candidates=pages.filter(p=>searching&&allLocalities||key(p.locality_name)===key(locality));
+ const words=key(q).trim().split(/\s+/).filter(Boolean),searching=allLocalities||words.length>0||!!category||!!audience;
+ const candidates=pages.filter(p=>allLocalities||key(p.locality_name)===key(locality));
  const items=candidates.flatMap(p=>visibleItems(p.csv,date).map(i=>({...i,locality:p.locality_name,section:p.section,page_id:p.page_id}))).filter(i=>(!category||(i.category_id||'other')===category)&&(!audience||(i.audience_id||'all')===audience)&&words.every(w=>key([i.title,i.description,i.locality].join(' ')).includes(w)));
- return ['police','council','church'].map(section=>({section,items:items.filter(i=>i.section===section).sort(compareNotices)})).filter(g=>!searching||g.items.length>0);
+ return ['police','council','church'].map(section=>({section,items:items.filter(i=>i.section===section).sort(allLocalities?compareLocalityNotices:compareNotices)})).filter(g=>!searching||g.items.length>0);
 }
 export function highlightNotice(value,query=''){
  const text=String(value||''),lower=text.toLocaleLowerCase('en'),words=[...new Set(String(query).trim().toLocaleLowerCase('en').split(/\s+/).filter(Boolean))];
@@ -40,8 +40,9 @@ export function highlightNotice(value,query=''){
 // One shared result budget across all categories; deterministic order keeps Show more stable.
 export const NOTICE_SEARCH_PAGE_SIZE=20;
 export const automaticNoticeSearch=q=>Array.from(String(q||'').trim()).length>=3;
-export function pageNoticeResults(groups,limit=NOTICE_SEARCH_PAGE_SIZE){
- const all=groups.flatMap(g=>g.items).sort((a,b)=>compareNotices(a,b)||a.locality.localeCompare(b.locality)||a.section.localeCompare(b.section));
+export const compareLocalityNotices=(a,b)=>a.locality.localeCompare(b.locality,'mt',{sensitivity:'base'})||compareNotices(a,b)||a.section.localeCompare(b.section)||a.entry_id.localeCompare(b.entry_id);
+export function pageNoticeResults(groups,limit=NOTICE_SEARCH_PAGE_SIZE,byLocality=false){
+ const all=groups.flatMap(g=>g.items).sort(byLocality?compareLocalityNotices:(a,b)=>compareNotices(a,b)||a.locality.localeCompare(b.locality)||a.section.localeCompare(b.section));
  const selected=new Set(all.slice(0,Math.max(0,limit)));
  return {total:all.length,shown:selected.size,groups:groups.map(g=>({...g,items:g.items.filter(i=>selected.has(i))})).filter(g=>g.items.length)};
 }
