@@ -320,3 +320,27 @@ html[data-zoomed="true"] .public-notices #root>.source-panel{overflow:visible;fl
 .public-notices .combined-calendar .day-list-panel .result-group{border-left:4px solid var(--accent);padding:4px 0 4px 9px;margin:12px 0}
 .public-notices .combined-calendar .day-list-panel .result-locality{font-size:15px;color:var(--nb-secondary);margin-bottom:8px}
 @media(max-width:360px){.public-notices .source-panel.combined-calendar #sections{padding:6px}.combined-calendar .month-picker{font-size:16px;gap:5px}.combined-calendar .month-arrow{min-width:36px}.calendar-sector{gap:2px}.calendar-sector strong{font-size:11px}.sector-notice-icon{font-size:14px}.calendar-sector-legend{gap:12px}.public-notices .combined-calendar .calendar-day{padding-inline:2px}}
+
+/* Calendar and list share an explicit view title bar. */
+.public-notices .search-view-row{grid-template-columns:minmax(0,1fr)}
+.notice-view-titlebar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--nb-soft);border:1px solid var(--nb-border);border-radius:16px 16px 0 0;flex:none}
+.notice-view-titlebar h2{display:flex;align-items:center;gap:8px;margin:0;font-size:18px;color:var(--nb-ink)}
+.notice-view-titlebar h2 svg{width:25px;height:25px;flex:none}
+.view-mode-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:7px 10px;border:1px solid var(--nb-border);border-radius:10px;background:var(--nb-card);color:var(--nb-ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.view-mode-button svg{width:20px;height:20px;flex:none}
+.public-notices .source-panel.combined-calendar #sections{border-top:0;border-radius:0 0 16px 16px}
+.public-notices .combined-calendar .calendar-day.is-selected{background:var(--nb-card);outline:2px solid #f5e6a0;outline-offset:-2px}
+.calendar-sector-legend i{width:21px;height:12px;border-radius:4px}
+/* A native modal leaves the selected calendar visible beneath its backdrop. */
+.public-notices dialog.calendar-day-modal{box-sizing:border-box;inset:0;margin:auto;width:min(720px,calc(100% - 24px));max-width:calc(100% - 24px);max-height:calc(100dvh - 32px);padding:0;border:4px solid #fff;border-radius:18px;background:var(--nb-card);color:var(--nb-ink);box-shadow:0 20px 65px #0008;overflow:hidden}
+.calendar-day-modal::backdrop{background:rgba(0,0,0,.65)}
+.calendar-day-modal .day-events{display:flex;flex-direction:column;max-height:calc(100dvh - 40px);padding:0}
+.calendar-day-modal .day-results-heading{flex:none;margin:0;padding:12px 14px;background:var(--nb-soft);border-bottom:1px solid var(--nb-border);gap:12px}
+.calendar-day-modal .day-results-heading h2{margin:0;font-size:18px;line-height:1.35}
+.calendar-day-modal .day-circle-close{width:44px;height:44px;border:1px solid var(--nb-border);border-radius:11px;padding:10px;display:grid;place-items:center;cursor:pointer}
+.day-circle-close svg{display:block;width:22px;height:22px}
+.day-modal-content{overflow:auto;overscroll-behavior:contain;padding:0 14px 14px;min-height:0}
+.calendar-day-modal .result-group{border-left:4px solid var(--accent);padding:4px 0 4px 10px;margin:12px 0}
+.calendar-day-modal .result-locality{font-size:15px;color:var(--nb-secondary)}
+.public-notices:has(#dayDialog[open]){overflow:hidden}
+@media(max-width:380px){.notice-view-titlebar{padding:8px;gap:6px}.notice-view-titlebar h2{font-size:16px;gap:5px}.view-mode-button{font-size:12px;padding:6px}.calendar-day-modal .day-results-heading h2{font-size:16px}}

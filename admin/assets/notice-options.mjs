@@ -1,5 +1,5 @@
-import {CONFIG} from './config.mjs?v=1.1.124';
-import {normaliseOptions,optionsSignature,permanentOption,setOptionDeleted,validateGrid} from './notice-options-model.mjs?v=1.1.124';
+import {CONFIG} from './config.mjs?v=1.1.125';
+import {normaliseOptions,optionsSignature,permanentOption,setOptionDeleted,validateGrid} from './notice-options-model.mjs?v=1.1.125';
 export async function renderNoticeOptions({container,api,esc,isCurrent}){
  let data=await api.request('/noticeboard/admin/options');if(!isCurrent())return;
  let values=normaliseOptions(data),saved=optionsSignature(values),revision=data.revision,publication=data.publication||{state:'unknown'},kind='categories',showDeleted=false,busy=false;
