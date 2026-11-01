@@ -1,10 +1,10 @@
-import {esc,icon,sections} from './shared.mjs?v=1.1.133';
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.133';
-import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.133';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.133';
-import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.133';
-import {normaliseNoticeURL} from './links.mjs?v=1.1.133';
-import {detailHTML} from './presentation.mjs?v=1.1.133';
+import {esc,icon,sections} from './shared.mjs?v=1.1.134';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.134';
+import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.134';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.134';
+import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.134';
+import {normaliseNoticeURL} from './links.mjs?v=1.1.134';
+import {detailHTML} from './presentation.mjs?v=1.1.134';
 export const typeNames={info:'Information or advice',event:'Event or activity',disruption:'Disruption or temporary change'};
 export function validateWizardData(data,today,maximumInfo,maximumEvent){
  if(!data.title.trim()||!data.description.trim())throw Error('Please enter a title and message.');
@@ -31,8 +31,8 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
  for(const key of Object.keys(data))if(saved[key]!=null)data[key]=saved[key];
  data.notice_type=type;data.location_mode=data.location_mode||'none';
  for(const key of ['category_id','audience_id'])data[key]=(Array.isArray(data[key])?data[key]:String(data[key]).split('|')).filter(v=>v&&v!=='all');
- const steps=['Type and date','Write notice','Optional details','Preview'];
- let step=review?4:record?.step||1,detail='',pending=false,dirty=false;
+ const steps=['Type and date','Write notice','Optional details','Select an icon','Preview'];
+ let step=review?(data.icon_emoji?5:4):record?.step||1,detail='',pending=false,dirty=false;
  const oldClass=dialog.className;dialog.className='notice-wizard desk-wizard';dialog.setAttribute('aria-labelledby','wizardTitle');
  dialog.innerHTML='<form id="deskForm" novalidate><header class="desk-wizard-head"><p></p><button type="button" class="secondary" id="exitWizard">Close</button></header><div class="progress-dots" aria-hidden="true"></div><h2 id="wizardTitle" tabindex="-1"></h2><section id="deskFields"></section><p id="wizardError" role="alert" hidden></p><footer class="desk-controls"></footer></form>';
  const form=dialog.querySelector('form'),fields=form.querySelector('#deskFields'),footer=form.querySelector('footer'),err=form.querySelector('#wizardError');
@@ -45,7 +45,7 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
  const input=(name,label,kind='text',attrs='')=>`<label>${label}<input name="${name}" type="${kind}" value="${esc(data[name]||'')}" ${attrs}></label>`;
  const maxEvent=state.maximum_event_date||eventDateMaximum(state.today);
  const event=()=>data.notice_type==='event',disruption=()=>data.notice_type==='disruption';
- const details={place:'Place or online event',link:'Web link',symbol:'Calendar symbol',audience:'Audience',times:'Event times',expected:'Expected end'};
+ const details={place:'Place or online event',link:'Web link',audience:'Audience',times:'Event times',expected:'Expected end'};
  function collect(){
   for(const [k,v] of new FormData(form))if(Object.hasOwn(data,k))data[k]=v;
   for(const box of fields.querySelectorAll('.notice-multiselect'))data[box.dataset.field]=[...box.querySelectorAll('input:checked')].map(c=>c.value);
@@ -57,13 +57,14 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
  async function save(mark){
   if(pending)return;collect();if(mark)validate();
   pending=true;form.inert=true;
-  try{await request(path,{method:mark?'POST':'PATCH',token,body:{data,step,entry_revision:record?.entry_revision??item?.revision??0,draft_revision:record?.revision||0}});
+  // Backend v1.1.38 stores steps 1–4; saved previews resume at the icon review step.
+  try{await request(path,{method:mark?'POST':'PATCH',token,body:{data,step:Math.min(step,4),entry_revision:record?.entry_revision??item?.revision??0,draft_revision:record?.revision||0}});
   }catch(e){showError(e);return}finally{pending=false;form.inert=false}
   dirty=false;dialog.close();await onComplete(mark);
  }
  function render(){
   err.hidden=true;dialog.scrollTop=0;
-  const title=form.querySelector('h2');title.textContent=step+' of 4 · '+(detail?details[detail]:steps[step-1]);
+  const title=form.querySelector('h2');title.textContent=step+' of 5 · '+(detail?details[detail]:steps[step-1]);
   form.querySelector('.progress-dots').innerHTML=steps.map((_,i)=>'<i class="'+(i<step?'done':'')+'"></i>').join('');
   if(step===1){
    fields.innerHTML='<p>What would you like to share?</p><div class="type-tiles">'+Object.entries(typeNames).map(([k,v])=>`<button type="button" data-type="${k}" aria-pressed="${data.notice_type===k}">${icon(k==='event'?'calendar':k==='disruption'?'info':'list')}${v}</button>`).join('')+'</div>'+input('end_date',event()?'Event date':'Show until','date',`required min="${state.today}" max="${event()?maxEvent:state.maximum_info_date}"`)+(disruption()?input('start_date','Starts on','date','required'):'');
@@ -72,7 +73,7 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
    fields.innerHTML=input('title','Title','text','required maxlength="80"')+`<label>Message<textarea name="description" required maxlength="800">${esc(data.description)}</textarea></label>`+multiSelectionHTML('categories',data.category_id);
   }else if(step===3&&!detail){
    const summary={place:data.location_mode==='physical'?data.where_text:data.location_mode==='online'?'Online':'',link:data.link_title||data.link_url,symbol:data.icon_emoji||'📌',audience:data.audience_id.length?data.audience_id.length+' selected':'Everyone',times:data.start_time,expected:data.expected_end_date};
-   fields.innerHTML='<p>You can go straight to preview, or add a detail.</p><div class="detail-tiles">'+Object.entries(details).filter(([k])=>(k!=='times'||event())&&(k!=='expected'||disruption())).map(([k,v])=>`<button type="button" data-detail="${k}"><b>${v}</b><span>${esc(summary[k]||'Add')} ›</span></button>`).join('')+'</div>';
+   fields.innerHTML='<p>Add any details you need, then choose an icon.</p><div class="detail-tiles">'+Object.entries(details).filter(([k])=>(k!=='times'||event())&&(k!=='expected'||disruption())).map(([k,v])=>`<button type="button" data-detail="${k}"><b>${v}</b><span>${esc(summary[k]||'Add')} ›</span></button>`).join('')+'</div>';
    fields.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>{detail=b.dataset.detail;render()});
   }else if(step===3){
    if(detail==='place'){
@@ -80,15 +81,16 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
     const select=form.elements.location_mode;select.value=data.location_mode;const sync=()=>{const physical=select.value==='physical',online=select.value==='online';const group=fields.querySelector('#placeFields');group.hidden=group.disabled=!physical;form.elements.where_text.required=physical;fields.querySelector('#onlineFields').hidden=!online;form.elements.link_url.disabled=!online;form.elements.link_url.required=online};select.onchange=sync;sync();bindLocationFields(form,page);
    }else if(detail==='link')fields.innerHTML=input('link_url','Link URL','text','maxlength="2048"')+input('link_title','Link text','text','maxlength="80"');
    else if(detail==='audience')fields.innerHTML=multiSelectionHTML('audiences',data.audience_id);
-   else if(detail==='symbol'){fields.innerHTML=symbolPickerHTML(data.icon_emoji);bindSymbolPicker(form)}
    else if(detail==='times')fields.innerHTML=input('start_time','Start time · Malta','time')+input('end_time','End time · Malta','time');
    else fields.innerHTML=input('expected_end_date','Expected end date','date')+input('expected_end_time','Expected end time · Malta','time');
+  }else if(step===4){
+   fields.innerHTML=symbolPickerHTML(data.icon_emoji);bindSymbolPicker(form);
   }else{
    fields.innerHTML=`<div class="wizard-preview"><article class="notice-detail-modal ${page.section}">${detailHTML({...data,locality:page.locality_name},section,page.locality_name)}</article></div><p class="wizard-preview-warning">Residents will only see these changes after you press <b>Publish all</b> on the ${esc(page.locality_name)} ${esc(section.name)} noticeboard.</p>`;
    fields.querySelector('#closeNotice')?.remove();fields.querySelectorAll('a').forEach(a=>{a.removeAttribute('href');a.tabIndex=-1});
   }
   bindMultiSelections(form);for(const panel of fields.querySelectorAll('.notice-multiselect details')){panel.open=true;panel.querySelector('summary').hidden=true}
-  footer.innerHTML=(step>1?'<button id="backStep" type="button" class="secondary">Back</button>':'')+'<button id="draftExit" type="button" class="secondary">Save draft and exit</button><button class="primary" type="submit">'+(detail?'Done':(['Next · Write notice','Next · Details','Preview notice','Mark for publication'][step-1]))+'</button>';
+  footer.innerHTML=(step>1?'<button id="backStep" type="button" class="secondary">Back</button>':'')+'<button id="draftExit" type="button" class="secondary">Save draft and exit</button><button class="primary" type="submit">'+(detail?'Done':(['Next · Write notice','Next · Details','Next · Select an icon','Preview notice','Mark for publication'][step-1]))+'</button>';
   if(step>1)footer.querySelector('#backStep').onclick=()=>{collect();if(detail)detail='';else step--;render()};
   footer.querySelector('#draftExit').onclick=()=>save(false).catch(showError);
   title.focus({preventScroll:true});
@@ -98,7 +100,7 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
   if(detail){if(detail==='link'||detail==='place')data.link_url=normaliseNoticeURL(data.link_url);detail='';render();return}
   if(step===1&&disruption()&&data.start_date>data.end_date)throw Error('Starts on must be on or before Show until.');
   if(step===2)readMultiSelections(form);if(step>=3)validate();
-  if(step===4){save(true).catch(showError);return}step++;render();
+  if(step===5){save(true).catch(showError);return}step++;render();
  }catch(e){showError(e)}};
  dialog.showModal();render();
 }
