@@ -1,12 +1,13 @@
-import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.129';
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.129';
-import {loadOptions,optionSelect,noticeTags,multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.129';
-import {openSlotHelp} from './editor-help.mjs?v=1.1.129';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.129';
-import {normaliseNoticeURL,noticeLink} from './links.mjs?v=1.1.129';
-import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.129';
-import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.129';
-import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.129';
+import {openNoticeWizard} from './wizard.mjs?v=1.1.130';
+import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.130';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.130';
+import {loadOptions,optionSelect,noticeTags,multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.130';
+import {openSlotHelp} from './editor-help.mjs?v=1.1.130';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.130';
+import {normaliseNoticeURL,noticeLink} from './links.mjs?v=1.1.130';
+import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.130';
+import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.130';
+import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.130';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0;
 function updateEditorTitle(){const title=(activeSection?sections[activeSection].name:'Community')+' Noticeboard Editor';const header=document.querySelector('#noticeboardTitle');if(header)header.textContent=title;document.title=title+' · Bag Day Malta'}
 updateEditorTitle();
@@ -44,26 +45,12 @@ function render(){const p=state.page,status=noticeStatus(state.items,state.publi
  root.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>edit(state.items.find(i=>i.entry_id===b.dataset.edit)));
  root.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{const item=state.items.find(i=>i.entry_id===b.dataset.delete);if(confirm('Delete “'+item.title+'”? Publish afterwards to remove it from the public board.'))run(async()=>{await request('/noticeboard/'+pageId+'/entries/'+encodeURIComponent(item.entry_id),{method:'DELETE',token,body:{revision:item.revision}});await refresh()})});
 }
-const typeNames={info:'Information or advice',event:'Event or activity',disruption:'Disruption or temporary change'};
-function chooseNoticeType(){
- dialog.setAttribute('aria-labelledby','noticeTypeTitle');dialog.innerHTML=`<h2 id="noticeTypeTitle">What would you like to post?</h2><p class="hint">Choose a type to see only the fields you need.</p><div class="notice-type-choices">${Object.entries(typeNames).map(([type,name])=>`<button type="button" class="notice-type-choice" data-type="${type}">${icon(type==='event'?'calendar':type==='disruption'?'info':'list')}<span><strong>${name}</strong><small>${type==='info'?'Advice, warnings and general announcements':type==='event'?'Something happening on a date': 'Closures, interruptions and service changes'}</small></span></button>`).join('')}</div><button type="button" class="secondary" id="cancelType">Cancel</button>`;
- dialog.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{dialog.close();edit(null,b.dataset.type)});dialog.querySelector('#cancelType').onclick=()=>dialog.close();dialog.showModal();
-}
+function chooseNoticeType(){edit()}
 function edit(item,chosenType){
- const type=chosenType||item?.notice_type||item?.kind||'info';
- dialog.setAttribute('aria-labelledby','editNoticeTitle');dialog.innerHTML=`<h2 id="editNoticeTitle">${item?'Edit notice':'New notice'}</h2><form id="editForm"><div class="notice-type-summary"><strong>${esc(typeNames[type])}</strong><button type="button" class="secondary" id="changeType">Change type</button></div><input type="hidden" name="notice_type" value="${type}"><input type="hidden" name="kind" value="${type==='event'?'event':'info'}"><label>${type==='event'?'Event date':'Show until'}<input type="date" name="end_date" required min="${state.today}" max="${type==='event'?(state.maximum_event_date||eventDateMaximum(state.today)):state.maximum_info_date}" value="${item?.end_date||(type==='event'?state.today:state.maximum_info_date)}"></label><p class="hint">${type==='event'?'Visible through the event date.':'The notice will disappear after this date (up to 30 days). Editing the text will not change this date.'}</p>${type==='event'?`<fieldset id="eventTimes"><legend>Event times (optional)</legend><p class="hint">Malta time. Leave both blank for an all-day event.</p><label>Start time<input type="time" name="start_time" value="${esc(item?.start_time||'')}"></label><label>End time<input type="time" name="end_time" value="${esc(item?.end_time||'')}"></label></fieldset>`:''}${type==='disruption'?`<fieldset id="disruptionDates"><legend>Disruption dates</legend><label>Starts on<input type="date" name="start_date" required value="${esc(item?.start_date||state.today)}"></label><label>Expected end date (optional)<input type="date" name="expected_end_date" value="${esc(item?.expected_end_date||'')}"></label><label>Expected end time (optional · Malta time)<input type="time" name="expected_end_time" value="${esc(item?.expected_end_time||'')}"></label><p class="hint">Leave the expected end blank if it is not known. Show until controls when the notice disappears.</p></fieldset>`:''}<label>Title<input name="title" required maxlength="80" value="${esc(item?.title||'')}"></label><label>Description<textarea name="description" required maxlength="800">${esc(item?.description||'')}</textarea></label><label>${type==='event'?'Where does it happen?':'Does this notice concern a specific place?'}<select name="location_mode"><option value="none">${type==='event'?'Location not needed / to be announced':'No specific place'}</option><option value="physical">${type==='event'?'At a physical place':'Yes · a specific place or affected area'}</option>${type==='event'?'<option value="online">Online</option>':''}</select></label><fieldset id="locationFields" hidden disabled>${locationFields(item||{})}</fieldset>${symbolPickerHTML(item?.icon_emoji||'')}<label><span id="linkLabel">Link URL (optional)</span><input name="link_url" inputmode="url" autocomplete="url" maxlength="2048" placeholder="https://example.com" value="${esc(item?.link_url||'')}"></label><label>Link text (optional)<input name="link_title" maxlength="80" placeholder="More details" value="${esc(item?.link_title||'')}"></label>${multiSelectionHTML('categories',item?.category_id)}${multiSelectionHTML('audiences',item?.audience_id)}<p id="formError" class="status error" role="alert" hidden></p><div class="toolbar"><button class="primary" type="submit">Save draft</button><button type="button" class="secondary" id="cancel">Cancel</button></div></form>`;
- const form=dialog.querySelector('form');bindSymbolPicker(form,token);bindMultiSelections(form);bindLocationFields(form,state.page);
- form.elements.location_mode.value=item?.location_mode==='online'&&type!=='event'?'none':item?.location_mode||(item?.where_text?'physical':'none');
- function locationUpdate(){const mode=form.elements.location_mode.value,fields=form.querySelector('#locationFields');fields.hidden=mode!=='physical';fields.disabled=mode!=='physical';form.elements.where_text.required=mode==='physical';form.elements.link_url.required=mode==='online';form.querySelector('#linkLabel').textContent=mode==='online'?'Online joining / details URL *':'Link URL (optional)'}
- form.elements.location_mode.onchange=locationUpdate;locationUpdate();
- dialog.querySelector('#changeType').onclick=()=>{if(!confirm('Change notice type? Unsaved changes in this form will be discarded.'))return;dialog.close();if(item){const chooser=document.createElement('dialog');chooser.innerHTML=`<h2>Choose notice type</h2><div class="notice-type-choices">${Object.entries(typeNames).map(([k,v])=>`<button class="secondary" data-kind="${k}">${v}</button>`).join('')}</div><button id="cancelChange" class="secondary">Cancel</button>`;document.body.append(chooser);chooser.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{chooser.close();edit(item,b.dataset.kind)});chooser.querySelector('#cancelChange').onclick=()=>{chooser.close();edit(item,type)};chooser.addEventListener('close',()=>chooser.remove(),{once:true});chooser.showModal()}else chooseNoticeType()};
- dialog.querySelector('#cancel').onclick=()=>dialog.close();
- form.onsubmit=async e=>{e.preventDefault();const submit=e.submitter;if(submit.disabled)return;submit.disabled=true;try{
- const mode=form.elements.location_mode.value,data={...Object.fromEntries(new FormData(form)),...readMultiSelections(form),...(mode==='physical'?readLocationFields(form):{where_text:'',latitude:null,longitude:null})};
- if(data.kind==='event'&&(Boolean(data.start_time)!==Boolean(data.end_time)||data.start_time&&data.end_time<=data.start_time))throw Error('Enter both times, with the end later on the same day, or leave both blank.');
- data.link_url=normaliseNoticeURL(data.link_url);if(item)data.revision=item.revision;
- await request('/noticeboard/'+pageId+'/entries'+(item?'/'+encodeURIComponent(item.entry_id):''),{method:item?'PATCH':'POST',body:data,token});dialog.close();await refresh();message('Draft saved. Press Publish when ready.','success');
- }catch(err){const el=dialog.querySelector('#formError');el.textContent=err.message;el.hidden=false}finally{submit.disabled=false}};
- dialog.showModal();
+ const snapshot={...state,changed:noticeStatus(state.items,state.published).changed};
+ openNoticeWizard({dialog,state:snapshot,item,chosenType,token,request,
+ verify:async current=>{const published=(await publishedPages()).find(p=>p.page_id===current.page.page_id);return noticeStatus(current.items,published).state==='published'},
+ onComplete:async result=>{await refresh();message(result.published?'Published and verified successfully.':'Draft saved. Your changes will only be visible after you publish them.','success')}
+ });
 }
 login();
