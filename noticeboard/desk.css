@@ -30,3 +30,5 @@ dialog.desk-wizard{width:min(760px,calc(100% - 20px));padding:clamp(14px,3vw,30p
 .simple-symbol-picker .symbol-choices button{color:inherit}
 .simple-symbol-picker .symbol-choices button[aria-pressed=true]{outline:2px solid #3bc0ad;outline-offset:-2px;background:color-mix(in srgb,var(--nb-card),#3bc0ad 18%)}
 .simple-symbol-picker #symbolStatus:empty{display:none}
+
+.public-notice-preview{display:block;width:100%;height: min(680px,70dvh);min-height:320px;border:0;border-radius:12px;margin:16px 0;background:var(--nb-bg)}

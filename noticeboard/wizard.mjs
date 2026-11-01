@@ -1,10 +1,10 @@
-import {esc,icon,sections} from './shared.mjs?v=1.1.134';
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.134';
-import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.134';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.134';
-import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.134';
-import {normaliseNoticeURL} from './links.mjs?v=1.1.134';
-import {detailHTML} from './presentation.mjs?v=1.1.134';
+import {esc,icon,sections} from './shared.mjs?v=1.1.135';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.135';
+import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.135';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.135';
+import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.135';
+import {normaliseNoticeURL} from './links.mjs?v=1.1.135';
+import {mountNoticePreview} from './preview.mjs?v=1.1.135';
 export const typeNames={info:'Information or advice',event:'Event or activity',disruption:'Disruption or temporary change'};
 export function validateWizardData(data,today,maximumInfo,maximumEvent){
  if(!data.title.trim()||!data.description.trim())throw Error('Please enter a title and message.');
@@ -86,8 +86,8 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
   }else if(step===4){
    fields.innerHTML=symbolPickerHTML(data.icon_emoji);bindSymbolPicker(form);
   }else{
-   fields.innerHTML=`<div class="wizard-preview"><article class="notice-detail-modal ${page.section}">${detailHTML({...data,locality:page.locality_name},section,page.locality_name)}</article></div><p class="wizard-preview-warning">Residents will only see these changes after you press <b>Publish all</b> on the ${esc(page.locality_name)} ${esc(section.name)} noticeboard.</p>`;
-   fields.querySelector('#closeNotice')?.remove();fields.querySelectorAll('a').forEach(a=>{a.removeAttribute('href');a.tabIndex=-1});
+   fields.innerHTML=`<p class="hint">Public notice preview. Links are inactive here; the layout adapts to the screen size.</p><iframe class="public-notice-preview" title="Notice as displayed in Bag Day" sandbox="allow-same-origin"></iframe><p class="wizard-preview-warning">Residents will only see these changes after you press <b>Publish all</b> on the ${esc(page.locality_name)} ${esc(section.name)} noticeboard.</p>`;
+   mountNoticePreview(fields.querySelector('iframe'),{...data,section:page.section,locality:page.locality_name},section,page.locality_name,()=>{step=4;render()});
   }
   bindMultiSelections(form);for(const panel of fields.querySelectorAll('.notice-multiselect details')){panel.open=true;panel.querySelector('summary').hidden=true}
   footer.innerHTML=(step>1?'<button id="backStep" type="button" class="secondary">Back</button>':'')+'<button id="draftExit" type="button" class="secondary">Save draft and exit</button><button class="primary" type="submit">'+(detail?'Done':(['Next · Write notice','Next · Details','Next · Select an icon','Preview notice','Mark for publication'][step-1]))+'</button>';
