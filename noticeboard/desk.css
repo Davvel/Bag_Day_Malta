@@ -23,3 +23,10 @@ dialog.desk-wizard{width:min(760px,calc(100% - 20px));padding:clamp(14px,3vw,30p
 .editor-desk .brand[data-section] span{color:var(--desk-text)}.editor-desk .brand[data-section=police]{color:#78acff}.editor-desk .brand[data-section=council]{color:#78d9a1}.editor-desk .brand[data-section=church]{color:#b498ed}
 .desk-hero::before{left:auto;width:min(48%,360px);background-image:var(--art);background-size:cover;mask-image:linear-gradient(90deg,transparent,#000 40%);pointer-events:none}
 #slotHelp svg{width:16px;height:16px;vertical-align:middle}
+
+.desk-wizard .simple-symbol-picker{margin:12px 0;padding:14px}
+.desk-wizard .single-symbol-label{justify-items:start}
+.desk-wizard .single-symbol-label input{width:76px;height:64px;padding:6px;text-align:center;font-size:32px}
+.simple-symbol-picker .symbol-choices button{color:inherit}
+.simple-symbol-picker .symbol-choices button[aria-pressed=true]{outline:2px solid #3bc0ad;outline-offset:-2px;background:color-mix(in srgb,var(--nb-card),#3bc0ad 18%)}
+.simple-symbol-picker #symbolStatus:empty{display:none}

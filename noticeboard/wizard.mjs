@@ -1,10 +1,10 @@
-import {esc,icon,sections} from './shared.mjs?v=1.1.132';
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.132';
-import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.132';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.132';
-import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.132';
-import {normaliseNoticeURL} from './links.mjs?v=1.1.132';
-import {detailHTML} from './presentation.mjs?v=1.1.132';
+import {esc,icon,sections} from './shared.mjs?v=1.1.133';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.133';
+import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.133';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.133';
+import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.133';
+import {normaliseNoticeURL} from './links.mjs?v=1.1.133';
+import {detailHTML} from './presentation.mjs?v=1.1.133';
 export const typeNames={info:'Information or advice',event:'Event or activity',disruption:'Disruption or temporary change'};
 export function validateWizardData(data,today,maximumInfo,maximumEvent){
  if(!data.title.trim()||!data.description.trim())throw Error('Please enter a title and message.');
@@ -80,7 +80,7 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
     const select=form.elements.location_mode;select.value=data.location_mode;const sync=()=>{const physical=select.value==='physical',online=select.value==='online';const group=fields.querySelector('#placeFields');group.hidden=group.disabled=!physical;form.elements.where_text.required=physical;fields.querySelector('#onlineFields').hidden=!online;form.elements.link_url.disabled=!online;form.elements.link_url.required=online};select.onchange=sync;sync();bindLocationFields(form,page);
    }else if(detail==='link')fields.innerHTML=input('link_url','Link URL','text','maxlength="2048"')+input('link_title','Link text','text','maxlength="80"');
    else if(detail==='audience')fields.innerHTML=multiSelectionHTML('audiences',data.audience_id);
-   else if(detail==='symbol'){fields.innerHTML=input('title','','hidden')+input('description','','hidden')+symbolPickerHTML(data.icon_emoji);bindSymbolPicker(form,token)}
+   else if(detail==='symbol'){fields.innerHTML=symbolPickerHTML(data.icon_emoji);bindSymbolPicker(form)}
    else if(detail==='times')fields.innerHTML=input('start_time','Start time · Malta','time')+input('end_time','End time · Malta','time');
    else fields.innerHTML=input('expected_end_date','Expected end date','date')+input('expected_end_time','Expected end time · Malta','time');
   }else{
