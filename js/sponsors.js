@@ -95,6 +95,10 @@
       heading:a=>a.dataset.advertKind==='community'?'Community':sponsorStale?'Sponsored · saved data':'Sponsored'
     });
   }
+  function councilWebsite(locality){
+    const details=councilRows.find(r=>canonical(r.locality||r.council)===canonical(locality));
+    return safeURL(details?.website||details?.websiteurl);
+  }
   function render(locality,date){
     last=[locality,date];
     const council=document.getElementById('councilPanel'),panel=document.getElementById('sponsorPanel');
@@ -179,7 +183,7 @@
     })().finally(()=>{refreshPromise=null;});
     return refreshPromise;
   }
-  window.BAG_DAY_SPONSORS={render,parseCSV,bookings,safeURL,bannerURLs,refresh,status:()=>({source:'Cloudflare',version:publicationVersion,saved_data:sponsorStale,last_error:lastExportError})};
+  window.BAG_DAY_SPONSORS={render,councilWebsite,parseCSV,bookings,safeURL,bannerURLs,refresh,status:()=>({source:'Cloudflare',version:publicationVersion,saved_data:sponsorStale,last_error:lastExportError})};
   window.addEventListener('bag-day-community-ready',()=>{if(last)render(...last);window.dispatchEvent(new Event('bag-day-sponsors-ready'))});
   function midnight(){setTimeout(()=>{notify();midnight()},Math.max(1,window.BAG_DAY_ADVERT_POLICY.nextMidnight()-Date.now()+1))}midnight();
   // Council data remains in the existing GitHub-hosted file.

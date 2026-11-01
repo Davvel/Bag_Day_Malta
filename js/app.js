@@ -549,6 +549,13 @@
       $('collectionCardBody').innerHTML=`<div class="collection-card"><h2 class="collection-heading"><span class="collection-type-icon" aria-hidden="true">${schedule.bag==='organic'?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3C9 2 3 8 5 15c2 6 12 6 15-12Z" fill="currentColor"/><path d="M4 21 15 9" stroke="#ba8c52" stroke-width="2"/></svg>':schedule.bag==='recycle'?'♻':'▣'}</span>${label} <span class="collection-day-tag">(${dayOffset<=0?'Today':dayOffset===1?'Tomorrow':weekday})</span></h2><div class="collection-main">${figures}<div class="collection-timing"><button type="button" class="put-out-instruction" data-time-info aria-label="Put-out times. More information"><span><span aria-hidden="true">◷</span> Put out between</span><strong>${displayClock(formatTime(time))} <span class="time-between">and</span> ${displayClock(time)}</strong></button><button type="button" class="collection-start" data-time-info aria-label="Collection starts at ${time}. More information"><span><svg class="timing-truck" viewBox="0 0 24 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 3h12v11H2Z M14 7h4l4 4v3h-8"/><circle cx="6" cy="15" r="2"/><circle cx="18" cy="15" r="2"/></svg> Collection starts <span class="info-circle" aria-hidden="true">i</span></span><strong>${displayClock(time)}</strong></button></div></div>${batteryBanner}</div>`;
 
     }
+    const today=maltaToday(),month=today.getUTCMonth(),day=today.getUTCDate();
+    $('holidayAdvisory').hidden=!((month===11&&((day>=22&&day<=25)||day>=29))||(month===0&&day===1));
+    const councilURL=window.BAG_DAY_SPONSORS.councilWebsite(locality);
+    const councilLink=$('holidayCouncilLink');
+    councilLink.hidden=!councilURL;
+    if(councilURL){councilLink.href=councilURL;councilLink.setAttribute('aria-label',locality+' local council website (opens a new tab)');}
+    else councilLink.removeAttribute('href');
     const different=!followLocation && !temporaryView && detected&&detected!==selected&&!promptIsDismissed();
     $('locationNotice').hidden=!different;
     if(different)$('noticeText').textContent=`Nearby: ${detected}`;

@@ -315,3 +315,12 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
 
 #dashboard #councilPanel{grid-template-columns:35px minmax(0,1fr)}
 @media(max-width:360px){#appContent .app .topbar{grid-template-columns:84px minmax(0,1fr) 44px}}
+
+/* Annual holiday collection advisory. Its natural height contributes to home fitting. */
+.holiday-advisory{background:#ffe28a;color:#382708;border:1px solid #e5bb46;border-radius:14px;padding:12px 14px;margin:10px 0;font-size:14px;line-height:1.45;flex-shrink:0}
+.holiday-advisory[hidden]{display:none!important}
+.holiday-advisory strong{display:block;font-size:16px}
+.holiday-advisory p{margin:6px 0 8px}
+.holiday-advisory-links{display:flex;gap:20px;flex-wrap:wrap}
+.holiday-advisory a{color:#382708;text-decoration:underline;text-underline-offset:3px;font-weight:700;padding:6px 0}
+.holiday-advisory a:focus-visible{outline:3px solid #382708;outline-offset:3px;border-radius:3px}
