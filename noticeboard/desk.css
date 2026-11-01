@@ -32,3 +32,16 @@ dialog.desk-wizard{width:min(760px,calc(100% - 20px));padding:clamp(14px,3vw,30p
 .simple-symbol-picker #symbolStatus:empty{display:none}
 
 .public-notice-preview{display:block;width:100%;height: min(680px,70dvh);min-height:320px;border:0;border-radius:12px;margin:16px 0;background:var(--nb-bg)}
+
+/* Review keeps the decision controls outside the scrolling public notice. */
+dialog.desk-wizard.desk-review{height:calc(100dvh - 24px);max-height:calc(100dvh - 24px);overflow:hidden;box-sizing:border-box;padding:16px 22px}
+.desk-review #deskForm{height:100%;min-height:0;display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto auto}
+.desk-review .desk-wizard-head p{margin:4px 0}.desk-review #wizardTitle{margin:12px 0 6px}
+.desk-review #deskFields{display:flex;flex-direction:column;min-height:0}
+.desk-review .review-instruction{margin:0 0 8px}.desk-review .review-caption{margin:0 0 4px;font-size:13px}
+.desk-review .public-notice-preview{flex:1;min-height:0;height:100%;margin:0}
+.desk-review .desk-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding-top:10px;background:var(--nb-card)}
+.desk-review .review-publication-note{flex-basis:100%;margin:0;font-size:14px;line-height:1.4}
+.desk-review #wizardError{margin:6px 0;max-height:70px;overflow:auto}
+@media(max-width:600px){dialog.desk-wizard.desk-review{padding:10px}.desk-review .desk-controls button{padding:10px;font-size:14px}.desk-review .desk-controls .primary{flex-basis:100%;margin-left:0}.desk-review #wizardTitle{font-size:22px}.desk-review .review-instruction{font-size:14px}}
+@media(max-height:500px){.desk-review .desk-wizard-head{display:none}.desk-review .progress-dots{margin-top:0}.desk-review #wizardTitle{font-size:20px;margin:6px 0}.desk-review .review-caption{display:none}.desk-review .desk-controls{margin-top:4px;padding-top:4px}}

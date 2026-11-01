@@ -1,10 +1,10 @@
-import {esc,icon,sections} from './shared.mjs?v=1.1.135';
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.135';
-import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.135';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.135';
-import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.135';
-import {normaliseNoticeURL} from './links.mjs?v=1.1.135';
-import {mountNoticePreview} from './preview.mjs?v=1.1.135';
+import {esc,icon,sections} from './shared.mjs?v=1.1.136';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.136';
+import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.136';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.136';
+import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.136';
+import {normaliseNoticeURL} from './links.mjs?v=1.1.136';
+import {mountNoticePreview} from './preview.mjs?v=1.1.136';
 export const typeNames={info:'Information or advice',event:'Event or activity',disruption:'Disruption or temporary change'};
 export function validateWizardData(data,today,maximumInfo,maximumEvent){
  if(!data.title.trim()||!data.description.trim())throw Error('Please enter a title and message.');
@@ -31,10 +31,10 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
  for(const key of Object.keys(data))if(saved[key]!=null)data[key]=saved[key];
  data.notice_type=type;data.location_mode=data.location_mode||'none';
  for(const key of ['category_id','audience_id'])data[key]=(Array.isArray(data[key])?data[key]:String(data[key]).split('|')).filter(v=>v&&v!=='all');
- const steps=['Type and date','Write notice','Optional details','Select an icon','Preview'];
+ const steps=['Type and date','Write notice','Optional details','Select an icon','Review your notice'];
  let step=review?(data.icon_emoji?5:4):record?.step||1,detail='',pending=false,dirty=false;
  const oldClass=dialog.className;dialog.className='notice-wizard desk-wizard';dialog.setAttribute('aria-labelledby','wizardTitle');
- dialog.innerHTML='<form id="deskForm" novalidate><header class="desk-wizard-head"><p></p><button type="button" class="secondary" id="exitWizard">Close</button></header><div class="progress-dots" aria-hidden="true"></div><h2 id="wizardTitle" tabindex="-1"></h2><section id="deskFields"></section><p id="wizardError" role="alert" hidden></p><footer class="desk-controls"></footer></form>';
+ dialog.innerHTML='<form id="deskForm" novalidate><header class="desk-wizard-head"><p></p><button type="button" class="secondary" id="exitWizard">Exit editor</button></header><div class="progress-dots" aria-hidden="true"></div><h2 id="wizardTitle" tabindex="-1"></h2><section id="deskFields"></section><p id="wizardError" role="alert" hidden></p><footer class="desk-controls"></footer></form>';
  const form=dialog.querySelector('form'),fields=form.querySelector('#deskFields'),footer=form.querySelector('footer'),err=form.querySelector('#wizardError');
  form.querySelector('header p').textContent=page.locality_name+' · '+section.name;
  function close(){if(!pending&&(!dirty||confirm('Discard your unsaved changes? Choose Cancel to keep editing.')))dialog.close()}
@@ -63,6 +63,7 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
   dirty=false;dialog.close();await onComplete(mark);
  }
  function render(){
+  dialog.classList.toggle('desk-review',step===5);
   err.hidden=true;dialog.scrollTop=0;
   const title=form.querySelector('h2');title.textContent=step+' of 5 · '+(detail?details[detail]:steps[step-1]);
   form.querySelector('.progress-dots').innerHTML=steps.map((_,i)=>'<i class="'+(i<step?'done':'')+'"></i>').join('');
@@ -86,11 +87,11 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
   }else if(step===4){
    fields.innerHTML=symbolPickerHTML(data.icon_emoji);bindSymbolPicker(form);
   }else{
-   fields.innerHTML=`<p class="hint">Public notice preview. Links are inactive here; the layout adapts to the screen size.</p><iframe class="public-notice-preview" title="Notice as displayed in Bag Day" sandbox="allow-same-origin"></iframe><p class="wizard-preview-warning">Residents will only see these changes after you press <b>Publish all</b> on the ${esc(page.locality_name)} ${esc(section.name)} noticeboard.</p>`;
-   mountNoticePreview(fields.querySelector('iframe'),{...data,section:page.section,locality:page.locality_name},section,page.locality_name,()=>{step=4;render()});
+   fields.innerHTML='<p class="review-instruction">Check your notice, then mark it for publication below.</p><p class="hint review-caption">Preview only — links and × are inactive.</p><iframe class="public-notice-preview" title="Notice as displayed in Bag Day" sandbox="allow-same-origin"></iframe>';
+   mountNoticePreview(fields.querySelector('iframe'),{...data,section:page.section,locality:page.locality_name},section,page.locality_name);
   }
   bindMultiSelections(form);for(const panel of fields.querySelectorAll('.notice-multiselect details')){panel.open=true;panel.querySelector('summary').hidden=true}
-  footer.innerHTML=(step>1?'<button id="backStep" type="button" class="secondary">Back</button>':'')+'<button id="draftExit" type="button" class="secondary">Save draft and exit</button><button class="primary" type="submit">'+(detail?'Done':(['Next · Write notice','Next · Details','Next · Select an icon','Preview notice','Mark for publication'][step-1]))+'</button>';
+  footer.innerHTML=(step===5?'<p class="review-publication-note">Not public yet. <b>Publish all</b> makes it live.</p>':'')+(step>1?'<button id="backStep" type="button" class="secondary">Back</button>':'')+'<button id="draftExit" type="button" class="secondary">Save draft and exit</button><button class="primary" type="submit">'+(detail?'Done':(['Next · Write notice','Next · Details','Next · Select an icon','Preview notice','Mark for publication ✓'][step-1]))+'</button>';
   if(step>1)footer.querySelector('#backStep').onclick=()=>{collect();if(detail)detail='';else step--;render()};
   footer.querySelector('#draftExit').onclick=()=>save(false).catch(showError);
   title.focus({preventScroll:true});
