@@ -1,12 +1,13 @@
-import {mapURL} from './locations.mjs?v=1.1.128';
-import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.128';
-import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.128';
-import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.128';
-import {noticeLink} from './links.mjs?v=1.1.128';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.128';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.128';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.128';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.128';
+import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.129';
+import {mapURL} from './locations.mjs?v=1.1.129';
+import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.129';
+import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.129';
+import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.129';
+import {noticeLink} from './links.mjs?v=1.1.129';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.129';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.129';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.129';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.129';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
 let pages=[],loaded=false,error='',filterWarning='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,renderEpoch=0,searchTimer=null;
 const params=()=>new URLSearchParams(location.search);
@@ -33,7 +34,7 @@ function navigate(patch,{replace=false,entry=false,scroll=true,day=false}={}){
  const state={noticeboard:true,noticeEntry:entry,noticeDay:day,...(returnCalendar?{returnCalendar}:{}),...(Number.isInteger(steps)&&steps>0?{bagDayHomeSteps:steps+(replace?0:1)}:{})};
  history[replace?'replaceState':'pushState'](state,'',href(patch));render();if(!scroll&&root.querySelector('#sections'))root.querySelector('#sections').scrollTop=feedPosition;if(scroll&&!entry)root.querySelector('#sections')?.scrollTo?.(0,0);
 }
-function openEntry(item){navigate({entry:item.entry_id,page:item.page_id},{entry:true,scroll:false})}
+function openEntry(item){if(!item)return;trackNotice('notice_open',item);navigate({entry:item.entry_id,page:item.page_id},{entry:true,scroll:false})}
 function closeEntry(){if(history.state?.noticeEntry)history.back();else navigate({entry:null,page:null},{replace:true,scroll:false})}
 function returnToCalendar(){if(history.state?.noticeDay)history.back();else navigate({view:'calendar',entry:null,page:null,filters:null},{replace:true})}
 function searchOptions(){const p=params();return {q:p.get('q')||'',locality,allLocalities:p.get('all')==='1',category:p.get('category')||'',audience:p.get('audience')==='all'?'':p.get('audience')||''}}
@@ -64,13 +65,19 @@ function handlePopState(){
  }
  if(dialog.open)dialog.close();render();restorePosition();
 }
-function badge(item){if(item.kind==='info')return `<span class="notice-emoji" aria-hidden="true">${esc(eventSymbol(item))}</span><span>Info</span>`;
- const d=new Date(item.end_date+'T12:00:00Z');return `<span class="date-weekday">${d.toLocaleDateString('en-GB',{weekday:'short',timeZone:'UTC'}).toUpperCase()}</span><strong>${d.getUTCDate()}</strong><span>${d.toLocaleDateString('en-GB',{month:'short',timeZone:'UTC'}).toUpperCase()}</span>`;}
+function badge(item){return noticeBadge(item)}
+function trackNotice(name,item){window.BAG_DAY_ANALYTICS?.event(name,{notice_id:item.entry_id,notice_title:item.title,notice_section:item.section,notice_type:item.notice_type||item.kind,notice_locality:item.locality||locality})}
 function card(item,search=false){
  const id=String(lookup.size);lookup.set(id,item);
- return `<article class="notice notice-with-symbol"><button type="button" class="notice-symbol" data-open="${id}" aria-label="Read ${esc(item.title)}"><span aria-hidden="true">${esc(eventSymbol(item))}</span></button><div class="notice-copy"><button class="notice-open" data-open="${id}"><span class="notice-title">${highlightNotice(item.title,search?params().get('q')||'':'')}</span><span class="notice-description">${highlightNotice(item.description,search?params().get('q')||'':'')}</span></button>${noticeLink(item)}</div>${item.kind==='event'?`<button type="button" class="notice-date-add" data-open="${id}" aria-label="Read ${esc(item.title)}, ${esc(longDate(item.end_date))}" title="Open notice details"><span class="date-chip">${badge(item)}</span></button>`:'<span class="notice-info-tag">Info</span>'}</article>`;
+ return `<article class="notice notice-with-symbol" data-card-open="${id}"><button type="button" class="notice-symbol" data-open="${id}" aria-label="Read ${esc(item.title)}"><span aria-hidden="true">${esc(eventSymbol(item))}</span></button><div class="notice-copy"><button class="notice-open" data-open="${id}"><span class="notice-title">${highlightNotice(item.title,search?params().get('q')||'':'')}</span><span class="notice-description">${highlightNotice(item.description,search?params().get('q')||'':'')}</span>${item.kind==='event'&&item.start_time?`<span class="notice-list-time">${icon('clock')} ${esc(item.start_time)}–${esc(item.end_time)}</span>`:''}</button></div><button type="button" class="notice-date-add" data-open="${id}" aria-label="Read ${esc(item.title)}${item.kind==='event'?', '+esc(longDate(item.end_date)):': information'}" title="Open notice details"><span class="date-chip">${badge(item)}</span></button></article>`;
 }
-function showDetails(item){const source=sections[item.section||section()]||{name:'Community',icon:'info'},url=mapURL(item);dialog.className='notice-detail-modal '+(item.section||'');dialog.setAttribute('aria-labelledby','noticeDetailTitle');dialog.innerHTML=`<header class="notice-detail-titlebar"><div class="notice-detail-source">${icon(source.icon)}<div><strong>${esc(source.name)}</strong><span>${item.kind==='event'?esc(longDate(item.end_date))+(item.start_time?' · '+esc(item.start_time)+'–'+esc(item.end_time)+' (Malta time)':''):'Information'}</span></div></div><button type="button" class="notice-detail-close" id="closeNotice" aria-label="Close notice" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="notice-detail-body"><h2 id="noticeDetailTitle">${esc(item.title)}</h2><div class="notice-place">${url?`<a class="notice-place-icon" href="${esc(url)}" target="_blank" rel="noopener" aria-label="Open location in Google Maps">${icon('pin')}</a>`:icon('pin')}<div><strong>${esc(item.locality||locality)}</strong>${item.where_text?`<p>${esc(item.where_text)}</p>`:''}${url?`<a href="${esc(url)}" target="_blank" rel="noopener">Open in Google Maps ↗</a>`:''}</div></div><p class="modal-text">${esc(item.description)}</p>${noticeLink(item)}<div class="toolbar">${item.kind==='event'?`<a class="primary" href="${esc(calendarURL(item,item.locality||locality))}" target="_blank" rel="noopener">${icon('calendar')} Add to Google Calendar</a>`:''}</div></div>`;dialog.querySelector('#closeNotice').onclick=closeEntry;dialog.showModal();}
+function showDetails(item){
+ const source=sections[item.section||section()]||{name:'Community',icon:'info'};
+ dialog.className='notice-detail-modal '+(item.section||'');dialog.setAttribute('aria-labelledby','noticeDetailTitle');dialog.innerHTML=detailHTML(item,source,locality);
+ dialog.querySelector('#closeNotice').onclick=closeEntry;
+ dialog.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>trackNotice(a.dataset.noticeAction==='map'?'notice_map_click':a.dataset.noticeAction==='calendar'?'notice_calendar_click':'notice_link_click',item)));
+ dialog.showModal();
+}
 
 function calendarHTML(items,requestedMonth=currentMonth()){
  const limits=calendarBounds(today()),month=requestedMonth,day=params().get('day'),byDate=calendarDays(items),monthCount=[...byDate].filter(([date])=>date.startsWith(month)).reduce((sum,[,rows])=>sum+rows.length,0),monthName=new Date(month+'-01T12:00:00Z').toLocaleDateString('en-GB',{month:'long',year:'numeric',timeZone:'UTC'});
@@ -109,6 +116,7 @@ function renderBoards(){
   if(result.shown<result.total){const paging=document.createElement('div');paging.className='notice-search-paging';paging.innerHTML=`${result.shown<result.total?'<button type="button" class="secondary" id="moreNoticeResults">Show more</button>':''}`;container.append(paging);paging.querySelector('#moreNoticeResults')?.addEventListener('click',()=>{searchLimit+=NOTICE_SEARCH_PAGE_SIZE;renderBoards();root.querySelector('#moreNoticeResults')?.focus({preventScroll:true})})}
  }
  root.querySelectorAll('[data-route]').forEach(a=>a.onclick=e=>{e.preventDefault();const u=new URL(a.href);navigate({section:u.searchParams.get('section'),view:u.searchParams.get('view'),entry:null,page:null});});
+ root.querySelectorAll('[data-card-open]').forEach(card=>card.onclick=e=>{if(e.target.closest('button,a')||blocked()||performance.now()<suppressUntil)return;openEntry(lookup.get(card.dataset.cardOpen))});
  root.querySelectorAll('[data-open]').forEach(b=>b.onclick=e=>{if(e.detail&&(blocked()||performance.now()<suppressUntil))return;openEntry(lookup.get(b.dataset.open))});
  root.querySelectorAll('[data-day]').forEach(b=>b.onclick=e=>{if(e.detail&&(blocked()||performance.now()<suppressUntil))return;history.replaceState(history.state,'',href({day:b.dataset.day}));navigate({view:'day',tab:null,day:b.dataset.day,month:currentMonth(),entry:null,page:null},{day:true});});
  root.querySelectorAll('[data-month-step]').forEach(b=>b.onclick=()=>changeMonth(Number(b.dataset.monthStep)));

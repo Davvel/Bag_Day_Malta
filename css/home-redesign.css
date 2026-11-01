@@ -303,3 +303,15 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
 #councilPanel .council-noticeboard svg{width:38px;height:28px;flex:none}
 
 .collection-start .info-circle{align-items:center;justify-content:center;line-height:1;padding:0;box-sizing:border-box;text-align:center}
+
+/* Labelled primary shortcuts, shared by weekdays and Sunday. */
+.home-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}
+.home-shortcut,.home-shortcuts #gameModeButton{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;width:100%;height:auto;min-height:70px;margin:0;padding:9px 4px;border:1px solid #38617c;border-radius:13px;background:#12334c;color:#f5f8fd;text-align:center;text-decoration:none;font:700 13px/1.2 system-ui;cursor:pointer}
+.home-shortcut svg,.home-shortcuts #gameModeButton svg{width:28px;height:28px;display:block}.home-shortcut.notice-shortcut{border-color:#60c6c4}.home-shortcuts [hidden]{display:none!important}.home-shortcut:focus-visible{outline:3px solid #f5cf66;outline-offset:2px}
+:root[data-theme=light] .home-shortcut,:root[data-theme=light] .home-shortcuts #gameModeButton{background:#e7f1f8;color:#173d59;border-color:#9bbbd0}:root[data-theme=light] .home-shortcut.notice-shortcut{border-color:#237e80}
+@media(max-height:700px){.home-shortcut,.home-shortcuts #gameModeButton{min-height:58px;gap:3px;padding:6px 3px;font-size:12px}.home-shortcut svg,.home-shortcuts #gameModeButton svg{width:24px;height:24px}}
+
+#appContent .app .topbar{grid-template-columns:100px minmax(0,1fr) 44px}.topbar .top-actions{justify-content:flex-end}
+
+#dashboard #councilPanel{grid-template-columns:35px minmax(0,1fr)}
+@media(max-width:360px){#appContent .app .topbar{grid-template-columns:84px minmax(0,1fr) 44px}}

@@ -103,11 +103,7 @@
     council.replaceChildren();
     const details=councilRows.find(r=>canonical(r.locality||r.council)===canonical(locality));
     const name=document.createElement('strong');name.textContent=details?.councilname||locality+' Local Council';const emblem=document.createElement('span');emblem.className='council-emblem';emblem.innerHTML='<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12 16 5l12 7H4ZM7 14v11m6-11v11m6-11v11m6-11v11M4 27h24"/></svg>';emblem.setAttribute('aria-hidden','true');const identity=document.createElement('div');identity.className='council-identity';identity.append(name);council.append(emblem,identity);
-    const noticeboard=document.createElement('a');noticeboard.className='council-noticeboard';
-    const noticeURL=new URL('noticeboard/',siteRoot);noticeURL.searchParams.set('locality',locality);noticeboard.href=noticeURL.href;
-    noticeboard.title='Community noticeboard';noticeboard.setAttribute('aria-label','Open community noticeboard for '+locality);
-    noticeboard.innerHTML='<svg viewBox="0 0 40 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="36" height="24" rx="3" fill="currentColor" fill-opacity=".08"/><path d="M5 5h30v18H5Z" stroke-opacity=".4"/><g transform="rotate(-8 12 13)"><rect x="7" y="7" width="10" height="13" rx="1" fill="currentColor" fill-opacity=".13"/><circle cx="12" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><path d="M9.5 12h5m-5 3h4" stroke-width="1"/></g><g transform="rotate(7 27 14)"><rect x="22" y="8" width="11" height="13" rx="1" fill="currentColor" fill-opacity=".13"/><circle cx="27.5" cy="9.5" r="1.3" fill="currentColor" stroke="none"/><path d="M24.5 13h6m-6 3h4" stroke-width="1"/></g></svg><span>Community Notices</span>';council.append(noticeboard);
-
+    const shortcut=document.getElementById('noticeModeButton');if(shortcut){const u=new URL('noticeboard/',siteRoot);u.searchParams.set('locality',locality);shortcut.href=u.href;shortcut.setAttribute('aria-label','Community notices for '+locality)}
     const actions=document.createElement('div');actions.className='council-actions';
     const actionContent=(node,icon,label)=>{
       const image=document.createElement('img');image.src=new URL('icons/council-'+icon+'.svg',siteRoot).href;image.alt='';image.width=26;image.height=26;
