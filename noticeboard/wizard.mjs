@@ -1,11 +1,10 @@
-import {esc,icon,sections} from './shared.mjs?v=1.1.130';
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.130';
-import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.130';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.130';
-import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.130';
-import {normaliseNoticeURL} from './links.mjs?v=1.1.130';
-import {detailHTML} from './presentation.mjs?v=1.1.130';
-import {commitWizard} from './wizard-save.mjs?v=1.1.130';
+import {esc,icon,sections} from './shared.mjs?v=1.1.131';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.131';
+import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.131';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.131';
+import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.131';
+import {normaliseNoticeURL} from './links.mjs?v=1.1.131';
+import {detailHTML} from './presentation.mjs?v=1.1.131';
 export const typeNames={info:'Information or advice',event:'Event or activity',disruption:'Disruption or temporary change'};
 export function validateWizardData(data,today,maximumInfo,maximumEvent){
  if(!data.title.trim()||!data.description.trim())throw Error('Please enter a title and message.');
@@ -21,42 +20,85 @@ export function validateWizardData(data,today,maximumInfo,maximumEvent){
  }
  return data;
 }
-export function openNoticeWizard({dialog,state,item=null,chosenType,token,request,onComplete,verify}){
- const session={entry:item,pageRevision:state.page.revision,signature:null},source=sections[state.page.section];
- let type=chosenType||item?.notice_type||item?.kind||'info',draft={...item},step=item||chosenType?2:1,pending=false,previewData;
- const shortDate=value=>value?new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(value+'T12:00:00Z')):'';
- const previousClass=dialog.className;dialog.className='notice-wizard';dialog.setAttribute('aria-labelledby','wizardTitle');
- const closeIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>';
- dialog.innerHTML=`<header class="wizard-heading"><div><p>${esc(source.name)} · ${esc(state.page.locality_name)}</p><h2 id="wizardTitle">${item?'Edit your notice':'Create a notice'}</h2></div><button type="button" class="notice-detail-close" id="wizardClose" aria-label="Close notice editor">${closeIcon}</button></header><ol class="wizard-steps" aria-label="Notice creation steps">${['Choose type','Write your message','Preview & publish'].map((s,i)=>`<li data-step="${i+1}"><span>${i+1}</span>${s}</li>`).join('')}</ol><div id="wizardContent"></div><p id="wizardError" class="status error" role="alert" hidden></p>`;
- const content=dialog.querySelector('#wizardContent'),error=dialog.querySelector('#wizardError');
- const showError=e=>{error.textContent=e.message;error.hidden=false;error.scrollIntoView?.({block:'nearest'})};
- function updateSteps(){dialog.querySelectorAll('[data-step]').forEach(n=>{n.className=Number(n.dataset.step)===step?'active':Number(n.dataset.step)<step?'complete':'';if(Number(n.dataset.step)===step)n.setAttribute('aria-current','step');else n.removeAttribute('aria-current')});error.hidden=true;dialog.scrollTop=0}
- function close(){if(pending)return;dialog.close()}
- dialog.querySelector('#wizardClose').onclick=close;
- dialog.addEventListener('cancel',cancel);function cancel(e){if(pending)e.preventDefault()}
- dialog.addEventListener('close',()=>{dialog.removeEventListener('cancel',cancel);dialog.className=previousClass},{once:true});
- function choose(){step=1;updateSteps();content.innerHTML=`<div class="wizard-choice"><h3>What would you like to share?</h3><p class="hint">We will ask only for the details this type needs.</p><div class="notice-type-choices">${Object.entries(typeNames).map(([k,v])=>`<button type="button" class="notice-type-choice" data-type="${k}">${icon(k==='event'?'calendar':k==='disruption'?'info':'list')}<span><strong>${v}</strong><small>${k==='info'?'Advice, warnings or a general announcement':k==='event'?'An activity happening on a date':'A closure, interruption or service change'}</small></span></button>`).join('')}</div><button class="secondary" id="wizardCancel">Cancel</button></div>`;content.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{const changed=type!==b.dataset.type;type=b.dataset.type;if(changed){draft.end_date=type==='event'?state.today:state.maximum_info_date;draft.start_time='';draft.end_time='';if(type!=='event'&&draft.location_mode==='online')draft.location_mode='none'}write()});content.querySelector('#wizardCancel').onclick=close}
- function write(){
-  step=2;updateSteps();const event=type==='event',disruption=type==='disruption',mode=draft.location_mode||(draft.where_text?'physical':'none');
-  content.innerHTML=`<form id="wizardForm"><div class="wizard-write"><aside class="wizard-summary"><strong>${esc(typeNames[type])}</strong><p>${esc(source.name)} · ${esc(state.page.locality_name)}</p><button type="button" class="wizard-text-button" id="changeWizardType">Change type</button><p class="hint">A clear title and a short message are usually enough.</p></aside><section class="wizard-fields"><h3>What would you like people to know?</h3><label>Title *<input name="title" required maxlength="80" value="${esc(draft.title||'')}" placeholder="A short, clear title"></label><label>Message *<textarea name="description" required maxlength="800" placeholder="Write your notice here…">${esc(draft.description||'')}</textarea></label>${multiSelectionHTML('categories',draft.category_id)}${event?`<label>Event date *<input type="date" name="end_date" required min="${state.today}" max="${state.maximum_event_date||eventDateMaximum(state.today)}" value="${esc(draft.end_date||state.today)}"></label>`:`<details class="wizard-expiry"><summary>Visible until <span id="expirySummary">${esc(shortDate(draft.end_date||state.maximum_info_date))}</span> · Change</summary><label>Show until *<input type="date" name="end_date" required min="${state.today}" max="${state.maximum_info_date}" value="${esc(draft.end_date||state.maximum_info_date)}"></label><p class="hint">The notice disappears after this date. Maximum 30 days.</p></details>`}${disruption?`<label>Starts on *<input type="date" name="start_date" required value="${esc(draft.start_date||state.today)}"></label>`:''}<details class="wizard-optional"><summary>Optional details <span>Link, location, icon${event?', times':''}${disruption?', expected end':''} or a specific audience</span></summary>${event?`<fieldset id="eventTimes"><legend>Event times · Malta time</legend><div class="wizard-two-fields"><label>Start time<input type="time" name="start_time" value="${esc(draft.start_time||'')}"></label><label>End time<input type="time" name="end_time" value="${esc(draft.end_time||'')}"></label></div><p class="hint">Leave both blank for an all-day event.</p></fieldset>`:''}${disruption?`<div class="wizard-two-fields"><label>Expected end date<input type="date" name="expected_end_date" value="${esc(draft.expected_end_date||'')}"></label><label>Expected end time · Malta<input type="time" name="expected_end_time" value="${esc(draft.expected_end_time||'')}"></label></div>`:''}<label>${event?'Where does it happen?':'Does this concern a specific place?'}<select name="location_mode"><option value="none">${event?'Location not needed / to be announced':'No specific place'}</option><option value="physical">A physical place / affected area</option>${event?'<option value="online">Online</option>':''}</select></label><fieldset id="locationFields" hidden disabled>${locationFields(draft)}</fieldset><label><span id="linkLabel">Link URL (optional)</span><input name="link_url" maxlength="2048" inputmode="url" value="${esc(draft.link_url||'')}" placeholder="https://example.com"></label><label>Link text (optional)<input name="link_title" maxlength="80" value="${esc(draft.link_title||'')}" placeholder="More details"></label>${symbolPickerHTML(draft.icon_emoji||'')}${multiSelectionHTML('audiences',draft.audience_id)}</details></section></div><footer class="wizard-actions"><button type="button" class="secondary" id="wizardBack">Back</button><span class="wizard-draft-label">Not published</span><button type="button" class="secondary" id="wizardSaveDraft">Save draft</button><button type="submit" class="primary">Preview ${icon('next')}</button></footer></form>`;
-  const form=content.querySelector('form');bindSymbolPicker(form,token);bindMultiSelections(form);bindLocationFields(form,state.page);form.elements.location_mode.value=mode;
-  const syncLocation=()=>{const physical=form.elements.location_mode.value==='physical',online=form.elements.location_mode.value==='online',fields=form.querySelector('#locationFields');fields.hidden=!physical;fields.disabled=!physical;form.elements.where_text.required=physical;form.elements.link_url.required=online;form.querySelector('#linkLabel').textContent=online?'Online joining / details URL *':'Link URL (optional)'};
-  form.elements.location_mode.onchange=syncLocation;syncLocation();
-  form.elements.end_date.addEventListener('input',()=>{const summary=form.querySelector('#expirySummary');if(summary)summary.textContent=shortDate(form.elements.end_date.value)});
-  form.addEventListener('invalid',e=>{for(let n=e.target.parentElement;n&&n!==form;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true},true);
-  function read(validate=true){const fields=Object.fromEntries(new FormData(form)),physical=form.elements.location_mode.value==='physical';let tags;if(validate)tags=readMultiSelections(form);else{tags={};for(const box of form.querySelectorAll('.notice-multiselect'))tags[box.dataset.field]=[...box.querySelectorAll('input:checked')].map(c=>c.value)}const data={...fields,...tags,...(physical?readLocationFields(form):{where_text:'',latitude:null,longitude:null}),kind:event?'event':'info',notice_type:type};if(validate){data.link_url=normaliseNoticeURL(data.link_url);validateWizardData(data,state.today,state.maximum_info_date,state.maximum_event_date||eventDateMaximum(state.today))}return data}
-  function retain(){draft={...draft,...read(false)}}
-  for(const id of ['wizardBack','changeWizardType'])content.querySelector('#'+id).onclick=()=>{retain();choose()};
-  content.querySelector('#wizardSaveDraft').onclick=()=>{try{if(!form.reportValidity())return;previewData=read();save(false)}catch(e){showError(e)}};
-  form.onsubmit=e=>{e.preventDefault();try{previewData=read();retain();preview()}catch(error){showError(error)}};
+export function openNoticeWizard({dialog,state,item,record,review=false,token,request,onComplete}){
+ const page=state.page,section=sections[page.section],saved=record?JSON.parse(record.payload):item||{};
+ const id=record?.entry_id||item?.entry_id||crypto.randomUUID();
+ const path='/noticeboard/'+page.page_id+'/drafts/'+encodeURIComponent(id);
+ const type=saved.notice_type||saved.kind||'info';
+ const data={notice_type:type,kind:type==='event'?'event':'info',end_date:type==='event'?state.today:state.maximum_info_date,
+  title:'',description:'',category_id:[],audience_id:[],link_url:'',link_title:'',icon_emoji:'',where_text:'',latitude:null,longitude:null,
+  location_mode:saved.where_text?'physical':'none',start_time:'',end_time:'',start_date:state.today,expected_end_date:'',expected_end_time:''};
+ for(const key of Object.keys(data))if(saved[key]!=null)data[key]=saved[key];
+ data.notice_type=type;data.location_mode=data.location_mode||'none';
+ for(const key of ['category_id','audience_id'])data[key]=(Array.isArray(data[key])?data[key]:String(data[key]).split('|')).filter(v=>v&&v!=='all');
+ const steps=['Type and date','Write notice','Optional details','Preview'];
+ let step=review?4:record?.step||1,detail='',pending=false,dirty=false;
+ const oldClass=dialog.className;dialog.className='notice-wizard desk-wizard';dialog.setAttribute('aria-labelledby','wizardTitle');
+ dialog.innerHTML='<form id="deskForm" novalidate><header class="desk-wizard-head"><p></p><button type="button" class="secondary" id="exitWizard">Close</button></header><div class="progress-dots" aria-hidden="true"></div><h2 id="wizardTitle" tabindex="-1"></h2><section id="deskFields"></section><p id="wizardError" role="alert" hidden></p><footer class="desk-controls"></footer></form>';
+ const form=dialog.querySelector('form'),fields=form.querySelector('#deskFields'),footer=form.querySelector('footer'),err=form.querySelector('#wizardError');
+ form.querySelector('header p').textContent=page.locality_name+' · '+section.name;
+ function close(){if(!pending&&(!dirty||confirm('Discard your unsaved changes? Choose Cancel to keep editing.')))dialog.close()}
+ function cancel(e){e.preventDefault();close()}
+ dialog.addEventListener('cancel',cancel);dialog.addEventListener('close',()=>{dialog.removeEventListener('cancel',cancel);dialog.className=oldClass},{once:true});
+ form.querySelector('#exitWizard').onclick=close;
+ form.oninput=()=>{dirty=true};form.onchange=()=>{dirty=true};
+ const input=(name,label,kind='text',attrs='')=>`<label>${label}<input name="${name}" type="${kind}" value="${esc(data[name]||'')}" ${attrs}></label>`;
+ const maxEvent=state.maximum_event_date||eventDateMaximum(state.today);
+ const event=()=>data.notice_type==='event',disruption=()=>data.notice_type==='disruption';
+ const details={place:'Place or online event',link:'Web link',symbol:'Calendar symbol',audience:'Audience',times:'Event times',expected:'Expected end'};
+ function collect(){
+  for(const [k,v] of new FormData(form))if(Object.hasOwn(data,k))data[k]=v;
+  for(const box of fields.querySelectorAll('.notice-multiselect'))data[box.dataset.field]=[...box.querySelectorAll('input:checked')].map(c=>c.value);
+  if(detail==='place'&&data.location_mode==='physical')Object.assign(data,readLocationFields(form));
+  if(data.location_mode!=='physical')Object.assign(data,{where_text:'',latitude:null,longitude:null});
  }
- function preview(){step=3;updateSteps();const otherDrafts=state.items.filter(i=>i.entry_id!==item?.entry_id&&state.changed?.has(i.entry_id)).length;
-  content.innerHTML=`<section class="wizard-review"><h3>Preview your notice</h3><p class="wizard-preview-warning" role="status"><strong>This is a preview.</strong> Your changes will only be visible to the public after you publish them.</p><div class="wizard-preview"><article class="notice-detail-modal ${state.page.section}">${detailHTML({...previewData,locality:state.page.locality_name},source,state.page.locality_name)}</article></div><p class="hint">Preview links are disabled here. They become usable on the public notice.</p><p class="wizard-publish-scope">Publish changes updates the ${esc(source.name)} noticeboard for ${esc(state.page.locality_name)}, including any other saved changes.${otherDrafts?' '+otherDrafts+' other changed notice(s) are waiting.':''}</p></section><footer class="wizard-actions"><button type="button" class="secondary" id="wizardEdit">Back to edit</button><span class="wizard-draft-label">Preview only</span><button type="button" class="secondary" id="reviewSaveDraft">Save draft</button><button type="button" class="primary" id="wizardPublish">Publish changes</button></footer>`;
-  content.querySelector('#closeNotice')?.remove();content.querySelectorAll('.wizard-preview a').forEach(a=>{a.removeAttribute('href');a.removeAttribute('target');a.setAttribute('aria-disabled','true');a.tabIndex=-1});
-  content.querySelector('#wizardEdit').onclick=write;content.querySelector('#reviewSaveDraft').onclick=()=>save(false);content.querySelector('#wizardPublish').onclick=()=>save(true);
+ function validate(){data.link_url=normaliseNoticeURL(data.link_url);return validateWizardData(data,state.today,state.maximum_info_date,maxEvent)}
+ function showError(e){err.hidden=false;err.textContent=e.message;err.scrollIntoView?.({block:'nearest'})}
+ async function save(mark){
+  if(pending)return;collect();if(mark)validate();
+  pending=true;form.inert=true;
+  try{await request(path,{method:mark?'POST':'PATCH',token,body:{data,step,entry_revision:record?.entry_revision??item?.revision??0,draft_revision:record?.revision||0}});
+  }catch(e){showError(e);return}finally{pending=false;form.inert=false}
+  dirty=false;dialog.close();await onComplete(mark);
  }
- async function save(publish){if(pending)return;if(session.uncertain){showError(Error('The earlier save is uncertain. Check the notice list before saving again.'));return}pending=true;error.hidden=true;const buttons=[...dialog.querySelectorAll('button')].filter(b=>!b.disabled);buttons.forEach(b=>b.disabled=true);
-  try{const result=await commitWizard({session,data:previewData,publish,request,pageId:state.page.page_id,token,verify});pending=false;dialog.close();await onComplete(result)}catch(e){showError(e)}finally{pending=false;buttons.forEach(b=>{if(b.isConnected)b.disabled=false})}
+ function render(){
+  err.hidden=true;dialog.scrollTop=0;
+  const title=form.querySelector('h2');title.textContent=step+' of 4 · '+(detail?details[detail]:steps[step-1]);
+  form.querySelector('.progress-dots').innerHTML=steps.map((_,i)=>'<i class="'+(i<step?'done':'')+'"></i>').join('');
+  if(step===1){
+   fields.innerHTML='<p>What would you like to share?</p><div class="type-tiles">'+Object.entries(typeNames).map(([k,v])=>`<button type="button" data-type="${k}" aria-pressed="${data.notice_type===k}">${icon(k==='event'?'calendar':k==='disruption'?'info':'list')}${v}</button>`).join('')+'</div>'+input('end_date',event()?'Event date':'Show until','date',`required min="${state.today}" max="${event()?maxEvent:state.maximum_info_date}"`)+(disruption()?input('start_date','Starts on','date','required'):'');
+   fields.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{collect();const next=b.dataset.type;if(next===data.notice_type)return;dirty=true;data.notice_type=next;data.kind=event()?'event':'info';data.end_date=event()?state.today:state.maximum_info_date;if(!event()){if(data.location_mode==='online')data.location_mode='none';data.start_time=data.end_time=''}if(disruption()&&!data.start_date)data.start_date=state.today;render()});
+  }else if(step===2){
+   fields.innerHTML=input('title','Title','text','required maxlength="80"')+`<label>Message<textarea name="description" required maxlength="800">${esc(data.description)}</textarea></label>`+multiSelectionHTML('categories',data.category_id);
+  }else if(step===3&&!detail){
+   const summary={place:data.location_mode==='physical'?data.where_text:data.location_mode==='online'?'Online':'',link:data.link_title||data.link_url,symbol:data.icon_emoji||'📌',audience:data.audience_id.length?data.audience_id.length+' selected':'Everyone',times:data.start_time,expected:data.expected_end_date};
+   fields.innerHTML='<p>You can go straight to preview, or add a detail.</p><div class="detail-tiles">'+Object.entries(details).filter(([k])=>(k!=='times'||event())&&(k!=='expected'||disruption())).map(([k,v])=>`<button type="button" data-detail="${k}"><b>${v}</b><span>${esc(summary[k]||'Add')} ›</span></button>`).join('')+'</div>';
+   fields.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>{detail=b.dataset.detail;render()});
+  }else if(step===3){
+   if(detail==='place'){
+    fields.innerHTML='<label>Location<select name="location_mode"><option value="none">No specific place</option><option value="physical">A physical place</option>'+(event()?'<option value="online">Online</option>':'')+'</select></label><fieldset id="placeFields">'+locationFields(data)+'</fieldset><div id="onlineFields">'+input('link_url','Online joining link')+'</div>';
+    const select=form.elements.location_mode;select.value=data.location_mode;const sync=()=>{const physical=select.value==='physical',online=select.value==='online';const group=fields.querySelector('#placeFields');group.hidden=group.disabled=!physical;form.elements.where_text.required=physical;fields.querySelector('#onlineFields').hidden=!online;form.elements.link_url.disabled=!online;form.elements.link_url.required=online};select.onchange=sync;sync();bindLocationFields(form,page);
+   }else if(detail==='link')fields.innerHTML=input('link_url','Link URL','text','maxlength="2048"')+input('link_title','Link text','text','maxlength="80"');
+   else if(detail==='audience')fields.innerHTML=multiSelectionHTML('audiences',data.audience_id);
+   else if(detail==='symbol'){fields.innerHTML=input('title','','hidden')+input('description','','hidden')+symbolPickerHTML(data.icon_emoji);bindSymbolPicker(form,token)}
+   else if(detail==='times')fields.innerHTML=input('start_time','Start time · Malta','time')+input('end_time','End time · Malta','time');
+   else fields.innerHTML=input('expected_end_date','Expected end date','date')+input('expected_end_time','Expected end time · Malta','time');
+  }else{
+   fields.innerHTML=`<div class="wizard-preview"><article class="notice-detail-modal ${page.section}">${detailHTML({...data,locality:page.locality_name},section,page.locality_name)}</article></div><p class="wizard-preview-warning">Residents will only see these changes after you press <b>Publish all</b> on the ${esc(page.locality_name)} ${esc(section.name)} noticeboard.</p>`;
+   fields.querySelector('#closeNotice')?.remove();fields.querySelectorAll('a').forEach(a=>{a.removeAttribute('href');a.tabIndex=-1});
+  }
+  bindMultiSelections(form);for(const panel of fields.querySelectorAll('.notice-multiselect details')){panel.open=true;panel.querySelector('summary').hidden=true}
+  footer.innerHTML=(step>1?'<button id="backStep" type="button" class="secondary">Back</button>':'')+'<button id="draftExit" type="button" class="secondary">Save draft and exit</button><button class="primary" type="submit">'+(detail?'Done':(['Next · Write notice','Next · Details','Preview notice','Mark for publication'][step-1]))+'</button>';
+  if(step>1)footer.querySelector('#backStep').onclick=()=>{collect();if(detail)detail='';else step--;render()};
+  footer.querySelector('#draftExit').onclick=()=>save(false).catch(showError);
+  title.focus({preventScroll:true});
  }
- if(step===1)choose();else write();if(!dialog.open)dialog.showModal();
+ form.onsubmit=e=>{e.preventDefault();if(pending)return;try{
+  collect();if(!form.reportValidity())return;
+  if(detail){if(detail==='link'||detail==='place')data.link_url=normaliseNoticeURL(data.link_url);detail='';render();return}
+  if(step===1&&disruption()&&data.start_date>data.end_date)throw Error('Starts on must be on or before Show until.');
+  if(step===2)readMultiSelections(form);if(step>=3)validate();
+  if(step===4){save(true).catch(showError);return}step++;render();
+ }catch(e){showError(e)}};
+ dialog.showModal();render();
 }

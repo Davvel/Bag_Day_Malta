@@ -1,7 +1,7 @@
-import {esc,icon,calendarURL} from './shared.mjs?v=1.1.130';
-import {longDate,eventSymbol} from './discovery.mjs?v=1.1.130';
-import {noticeLink} from './links.mjs?v=1.1.130';
-import {mapURL} from './locations.mjs?v=1.1.130';
+import {esc,icon,calendarURL} from './shared.mjs?v=1.1.131';
+import {longDate,eventSymbol} from './discovery.mjs?v=1.1.131';
+import {noticeLink} from './links.mjs?v=1.1.131';
+import {mapURL} from './locations.mjs?v=1.1.131';
 export const noticeType=i=>i.notice_type||i.kind;
 export function noticeBadge(item){
  if(item.kind!=='event')return `<span class="info-square">${icon('info')}<span class="sr-only">${noticeType(item)==='disruption'?'Temporary change':'Information'}</span></span>`;
