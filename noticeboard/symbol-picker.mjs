@@ -1,6 +1,6 @@
-import {EMOJI_PALETTE} from '../reuse/emoji-palette.mjs?v=1.1.136';
-import {isEmoji} from '../reuse/custom-emoji.mjs?v=1.1.136';
-import {esc} from './shared.mjs?v=1.1.136';
+import {EMOJI_PALETTE} from '../reuse/emoji-palette.mjs?v=1.1.138';
+import {isEmoji} from '../reuse/custom-emoji.mjs?v=1.1.138';
+import {esc} from './shared.mjs?v=1.1.138';
 const events=[['📌','pin announcement'],['🎉','celebration festa party'],['🎵','music concert'],['🎭','theatre drama'],['🎲','bingo games'],['⛪','church mass parish'],['🚧','road works closure'],['🚓','police safety'],['🏛️','council meeting'],['⚽','football sport'],['🎨','art exhibition'],['📚','books library'],['🩸','blood donation'],['🌳','environment tree'],['🧹','cleanup'],['🍽️','food dinner'],['🚶','walk hike'],['🎄','christmas'],['🐣','easter'],['🚌','bus transport'],['💃','dance'],['🎬','cinema film'],['❤️','health charity'],['🎤','talk singing'],['🏃','run race']].map(([symbol,name])=>({symbol,name,group:'Events'}));
 const palette=[...events,...EMOJI_PALETTE].filter((v,i,a)=>a.findIndex(x=>x.symbol===v.symbol)===i);
 const segmenter=new Intl.Segmenter('en',{granularity:'grapheme'});
@@ -37,7 +37,8 @@ export function bindSymbolPicker(form){
  function choices(query=''){
   const words=query.toLowerCase().trim().split(/\s+/);
   const matches=palette.filter(entry=>entry.symbol!=='📌'&&words.every(word=>(entry.name+' '+(entry.keywords||'')+' '+entry.group+' '+entry.symbol).toLowerCase().includes(word)));
-  list.innerHTML=matches.map(entry=>`<button type="button" title="${esc(entry.name)}" aria-label="${esc(entry.name)}" data-symbol="${esc(entry.symbol)}">${esc(entry.symbol)}</button>`).join('')||'<p>No matching symbols. Try another word or paste an emoji above.</p>';
+  list.classList.toggle('no-symbol-results',matches.length===0);
+  list.innerHTML=matches.map(entry=>`<button type="button" title="${esc(entry.name)}" aria-label="${esc(entry.name)}" data-symbol="${esc(entry.symbol)}">${esc(entry.symbol)}</button>`).join('')||'<p class="symbol-empty" role="status">No icons found. Try another word, paste an emoji above, or use the pin below.</p>';
   highlight();
  }
  form.querySelector('#symbolSearch').addEventListener('input',event=>choices(event.target.value));

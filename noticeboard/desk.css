@@ -45,3 +45,5 @@ dialog.desk-wizard.desk-review{height:calc(100dvh - 24px);max-height:calc(100dvh
 .desk-review #wizardError{margin:6px 0;max-height:70px;overflow:auto}
 @media(max-width:600px){dialog.desk-wizard.desk-review{padding:10px}.desk-review .desk-controls button{padding:10px;font-size:14px}.desk-review .desk-controls .primary{flex-basis:100%;margin-left:0}.desk-review #wizardTitle{font-size:22px}.desk-review .review-instruction{font-size:14px}}
 @media(max-height:500px){.desk-review .desk-wizard-head{display:none}.desk-review .progress-dots{margin-top:0}.desk-review #wizardTitle{font-size:20px;margin:6px 0}.desk-review .review-caption{display:none}.desk-review .desk-controls{margin-top:4px;padding-top:4px}}
+
+.simple-symbol-picker .symbol-choices.no-symbol-results{display:block;height:auto;min-height:0;max-height:none;overflow:visible}.simple-symbol-picker .symbol-empty{width:100%;margin:8px 0 14px;font-size:16px;line-height:1.5;white-space:normal}

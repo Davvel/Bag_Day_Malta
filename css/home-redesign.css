@@ -324,3 +324,23 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
 .holiday-advisory-links{display:flex;gap:20px;flex-wrap:wrap}
 .holiday-advisory a{color:#382708;text-decoration:underline;text-underline-offset:3px;font-weight:700;padding:6px 0}
 .holiday-advisory a:focus-visible{outline:3px solid #382708;outline-offset:3px;border-radius:3px}
+
+/* v1.1.138: focused collection card and grouped date controls. */
+#appContent .app .topbar{grid-template-columns:90px minmax(0,1fr) 90px}.topbar .brand{min-width:0}.topbar .brand .bag-day-logo{max-width:90px}.topbar .locality-heading{text-align:center;min-width:0}
+#dashboard .collection-date{margin:8px 0}.collection-date .viewed-day-row{display:none}
+#dashboard #dayNavigation{display:flex;align-items:center;gap:6px;border:1px solid #38617c;border-radius:14px;background:var(--card);padding:5px}
+#dashboard #dayNavigation .nav-button{flex:0 0 44px;position:static;margin:0;min-width:44px;height:44px;border:0;background:transparent}
+#dashboard #dateButton{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 0;background:transparent;border:0;font-size:clamp(12px,3.5vw,17px)}
+#dashboard #dateButton time{flex:1;text-align:center;white-space:normal}#dashboard #dateButton svg{flex:none;width:25px;height:28px}
+#dashboard #collectionCardBody .collection-heading{justify-content:center;text-align:center;gap:6px}
+#dashboard #collectionCardBody .collection-main{flex-direction:column!important}
+#dashboard #collectionCardBody .collection-main .collection-figures{width:100%!important;flex:none!important}
+#dashboard #collectionCardBody .collection-main .collection-timing{width:100%!important;flex:none!important;border-top:1px solid #ffffff55;padding-top:10px}
+#dashboard #collectionCardBody .put-out-instruction>strong{font-size:clamp(28px,8vw,38px)!important;flex-wrap:nowrap!important;white-space:nowrap!important;gap:5px}
+#dashboard #collectionCardBody .put-out-instruction>span{font-size:15px!important}
+#dashboard #collectionCardBody .put-out-instruction .info-circle{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center;border:1px solid currentColor;border-radius:50%;font:700 12px/1 Georgia;color:inherit;margin-left:5px}
+#dashboard .home-shortcut span{font-size:clamp(10px,2.65vw,13px);white-space:nowrap}
+#homeSponsorDock{border-top:2px solid white;padding-top:16px}
+#dashboard #homeSponsorDock .sponsor-carousel-header{display:flex;height:0;position:relative}
+#dashboard #homeSponsorDock .sponsor-heading{display:block;position:absolute;right:0;top:-15px;font:600 10px/12px system-ui}
+#dashboard #homeSponsorDock .sponsor-heading:empty{display:none}

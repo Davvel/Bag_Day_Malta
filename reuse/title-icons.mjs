@@ -1,4 +1,4 @@
-import {itemSymbols} from './item-symbols.mjs?v=1.1.136';
+import {itemSymbols} from './item-symbols.mjs?v=1.1.138';
 
 // The first saved icon is shown. Other saved icons stay in storage.
 export function titleIcons(item){return {main:itemSymbols(item)[0],extra:[]}}

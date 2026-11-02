@@ -92,7 +92,7 @@
       channel,startCount:paidCount||entries.length,label:freeIds.length?'advert':'sponsor',nextIndex,
       ...(mode==='community'?{initialIndex:freeIndex}:{}),
       onSelect:index=>{if(entries[index].kind==='community')freePicker.seen(entries[index].id)},
-      heading:a=>a.dataset.advertKind==='community'?'Community':sponsorStale?'Sponsored · saved data':'Sponsored'
+      heading:a=>document.getElementById('dashboard')?(a.dataset.advertKind==='community'?'':'Ad'):(a.dataset.advertKind==='community'?'Community':sponsorStale?'Sponsored · saved data':'Sponsored')
     });
   }
   function councilWebsite(locality){

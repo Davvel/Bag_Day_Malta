@@ -1,10 +1,10 @@
-import {esc,icon,sections} from './shared.mjs?v=1.1.136';
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.136';
-import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.136';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.136';
-import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.136';
-import {normaliseNoticeURL} from './links.mjs?v=1.1.136';
-import {mountNoticePreview} from './preview.mjs?v=1.1.136';
+import {esc,icon,sections} from './shared.mjs?v=1.1.138';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.138';
+import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.138';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.138';
+import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.138';
+import {normaliseNoticeURL} from './links.mjs?v=1.1.138';
+import {mountNoticePreview} from './preview.mjs?v=1.1.138';
 export const typeNames={info:'Information or advice',event:'Event or activity',disruption:'Disruption or temporary change'};
 export function validateWizardData(data,today,maximumInfo,maximumEvent){
  if(!data.title.trim()||!data.description.trim())throw Error('Please enter a title and message.');
@@ -15,8 +15,8 @@ export function validateWizardData(data,today,maximumInfo,maximumEvent){
  if(data.location_mode==='online'&&!data.link_url)throw Error('Enter the online joining or details link.');
  if(data.notice_type==='disruption'){
   if(!data.start_date||data.start_date>data.end_date)throw Error('Choose a start date on or before Show until.');
-  if(data.expected_end_date&&(data.expected_end_date<data.start_date||data.expected_end_date>data.end_date))throw Error('Expected end must fall between the start and show-until dates.');
-  if(data.expected_end_time&&!data.expected_end_date)throw Error('Choose an expected end date, or clear its time.');
+  if(data.expected_end_date&&(data.expected_end_date<data.start_date||data.expected_end_date>data.end_date))throw Error('The disruption finishing date must be between Starts on and Show until.');
+  if(data.expected_end_time&&!data.expected_end_date)throw Error('Choose the disruption finishing date, or clear the finishing time.');
  }
  return data;
 }
@@ -45,7 +45,7 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
  const input=(name,label,kind='text',attrs='')=>`<label>${label}<input name="${name}" type="${kind}" value="${esc(data[name]||'')}" ${attrs}></label>`;
  const maxEvent=state.maximum_event_date||eventDateMaximum(state.today);
  const event=()=>data.notice_type==='event',disruption=()=>data.notice_type==='disruption';
- const details={place:'Place or online event',link:'Web link',audience:'Audience',times:'Event times',expected:'Expected end'};
+ const details={place:'Place or online event',link:'Web link',audience:'Audience',times:'Event times',expected:'When will the disruption end?'};
  function collect(){
   for(const [k,v] of new FormData(form))if(Object.hasOwn(data,k))data[k]=v;
   for(const box of fields.querySelectorAll('.notice-multiselect'))data[box.dataset.field]=[...box.querySelectorAll('input:checked')].map(c=>c.value);
@@ -83,7 +83,7 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
    }else if(detail==='link')fields.innerHTML=input('link_url','Link URL','text','maxlength="2048"')+input('link_title','Link text','text','maxlength="80"');
    else if(detail==='audience')fields.innerHTML=multiSelectionHTML('audiences',data.audience_id);
    else if(detail==='times')fields.innerHTML=input('start_time','Start time · Malta','time')+input('end_time','End time · Malta','time');
-   else fields.innerHTML=input('expected_end_date','Expected end date','date')+input('expected_end_time','Expected end time · Malta','time');
+   else fields.innerHTML='<p>Enter when you expect the road closure or disruption to finish. Leave blank if you don’t know.</p><p class="hint">This does not control when the notice disappears from Bag Day. That is set by Show until.</p>'+input('expected_end_date','Disruption ends on (optional)','date')+input('expected_end_time','Finishing time · Malta (optional)','time');
   }else if(step===4){
    fields.innerHTML=symbolPickerHTML(data.icon_emoji);bindSymbolPicker(form);
   }else{
