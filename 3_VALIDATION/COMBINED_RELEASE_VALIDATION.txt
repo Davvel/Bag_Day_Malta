@@ -1,0 +1,25 @@
+COMBINED PUBLISHING RELEASE
+Frontend 113 / v1.1.89; backend 114 / v1.1.29
+
+Sources compared and merged:
+111_BagDay_Publish_Confirmation_v1.1.88.zip
+112_BagDay_Backend_Publish_Confirmation_v1.1.28.zip
+111_BagDay_Sponsor_Publishing_v1.1.88.zip
+112_BagDay_Backend_Sponsor_Publishing_v1.1.28.zip
+Common baseline: noticeboard links frontend 109 / backend 110.
+
+Every substantive code change from both branches was retained. There were no
+conflicting code edits after normalising release numbers. Release instructions
+were combined and the new version was applied through the central config.
+
+Includes optional noticeboard URL/custom title; immediate verified publication
+status; publishing progress and Refresh status; configurable sponsor automatic
+publishing switch/time; Malta schedule and last/next details; manual publication;
+approved current/future slot filtering; expired CSV-slot cleanup with D1 history
+retained; private drafts and financial data; sponsor exporter deployment Step 4.
+
+173 automated tests passed. Full ZIP contents verified byte-for-byte against
+merged source directories. No production deployment performed. Browser visual
+verification unavailable because no browser executable is installed.
+
+For further work in either chat, use this combined 113/114 pair as the baseline.

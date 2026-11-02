@@ -1,0 +1,5 @@
+Frontend 1.1.87 / backend 1.1.27
+152 automated checks passed: 16 frontend, 11 admin, 125 backend.
+JavaScript syntax checks passed for noticeboard editor, public renderer, backend noticeboard and deployment script.
+Browser visual verification unavailable: no installed Chromium executable.
+No live deployment performed.

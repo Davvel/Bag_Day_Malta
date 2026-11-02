@@ -1,0 +1,377 @@
+/* v1.0.92: implemented mobile mockup layout, separate from historical styles. */
+html,body{min-height:100%;background:#061727}
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+[data-theme=dark]{--ink:#f7f8fc;--secondary:#b6c6d6;--card:#10283e;--border:#245573}
+body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
+#appContent .app{height:auto;min-height:100dvh;max-width:510px;padding:12px 14px calc(14px + env(safe-area-inset-bottom));gap:0}
+.topbar{height:auto;min-height:64px;flex:none;padding:8px 10px;background:linear-gradient(110deg,#075090,#082c52);border-radius:16px;color:white;grid-template-columns:95px minmax(0,1fr) 90px;gap:4px}
+.topbar .brand-copy{color:white}.topbar .brand-sub{color:#5fd0ff}
+.topbar .brand-mark{background:transparent;color:#d0efff;border-radius:8px;font-size:23px;width:23px}
+.topbar #title{color:white;font-size:clamp(18px,5.5cqw,27px)}
+.topbar .mode-chip{font-size:10px;min-height:0;background:transparent;color:#b6d7f1;padding:2px 3px}
+.topbar .icon-button,.topbar #gameModeButton{width:38px;height:38px;min-width:38px;background:transparent;color:white;box-shadow:none;border:1px solid #ffffff30;border-radius:12px}
+.topbar #gameModeButton svg{width:26px;height:23px}
+#dashboard{padding-top:10px;gap:0;flex:1}
+#dashboard>.collection-date{position:static;inset:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 0 10px;gap:3px;flex:none;width:100%;min-height:74px}
+.collection-date .viewed-day-row{position:static;display:block;margin:0;width:100%;text-align:center}
+.collection-date #todayPill{display:block!important;background:transparent;color:var(--ink);font-size:25px;line-height:1.1;padding:0;margin:0;font-weight:800;letter-spacing:-.025em}
+#dayNavigation{position:relative;display:grid;grid-template-columns:42px minmax(0,1fr) 42px;gap:8px;align-items:center;border:0;background:transparent;padding:0;margin:0;width:100%;box-shadow:none;border-radius:0;min-height:42px}
+#dayNavigation .nav-button{position:static;width:42px;height:42px;min-height:42px;border-radius:12px;padding:0;background:linear-gradient(#0b4775,#092d4b);border:1px solid #2e8ec7;color:white;box-shadow:none;font-size:34px;display:flex;align-items:center;justify-content:center;transform:none}
+#dayNavigation .nav-button span:not([aria-hidden]){display:none}
+#dayNavigation #dateButton{border:0;border-radius:8px;background:transparent;box-shadow:none;color:var(--secondary);min-height:42px;padding:0;display:flex;align-items:center;justify-content:center;gap:4px}
+#dayNavigation #date{font-size:clamp(11px,3.2cqw,14px);line-height:1.3;margin:0;color:inherit;font-weight:500;white-space:normal}
+#dateButton svg{width:14px;flex:none}
+#collectionStage{min-height:0;flex:none;height:var(--collection-space,420px);border:0;border-radius:20px;overflow:visible}
+#bagArea{height:100%;border:1px solid #9b7752;border-radius:20px;background:radial-gradient(ellipse at 30% 20%,#684627,#392719 90%);box-shadow:0 5px 16px #0003;margin:0;overflow:hidden}
+[data-bag=mixed] #bagArea{background:radial-gradient(ellipse at 30% 20%,#4b515a,#252d36 90%);border-color:#778594}
+[data-bag=recycle] #bagArea{background:radial-gradient(ellipse at 30% 20%,#315b45,#15392b 90%);border-color:#579a75}
+[data-bag=none] #bagArea{background:radial-gradient(ellipse at 30% 20%,#16436a,#0c263b 90%);border-color:#3677a0}
+#collectionCardBody{height:100%}
+#collectionCardBody .collection-card{padding:14px 14px 16px;height:100%;min-height:0;max-height:none;border-radius:0;background:transparent;display:flex;flex-direction:column;align-items:stretch;overflow:visible;color:#fff;gap:8px}
+.collection-heading{display:flex;align-items:center;gap:12px;flex:none;margin:0;text-align:left;font-size:clamp(27px,8cqw,38px);line-height:1.15;font-weight:800;letter-spacing:-.03em}
+.collection-type-icon{display:grid;place-items:center;background:#ba8c52;border-radius:50%;width:44px;height:44px;flex:none;color:white;font-size:30px;font-family:Georgia,serif}
+[data-bag=recycle] .collection-type-icon{background:#4b8c62}[data-bag=mixed] .collection-type-icon{background:#64717f}
+.collection-main{display:flex;flex-direction:column;flex:1;min-height:0;gap:8px;justify-content:center}
+#collectionCardBody .collection-figures{display:flex;justify-content:center;align-items:stretch;min-height:0;flex:1;margin:0;width:100%;gap:8px}
+#collectionCardBody .collection-item{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:0;max-width:100%;transform:none;flex:1;gap:0}
+#collectionCardBody .bag-figure.bag-button{height:100%;max-height:none;min-height:0;width:100%;max-width:320px;flex:1;aspect-ratio:auto;margin:0;overflow:hidden;border:0;box-shadow:none;background:transparent;padding:0}
+#collectionCardBody .bag-button img{height:100%;width:100%;max-height:100%;max-width:320px;object-fit:contain;filter:drop-shadow(0 8px 6px #0004)}
+#collectionCardBody .bag-click-hint{font-size:10px;color:#f1dfcb;flex:none;margin:1px 0 0;line-height:1.2}
+#collectionCardBody .collection-item-label{color:white;font-size:12px;padding:2px 0}
+#collectionCardBody .collection-timing{flex:none;margin:0;border:0;padding:0;display:flex;flex-direction:column;gap:8px;width:100%}
+#collectionCardBody .put-out-instruction{background:transparent;border:0;border-radius:0;padding:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:4px;width:100%}
+#collectionCardBody .put-out-instruction>span{font-size:14px;color:#f4e9df;font-weight:500}
+#collectionCardBody .put-out-instruction>strong{font-size:clamp(23px,7cqw,32px);line-height:1.15;letter-spacing:-.02em;color:white;font-weight:800;white-space:nowrap}
+.time-between{font-size:.58em;font-weight:500}
+.collection-start{display:flex;flex-direction:column;align-items:center;gap:2px;background:transparent;border:0;border-top:1px solid #ffffff30;color:white;padding:8px 0 0;width:100%;cursor:pointer}
+.collection-start>span{font-size:13px}.collection-start strong{font-size:28px;line-height:1.1;font-weight:800}
+.collection-start .info-circle{display:inline-flex;width:15px;height:15px;font-size:10px;margin-left:4px}
+#collectionCardBody .no-collection-message{transform:none;margin:0;padding:20px 0;flex:1;color:white}
+#collectionCardBody .no-collection-message .bag-name{color:white;font-size:26px}
+#councilPanel{margin-top:9px;padding:9px 10px;border-radius:14px;background:linear-gradient(110deg,#0b3a61,#072338);border:1px solid #2175aa;color:white;min-height:62px;display:flex;align-items:center;gap:7px}
+#councilPanel strong{font-size:12px;line-height:1.25;flex:1}
+#councilPanel .council-link{min-height:38px;background:#092e4d;color:white;border:1px solid #2788bf;font-size:11px;padding:6px 7px}
+#councilPanel .council-whatsapp-disabled{opacity:.4;background:transparent}
+#councilPanel .council-actions{flex-wrap:nowrap;gap:4px}
+.council-emblem{font-size:22px;flex:none;color:#9acdf1}
+#sponsorPanel{margin-top:9px;gap:5px}
+#sponsorPanel .sponsor-heading{font-size:12px;color:var(--ink);padding:0 0 2px;font-weight:700}
+#sponsorPanel .sponsor-link{min-height:44px;border-radius:11px;font-size:18px;font-weight:800;padding:8px 13px;text-align:left;letter-spacing:-.02em}
+.local-preview-tools{margin-top:18px;border-top:1px solid var(--border);padding-top:14px;text-align:left}.local-preview-tools p{font-size:12px}.local-preview-tools input{font-size:12px;width:100%;height:auto;padding:7px}.local-preview-tools button{min-height:36px;padding:6px 9px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink)}
+[data-theme=light] body{background:#e9f1f8}[data-theme=light] #appContent .app{background:transparent}[data-theme=light] .collection-date #todayPill{color:#163653}[data-theme=light] #dayNavigation #dateButton{color:#42647e}[data-theme=light] #sponsorPanel .sponsor-heading{color:#163653}
+/* With sponsors the bag and time share a row, giving the adverts room below. */
+#dashboard:not([data-sponsor-count="0"]) .collection-main{flex-direction:row;align-items:center;gap:6px}
+#dashboard:not([data-sponsor-count="0"]) .collection-figures{width:47%;flex:1;align-self:stretch}
+#dashboard:not([data-sponsor-count="0"]) .collection-timing{width:50%;flex:1}
+#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong{font-size:clamp(17px,5cqw,24px)}
+#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>span{font-size:11px}
+#dashboard:not([data-sponsor-count="0"]) .collection-start>span{font-size:11px}
+#dashboard:not([data-sponsor-count="0"]) .collection-heading{font-size:30px}
+@media(max-width:360px){.topbar{grid-template-columns:82px minmax(0,1fr) 78px;padding:7px}.topbar .icon-button,.topbar #gameModeButton{width:34px;height:34px;min-width:34px}.topbar .brand{font-size:12px}#councilPanel .council-actions{gap:3px}#councilPanel .council-link{font-size:10px;padding:5px}#councilPanel strong{font-size:11px}.council-emblem{display:none}}
+
+.collection-type-icon svg{width:26px;height:26px}#brandPlainMark img{width:24px;height:31px;object-fit:contain}#dayNavigation #dateButton{flex-direction:row}#dayNavigation #dateButton svg{display:block;position:static;margin:0}#councilPanel strong{min-width:70px;overflow-wrap:normal}#councilPanel .council-actions{flex-shrink:0}
+
+.sponsor-link::after{content:"↗";margin-left:auto;flex:none;padding-left:8px}.timing-truck{width:20px;height:17px;vertical-align:middle;margin-right:3px}
+/* Warm studio lighting and quiet botanical silhouettes like the concept. */
+[data-bag=organic] #bagArea{background-image:url('../icons/card-botanical.svg'),radial-gradient(ellipse at 0% 0%,#925321 0%,#5b3519 30%,#302014 75%,#241a13 100%);background-size:cover;border-color:#aa7748;box-shadow:inset 0 1px 2px #ffd49e36,inset 0 -30px 60px #130c0966,0 7px 22px #0004}
+#collectionCardBody .collection-type-icon{background:linear-gradient(135deg,#cf995a,#a86b36);box-shadow:inset 0 1px 1px #ffe8bd44}
+#collectionCardBody .put-out-instruction>span{color:#fff4e7}#collectionCardBody .put-out-instruction>span>span{color:#efc575;font-size:22px;vertical-align:middle}
+#collectionCardBody .put-out-instruction strong small,.collection-start strong small{font-size:.42em;font-weight:600;letter-spacing:0;color:#eadac9}
+#collectionCardBody .collection-start{border-color:#bc916350;padding-top:12px}
+#collectionCardBody .collection-main{gap:14px}
+#dashboard:not([data-sponsor-count="0"]) .collection-figures{width:45%;flex:0 0 45%}
+#dashboard:not([data-sponsor-count="0"]) .collection-timing{width:55%;flex:1;min-width:0}
+#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong{white-space:normal;font-size:clamp(18px,5cqw,24px);display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:3px}
+#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong small{font-size:10px}
+#dashboard:not([data-sponsor-count="0"]) .collection-start strong{font-size:27px}
+#councilPanel{display:grid;grid-template-columns:35px 1fr;gap:6px 9px;padding:10px 12px;background:linear-gradient(110deg,#123c5b,#0a253c);border-color:#357da4;box-shadow:inset 0 1px 0 #ffffff12,0 3px 10px #0002}
+#councilPanel .council-emblem{display:grid;place-items:center;width:35px;height:35px;border-radius:10px;background:#ffffff0b;color:#a5d9f5}
+.council-emblem svg{width:27px;height:27px}
+.council-identity{display:flex;flex-direction:column;gap:2px}.council-identity>span{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#9ec4df}#councilPanel strong{font-size:14px}
+#councilPanel .council-actions{grid-column:1/-1;display:flex;gap:6px;width:100%}#councilPanel .council-link{min-height:36px;font-size:12px;border-radius:9px;text-align:center;justify-content:center;flex:1;background:#0a2c45;border-color:#3986ad}#councilPanel .council-link[href^="tel:"]{flex:1.65;background:#174b68;color:#e2f7ff}
+#dashboard:not([data-sponsor-count="0"]) .glass-item{flex:.75}
+.clock-value{white-space:nowrap;display:inline-block}
+#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong{font-size:clamp(14px,4cqw,20px);flex-wrap:nowrap;white-space:nowrap;gap:3px}#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong small{font-size:8px}
+#dashboard:not([data-sponsor-count="0"]) .collection-figures:has(.glass-item){display:grid;grid-template-rows:minmax(0,1.8fr) minmax(0,1fr);gap:6px}#dashboard:not([data-sponsor-count="0"]) .glass-item .bag-figure{max-width:115px}#dashboard:not([data-sponsor-count="0"]) .glass-item .collection-item-label{font-size:10px;white-space:nowrap}
+/* A restrained skyline is behind the content and adds no vertical space. */
+#councilPanel{position:relative;overflow:hidden;padding:9px 12px;gap:6px 9px;background-image:url('../icons/council-backdrop.svg'),linear-gradient(130deg,#154767,#082c46);background-position:center bottom;background-size:cover;border-color:#4389a8;box-shadow:inset 0 1px 0 #b4e7ff28,0 4px 15px #0003}
+#councilPanel .council-link{display:flex;align-items:center;cursor:pointer;line-height:1.2;font:600 11px/1.2 system-ui;padding:7px 8px;min-height:37px}#councilPanel .council-bulky{flex:1.9;background:linear-gradient(#246d92,#154a70);border-color:#69a7c6;color:white}
+.bulky-dialog .info-titlebar{background:#285783;color:white}.bulky-dialog .info-titlebar h2{font-size:19px}.bulky-copy{padding:16px 20px 22px}.bulky-contact{padding:14px;border:1px solid #4a809f;border-radius:14px;background:linear-gradient(130deg,#163e5a,#102d42)}.bulky-contact-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#a7d6f1}.bulky-contact h3{font-size:24px;margin:4px 0 8px}.bulky-contact p{font-size:14px;margin:8px 0}.bulky-number{font-size:25px;font-weight:750;letter-spacing:.02em;color:#f5fbff;margin:12px 0;user-select:text}.bulky-call{display:flex;gap:9px;align-items:center;justify-content:center;background:linear-gradient(#287fba,#176093);border:1px solid #70b9df;border-radius:11px;padding:12px;color:white;text-decoration:none;font-weight:700;font-size:14px;min-height:44px}.bulky-call svg{width:22px;height:22px;flex:none}.bulky-copy .bulky-small{font-size:12px;line-height:1.45;color:#b7ccda}.bulky-rules li{margin:10px 0;font-size:14px}.bulky-sources{display:flex;flex-direction:column;gap:10px;font-size:13px}.bulky-sources a{color:#a4dbff}.bulky-copy>p{font-size:14px}
+[data-theme=light] .bulky-contact{background:#edf6fc;color:#173a53;border-color:#bbd6e7}[data-theme=light] .bulky-number{color:#174367}[data-theme=light] .bulky-contact-label,[data-theme=light] .bulky-copy .bulky-small{color:#42617a}[data-theme=light] .bulky-sources a{color:#155a88}
+.bulky-copy .bulky-contact p{font-size:13px;line-height:1.45;margin:8px 0}.bulky-copy .bulky-contact h3{font-size:23px;margin:5px 0 8px}.bulky-copy .bulky-contact .bulky-small{font-size:11px}
+
+/* On glass days both objects share a single bounded row; timings sit below. */
+#dashboard .collection-main:has(.glass-item){flex-direction:column;align-items:stretch;gap:8px}
+#dashboard #collectionCardBody .collection-figures:has(.glass-item){display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);width:100%;flex:1;align-self:stretch;gap:12px;min-height:0}
+#dashboard #collectionCardBody .collection-figures:has(.glass-item) .collection-item{min-height:0;max-height:100%}
+#dashboard #collectionCardBody .glass-item .bag-figure{max-width:210px;width:100%;min-height:0}
+#dashboard #collectionCardBody .glass-item .collection-item-label{font-size:11px;white-space:nowrap}
+#dashboard .collection-main:has(.glass-item) .collection-timing{flex:none;width:100%;gap:6px}
+#dashboard .collection-main:has(.glass-item) .put-out-instruction>strong{font-size:22px;justify-content:center;white-space:nowrap}
+#dashboard .collection-main:has(.glass-item) .collection-start{padding-top:6px}
+#dashboard .collection-main:has(.glass-item) .collection-start strong{font-size:25px}
+
+/* Artwork never contributes an intrinsic minimum to the card's height. */
+#collectionCardBody .collection-card{min-height:0;overflow:hidden}
+#collectionCardBody .collection-main{overflow:hidden;min-height:0}
+#collectionCardBody .collection-item{overflow:hidden;min-height:0}
+#collectionCardBody .bag-figure.bag-button{position:relative;min-height:0;overflow:hidden}
+#collectionCardBody .bag-button img{position:absolute;inset:0;display:block;width:100%;height:100%;max-width:none;max-height:100%;object-fit:contain}
+#dashboard #collectionCardBody .collection-figures:has(.glass-item){align-items:stretch;grid-template-columns:repeat(2,minmax(0,1fr))}
+#dashboard #collectionCardBody .collection-figures:has(.glass-item) .bag-figure{width:100%;max-width:none;flex:1;min-height:0}
+#dashboard #collectionCardBody .collection-figures:has(.glass-item) .collection-item{gap:2px}
+#gameModeButton img{width:32px;height:32px;display:block;border-radius:9px}
+/* Concise contact panel, with three icon links in one row. */
+.bulky-dialog{width:min(100%,440px);max-height:calc(100dvh - 28px)}
+.bulky-dialog .info-titlebar{padding:12px 16px;gap:9px}.bulky-dialog .info-titlebar h2{font-size:18px}.bulky-dialog .info-close{width:38px;height:38px;min-width:38px;min-height:38px;flex-basis:38px}
+.bulky-copy{padding:14px 16px 16px}.bulky-contact{padding:12px;text-align:center}.bulky-copy .bulky-contact h3{font-size:23px;margin:4px 0}.bulky-copy .bulky-contact p{margin:4px 0;font-size:12px}.bulky-number{font-size:25px;margin:8px 0 10px}.bulky-call{min-height:44px;padding:10px}.bulky-copy .bulky-contact .bulky-small{margin:6px 0 0;font-size:11px}
+.bulky-steps{list-style:none;counter-reset:step;margin:14px 0;padding:0;display:grid;gap:10px}.bulky-steps li{counter-increment:step;position:relative;padding-left:31px;font-size:12px;line-height:1.4}.bulky-steps li::before{content:counter(step);position:absolute;left:0;top:0;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#254d68;color:#c2eaff;font-size:11px;font-weight:750}.bulky-steps strong{display:block;color:inherit;font-size:13px}
+.bulky-sources{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding-top:12px;border-top:1px solid #ffffff20}.bulky-sources a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 4px;border:1px solid #39617e;border-radius:11px;background:#14374e;text-decoration:none;color:#c2e7ff;font-size:10px;text-align:center;min-height:71px}.bulky-sources svg{width:25px;height:25px}.bulky-sources a:hover{background:#20516d}
+[data-theme=light] .bulky-sources a{background:#edf6fc;border-color:#bfd8e8;color:#245875}[data-theme=light] .bulky-steps li::before{background:#e2f0f9;color:#245875}
+@media(max-height:620px){.bulky-copy{padding:10px 12px}.bulky-contact{padding:9px}.bulky-steps{gap:7px;margin:10px 0}.bulky-sources{padding-top:9px}.bulky-sources a{min-height:62px;padding:7px 3px}.bulky-number{margin:5px 0 7px}.bulky-dialog .info-titlebar{padding:9px 13px}}
+.bulky-copy .bulky-steps li{font:400 13px/1.4 system-ui;margin:0}.bulky-copy .bulky-steps strong{font-size:13px}
+#bulkyOverlay .bulky-dialog{max-height:calc(100dvh - 28px)}#bulkyOverlay .bulky-copy{padding:12px 14px 14px}#bulkyOverlay .bulky-number{font-size:clamp(19px,6vw,25px);white-space:nowrap}#bulkyOverlay .bulky-steps{padding:0;margin:12px 0;gap:9px}#bulkyOverlay .info-titlebar h2{font-size:18px}
+@media(max-height:620px){#bulkyOverlay .bulky-copy{padding:9px 12px}#bulkyOverlay .bulky-steps{margin:10px 0;gap:7px}}
+/* Readable booking panel: remove repeated captions and spend the space on type. */
+#bulkyOverlay .info-titlebar h2{font-size:20px;line-height:1.2}
+#bulkyOverlay .bulky-contact{padding:13px}
+#bulkyOverlay .bulky-contact h3{font-size:26px;margin:0 0 8px}
+#bulkyOverlay .bulky-number{font-size:clamp(23px,7vw,29px);margin:9px 0 13px;letter-spacing:0}
+#bulkyOverlay .bulky-call{font-size:16px;line-height:1.25;min-height:48px;padding:11px 8px;gap:8px}
+#bulkyOverlay .bulky-steps{gap:12px;margin:16px 0}
+#bulkyOverlay .bulky-steps li{font-size:16px;line-height:1.4;padding-left:32px}
+#bulkyOverlay .bulky-steps strong{font-size:16px}
+#bulkyOverlay .bulky-steps li::before{font-size:13px;width:24px;height:24px}
+#bulkyOverlay .bulky-sources a{font-size:13px;font-weight:600;line-height:1.25;padding:10px 4px;min-height:82px;gap:8px}
+#bulkyOverlay .bulky-sources svg{width:27px;height:27px}
+@media(max-height:620px){#bulkyOverlay .bulky-contact{padding:10px}#bulkyOverlay .bulky-contact h3{font-size:24px;margin-bottom:4px}#bulkyOverlay .bulky-number{margin:6px 0 9px}#bulkyOverlay .bulky-steps{gap:9px;margin:12px 0}#bulkyOverlay .bulky-steps li,#bulkyOverlay .bulky-steps strong{font-size:15px}#bulkyOverlay .bulky-sources a{min-height:74px;padding:7px 3px}}
+/* Low-contrast recyclable outlines frame the card without affecting layout. */
+[data-bag=recycle] #bagArea{background-image:url('../icons/card-recycling.svg'),radial-gradient(ellipse at 0% 0%,#38694d 0%,#254d39 35%,#163a2c 75%,#112d24 100%);background-size:cover;background-position:center;border-color:#659a78;box-shadow:inset 0 1px 2px #d8ffda24,inset 0 -30px 60px #071b1466,0 7px 22px #0004}
+[data-bag=recycle] #collectionCardBody .collection-type-icon{background:linear-gradient(135deg,#6aa17a,#3f7955);box-shadow:inset 0 1px 1px #deffe344}
+
+.collection-date #todayPill{border:0;box-shadow:none;font-family:inherit;cursor:pointer;margin-inline:auto;text-align:center}
+
+button.put-out-instruction{width:100%;border:0;background:transparent;color:inherit;font-family:inherit;cursor:pointer;text-align:center}
+
+/* Wide screens keep both collection illustrations beside the timing panel. */
+@container home (min-width:572px){
+ #dashboard .collection-main:has(.glass-item){flex-direction:row;align-items:center;gap:14px}
+ #dashboard #collectionCardBody .collection-figures:has(.glass-item){width:52%;flex:1;min-height:140px;height:100%;align-self:stretch}
+ #dashboard .collection-main:has(.glass-item) .collection-timing{width:46%;flex:1;min-width:0}
+ #dashboard .collection-main:has(.glass-item) .put-out-instruction>strong{font-size:clamp(17px,3cqw,22px);gap:3px}
+}
+
+/* Optional sponsor banners occupy the complete fixed-height advert area. */
+#sponsorPanel .sponsor-link.sponsor-link-image{display:block;position:relative;height:44px;min-height:44px;padding:0;overflow:hidden}
+#sponsorPanel .sponsor-link-image::after{content:none}
+#sponsorPanel .sponsor-banner{display:block;width:100%;height:100%;object-fit:fill}
+
+/* Keep the existing banner height; stretch artwork to both horizontal edges. */
+#sponsorPanel .sponsor-link.sponsor-link-image{height:auto;min-height:0;aspect-ratio:8 / 1;padding:0;background:#fff;box-sizing:border-box}
+#sponsorPanel .sponsor-link-image .sponsor-banner{display:block;width:100%;height:100%;object-fit:fill;object-position:center}
+
+/* v1.1.4: each real sponsor uses one compact, touch-friendly row. */
+#sponsorPanel{flex:0 0 auto;gap:5px;margin-top:8px;min-height:0}
+#sponsorPanel .sponsor-heading{font-size:10px;line-height:1.2;padding:0 0 1px}
+#sponsorPanel .sponsor-link{flex:0 0 auto;height:44px;min-height:44px;max-height:44px;padding:4px 11px;font-size:14px;line-height:1.15;border-radius:9px;overflow:hidden}
+#sponsorPanel .sponsor-copy{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-width:0;overflow-wrap:anywhere}
+#sponsorPanel .sponsor-link.sponsor-link-image{height:44px;min-height:44px;max-height:44px;aspect-ratio:auto;padding:0}
+
+/* Three matching home council actions, preserving the existing council panel. */
+#councilPanel .council-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#councilPanel .council-actions .council-link{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:60px;padding:6px 3px;font:600 11px/1.2 system-ui;text-decoration:none;background:linear-gradient(#174b68,#0a2c45);border:1px solid #3986ad;border-radius:9px;color:#e2f7ff}
+#councilPanel .council-link img{display:block;flex:none;width:26px;height:26px}
+#councilPanel .council-link span{max-width:100%;text-align:center}
+#councilPanel .council-link:focus-visible{outline:2px solid #c3f1ff;outline-offset:2px}
+/* Compact weekday link inside the existing bag/glass card. */
+#collectionCardBody .hospice-battery-link{flex:none;display:flex;align-items:center;gap:10px;min-height:50px;padding:7px 11px;border:1px solid #b4dfcc;border-radius:12px;background:linear-gradient(110deg,#e2f5e9,#effaf4);color:#123a35;text-decoration:none;text-align:left;box-sizing:border-box}
+.hospice-battery-link>img{flex:none;width:26px;height:36px;object-fit:contain}
+.hospice-battery-copy{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.hospice-battery-copy strong{font:700 13px/1.2 system-ui;letter-spacing:0;color:#123a35}
+.hospice-battery-copy small{font:400 11px/1.2 system-ui;color:#4c6a61}
+.hospice-battery-link .hospice-external{width:19px;height:19px;flex:none;color:#55766b}
+.hospice-battery-link:focus-visible{outline:2px solid #9fe4c4;outline-offset:2px}
+
+/* Noticeboard access sits beside the council heading, outside the three actions. */
+#councilPanel{grid-template-columns:35px minmax(0,1fr) 44px}
+#councilPanel .council-identity{min-width:0}
+#councilPanel .council-identity strong{min-width:0;overflow-wrap:anywhere}
+#councilPanel .council-noticeboard{grid-column:3;grid-row:1;display:grid;place-items:center;align-self:center;justify-self:end;width:44px;height:44px;min-width:44px;border:0;border-radius:10px;background:transparent;text-decoration:none;touch-action:auto}
+#councilPanel .council-noticeboard img{display:block;width:40px;height:40px;filter:drop-shadow(0 2px 2px #0003)}
+#councilPanel .council-noticeboard:hover{background:#ffffff14}
+#councilPanel .council-noticeboard:focus-visible{outline:2px solid #ffe09a;outline-offset:1px}
+
+/* Readable Notices label in the council heading. */
+#councilPanel{grid-template-columns:35px minmax(0,1fr) 64px}
+#councilPanel .council-noticeboard{width:64px;height:64px;min-width:64px}
+#councilPanel .council-noticeboard img{width:64px;height:64px;object-fit:contain}
+
+/* Fit each artwork slot to the illustration, rather than stretching to the card.
+   The same rules cover organic, mixed, recyclable and glass illustrations. */
+#dashboard #collectionCardBody .collection-figures .collection-item{justify-content:center;gap:4px}
+#dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:auto;aspect-ratio:2 / 3;flex:0 1 auto;width:min(100%,320px);max-width:320px;min-height:0;max-height:calc(100% - 20px);margin:0}
+#dashboard #collectionCardBody .collection-figures .bag-figure.bag-button[data-waste-type="glass"]{aspect-ratio:1226 / 1283}
+#dashboard #collectionCardBody .collection-figures .bag-figure.bag-button:has(img[src$=".svg"]){aspect-ratio:184 / 208}
+#dashboard #collectionCardBody .collection-figures .bag-button img{object-fit:contain;object-position:center bottom}
+#dashboard #collectionCardBody .collection-figures :is(.bag-click-hint,.collection-item-label){flex:none;margin:0;padding:0;line-height:1.2}
+
+/* v1.1.59: accessibility and mobile landscape refinements */
+.collection-date .viewed-day-row{display:none!important}
+.collection-date{padding-top:0!important}
+#collectionCardBody .collection-heading{display:flex;align-items:center;gap:8px;flex-wrap:wrap;line-height:1.12}
+#collectionCardBody .collection-day-tag{font-size:clamp(13px,2.8cqw,19px);font-weight:600;white-space:nowrap;opacity:.92}
+.reuse-shortcut{border:1px solid #416c95!important;border-radius:13px!important;background:#103c68!important;color:#f5fbff!important;display:grid!important;place-items:center!important}
+.reuse-shortcut svg{width:26px;height:26px}
+@media(orientation:landscape) and (max-height:600px){
+#appContent .app{width:100%;max-width:none;padding-left:12px;padding-right:12px}
+#dashboard .collection-date{margin-top:0!important;margin-bottom:4px!important}
+#collectionCardBody .collection-heading{font-size:clamp(22px,3cqw,32px)!important}
+#collectionCardBody .hospice-battery-link{display:none!important}
+}
+/* Keep Android gesture/navigation area opaque in dark appearance. */
+html[data-theme=dark],html[data-theme=dark] body{background-color:#0b1421!important;color-scheme:dark}
+html[data-theme=light],html[data-theme=light] body{color-scheme:light}
+
+/* v1.1.61: public home improvements */
+#dashboard{padding-top:3px!important}
+#dashboard>.collection-date{min-height:48px!important;padding-bottom:3px!important;margin-bottom:3px!important}
+#dayNavigation{min-height:40px!important}
+#dayNavigation .nav-button{min-height:40px!important;height:40px!important}
+#collectionCardBody .collection-day-tag{font-size:clamp(17px,3.5cqw,24px)!important;font-weight:750!important}
+#collectionCardBody .collection-card{height:auto!important;min-height:max(400px,var(--home-card-min-height,400px));overflow:visible!important}
+#collectionCardBody .collection-main{overflow:visible!important;min-height:220px!important;flex-shrink:0}
+#collectionCardBody .collection-timing{flex-shrink:0;min-width:0}
+#collectionCardBody .hospice-battery-link{position:relative;flex:none;margin-top:12px}
+@media(max-height:850px){#collectionCardBody .hospice-battery-link{display:none!important}}
+@media(max-height:650px){#dashboard>.collection-date{min-height:43px!important}#dayNavigation{min-height:38px!important}#collectionCardBody .collection-card{min-height:390px!important}}
+/* Style the notice icon like the adjacent outlined action icons */
+#councilPanel .council-noticeboard{width:46px;height:52px;min-width:46px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;border:1px solid #ffffff45;border-radius:12px;color:#fff;background:#103e67!important}
+#councilPanel .council-noticeboard svg{width:24px;height:24px;display:block}
+#councilPanel .council-noticeboard span{font-size:9px;font-weight:700;line-height:1}
+
+
+/* v1.1.64 — intrinsic home card sizing, no viewport-height clipping */
+#dashboard #collectionStage{height:auto!important;min-height:0!important;overflow:visible!important;flex:none!important}
+#dashboard #bagArea{height:auto!important;min-height:0!important;overflow:hidden!important}
+#dashboard #collectionCardBody{height:auto!important;min-height:0!important}
+#dashboard #collectionCardBody .collection-card{box-sizing:border-box;height:auto!important;min-height:0!important;overflow:visible!important;gap:14px;padding:16px!important}
+#dashboard #collectionCardBody .collection-main{height:auto!important;min-height:0!important;overflow:visible!important;display:flex;align-items:center;gap:16px;flex:none!important}
+#dashboard #collectionCardBody .collection-figures{min-height:0!important;height:auto!important;align-items:center!important;flex:none!important}
+#dashboard #collectionCardBody .collection-item{min-height:0!important;height:auto!important;overflow:visible!important;flex:1 1 auto}
+#dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:clamp(175px,33cqw,430px)!important;max-height:none!important;min-height:0!important;aspect-ratio:auto!important;width:min(100%,320px)!important;flex:none!important;overflow:visible!important;position:relative!important}
+#dashboard #collectionCardBody .bag-button img{position:static!important;inset:auto!important;display:block;width:100%!important;height:100%!important;max-height:100%!important;object-fit:contain!important}
+#dashboard #collectionCardBody .collection-timing{flex:1 1 0!important;min-width:0!important;width:auto!important;overflow:visible!important;gap:10px}
+#dashboard #collectionCardBody .hospice-battery-link{display:flex!important;position:relative!important;margin:0!important;flex:none!important}
+#dashboard #collectionCardBody .collection-heading{font-size:clamp(23px,3.7cqw,38px)!important;gap:7px;min-width:0}
+#dashboard #collectionCardBody .collection-day-tag{font-size:clamp(15px,2cqw,23px)!important}
+#dashboard #collectionCardBody .put-out-instruction>strong{font-size:clamp(17px,2.6cqw,30px)!important;white-space:normal!important;display:flex!important;flex-wrap:wrap;gap:3px;justify-content:center}
+#dashboard #collectionCardBody .collection-start strong{font-size:clamp(22px,3cqw,34px)!important}
+@container home (min-width:532px){
+ #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)){flex-direction:row!important;justify-content:space-around!important}
+ #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)) .collection-figures{width:46%!important;flex:0 1 46%!important}
+ #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)) .collection-timing{width:50%!important;flex:1 1 50%!important}
+}
+@container home (max-width:531px){
+ #dashboard #collectionCardBody .collection-main{flex-direction:column!important;gap:14px!important}
+ #dashboard #collectionCardBody .collection-figures{width:100%!important;flex:none!important}
+ #dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:clamp(185px,65cqw,320px)!important}
+ #dashboard #collectionCardBody .collection-timing{width:100%!important;flex:none!important}
+ #dashboard #collectionCardBody .collection-heading{font-size:clamp(21px,5.5cqw,31px)!important}
+}
+/* Real glass collection may contain two illustrations: keep the source's compact grid arrangement. */
+#dashboard #collectionCardBody .collection-figures:has(.glass-item) .bag-figure.bag-button{max-width:100%!important;height:clamp(110px,24cqw,230px)!important}
+@media(max-width:359px){#dashboard #collectionCardBody .collection-card{padding:11px!important}#dashboard #collectionCardBody .collection-type-icon{width:36px;height:36px;font-size:23px}#dashboard #collectionCardBody .collection-day-tag{font-size:14px!important}}
+
+/* v1.1.66: persistent home sponsor dock and measured portrait artwork. */
+#appContent .app{padding-bottom:calc(14px + env(safe-area-inset-bottom) + var(--home-dock-height,0px))}
+#homeSponsorDock{position:fixed;z-index:10;bottom:0;left:0;right:0;padding:6px max(14px,calc((100% - var(--public-content-max,510px) + 28px)/2)) max(6px,env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--border)}
+#homeSponsorDock[hidden]{display:none}
+#dashboard #homeSponsorDock :is(#sponsorPanel,#communityPanel){margin:0;gap:0}
+#homeSponsorDock #communityPanel:not([hidden])+#sponsorPanel:not([hidden]){margin-top:5px}
+@container home (max-width:531px){
+ #dashboard #collectionCardBody .collection-card{gap:8px;padding:11px!important}
+ #dashboard #collectionCardBody .collection-main{gap:7px!important}
+ #dashboard #collectionCardBody .collection-figures .bag-figure.bag-button,
+ #dashboard #collectionCardBody .collection-figures:has(.glass-item) .bag-figure.bag-button{height:var(--home-art-height,clamp(120px,28dvh,250px))!important}
+ #dashboard #collectionCardBody .collection-timing{gap:5px}
+ #dashboard.home-hide-battery #collectionCardBody .hospice-battery-link{display:none!important}
+}
+
+/* v1.1.67: equally prominent day labels and a wider pinned-notice board. */
+#dashboard #collectionCardBody .collection-heading .collection-day-tag{font-size:inherit!important;line-height:inherit;font-weight:inherit}
+#councilPanel .council-noticeboard{width:64px;min-width:64px;height:52px}
+#councilPanel .council-noticeboard svg{width:38px;height:28px;flex:none}
+
+.collection-start .info-circle{align-items:center;justify-content:center;line-height:1;padding:0;box-sizing:border-box;text-align:center}
+
+/* Labelled primary shortcuts, shared by weekdays and Sunday. */
+.home-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}
+.home-shortcut,.home-shortcuts #gameModeButton{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;width:100%;height:auto;min-height:70px;margin:0;padding:9px 4px;border:1px solid #38617c;border-radius:13px;background:#12334c;color:#f5f8fd;text-align:center;text-decoration:none;font:700 13px/1.2 system-ui;cursor:pointer}
+.home-shortcut svg,.home-shortcuts #gameModeButton svg{width:28px;height:28px;display:block}.home-shortcut.notice-shortcut{border-color:#60c6c4}.home-shortcuts [hidden]{display:none!important}.home-shortcut:focus-visible{outline:3px solid #f5cf66;outline-offset:2px}
+:root[data-theme=light] .home-shortcut,:root[data-theme=light] .home-shortcuts #gameModeButton{background:#e7f1f8;color:#173d59;border-color:#9bbbd0}:root[data-theme=light] .home-shortcut.notice-shortcut{border-color:#237e80}
+@media(max-height:700px){.home-shortcut,.home-shortcuts #gameModeButton{min-height:58px;gap:3px;padding:6px 3px;font-size:12px}.home-shortcut svg,.home-shortcuts #gameModeButton svg{width:24px;height:24px}}
+
+#appContent .app .topbar{grid-template-columns:100px minmax(0,1fr) 44px}.topbar .top-actions{justify-content:flex-end}
+
+#dashboard #councilPanel{grid-template-columns:35px minmax(0,1fr)}
+@media(max-width:360px){#appContent .app .topbar{grid-template-columns:84px minmax(0,1fr) 44px}}
+
+/* Annual holiday collection advisory. Its natural height contributes to home fitting. */
+.holiday-advisory{background:#ffe28a;color:#382708;border:1px solid #e5bb46;border-radius:14px;padding:12px 14px;margin:10px 0;font-size:14px;line-height:1.45;flex-shrink:0}
+.holiday-advisory[hidden]{display:none!important}
+.holiday-advisory strong{display:block;font-size:16px}
+.holiday-advisory p{margin:6px 0 8px}
+.holiday-advisory-links{display:flex;gap:20px;flex-wrap:wrap}
+.holiday-advisory a{color:#382708;text-decoration:underline;text-underline-offset:3px;font-weight:700;padding:6px 0}
+.holiday-advisory a:focus-visible{outline:3px solid #382708;outline-offset:3px;border-radius:3px}
+
+/* v1.1.138: focused collection card and grouped date controls. */
+#appContent .app .topbar{grid-template-columns:90px minmax(0,1fr) 90px}.topbar .brand{min-width:0}.topbar .brand .bag-day-logo{max-width:90px}.topbar .locality-heading{text-align:center;min-width:0}
+#dashboard .collection-date{margin:8px 0}.collection-date .viewed-day-row{display:none}
+#dashboard #dayNavigation{display:flex;align-items:center;gap:6px;border:1px solid #38617c;border-radius:14px;background:var(--card);padding:5px}
+#dashboard #dayNavigation .nav-button{flex:0 0 44px;position:static;margin:0;min-width:44px;height:44px;border:0;background:transparent}
+#dashboard #dateButton{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 0;background:transparent;border:0;font-size:clamp(12px,3.5cqw,17px)}
+#dashboard #dateButton time{flex:1;text-align:center;white-space:normal}#dashboard #dateButton svg{flex:none;width:25px;height:28px}
+#dashboard #collectionCardBody .collection-heading{justify-content:center;text-align:center;gap:6px}
+#dashboard #collectionCardBody .collection-main{flex-direction:column!important}
+#dashboard #collectionCardBody .collection-main .collection-figures{width:100%!important;flex:none!important}
+#dashboard #collectionCardBody .collection-main .collection-timing{width:100%!important;flex:none!important;border-top:1px solid #ffffff55;padding-top:10px}
+#dashboard #collectionCardBody .put-out-instruction>strong{font-size:clamp(28px,8cqw,38px)!important;flex-wrap:nowrap!important;white-space:nowrap!important;gap:5px}
+#dashboard #collectionCardBody .put-out-instruction>span{font-size:15px!important}
+#dashboard #collectionCardBody .put-out-instruction .info-circle{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center;border:1px solid currentColor;border-radius:50%;font:700 12px/1 Georgia;color:inherit;margin-left:5px}
+#dashboard .home-shortcut span{font-size:clamp(10px,2.65cqw,13px);white-space:nowrap}
+#homeSponsorDock{border-top:2px solid white;padding-top:16px}
+#dashboard #homeSponsorDock .sponsor-carousel-header{display:flex;height:0;position:relative}
+#dashboard #homeSponsorDock .sponsor-heading{display:block;position:absolute;right:0;top:-15px;font:600 10px/12px system-ui}
+#dashboard #homeSponsorDock .sponsor-heading:empty{display:none}
+
+/* v1.1.139: balanced date navigation and a wider landscape home. */
+#dashboard #dayNavigation{display:grid;grid-template-columns:32px 44px minmax(0,1fr) 44px 32px;gap:2px;box-sizing:border-box}
+#dashboard #dayNavigation .nav-button{width:32px;min-width:32px}
+#dashboard #dateButton{width:100%;min-height:48px;padding:4px 0;justify-content:center}
+#dashboard #dateButton #date{font-size:clamp(15px,4.1cqw,26px);font-weight:750;line-height:1.2}
+#dashboard #goToToday,#dashboard #openDateCalendar{display:flex;flex-direction:column;align-items:center;justify-content:center;width:44px;height:48px;min-height:44px;padding:0;border:0;background:transparent;color:var(--ink);border-radius:9px;cursor:pointer;gap:0}
+#dashboard #goToToday>span{font:700 34px/28px system-ui}
+#dashboard #goToToday small{font:600 10px/12px system-ui}
+#dashboard #openDateCalendar svg{width:30px;height:34px}
+#dashboard #dayNavigation button:focus-visible{outline:3px solid #f5cf66;outline-offset:1px}
+/* v1.1.142: retain the portrait-style column in landscape; let vertical drags scroll. */
+body:has(#dashboard:not([hidden])){--home-content-max:var(--public-content-max)}
+#homeSponsorDock{padding-inline:max(12px,calc((100% - var(--home-content-max) + 24px)/2))}
+#dashboard{overscroll-behavior-y:auto}
+@media(orientation:landscape) and (min-width:560px) and (max-height:600px){
+ #dashboard{min-height:0!important;overflow-y:auto}
+ #dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:var(--home-art-height,160px)!important}
+}
+
+/* v1.1.143: use the capped home column for typography and layout breakpoints.
+   Inline-size containment leaves vertical document scrolling and dock sizing natural. */
+#appContent .app{container:home / inline-size}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+#dashboard #collectionCardBody .put-out-instruction>strong{flex-wrap:wrap!important;white-space:normal!important;max-width:100%}
+#dashboard #collectionCardBody .put-out-instruction .clock-value{white-space:nowrap}
+@container home (max-width:332px){
+ #appContent .app .topbar{grid-template-columns:84px minmax(0,1fr) 44px}
+ #dashboard #collectionCardBody .collection-card{padding:11px!important}
+ #dashboard #collectionCardBody .collection-type-icon{width:36px;height:36px;font-size:23px}
+}

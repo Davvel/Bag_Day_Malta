@@ -1,0 +1,7 @@
+v1.1.90: 37 frontend/admin checks passed.
+Root cause: noticeStatus treated an empty draft without a published_at timestamp
+as published. Missing timestamp now requires explicit first publication.
+Removed the create-dialog POST to admin/rebuild-file. Board creation now only
+creates the selected private editor pages and refreshes the admin display.
+Backend save handlers were inspected: notice edits already remain drafts.
+No backend changes required. No live deployment performed.

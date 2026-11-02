@@ -1,0 +1,6 @@
+/* Keep native pinch zoom available even where single-finger swipes navigate. */
+.dashboard,.collection-stage,.sponsor-viewport,.calendar-dialog{touch-action:pan-y pinch-zoom}
+.donation-slider{touch-action:pinch-zoom}
+.calendar-dialog{overflow-x:hidden}
+/* Once magnified, dragging belongs to native panning in both directions. */
+html[data-zoomed=true] :is(.dashboard,.collection-stage,.sponsor-viewport,.calendar-dialog,.donation-slider){touch-action:auto}

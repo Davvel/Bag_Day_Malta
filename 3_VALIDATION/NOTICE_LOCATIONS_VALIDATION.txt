@@ -1,0 +1,8 @@
+Frontend: 116 automated tests passed. Backend: 139 automated tests passed.
+Additional Chromium browser checks passed at mobile and desktop sizes:
+optional checkbox selections, five-selection cap, required Where validation,
+locality map start without a preselected pin, tap/confirm/remove/cancel,
+save with zero tags and null coordinates, silent map outage fallback,
+calendar/day/detail modal navigation, Close/Escape, and 22px/26px titles.
+No browser JavaScript errors. Test map tiles are synthetic; no OSM tile crawling.
+ZIP CRC and archive content checks performed. Not deployed live.

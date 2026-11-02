@@ -1,0 +1,22 @@
+FRONTEND v1.1.111
+
+67 automated tests passed. New tests execute the public search handlers and
+board renderer against fixture pages using a lightweight DOM/timer harness.
+Verified: 1/2 characters do not auto-search; 3+ characters wait 400 ms; whitespace
+is trimmed; Enter and the submit lens allow one-character queries; 20 results
+is one combined budget; Show more expands 20 -> 40 -> 54; changing a query resets
+the budget; normal empty categories use compact locality-labelled banners;
+search hides empty categories and provides one no-results message; clearing or
+blank submission restores the selected-locality view; all-locality results
+retain page identity and place locality before title; ten Police notices across
+ten localities are all shown; composition and pending-search cancellation work.
+
+Existing publication, navigation, version, sponsor, calendar/gesture and other
+frontend checks also passed. Removed the obsolete cached-Home-while-network-
+pending assertion inherited from pre-1.1.109: it contradicted the reliable-update
+policy already verified by update-navigation.test.mjs. No worker behaviour changed.
+
+All frontend JavaScript syntax checks passed.
+Browser/physical-device visual validation remains outstanding: a local browser
+was unavailable and the attempted browser download was unusable. No browser test
+pass is claimed. No deployment, production database or account changes performed.
