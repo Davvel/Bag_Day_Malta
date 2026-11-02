@@ -968,53 +968,47 @@
     }
   });
   setInterval(queueSupportInvitation,1000);
-  // One gesture owner locks the axis after a small intentional movement.
+  // Only the bag card owns horizontal day navigation; vertical motion stays native.
   let homeGesture=null;
-  const pull=$('settingsPull');
-  const openThreshold=()=>Math.min(150,Math.max(100,innerHeight*.19));
+  const daySwipeSurface=$('collectionStage');
   function cancelHomeGesture(){
     const g=homeGesture;homeGesture=null;
-    pull.style.transform='';pull.style.opacity='';pull.classList.remove('pull-ready');
-    if(g?.axis)suppressTapUntil=performance.now()+450;
-    if(g?.axis==='x'){$('bagArea').style.transform='';setDayNavigationMoving(false);}
+    if(g?.axis==='x'){
+      suppressTapUntil=performance.now()+450;
+      $('bagArea').style.transform='';setDayNavigationMoving(false);
+    }
   }
   window.addEventListener('bag-day-gesture-cancel',cancelHomeGesture);
-  $('dashboard').addEventListener('touchstart',e=>{
-    if(gesturesBlocked()||e.touches.length!==1){cancelHomeGesture();return;}
-    if(changingDay||e.target.closest('.sponsor-panel'))return;
+  for(const event of ['blur','pagehide','pageshow'])window.addEventListener(event,cancelHomeGesture);
+  daySwipeSurface.addEventListener('touchstart',e=>{
+    cancelHomeGesture();
+    if(gesturesBlocked()||e.touches.length!==1||changingDay)return;
     const t=e.touches[0];homeGesture={x:t.clientX,y:t.clientY,axis:null,dx:0,dy:0};
   },{passive:true});
-  $('dashboard').addEventListener('touchmove',e=>{
+  daySwipeSurface.addEventListener('touchmove',e=>{
     if(gesturesBlocked()||e.touches.length!==1){cancelHomeGesture();return;}
     const g=homeGesture;if(!g)return;
     const t=e.touches[0];g.dx=t.clientX-g.x;g.dy=t.clientY-g.y;
-    if(!g.axis&&Math.max(Math.abs(g.dx),Math.abs(g.dy))>12)g.axis=Math.abs(g.dx)>Math.abs(g.dy)*1.15?'x':'y';
-    if(!g.axis)return;
-    // On an overflowing home page vertical gestures belong to native scrolling.
-    if(g.axis==='y' && document.documentElement.scrollHeight>window.innerHeight+1){homeGesture=null;return;}
-    e.preventDefault();
-    if(g.axis==='x'){
-      setDayNavigationMoving(true);
-      const atEnd=(g.dx>0&&dayOffset<=0)||(g.dx<0&&dayOffset===maxDaysAhead);
-      const shift=atEnd?Math.sign(g.dx)*Math.min(65,Math.abs(g.dx)*.25):g.dx;
-      if(!reducedMotion())$('bagArea').style.transform=`translateX(${shift}px)`;
-    }else if(g.dy>0){
-      const distance=Math.min(g.dy*.6,130);
-      pull.style.transform=`translate(-50%,${distance-45}px)`;pull.style.opacity=Math.min(1,g.dy/70);
-      pull.classList.toggle('pull-ready',g.dy>=openThreshold());
+    if(!g.axis&&Math.max(Math.abs(g.dx),Math.abs(g.dy))>12){
+      if(Math.abs(g.dx)>Math.abs(g.dy)*1.15)g.axis='x';
+      else {homeGesture=null;return;}
     }
+    if(g.axis!=='x')return;
+    if(e.cancelable)e.preventDefault();
+    setDayNavigationMoving(true);
+    const atEnd=(g.dx>0&&dayOffset<=0)||(g.dx<0&&dayOffset===maxDaysAhead);
+    const shift=atEnd?Math.sign(g.dx)*Math.min(65,Math.abs(g.dx)*.25):g.dx;
+    if(!reducedMotion())$('bagArea').style.transform=`translateX(${shift}px)`;
   },{passive:false});
   function finishHomeGesture(cancelled=false){
-    if(gesturesBlocked()){cancelHomeGesture();return;}
-    const g=homeGesture;homeGesture=null;if(!g)return;
-    pull.style.transform='';pull.style.opacity='';pull.classList.remove('pull-ready');
-    if(g.axis)suppressTapUntil=performance.now()+450;
-    if(g.axis==='x')changeDay(!cancelled&&Math.abs(g.dx)>Math.min(90,$('bagArea').clientWidth*.22)?(g.dx<0?1:-1):0);
-    else if(!cancelled&&g.axis==='y'&&g.dy>=openThreshold())openSettings();
+    if(gesturesBlocked()||cancelled){cancelHomeGesture();return;}
+    const g=homeGesture;homeGesture=null;if(g?.axis!=='x')return;
+    suppressTapUntil=performance.now()+450;
+    changeDay(Math.abs(g.dx)>Math.min(90,$('bagArea').clientWidth*.22)?(g.dx<0?1:-1):0);
   }
-  $('dashboard').addEventListener('touchend',()=>finishHomeGesture(),{passive:true});
-  $('dashboard').addEventListener('touchcancel',()=>finishHomeGesture(true),{passive:true});
-  $('dashboard').addEventListener('click',e=>{if(performance.now()<suppressTapUntil){e.preventDefault();e.stopImmediatePropagation();}},{capture:true});
+  daySwipeSurface.addEventListener('touchend',e=>finishHomeGesture(e.touches.length>0),{passive:true});
+  daySwipeSurface.addEventListener('touchcancel',()=>finishHomeGesture(true),{passive:true});
+  daySwipeSurface.addEventListener('click',e=>{if(e.detail!==0&&performance.now()<suppressTapUntil){e.preventDefault();e.stopImmediatePropagation();}},{capture:true});
   // Scroll settings normally; only an outward pull at a scroll boundary dismisses it.
   let settingsGesture=null;
   const panel=$('settingsDialog'),overlay=$('settingsOverlay');
