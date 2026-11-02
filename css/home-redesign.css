@@ -7,7 +7,7 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 .topbar{height:auto;min-height:64px;flex:none;padding:8px 10px;background:linear-gradient(110deg,#075090,#082c52);border-radius:16px;color:white;grid-template-columns:95px minmax(0,1fr) 90px;gap:4px}
 .topbar .brand-copy{color:white}.topbar .brand-sub{color:#5fd0ff}
 .topbar .brand-mark{background:transparent;color:#d0efff;border-radius:8px;font-size:23px;width:23px}
-.topbar #title{color:white;font-size:clamp(18px,5.5vw,27px)}
+.topbar #title{color:white;font-size:clamp(18px,5.5cqw,27px)}
 .topbar .mode-chip{font-size:10px;min-height:0;background:transparent;color:#b6d7f1;padding:2px 3px}
 .topbar .icon-button,.topbar #gameModeButton{width:38px;height:38px;min-width:38px;background:transparent;color:white;box-shadow:none;border:1px solid #ffffff30;border-radius:12px}
 .topbar #gameModeButton svg{width:26px;height:23px}
@@ -19,7 +19,7 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 #dayNavigation .nav-button{position:static;width:42px;height:42px;min-height:42px;border-radius:12px;padding:0;background:linear-gradient(#0b4775,#092d4b);border:1px solid #2e8ec7;color:white;box-shadow:none;font-size:34px;display:flex;align-items:center;justify-content:center;transform:none}
 #dayNavigation .nav-button span:not([aria-hidden]){display:none}
 #dayNavigation #dateButton{border:0;border-radius:8px;background:transparent;box-shadow:none;color:var(--secondary);min-height:42px;padding:0;display:flex;align-items:center;justify-content:center;gap:4px}
-#dayNavigation #date{font-size:clamp(11px,3.2vw,14px);line-height:1.3;margin:0;color:inherit;font-weight:500;white-space:normal}
+#dayNavigation #date{font-size:clamp(11px,3.2cqw,14px);line-height:1.3;margin:0;color:inherit;font-weight:500;white-space:normal}
 #dateButton svg{width:14px;flex:none}
 #collectionStage{min-height:0;flex:none;height:var(--collection-space,420px);border:0;border-radius:20px;overflow:visible}
 #bagArea{height:100%;border:1px solid #9b7752;border-radius:20px;background:radial-gradient(ellipse at 30% 20%,#684627,#392719 90%);box-shadow:0 5px 16px #0003;margin:0;overflow:hidden}
@@ -28,7 +28,7 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 [data-bag=none] #bagArea{background:radial-gradient(ellipse at 30% 20%,#16436a,#0c263b 90%);border-color:#3677a0}
 #collectionCardBody{height:100%}
 #collectionCardBody .collection-card{padding:14px 14px 16px;height:100%;min-height:0;max-height:none;border-radius:0;background:transparent;display:flex;flex-direction:column;align-items:stretch;overflow:visible;color:#fff;gap:8px}
-.collection-heading{display:flex;align-items:center;gap:12px;flex:none;margin:0;text-align:left;font-size:clamp(27px,8vw,38px);line-height:1.15;font-weight:800;letter-spacing:-.03em}
+.collection-heading{display:flex;align-items:center;gap:12px;flex:none;margin:0;text-align:left;font-size:clamp(27px,8cqw,38px);line-height:1.15;font-weight:800;letter-spacing:-.03em}
 .collection-type-icon{display:grid;place-items:center;background:#ba8c52;border-radius:50%;width:44px;height:44px;flex:none;color:white;font-size:30px;font-family:Georgia,serif}
 [data-bag=recycle] .collection-type-icon{background:#4b8c62}[data-bag=mixed] .collection-type-icon{background:#64717f}
 .collection-main{display:flex;flex-direction:column;flex:1;min-height:0;gap:8px;justify-content:center}
@@ -41,7 +41,7 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 #collectionCardBody .collection-timing{flex:none;margin:0;border:0;padding:0;display:flex;flex-direction:column;gap:8px;width:100%}
 #collectionCardBody .put-out-instruction{background:transparent;border:0;border-radius:0;padding:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:4px;width:100%}
 #collectionCardBody .put-out-instruction>span{font-size:14px;color:#f4e9df;font-weight:500}
-#collectionCardBody .put-out-instruction>strong{font-size:clamp(23px,7vw,32px);line-height:1.15;letter-spacing:-.02em;color:white;font-weight:800;white-space:nowrap}
+#collectionCardBody .put-out-instruction>strong{font-size:clamp(23px,7cqw,32px);line-height:1.15;letter-spacing:-.02em;color:white;font-weight:800;white-space:nowrap}
 .time-between{font-size:.58em;font-weight:500}
 .collection-start{display:flex;flex-direction:column;align-items:center;gap:2px;background:transparent;border:0;border-top:1px solid #ffffff30;color:white;padding:8px 0 0;width:100%;cursor:pointer}
 .collection-start>span{font-size:13px}.collection-start strong{font-size:28px;line-height:1.1;font-weight:800}
@@ -63,7 +63,7 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 #dashboard:not([data-sponsor-count="0"]) .collection-main{flex-direction:row;align-items:center;gap:6px}
 #dashboard:not([data-sponsor-count="0"]) .collection-figures{width:47%;flex:1;align-self:stretch}
 #dashboard:not([data-sponsor-count="0"]) .collection-timing{width:50%;flex:1}
-#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong{font-size:clamp(17px,5vw,24px)}
+#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong{font-size:clamp(17px,5cqw,24px)}
 #dashboard:not([data-sponsor-count="0"]) .put-out-instruction>span{font-size:11px}
 #dashboard:not([data-sponsor-count="0"]) .collection-start>span{font-size:11px}
 #dashboard:not([data-sponsor-count="0"]) .collection-heading{font-size:30px}
@@ -81,7 +81,7 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 #collectionCardBody .collection-main{gap:14px}
 #dashboard:not([data-sponsor-count="0"]) .collection-figures{width:45%;flex:0 0 45%}
 #dashboard:not([data-sponsor-count="0"]) .collection-timing{width:55%;flex:1;min-width:0}
-#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong{white-space:normal;font-size:clamp(18px,5vw,24px);display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:3px}
+#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong{white-space:normal;font-size:clamp(18px,5cqw,24px);display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:3px}
 #dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong small{font-size:10px}
 #dashboard:not([data-sponsor-count="0"]) .collection-start strong{font-size:27px}
 #councilPanel{display:grid;grid-template-columns:35px 1fr;gap:6px 9px;padding:10px 12px;background:linear-gradient(110deg,#123c5b,#0a253c);border-color:#357da4;box-shadow:inset 0 1px 0 #ffffff12,0 3px 10px #0002}
@@ -91,7 +91,7 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 #councilPanel .council-actions{grid-column:1/-1;display:flex;gap:6px;width:100%}#councilPanel .council-link{min-height:36px;font-size:12px;border-radius:9px;text-align:center;justify-content:center;flex:1;background:#0a2c45;border-color:#3986ad}#councilPanel .council-link[href^="tel:"]{flex:1.65;background:#174b68;color:#e2f7ff}
 #dashboard:not([data-sponsor-count="0"]) .glass-item{flex:.75}
 .clock-value{white-space:nowrap;display:inline-block}
-#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong{font-size:clamp(14px,4vw,20px);flex-wrap:nowrap;white-space:nowrap;gap:3px}#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong small{font-size:8px}
+#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong{font-size:clamp(14px,4cqw,20px);flex-wrap:nowrap;white-space:nowrap;gap:3px}#dashboard:not([data-sponsor-count="0"]) .put-out-instruction>strong small{font-size:8px}
 #dashboard:not([data-sponsor-count="0"]) .collection-figures:has(.glass-item){display:grid;grid-template-rows:minmax(0,1.8fr) minmax(0,1fr);gap:6px}#dashboard:not([data-sponsor-count="0"]) .glass-item .bag-figure{max-width:115px}#dashboard:not([data-sponsor-count="0"]) .glass-item .collection-item-label{font-size:10px;white-space:nowrap}
 /* A restrained skyline is behind the content and adds no vertical space. */
 #councilPanel{position:relative;overflow:hidden;padding:9px 12px;gap:6px 9px;background-image:url('../icons/council-backdrop.svg'),linear-gradient(130deg,#154767,#082c46);background-position:center bottom;background-size:cover;border-color:#4389a8;box-shadow:inset 0 1px 0 #b4e7ff28,0 4px 15px #0003}
@@ -154,11 +154,11 @@ body{background:radial-gradient(ellipse at 55% 15%,#09233a,#031320 80%)}
 button.put-out-instruction{width:100%;border:0;background:transparent;color:inherit;font-family:inherit;cursor:pointer;text-align:center}
 
 /* Wide screens keep both collection illustrations beside the timing panel. */
-@media(min-width:600px){
+@container home (min-width:572px){
  #dashboard .collection-main:has(.glass-item){flex-direction:row;align-items:center;gap:14px}
  #dashboard #collectionCardBody .collection-figures:has(.glass-item){width:52%;flex:1;min-height:140px;height:100%;align-self:stretch}
  #dashboard .collection-main:has(.glass-item) .collection-timing{width:46%;flex:1;min-width:0}
- #dashboard .collection-main:has(.glass-item) .put-out-instruction>strong{font-size:clamp(17px,3vw,22px);gap:3px}
+ #dashboard .collection-main:has(.glass-item) .put-out-instruction>strong{font-size:clamp(17px,3cqw,22px);gap:3px}
 }
 
 /* Optional sponsor banners occupy the complete fixed-height advert area. */
@@ -219,13 +219,13 @@ button.put-out-instruction{width:100%;border:0;background:transparent;color:inhe
 .collection-date .viewed-day-row{display:none!important}
 .collection-date{padding-top:0!important}
 #collectionCardBody .collection-heading{display:flex;align-items:center;gap:8px;flex-wrap:wrap;line-height:1.12}
-#collectionCardBody .collection-day-tag{font-size:clamp(13px,2.8vw,19px);font-weight:600;white-space:nowrap;opacity:.92}
+#collectionCardBody .collection-day-tag{font-size:clamp(13px,2.8cqw,19px);font-weight:600;white-space:nowrap;opacity:.92}
 .reuse-shortcut{border:1px solid #416c95!important;border-radius:13px!important;background:#103c68!important;color:#f5fbff!important;display:grid!important;place-items:center!important}
 .reuse-shortcut svg{width:26px;height:26px}
 @media(orientation:landscape) and (max-height:600px){
 #appContent .app{width:100%;max-width:none;padding-left:12px;padding-right:12px}
 #dashboard .collection-date{margin-top:0!important;margin-bottom:4px!important}
-#collectionCardBody .collection-heading{font-size:clamp(22px,3vw,32px)!important}
+#collectionCardBody .collection-heading{font-size:clamp(22px,3cqw,32px)!important}
 #collectionCardBody .hospice-battery-link{display:none!important}
 }
 /* Keep Android gesture/navigation area opaque in dark appearance. */
@@ -237,7 +237,7 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
 #dashboard>.collection-date{min-height:48px!important;padding-bottom:3px!important;margin-bottom:3px!important}
 #dayNavigation{min-height:40px!important}
 #dayNavigation .nav-button{min-height:40px!important;height:40px!important}
-#collectionCardBody .collection-day-tag{font-size:clamp(17px,3.5vw,24px)!important;font-weight:750!important}
+#collectionCardBody .collection-day-tag{font-size:clamp(17px,3.5cqw,24px)!important;font-weight:750!important}
 #collectionCardBody .collection-card{height:auto!important;min-height:max(400px,var(--home-card-min-height,400px));overflow:visible!important}
 #collectionCardBody .collection-main{overflow:visible!important;min-height:220px!important;flex-shrink:0}
 #collectionCardBody .collection-timing{flex-shrink:0;min-width:0}
@@ -258,28 +258,28 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
 #dashboard #collectionCardBody .collection-main{height:auto!important;min-height:0!important;overflow:visible!important;display:flex;align-items:center;gap:16px;flex:none!important}
 #dashboard #collectionCardBody .collection-figures{min-height:0!important;height:auto!important;align-items:center!important;flex:none!important}
 #dashboard #collectionCardBody .collection-item{min-height:0!important;height:auto!important;overflow:visible!important;flex:1 1 auto}
-#dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:clamp(175px,33vw,430px)!important;max-height:none!important;min-height:0!important;aspect-ratio:auto!important;width:min(100%,320px)!important;flex:none!important;overflow:visible!important;position:relative!important}
+#dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:clamp(175px,33cqw,430px)!important;max-height:none!important;min-height:0!important;aspect-ratio:auto!important;width:min(100%,320px)!important;flex:none!important;overflow:visible!important;position:relative!important}
 #dashboard #collectionCardBody .bag-button img{position:static!important;inset:auto!important;display:block;width:100%!important;height:100%!important;max-height:100%!important;object-fit:contain!important}
 #dashboard #collectionCardBody .collection-timing{flex:1 1 0!important;min-width:0!important;width:auto!important;overflow:visible!important;gap:10px}
 #dashboard #collectionCardBody .hospice-battery-link{display:flex!important;position:relative!important;margin:0!important;flex:none!important}
-#dashboard #collectionCardBody .collection-heading{font-size:clamp(23px,3.7vw,38px)!important;gap:7px;min-width:0}
-#dashboard #collectionCardBody .collection-day-tag{font-size:clamp(15px,2vw,23px)!important}
-#dashboard #collectionCardBody .put-out-instruction>strong{font-size:clamp(17px,2.6vw,30px)!important;white-space:normal!important;display:flex!important;flex-wrap:wrap;gap:3px;justify-content:center}
-#dashboard #collectionCardBody .collection-start strong{font-size:clamp(22px,3vw,34px)!important}
-@media(min-width:560px){
+#dashboard #collectionCardBody .collection-heading{font-size:clamp(23px,3.7cqw,38px)!important;gap:7px;min-width:0}
+#dashboard #collectionCardBody .collection-day-tag{font-size:clamp(15px,2cqw,23px)!important}
+#dashboard #collectionCardBody .put-out-instruction>strong{font-size:clamp(17px,2.6cqw,30px)!important;white-space:normal!important;display:flex!important;flex-wrap:wrap;gap:3px;justify-content:center}
+#dashboard #collectionCardBody .collection-start strong{font-size:clamp(22px,3cqw,34px)!important}
+@container home (min-width:532px){
  #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)){flex-direction:row!important;justify-content:space-around!important}
  #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)) .collection-figures{width:46%!important;flex:0 1 46%!important}
  #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)) .collection-timing{width:50%!important;flex:1 1 50%!important}
 }
-@media(max-width:559px){
+@container home (max-width:531px){
  #dashboard #collectionCardBody .collection-main{flex-direction:column!important;gap:14px!important}
  #dashboard #collectionCardBody .collection-figures{width:100%!important;flex:none!important}
- #dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:clamp(185px,65vw,320px)!important}
+ #dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:clamp(185px,65cqw,320px)!important}
  #dashboard #collectionCardBody .collection-timing{width:100%!important;flex:none!important}
- #dashboard #collectionCardBody .collection-heading{font-size:clamp(21px,5.5vw,31px)!important}
+ #dashboard #collectionCardBody .collection-heading{font-size:clamp(21px,5.5cqw,31px)!important}
 }
 /* Real glass collection may contain two illustrations: keep the source's compact grid arrangement. */
-#dashboard #collectionCardBody .collection-figures:has(.glass-item) .bag-figure.bag-button{max-width:100%!important;height:clamp(110px,24vw,230px)!important}
+#dashboard #collectionCardBody .collection-figures:has(.glass-item) .bag-figure.bag-button{max-width:100%!important;height:clamp(110px,24cqw,230px)!important}
 @media(max-width:359px){#dashboard #collectionCardBody .collection-card{padding:11px!important}#dashboard #collectionCardBody .collection-type-icon{width:36px;height:36px;font-size:23px}#dashboard #collectionCardBody .collection-day-tag{font-size:14px!important}}
 
 /* v1.1.66: persistent home sponsor dock and measured portrait artwork. */
@@ -288,7 +288,7 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
 #homeSponsorDock[hidden]{display:none}
 #dashboard #homeSponsorDock :is(#sponsorPanel,#communityPanel){margin:0;gap:0}
 #homeSponsorDock #communityPanel:not([hidden])+#sponsorPanel:not([hidden]){margin-top:5px}
-@media(max-width:559px){
+@container home (max-width:531px){
  #dashboard #collectionCardBody .collection-card{gap:8px;padding:11px!important}
  #dashboard #collectionCardBody .collection-main{gap:7px!important}
  #dashboard #collectionCardBody .collection-figures .bag-figure.bag-button,
@@ -330,16 +330,16 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
 #dashboard .collection-date{margin:8px 0}.collection-date .viewed-day-row{display:none}
 #dashboard #dayNavigation{display:flex;align-items:center;gap:6px;border:1px solid #38617c;border-radius:14px;background:var(--card);padding:5px}
 #dashboard #dayNavigation .nav-button{flex:0 0 44px;position:static;margin:0;min-width:44px;height:44px;border:0;background:transparent}
-#dashboard #dateButton{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 0;background:transparent;border:0;font-size:clamp(12px,3.5vw,17px)}
+#dashboard #dateButton{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 0;background:transparent;border:0;font-size:clamp(12px,3.5cqw,17px)}
 #dashboard #dateButton time{flex:1;text-align:center;white-space:normal}#dashboard #dateButton svg{flex:none;width:25px;height:28px}
 #dashboard #collectionCardBody .collection-heading{justify-content:center;text-align:center;gap:6px}
 #dashboard #collectionCardBody .collection-main{flex-direction:column!important}
 #dashboard #collectionCardBody .collection-main .collection-figures{width:100%!important;flex:none!important}
 #dashboard #collectionCardBody .collection-main .collection-timing{width:100%!important;flex:none!important;border-top:1px solid #ffffff55;padding-top:10px}
-#dashboard #collectionCardBody .put-out-instruction>strong{font-size:clamp(28px,8vw,38px)!important;flex-wrap:nowrap!important;white-space:nowrap!important;gap:5px}
+#dashboard #collectionCardBody .put-out-instruction>strong{font-size:clamp(28px,8cqw,38px)!important;flex-wrap:nowrap!important;white-space:nowrap!important;gap:5px}
 #dashboard #collectionCardBody .put-out-instruction>span{font-size:15px!important}
 #dashboard #collectionCardBody .put-out-instruction .info-circle{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center;border:1px solid currentColor;border-radius:50%;font:700 12px/1 Georgia;color:inherit;margin-left:5px}
-#dashboard .home-shortcut span{font-size:clamp(10px,2.65vw,13px);white-space:nowrap}
+#dashboard .home-shortcut span{font-size:clamp(10px,2.65cqw,13px);white-space:nowrap}
 #homeSponsorDock{border-top:2px solid white;padding-top:16px}
 #dashboard #homeSponsorDock .sponsor-carousel-header{display:flex;height:0;position:relative}
 #dashboard #homeSponsorDock .sponsor-heading{display:block;position:absolute;right:0;top:-15px;font:600 10px/12px system-ui}
@@ -349,7 +349,7 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
 #dashboard #dayNavigation{display:grid;grid-template-columns:32px 44px minmax(0,1fr) 44px 32px;gap:2px;box-sizing:border-box}
 #dashboard #dayNavigation .nav-button{width:32px;min-width:32px}
 #dashboard #dateButton{width:100%;min-height:48px;padding:4px 0;justify-content:center}
-#dashboard #dateButton #date{font-size:clamp(15px,4.1vw,26px);font-weight:750;line-height:1.2}
+#dashboard #dateButton #date{font-size:clamp(15px,4.1cqw,26px);font-weight:750;line-height:1.2}
 #dashboard #goToToday,#dashboard #openDateCalendar{display:flex;flex-direction:column;align-items:center;justify-content:center;width:44px;height:48px;min-height:44px;padding:0;border:0;background:transparent;color:var(--ink);border-radius:9px;cursor:pointer;gap:0}
 #dashboard #goToToday>span{font:700 34px/28px system-ui}
 #dashboard #goToToday small{font:600 10px/12px system-ui}
@@ -361,6 +361,17 @@ body:has(#dashboard:not([hidden])){--home-content-max:var(--public-content-max)}
 #dashboard{overscroll-behavior-y:auto}
 @media(orientation:landscape) and (min-width:560px) and (max-height:600px){
  #dashboard{min-height:0!important;overflow-y:auto}
- #dashboard #dateButton #date{font-size:clamp(15px,4dvh,22px)}
  #dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:var(--home-art-height,160px)!important}
+}
+
+/* v1.1.143: use the capped home column for typography and layout breakpoints.
+   Inline-size containment leaves vertical document scrolling and dock sizing natural. */
+#appContent .app{container:home / inline-size}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+#dashboard #collectionCardBody .put-out-instruction>strong{flex-wrap:wrap!important;white-space:normal!important;max-width:100%}
+#dashboard #collectionCardBody .put-out-instruction .clock-value{white-space:nowrap}
+@container home (max-width:332px){
+ #appContent .app .topbar{grid-template-columns:84px minmax(0,1fr) 44px}
+ #dashboard #collectionCardBody .collection-card{padding:11px!important}
+ #dashboard #collectionCardBody .collection-type-icon{width:36px;height:36px;font-size:23px}
 }

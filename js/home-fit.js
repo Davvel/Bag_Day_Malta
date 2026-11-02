@@ -17,9 +17,10 @@
   const viewport=window.visualViewport;
   // Native magnification keeps its natural, pannable document layout.
   if(viewport&&viewport.scale>1.05)return;
-  const compactLandscape=matchMedia('(orientation:landscape) and (max-height:600px)').matches;
   const figures=dashboard.querySelector('.collection-figures');
-  if(!figures||(innerWidth>=560&&!compactLandscape))return;
+  const appStyle=getComputedStyle(app);
+  const columnWidth=app.clientWidth-parseFloat(appStyle.paddingLeft)-parseFloat(appStyle.paddingRight);
+  if(!figures||columnWidth>=532)return;
   dashboard.classList.remove('home-hide-battery');
   dashboard.style.removeProperty('--home-art-height');
   const art=figures.querySelector('.bag-button');if(!art)return;
