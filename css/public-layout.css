@@ -4,7 +4,7 @@
    Admin and Noticeboard editors deliberately do not load this stylesheet. */
 :root{--public-content-max:min(1000px, 100dvh)}
 /* Home */
-#appContent .app{width:100%;max-width:var(--public-content-max);margin-inline:auto}
+#appContent .app{width:100%;max-width:var(--home-content-max,var(--public-content-max));margin-inline:auto}
 /* REUSE: align header, navigation, results and sponsor content */
 :root[data-screen="reuse"]{--shell-width:var(--public-content-max)}
 body:has(#reuseScroll) .top,
