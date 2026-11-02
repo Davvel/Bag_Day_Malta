@@ -1,13 +1,13 @@
-import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.140';
-import {mapURL} from './locations.mjs?v=1.1.140';
-import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.140';
-import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.140';
-import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.140';
-import {noticeLink} from './links.mjs?v=1.1.140';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.140';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.140';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.140';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.140';
+import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.141';
+import {mapURL} from './locations.mjs?v=1.1.141';
+import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.141';
+import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.141';
+import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.141';
+import {noticeLink} from './links.mjs?v=1.1.141';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.141';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.141';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.141';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.141';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
 let pages=[],loaded=false,error='',filterWarning='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,renderEpoch=0,searchTimer=null;
 const params=()=>new URLSearchParams(location.search);
@@ -26,13 +26,15 @@ function section(){return sections[params().get('section')]?params().get('sectio
 function view(){return ['calendar','day'].includes(params().get('view'))?params().get('view'):'list'}
 function currentMonth(){return boundedCalendarMonth(params().get('month'),today())}
 function href(patch){const u=new URL(location.href);for(const [k,v] of Object.entries(patch)){if(v===null||v==='')u.searchParams.delete(k);else u.searchParams.set(k,v)}return u.pathname+u.search}
-function rememberPosition(){history.replaceState({...history.state,noticeScroll:root.querySelector('#sections')?.scrollTop||0,noticeLimit:searchLimit,noticeDayLimit:dayLimit},'',location.href)}
-function restorePosition(){searchLimit=history.state?.noticeLimit||NOTICE_SEARCH_PAGE_SIZE;dayLimit=history.state?.noticeDayLimit||NOTICE_SEARCH_PAGE_SIZE;renderBoards();requestAnimationFrame(()=>root.querySelector('#sections')?.scrollTo?.(0,history.state?.noticeScroll||0))}
+// Page scrolling keeps discovery controls and results together. Fallback supports embedded fixtures.
+const readerScroller=()=>document.scrollingElement||root.querySelector('#sections');
+function rememberPosition(){history.replaceState({...history.state,noticeScroll:readerScroller()?.scrollTop||0,noticeLimit:searchLimit,noticeDayLimit:dayLimit},'',location.href)}
+function restorePosition(){searchLimit=history.state?.noticeLimit||NOTICE_SEARCH_PAGE_SIZE;dayLimit=history.state?.noticeDayLimit||NOTICE_SEARCH_PAGE_SIZE;renderBoards();requestAnimationFrame(()=>readerScroller()?.scrollTo?.(0,history.state?.noticeScroll||0))}
 function navigate(patch,{replace=false,entry=false,scroll=true,day=false}={}){
- const feedPosition=root.querySelector('#sections')?.scrollTop||0;if(dialog.open)dialog.close();if(!replace)rememberPosition();
+ const feedPosition=readerScroller()?.scrollTop||0;if(dialog.open)dialog.close();if(!replace)rememberPosition();
  const steps=history.state?.bagDayHomeSteps,returnCalendar=day?href({view:'calendar',day:patch.day,month:currentMonth(),entry:null,page:null,filters:null}):history.state?.returnCalendar;
  const state={noticeboard:true,noticeEntry:entry,noticeDay:day,...(returnCalendar?{returnCalendar}:{}),...(Number.isInteger(steps)&&steps>0?{bagDayHomeSteps:steps+(replace?0:1)}:{})};
- history[replace?'replaceState':'pushState'](state,'',href(patch));render();if(!scroll&&root.querySelector('#sections'))root.querySelector('#sections').scrollTop=feedPosition;if(scroll&&!entry)root.querySelector('#sections')?.scrollTo?.(0,0);
+ history[replace?'replaceState':'pushState'](state,'',href(patch));render();if(!scroll&&root.querySelector('#sections'))readerScroller().scrollTop=feedPosition;if(scroll&&!entry)readerScroller()?.scrollTo?.(0,0);
 }
 function openEntry(item){if(!item)return;trackNotice('notice_open',item);navigate({entry:item.entry_id,page:item.page_id},{entry:true,scroll:false})}
 function closeEntry(){if(history.state?.noticeEntry)history.back();else navigate({entry:null,page:null},{replace:true,scroll:false})}
@@ -49,7 +51,7 @@ function showAllNotices(){clearTimeout(searchTimer);searchTimer=null;navigate({l
 function updateTextSearch(value){
  const q=value.trim();clearTimeout(searchTimer);searchTimer=null;
  history.replaceState({...history.state,noticeLimit:NOTICE_SEARCH_PAGE_SIZE,noticeDayLimit:NOTICE_SEARCH_PAGE_SIZE},'',href({q:q||null,tab:retainedTab(),section:null,sources:null,entry:null,page:null}));
- renderedURL=location.href;renderEpoch++;searchLimit=dayLimit=NOTICE_SEARCH_PAGE_SIZE;renderBoards();root.querySelector('#sections')?.scrollTo?.(0,0);
+ renderedURL=location.href;renderEpoch++;searchLimit=dayLimit=NOTICE_SEARCH_PAGE_SIZE;renderBoards();readerScroller()?.scrollTo?.(0,0);
 }
 function queueTextSearch(value,composing=false){clearTimeout(searchTimer);searchTimer=null;if(composing)return;const q=value.trim();if(!q){updateTextSearch('');return}if([...q].length>2)searchTimer=setTimeout(()=>updateTextSearch(value),300);else if(params().get('q'))updateTextSearch('')}
 function groupResults(items){
@@ -126,12 +128,12 @@ function renderBoards(){
 }
 function render(){
  const oldQuery=root.querySelector('#noticeQuery'),editing=oldQuery&&document.activeElement===oldQuery,draft=oldQuery?.value,caret=oldQuery?.selectionStart;
- clearTimeout(searchTimer);searchTimer=null;const feedScroll=root.querySelector('#sections')?.scrollTop||0;
+ clearTimeout(searchTimer);searchTimer=null;const feedScroll=readerScroller()?.scrollTop||0;
  const p=params();renderEpoch++;renderedURL=location.href;renderedDate=today();locality=p.get('locality')||locality;
  const names=localityNames(window.WASTE_DATA?.localities||[],pages,locality);locality=names.find(n=>localityKey(n)===localityKey(locality))||locality;syncNoticeboardSponsors(locality);
  const heading=document.querySelector('#noticeboardTitle');if(heading)heading.textContent='Community notices';document.body.dataset.noticeView=view();
  root.innerHTML=`${compactToolbar(names)}${error?`<p class="status error" role="alert">${esc(error)} <button id="retry" class="secondary">Try again</button></p>`:''}${sourcePanel()}`;
- renderBoards();if(p.get('entry')||history.state?.noticeEntry)root.querySelector('#sections').scrollTop=feedScroll;
+ renderBoards();if(p.get('entry')||history.state?.noticeEntry)readerScroller().scrollTop=feedScroll;
  root.querySelector('#locality').onchange=e=>navigate({tab:retainedTab(),locality:e.target.value||locality,all:e.target.value?null:'1',entry:null,page:null});
  root.querySelector('#localityScope').onchange=e=>navigate({tab:retainedTab(),all:e.target.checked?'1':null,locality,entry:null,page:null});
  const applyInline=patch=>navigate({...patch,tab:retainedTab(),section:null,sources:null,entry:null,page:null},{replace:view()==='day'});
