@@ -1,7 +1,7 @@
 import {esc} from './data.mjs';
-import {localityCentre,validPin} from '../../noticeboard/locations.mjs?v=1.1.144';
-import {localityCentres} from '../../noticeboard/locality-centres.mjs?v=1.1.144';
-import {loadLeaflet} from '../../noticeboard/map-picker.mjs?v=1.1.144';
+import {localityCentre,validPin} from '../../noticeboard/locations.mjs?v=1.1.145';
+import {localityCentres} from '../../noticeboard/locality-centres.mjs?v=1.1.145';
+import {loadLeaflet} from '../../noticeboard/map-picker.mjs?v=1.1.145';
 export function localityFields(old={}){
  const point=localityCentre({...old,locality_name:old.name});
  const source=validPin(old.center_latitude,old.center_longitude)?old.center_source||'Saved in database':localityCentres.some(r=>r.latitude===point[0]&&r.longitude===point[1])?'Bundled locality starting point':'General Malta starting point';
@@ -30,7 +30,7 @@ export function bindLocalityFields(form,old={}){
    const L=await loadLeaflet();if(closed||!form.isConnected||!owner.open)return;
    panel.hidden=false;button.setAttribute('aria-expanded','true');
    map=L.map(q('#localityMap'),{maxBounds:[[35.7,14.1],[36.2,14.7]],minZoom:10,maxZoom:19}).setView(current()||localityCentre({locality_name:old.name}),14);
-   const tiles=L.tileLayer(window.BAG_DAY_CONFIG?.mapTileURL||'https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'}).addTo(map);
+   const tiles=L.tileLayer(window.BAG_DAY_CONFIG?.mapTileURL||'https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,referrerPolicy:'strict-origin',attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'}).addTo(map);
    const pin=L.divIcon({className:'locality-centre-marker',html:'<span style="display:block;width:22px;height:22px;border:3px solid white;border-radius:50%;background:#cf3030;box-shadow:0 1px 5px #333"></span>',iconSize:[28,28],iconAnchor:[14,14]});
    marker=L.marker(map.getCenter(),{icon:pin,draggable:true,alt:'Locality map starting point'}).addTo(map);
    marker.on('dragend',()=>place(marker.getLatLng()));map.on('click',e=>place(e.latlng));
