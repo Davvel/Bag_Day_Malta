@@ -1,7 +1,7 @@
-import {renderNoticeOptions} from './notice-options.mjs?v=1.1.138';
-import {noticeStatus,publishedPages,mapLimited} from '../../noticeboard/publication.mjs?v=1.1.138';
-import {editorURL,EDITOR_ROUTES} from '../../noticeboard/routes.mjs?v=1.1.138';
-import {matrixRows,SECTION_NAMES} from './noticeboard-model.mjs?v=1.1.138';
+import {renderNoticeOptions} from './notice-options.mjs?v=1.1.139';
+import {noticeStatus,publishedPages,mapLimited} from '../../noticeboard/publication.mjs?v=1.1.139';
+import {editorURL,EDITOR_ROUTES} from '../../noticeboard/routes.mjs?v=1.1.139';
+import {matrixRows,SECTION_NAMES} from './noticeboard-model.mjs?v=1.1.139';
 const filters=new WeakMap();
 export async function renderNoticeboard({container,api,esc,onError,isCurrent,openPage=null}){
  const data=await api.request('/noticeboard/admin');if(!isCurrent())return;

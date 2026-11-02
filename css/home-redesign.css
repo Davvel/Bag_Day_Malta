@@ -344,3 +344,31 @@ html[data-theme=light],html[data-theme=light] body{color-scheme:light}
 #dashboard #homeSponsorDock .sponsor-carousel-header{display:flex;height:0;position:relative}
 #dashboard #homeSponsorDock .sponsor-heading{display:block;position:absolute;right:0;top:-15px;font:600 10px/12px system-ui}
 #dashboard #homeSponsorDock .sponsor-heading:empty{display:none}
+
+/* v1.1.139: balanced date navigation and a wider landscape home. */
+#dashboard #dayNavigation{display:grid;grid-template-columns:32px 44px minmax(0,1fr) 44px 32px;gap:2px;box-sizing:border-box}
+#dashboard #dayNavigation .nav-button{width:32px;min-width:32px}
+#dashboard #dateButton{width:100%;min-height:48px;padding:4px 0;justify-content:center}
+#dashboard #dateButton #date{font-size:clamp(15px,4.1vw,26px);font-weight:750;line-height:1.2}
+#dashboard #goToToday,#dashboard #openDateCalendar{display:flex;flex-direction:column;align-items:center;justify-content:center;width:44px;height:48px;min-height:44px;padding:0;border:0;background:transparent;color:var(--ink);border-radius:9px;cursor:pointer;gap:0}
+#dashboard #goToToday>span{font:700 34px/28px system-ui}
+#dashboard #goToToday small{font:600 10px/12px system-ui}
+#dashboard #openDateCalendar svg{width:30px;height:34px}
+#dashboard #dayNavigation button:focus-visible{outline:3px solid #f5cf66;outline-offset:1px}
+@media(orientation:landscape) and (min-width:560px){
+ body:has(#appContent){--home-content-max:min(1100px,calc(100vw - 40px - env(safe-area-inset-left) - env(safe-area-inset-right)))}
+ #appContent .app{max-width:var(--home-content-max)}
+ #homeSponsorDock{padding-inline:max(14px,calc((100% - var(--home-content-max) + 28px)/2))}
+ #dashboard #dateButton #date{font-size:clamp(24px,3.2vw,34px)}
+ #dashboard #dayNavigation{grid-template-columns:44px 52px minmax(0,1fr) 52px 44px;gap:8px}
+ #dashboard #dayNavigation .nav-button{width:44px;min-width:44px}
+ #dashboard #goToToday,#dashboard #openDateCalendar{width:52px;height:54px}
+ #dashboard #goToToday>span{font-size:40px;line-height:34px}
+ #dashboard #openDateCalendar svg{width:34px;height:38px}
+ #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)){display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px!important;align-items:center}
+ #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)) .collection-figures,
+ #dashboard #collectionCardBody .collection-main:not(:has(.glass-item)) .collection-timing{width:100%!important;min-width:0!important}
+ #dashboard #collectionCardBody .collection-figures .bag-figure.bag-button{height:clamp(160px,46dvh,300px)!important;max-width:100%!important}
+ #dashboard #collectionCardBody .put-out-instruction>strong{font-size:clamp(22px,3.5vw,38px)!important;flex-wrap:wrap!important;white-space:normal!important}
+ #dashboard .home-shortcut span{font-size:clamp(12px,1.8vw,18px);white-space:normal}
+}

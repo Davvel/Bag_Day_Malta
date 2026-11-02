@@ -577,6 +577,8 @@
     $('prevDay').disabled=dayOffset<=0;
     $('nextDay').disabled=dayOffset===maxDaysAhead;
     $('dateButton').disabled=moving;
+    $('goToToday').disabled=moving;
+    $('openDateCalendar').disabled=moving;
     $('todayPill').disabled=moving;
     $('bagArea').setAttribute('aria-busy',String(moving));
   }
@@ -660,6 +662,8 @@
     $('calendarDays').querySelector(`[data-date="${target.toISOString().slice(0,10)}"]`)?.focus();
   }
   $('dateButton').onclick=openCalendar;
+  $('openDateCalendar').onclick=openCalendar;
+  $('goToToday').onclick=()=>selectCalendarDate(maltaToday().toISOString().slice(0,10));
   $('todayPill').onclick=openCalendar;
   $('closeCalendar').onclick=closeCalendar;
   $('calendarToday').onclick=()=>selectCalendarDate(maltaToday().toISOString().slice(0,10));
