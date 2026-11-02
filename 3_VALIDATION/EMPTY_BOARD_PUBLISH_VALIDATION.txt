@@ -1,7 +1,0 @@
-Frontend 135 / v1.1.108
-54 automated checks passed; editor syntax check passed.
-Tests cover empty unpublished boards, first current notice, expired-only drafts,
-explicitly published empty boards, unavailable publication data, published deletions,
-and editor output with disabled Publish, no pulse and no Not published yet warning.
-Existing publication progress, verification, success and failure tests pass.
-No backend or production changes; no live-account writes.

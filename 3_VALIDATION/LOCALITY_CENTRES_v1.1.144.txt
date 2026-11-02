@@ -1,2 +1,0 @@
-Validation: 136 frontend tests and 146 backend tests passed. JavaScript syntax checks passed.
-Interactive browser/map visual verification was not available.

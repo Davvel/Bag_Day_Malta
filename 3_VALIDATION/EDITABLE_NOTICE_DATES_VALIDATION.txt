@@ -1,9 +1,0 @@
-Frontend 134 / v1.1.107
-Supersedes the disabled date behavior in frontend 133.
-52 automated checks pass. Syntax check passed.
-Isolated browser fixtures confirm Event date precedes Title; selecting Information
-changes the label to Show until and leaves the date enabled. A selected date
-of 2026-11-10 was saved and displayed in the editor.
-Information max date is the backend supplied 30-day limit; events have no max.
-Existing backend renewal for information title/description changes is retained.
-No backend or production changes.

@@ -1,7 +1,0 @@
-Locality centre source: https://openadmindata.org/api/v1/mt/council.json
-License: CC BY 4.0 (Open Admin Data)
-Retrieved 2026-10-31. 68/68 canonical Bag Day localities matched.
-Values copied as approximate map starting points; aliases normalized; no event pins generated.
-Leaflet: https://leafletjs.com/download.html ; BSD 2-Clause license bundled.
-OpenStreetMap tile policy: https://operations.osmfoundation.org/policies/tiles/
-Browser tests use synthetic tiles rather than crawling OSM.

@@ -1,1 +1,0 @@
-156 combined tests passed. Editor Publishing state, green verified success, disabled Publish, explicit failed-verification warning; fresh editor reads; stale edge bypass; D1-free R2 reads; existing frontend/admin/backend regressions. No browser visual or live deployment verification.

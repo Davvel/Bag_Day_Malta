@@ -1,7 +1,0 @@
-Frontend 133 / v1.1.106
-52 existing automated checks passed. Editor syntax check passed.
-Isolated browser fixtures verified Event date precedes Title; selecting Info
-disables and empties Event date; Save draft retains the information expiry.
-Search input computed border=0, outline=none, box-shadow=none, background transparent.
-Focus colour is applied only to the single outer search border.
-No backend changes or production deployment.

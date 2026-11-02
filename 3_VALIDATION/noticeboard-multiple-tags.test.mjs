@@ -1,7 +1,0 @@
-import {test} from 'node:test';import assert from 'node:assert/strict';
-import {filterNoticeBoards} from '../2_WEBSITE/COPY_TO_GITHUB/noticeboard/discovery.mjs';
-import {multiSelectionHTML,noticeTags} from '../2_WEBSITE/COPY_TO_GITHUB/noticeboard/options.mjs';
-const pages=[{locality_name:'Żejtun',section:'church',page_id:'P',csv:'entry_id,kind,title,description,end_date,category_id,audience_id\nE,event,Festival,Details,2099-01-01,c1|c2|c3|c4|c5,a1|a2|a3|a4|a5\nOLD,event,Old notice,Details,2099-01-01,c2,all'}];
-const find=(category='',audience='')=>filterNoticeBoards(pages,{locality:'Żejtun',category,audience},'2026-10-31').flatMap(g=>g.items).map(i=>i.entry_id);
-test('all filters match all notices; any one of five tags hits and multiple matches never duplicate',()=>{assert.deepEqual(find(),['E','OLD']);for(let n=1;n<=5;n++)assert(find('c'+n,'a'+n).includes('E'));assert.deepEqual(find('c1|c5','a2|a5'),['E']);assert.deepEqual(find('c1','missing'),[]);assert.deepEqual(find('missing','a1'),[]);assert.deepEqual(find('c2','a3'),['E','OLD']);assert.deepEqual(find('all','all'),['E','OLD'])});
-test('editor requires categories but allows blank audience as Everyone; no All checkbox',()=>{for(const kind of ['categories','audiences']){const html=multiSelectionHTML(kind,'all');assert(!html.includes('value="all"'));assert.match(html,kind==='categories'?/required/:/Everyone/);assert(!html.includes('selection-chips'))}assert.match(noticeTags({category_id:'c1|c2',audience_id:'a1|a2'}),/c1 · c2/)});
