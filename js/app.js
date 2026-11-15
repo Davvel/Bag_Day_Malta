@@ -517,8 +517,10 @@
     $('date').setAttribute('datetime',date.toISOString().slice(0,10));
     $('todayPill').hidden=false;
     const weekday=new Intl.DateTimeFormat('en-GB',{weekday:'long',timeZone:'UTC'}).format(date);
-    $('todayPill').textContent=dayOffset<=0?'Today':dayOffset===1?'Tomorrow':weekday;
-    $('todayPill').setAttribute('aria-label',dayOffset<=0?'Today':dayOffset===1?`Tomorrow (${weekday})`:weekday);
+    const isToday=dayOffset===0;
+    const dayLabel=isToday?'Today':dayOffset===1?'Tomorrow':weekday;
+    $('todayPill').textContent=dayLabel;
+    $('todayPill').setAttribute('aria-label',dayOffset===1?`Tomorrow (${weekday})`:dayLabel);
     renderLocationMode();
     fitLocalityTitle();
     $('prevDay').disabled=dayOffset<=0;
@@ -529,7 +531,7 @@
       $(id).textContent='';
       const button=$(delta<0?'prevDay':'nextDay');
       button.setAttribute('aria-label',`${label}: ${new Intl.DateTimeFormat('en-GB',{dateStyle:'full',timeZone:'UTC'}).format(neighbour)}`);
-      button.title=button.disabled?(delta<0?'You are viewing Today':'You can look up to 30 days ahead'):button.getAttribute('aria-label');
+      button.title=button.disabled?(delta<0?(isToday?'You are viewing Today':'You can look up today and later dates'):'You can look up to 30 days ahead'):button.getAttribute('aria-label');
     }
     requestAnimationFrame(syncDayNavigationLayout);
     const schedule=scheduleFor(date);
@@ -538,7 +540,7 @@
     $('dashboard').dataset.sunday=String(isSunday);
     window.BAG_DAY_ANALYTICS?.observe($('collectionStage'),'schedule_view',{bag_type:schedule.bag||'none',day_offset:dayOffset},'schedule:'+date.toISOString().slice(0,10)+':'+(schedule.bag||'none')+':'+!!schedule.glass);
     if(isSunday){
-      $('collectionCardBody').innerHTML=window.BAG_DAY_SUNDAY.markup(date,dayOffset===0,locality);
+      $('collectionCardBody').innerHTML=window.BAG_DAY_SUNDAY.markup(isToday);
     }else if(!schedule.bag){
       $('collectionCardBody').innerHTML=`<div class="collection-card no-collection"><div class="no-collection-message"><div class="rest-icon" aria-hidden="true">☀</div><div class="bag-name">No collection on ${weekday}</div></div></div>`;
     }else{
@@ -546,7 +548,7 @@
       const label={organic:'Organic',mixed:'Mixed waste',recycle:'Recyclables'}[schedule.bag];
       const figures=`<div class="collection-figures"><div class="collection-item">${bagButton(schedule.bag,c[schedule.bag])}</div>${schedule.glass?`<div class="collection-item glass-item">${bagButton('glass',c.glassBottles)}<span class="collection-item-label">Glass bottles</span></div>`:''}</div>`;
       const batteryBanner=date.getUTCDay()>=1&&date.getUTCDay()<=5?`<a class="hospice-battery-link" href="https://batterybin.mt/" target="_blank" rel="noopener noreferrer" aria-label="Batteries for Hospice: find a collection point (opens a new tab)"><img src="icons/hospice-battery.svg" width="26" height="36" alt=""><span class="hospice-battery-copy"><strong>Batteries for Hospice</strong><small>Find a collection point</small></span><svg class="hospice-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 3h7v7m0-7L10 14M10 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></svg></a>`:'';
-      $('collectionCardBody').innerHTML=`<div class="collection-card"><h2 class="collection-heading">${label} <span class="collection-day-tag">(${dayOffset<=0?'Today':dayOffset===1?'Tomorrow':weekday})</span></h2><div class="collection-main">${figures}<div class="collection-timing"><button type="button" class="put-out-instruction" data-time-info aria-label="Put-out times. More information"><span>Put out between <span class="info-circle" aria-hidden="true">i</span></span><strong>${displayClock(formatTime(time))} <span class="time-between">–</span> ${displayClock(time)}</strong></button></div></div>${batteryBanner}</div>`;
+      $('collectionCardBody').innerHTML=`<div class="collection-card"><h2 class="collection-heading">${label} <span class="collection-day-tag">(${dayLabel})</span></h2><div class="collection-main">${figures}<div class="collection-timing"><button type="button" class="put-out-instruction" data-time-info aria-label="Put-out times. More information"><span>Put out between <span class="info-circle" aria-hidden="true">i</span></span><strong>${displayClock(formatTime(time))} <span class="time-between">–</span> ${displayClock(time)}</strong></button></div></div>${batteryBanner}</div>`;
 
     }
     const today=maltaToday(),month=today.getUTCMonth(),day=today.getUTCDate();
@@ -1037,7 +1039,11 @@
   panel.addEventListener('touchcancel',()=>finishSettingsGesture(true),{passive:true});
   document.addEventListener('keydown',e=>{if(!splash.hidden || !$('welcomeOverlay').hidden)return;if(!$('localityOverlay').hidden){localityKeydown(e);return;}if(!$('calendarOverlay').hidden){calendarKeydown(e);return;}if(!$('timeOverlay').hidden){timeInfoKeydown(e);return;}if(!$('wasteOverlay').hidden){wasteKeydown(e);return;}if(!$('supportOverlay').hidden){supportKeydown(e);return;}if(!$('settingsOverlay').hidden){if(e.key==='Escape')closeSettings();if(e.key==='Tab'){const nodes=[...$('settingsDialog').querySelectorAll('button:not([hidden]),select,input')].filter(n=>!n.disabled);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}if(e.key==='ArrowRight')changeDay(1);if(e.key==='ArrowLeft')changeDay(-1);});
   document.addEventListener('visibilitychange',()=>{queueSupportInvitation();if(!document.hidden){render();loadDonation();if(followLocation&&!welcomeNeeded)detectLocation();}});
-  setInterval(()=>{if(dayOffset<=0&&!homeGesture&&!changingDay)render();},60000);
+  setInterval(()=>{
+    if(homeGesture||changingDay)return;
+    const dateChanged=viewedDate&&dayOffset!==Math.round((shownDate()-maltaToday())/86400000);
+    if(dayOffset<=0||dateChanged)render();
+  },60000);
   function syncViewport(){
     const height=window.BAG_DAY_VIEWPORT?.layout().height||window.innerHeight;
     requestAnimationFrame(()=>{fitLocalityTitle();syncDayNavigationLayout();});
