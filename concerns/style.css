@@ -1,0 +1,42 @@
+.concern-page,.concern-admin,.concern-dialog{
+ --concern-border:var(--nb-line,#517386);
+ --concern-accent:var(--nb-accent,#15806b);
+ overflow-wrap:anywhere;
+}
+.concern-page{max-width:720px;margin:auto;padding:16px 12px 32px}
+.concern-header{margin-bottom:12px;padding:14px;border:1px solid var(--concern-border);border-radius:13px}
+.concern-header h1{margin:8px 0 3px;font-size:clamp(24px,6vw,35px)}
+.concern-header p,.concern-card p,.concern-dialog p,.concern-admin p{margin:7px 0}
+.concern-page a,.concern-admin a,.concern-dialog a{text-decoration:underline}
+.concern-toolbar,.concern-actions,.concern-meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.concern-toolbar{justify-content:space-between;margin-bottom:8px}
+.concern-toolbar h2,.concern-toolbar h3{margin:0}
+.concern-page button,.concern-dialog button,.concern-admin button{min-height:44px}
+.concern-card,.concern-form,.concern-settings,.concern-details{padding:12px;margin:10px 0;border:1px solid var(--concern-border);border-radius:12px}
+.concern-card h2,.concern-card h3{margin:0}
+.concern-card h2{font-size:18px}
+.concern-card p,.concern-details p{white-space:pre-wrap}
+.concern-caption{opacity:.86;font-size:.88rem}
+.concern-meta{min-height:22px;font-size:.89rem}
+.concern-marks{display:inline-flex;gap:4px;margin-inline:5px;vertical-align:middle}
+.concern-marks i{width:8px;height:8px;border-radius:50%;background:var(--concern-border)}
+.concern-marks i.filled{background:var(--concern-accent)}
+.concern-dialog{width:min(540px,calc(100% - 20px));max-height:90dvh;padding:14px;border:1px solid var(--concern-border);border-radius:14px;color:var(--nb-ink,inherit);background:var(--nb-panel,Canvas)}
+.concern-dialog::backdrop{background:#0009}
+.concern-dialog label,.concern-admin label.concern-note{display:grid;gap:6px}
+.concern-dialog textarea,.concern-admin textarea{width:100%;box-sizing:border-box;padding:8px;margin-bottom:8px;font:inherit;font-size:16px}
+.concern-photo img,.concern-draft-photo{display:block;max-height:300px;max-width:100%;border-radius:8px}
+.concern-photo{margin-top:8px}
+.concern-status{font-weight:700}
+.concern-admin{padding:6px 0}
+.concern-admin-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px}
+.concern-admin-tabs button[aria-pressed="true"]{border-bottom:3px solid var(--nb-accent,#15806b)}
+.concern-admin-tabs .editor-locality{margin-inline-start:auto}
+.concern-admin .desk-list td:first-child{max-width:360px}
+.concern-admin .desk-list td{overflow-wrap:anywhere}
+.concern-page [hidden],.concern-dialog [hidden],.concern-admin [hidden],[data-concern-panel][hidden],#councilNotices[hidden]{display:none!important}
+@media(max-width:520px){.concern-admin .concern-queue,.concern-admin .concern-queue tbody,.concern-admin .concern-queue tr,.concern-admin .concern-queue td{display:block}
+.concern-admin .concern-queue thead{display:none}.concern-admin .concern-queue tr{padding:6px;border-bottom:1px solid var(--concern-border)}.concern-admin .concern-queue td{padding:4px}}
+
+.concern-leaders{margin:14px 0}.concern-leaders h2{font-size:17px}
+.concern-leaders .concern-card{border-inline-start:3px solid var(--concern-accent)}

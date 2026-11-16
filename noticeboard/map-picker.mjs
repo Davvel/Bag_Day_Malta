@@ -1,15 +1,15 @@
-import {esc,icon} from './shared.mjs?v=1.1.146';
-import {localityCentre,validPin} from './locations.mjs?v=1.1.146';
+import {esc,icon} from './shared.mjs?v=1.1.147';
+import {localityCentre,validPin} from './locations.mjs?v=1.1.147';
 let leafletTask;
 export function loadLeaflet(){
  if(window.L)return Promise.resolve(window.L);
  if(!leafletTask)leafletTask=new Promise((resolve,reject)=>{
-  const css=document.createElement('link');css.rel='stylesheet';css.href='/noticeboard/vendor/leaflet/leaflet.css?v=1.1.146';document.head.append(css);
-  const script=document.createElement('script');script.src='/noticeboard/vendor/leaflet/leaflet.js?v=1.1.146';script.onload=()=>resolve(window.L);script.onerror=()=>{leafletTask=null;reject(Error('Map library unavailable'))};document.head.append(script);
+  const css=document.createElement('link');css.rel='stylesheet';css.href='/noticeboard/vendor/leaflet/leaflet.css?v=1.1.147';document.head.append(css);
+  const script=document.createElement('script');script.src='/noticeboard/vendor/leaflet/leaflet.js?v=1.1.147';script.onload=()=>resolve(window.L);script.onerror=()=>{leafletTask=null;reject(Error('Map library unavailable'))};document.head.append(script);
  });return leafletTask;
 }
-export function locationFields(item={}){const hasPin=validPin(item.latitude,item.longitude);return `<label><span>Where <span class="notice-required">*</span></span><input name="where_text" maxlength="300" placeholder="Venue, address or meeting point" value="${esc(item.where_text||'')}"></label><input type="hidden" name="latitude" value="${hasPin?esc(item.latitude):''}"><input type="hidden" name="longitude" value="${hasPin?esc(item.longitude):''}"><div class="location-actions"><button type="button" class="secondary" id="chooseMapPin">${icon('pin')}<span>${hasPin?'Change map pin':'Choose map pin'}</span></button><button type="button" class="secondary" id="removeMapPin" ${hasPin?'':'hidden'}>Remove pin</button><span class="hint" id="pinStatus">${hasPin?'Map pin saved':'Map pin optional'}</span></div><p class="hint">Describe where to meet. You can also choose an exact point on the map.</p>`}
-export function readLocationFields(form){const lat=form.elements.latitude.value,lon=form.elements.longitude.value;return {where_text:form.elements.where_text.value.trim(),latitude:lat===''?null:Number(lat),longitude:lon===''?null:Number(lon)}}
+export function locationFields(item={},pinOnly=false){const hasPin=validPin(item.latitude,item.longitude);return `${pinOnly?'':`<label><span>Where <span class="notice-required">*</span></span><input name="where_text" maxlength="300" placeholder="Venue, address or meeting point" value="${esc(item.where_text||'')}"></label>`}<input type="hidden" name="latitude" value="${hasPin?esc(item.latitude):''}"><input type="hidden" name="longitude" value="${hasPin?esc(item.longitude):''}"><div class="location-actions"><button type="button" class="secondary" id="chooseMapPin">${icon('pin')}<span>${hasPin?'Change map pin':'Choose map pin'}</span></button><button type="button" class="secondary" id="removeMapPin" ${hasPin?'':'hidden'}>Remove pin</button><span class="hint" id="pinStatus">${hasPin?'Map pin saved':'Map pin optional'}</span></div>${pinOnly?'':'<p class="hint">Describe where to meet. You can also choose an exact point on the map.</p>'}`}
+export function readLocationFields(form){const lat=form.elements.latitude.value,lon=form.elements.longitude.value;return {where_text:form.elements.where_text?.value.trim()||'',latitude:lat===''?null:Number(lat),longitude:lon===''?null:Number(lon)}}
 export function bindLocationFields(form,page){
  const button=form.querySelector('#chooseMapPin'),remove=form.querySelector('#removeMapPin'),status=form.querySelector('#pinStatus');
  const update=pin=>{form.elements.latitude.value=pin?.[0]??'';form.elements.longitude.value=pin?.[1]??'';remove.hidden=!pin;button.querySelector('span').textContent=pin?'Change map pin':'Choose map pin';status.textContent=pin?'Map pin saved':'Map pin optional'};

@@ -375,3 +375,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  #dashboard #collectionCardBody .collection-card{padding:11px!important}
  #dashboard #collectionCardBody .collection-type-icon{width:36px;height:36px;font-size:23px}
 }
+
+#councilPanel .council-actions.has-concerns{grid-template-columns:repeat(4,minmax(0,1fr))}
+#councilPanel .has-concerns .council-link{font-size:clamp(10px,2.8vw,13px);padding-inline:2px;min-height:54px;overflow-wrap:anywhere}
+#councilPanel .council-concern-icon{position:relative;display:inline-grid;place-items:center;color:#a8d9ef}
+#councilPanel .council-concern-icon small{position:absolute;top:-4px;left:calc(100% - 2px);min-width:14px;padding:0 2px;border-radius:9px;background:#bceafd;color:#092d45;font-size:9px;font-weight:800}
+#councilPanel .council-concern-caption{max-width:9ch}

@@ -130,6 +130,7 @@
       const button=document.createElement('button');button.type='button';button.className='council-link council-whatsapp-disabled';button.textContent='WhatsApp';button.disabled=true;button.title='Council WhatsApp is not available yet';actions.append(button);
     }
     if(actions.childElementCount)council.append(actions);
+    window.BAG_DAY_CONCERNS?.append(locality,actions);
     window.BAG_DAY_ANALYTICS?.observe(council,'council_impression',councilParams,'council:'+(placement||'generic'));
     }
     const today=sponsorDate(),paid=bookings(slotRows,locality,today,sponsorRows).map(r=>({id:String(r.sponsorid).trim().toUpperCase(),kind:'paid',sponsorName:r.advert.sponsorname,displayText:r.advert.displaytext,imageURL:safeURL(r.advert.imageurl),url:safeURL(r.advert.url),month:Number(r.month),year:Number(r.year),position:Number(r.slot)}));

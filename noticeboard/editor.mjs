@@ -1,10 +1,11 @@
-import {openNoticeWizard} from './wizard.mjs?v=1.1.146';
-import {loadOptions} from './options.mjs?v=1.1.146';
-import {openSlotHelp} from './editor-help.mjs?v=1.1.146';
-import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.146';
-import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.146';
-import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.146';
-const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0;
+import {mountCouncilConcerns} from '../concerns/council.mjs?v=1.1.147';
+import {openNoticeWizard} from './wizard.mjs?v=1.1.147';
+import {loadOptions} from './options.mjs?v=1.1.147';
+import {openSlotHelp} from './editor-help.mjs?v=1.1.147';
+import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.147';
+import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.147';
+import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.147';
+const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0,deskArea='notices';
 function updateEditorTitle(){const brand=document.querySelector('.editor-desk .brand');if(brand&&activeSection){brand.dataset.section=activeSection;brand.innerHTML=icon(sections[activeSection].icon)+'<span>Bag Day Malta</span>'}const title=(activeSection?sections[activeSection].name:'Community')+' Noticeboard Editor';const header=document.querySelector('#noticeboardTitle');if(header)header.textContent=title;document.title=title+' · Bag Day Malta'}
 updateEditorTitle();
 function publishedTime(value){return new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(new Date(value)).replaceAll('/','-').replace(',','')}
@@ -45,14 +46,28 @@ function render(){
  const draftRows=drafts.map(record=>{const i=JSON.parse(record.payload);return row(record.entry_id,i.title,date(i),'Draft','Continue',true)});
  const rows=state.items.map(i=>{const changed=status.changed.has(i.entry_id);return row(i.entry_id,i.title,date(i),i.end_date<today()?'Expired':status.state==='unknown'?'Unverified':changed?'Ready':'Published',changed?'Review':'Edit')});
  const occupied=state.items.length;
- root.innerHTML=`<section class="desk-hero ${p.section}"><h1>${esc(p.locality_name)} · ${section.name} noticeboard</h1><details class="desk-account"><summary>${esc(profile.name)}</summary>${signoutButton()}</details></section>
- <div class="desk-toolbar"><strong>All notices (${rows.length+draftRows.length})</strong>${allowed.length>1?pickerHTML():`<span>${esc(p.locality_name)}</span>`}<button id="add" class="primary">+ New notice</button></div>
+ root.innerHTML=`<section class="desk-hero ${p.section}"><h1>${esc(p.locality_name)} · ${section.name}${p.section==='council'?'':' noticeboard'}</h1><details class="desk-account"><summary>${esc(profile.name)}</summary>${signoutButton()}</details></section>
+ ${p.section==='council'?`<nav class="concern-admin-tabs" aria-label="Council areas"><button type="button" class="secondary" data-desk-area="notices" aria-pressed="true">Notices</button><button type="button" class="secondary" data-desk-area="concerns" aria-pressed="false">Voice a Concern</button>${allowed.length>1?pickerHTML():''}</nav>`:''}
+ <section id="councilNotices" aria-label="Notices">
+ <div class="desk-toolbar"><strong>All notices (${rows.length+draftRows.length})</strong>${p.section!=="council"?(allowed.length>1?pickerHTML():`<span>${esc(p.locality_name)}</span>`):""}<button id="add" class="primary">+ New notice</button></div>
  <div id="message" role="status"></div>
  <table class="desk-list"><thead><tr><th>Title</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody>${[...draftRows,...rows].join('')}</tbody></table>
  ${!rows.length&&!draftRows.length?'<p class="empty">Add your first notice.</p>':''}
  <div class="desk-publication" ${ready?'':'hidden'}><span>${ready} change${ready===1?'':'s'} ready for ${esc(p.locality_name)}${status.removed?' · '+status.removed+' removal(s)':''}</span><button id="publish" class="primary ${ready?'publish-attention':''}" ${ready?'':'disabled'}>Publish all (${ready})</button></div>
- <footer class="desk-foot"><span>${occupied}/20 notice slots used <button id="slotHelp" class="row-remove" aria-label="About notice slots">${icon('info')}</button></span><span>${status.state==='unknown'?'Publication status unavailable':status.state==='published'?'All current notices published':''} ${state.publication?.published_at?' · Last published '+esc(publishedTime(state.publication.published_at)):''}</span><button id="checkPublication" class="secondary">Refresh status</button></footer>`;
+ <footer class="desk-foot"><span>${occupied}/20 notice slots used <button id="slotHelp" class="row-remove" aria-label="About notice slots">${icon('info')}</button></span><span>${status.state==='unknown'?'Publication status unavailable':status.state==='published'?'All current notices published':''} ${state.publication?.published_at?' · Last published '+esc(publishedTime(state.publication.published_at)):''}</span><button id="checkPublication" class="secondary">Refresh status</button></footer></section>
+ ${p.section==='council'?'<section class="concern-admin" data-concern-panel hidden aria-label="Voice a Concern"></section>':''}`;
  bindPicker();bindSignout();
+ if(p.section==='council'){
+  const areas=[...root.querySelectorAll('[data-desk-area]')],notices=root.querySelector('#councilNotices'),concerns=root.querySelector('[data-concern-panel]');
+  function showArea(area){
+   deskArea=area;const show=area==='concerns';
+   notices.hidden=show;concerns.hidden=!show;
+   for(const button of areas)button.setAttribute('aria-pressed',String(button.dataset.deskArea===area));
+   if(show)mountCouncilConcerns(concerns,{page:p,token,onSignIn:copy=>{token='';login(copy)}});
+  }
+  for(const button of areas)button.onclick=()=>{if(button.dataset.deskArea!==deskArea)showArea(button.dataset.deskArea)};
+  showArea(deskArea);
+ }
  root.querySelector('#slotHelp').onclick=event=>openSlotHelp(state,event.currentTarget);
  root.querySelectorAll('[data-draft]').forEach(b=>b.onclick=()=>edit(null,drafts.find(d=>d.entry_id===b.dataset.draft)));
  root.querySelectorAll('[data-discard]').forEach(b=>b.onclick=()=>{const record=drafts.find(d=>d.entry_id===b.dataset.discard);if(confirm('Discard this unfinished draft?'))run(async()=>{await request('/noticeboard/'+pageId+'/drafts/'+encodeURIComponent(record.entry_id),{method:'DELETE',token,body:{draft_revision:record.revision}});await refresh()})});
