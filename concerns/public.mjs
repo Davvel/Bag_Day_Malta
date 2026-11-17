@@ -1,17 +1,17 @@
-import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.148';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.148';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.148';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.148';
+import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.149';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.149';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.149';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.149';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
 const params=new URLSearchParams(location.search);
 let loc=params.get('locality'),itemId=params.get('concern'),archived=params.get('archive')==='1',offset=0;
-let board=null,me=false,actionAfterLogin=null,googleTask=null,sequence=0;
+let board=null,me=false,actionAfterLogin=null,googleTask=null,sequence=0,checkingSubmission=false;
 try{loc ||= localStorage.getItem('bag-day-locality-v1')||'Żejtun'}catch{loc ||= 'Żejtun'}
 
 function message(copy){
- const node=$('#concernMessage');node.textContent=copy;node.hidden=!copy;
+ const node=$('#concernMessage');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}
 }
 function signIn(next){
  actionAfterLogin=next;
@@ -50,14 +50,16 @@ function controls(item){
  const open=standing(item);
  return `<div class="concern-actions">${open&&!item.own?`<button type="button" class="secondary" data-upvote="${esc(item.concern_id)}" ${item.voted?'disabled':''}>${item.voted?'Upvoted':'Upvote'}</button>`:''}
  <button type="button" class="secondary" data-share="${esc(item.concern_id)}">Share concern</button>
- ${item.has_photo?`<button type="button" class="secondary" data-photo="${esc(item.concern_id)}">View photo</button>`:''}</div>`;
+ ${item.has_photo?`<button type="button" class="secondary" data-photo="${esc(item.concern_id)}">View photo</button>`:''}
+ ${item.own?`<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}">Delete my concern</button>`:''}</div>`;
 }
 function card(item){
  return `<article class="concern-card"><h2><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(previewText(item.description))}</a></h2>
  ${meta(item)}${item.status==='collecting'?`<p class="concern-caption">${esc(deadline(item))}</p>`:''}${controls(item)}<div class="concern-photo" hidden></div></article>`;
 }
 const updates=items=>items.length?`<section><h2>Updates</h2>${items.map(item=>`<article class="concern-card"><strong>${esc(labels[item.status])} · ${esc(date(item.created_at))}</strong><p>${esc(item.note)}</p></article>`).join('')}</section>`:'';
-function bind(){
+function bind(items=[]){
+ bindDeletes(items);
  main.querySelectorAll('[data-upvote]').forEach(button=>button.onclick=()=>act(button,async()=>{
   const vote=async()=>{
    const result=await request('/concerns/items/'+button.dataset.upvote+'/vote',{method:'POST',body:{}});
@@ -92,7 +94,7 @@ async function load(){
    ${item.status==='collecting'?`<p>${item.upvotes===2?'One more to go! ':''}Think this would help your locality? Sign in and upvote.</p><p class="concern-caption">${esc(deadline(item))}</p>`:''}
    ${pin?`<p><a href="${esc(pin)}" target="_blank" rel="noopener">Open pin in Google Maps</a></p>`:''}
    ${controls(item)}<div class="concern-photo" hidden></div></article>${updates(item.updates||[])}`;
-  bind();return;
+  bind([item]);return;
  }
  const query=new URLSearchParams({locality:loc,offset,...(archived?{archive:'1'}:{})});
  const data=await request('/concerns/board?'+query);
@@ -107,34 +109,97 @@ async function load(){
   :otherItems.map(card).join('');
 
  main.innerHTML=`<div class="concern-toolbar"><h2>${data.archive?'Past concerns':'Open concerns'}</h2>
-  ${state==='active'&&!data.archive?'<button type="button" class="primary" id="newConcern">Voice a concern</button>':''}</div>
+  ${state==='active'&&!data.archive?`<button type="button" class="primary" id="newConcern" ${data.open_concern?'disabled aria-describedby="concernSubmissionReason"':''}>Voice a concern</button>`:''}</div>
+  ${data.open_concern?submissionNotice(data.open_concern):''}
   ${state==='paused'&&!data.archive?'<p>New submissions are temporarily paused. You can still upvote and follow updates.</p>':''}
   <div class="concern-actions">${state!=='inactive'?`<a href="${esc(boardURL(loc,!data.archive))}">${data.archive?'Open concerns':'Past concerns'}</a>`:''}
   ${me?'<button type="button" class="secondary" id="myConcerns">My concerns</button>':'<button type="button" class="secondary" id="concernLogin">Sign in</button>'}</div>
   ${publicList||`<p>${data.archive?'No past concerns yet.':'No open concerns yet.'}</p>`}
   <div class="concern-actions">${offset?'<button type="button" id="concernPrevious">Previous</button>':''}${data.more?'<button type="button" id="concernNext">More concerns</button>':''}</div>`;
- $('#newConcern')?.addEventListener('click',()=>me?startConcern():signIn(async()=>{await load();startConcern()}));
+ $('#newConcern')?.addEventListener('click',event=>act(event.currentTarget,()=>me?startConcern():signIn(async()=>{await load();await startConcern()})));
+ $('#manageOpenConcern')?.addEventListener('click',event=>act(event.currentTarget,mine));
  $('#myConcerns')?.addEventListener('click',event=>act(event.currentTarget,mine));
  $('#concernLogin')?.addEventListener('click',()=>signIn());
  $('#concernPrevious')?.addEventListener('click',event=>act(event.currentTarget,async()=>{offset=Math.max(0,offset-30);await load();window.scrollTo(0,0)}));
  $('#concernNext')?.addEventListener('click',event=>act(event.currentTarget,async()=>{offset+=30;await load();window.scrollTo(0,0)}));
- bind();
+ bind(data.items);
 }
 async function mine(){
  const {items}=await request('/concerns/mine');
  main.innerHTML=`<div class="concern-toolbar"><h2>My concerns</h2><button class="secondary" type="button" id="backToConcerns">Back</button></div>
   ${items.map(item=>`<article class="concern-card"><h3>${esc(previewText(item.description))}</h3><p>${esc(item.locality_name)}</p>${meta(item)}
   ${item.moderation_note?`<p>${esc(item.moderation_note)}</p>`:''}
-  ${!['pending','declined'].includes(item.status)?`<p><a href="/concerns/?concern=${esc(item.concern_id)}">View updates</a></p>`:''}</article>`).join('')||'<p>You haven’t submitted any concerns.</p>'}`;
+  ${!['pending','declined'].includes(item.status)?`<p><a href="/concerns/?concern=${esc(item.concern_id)}">View updates</a></p>`:''}
+  <button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}">Delete my concern</button></article>`).join('')||'<p>You haven’t submitted any concerns.</p>'}`;
+ bindDeletes(items);
  $('#backToConcerns').onclick=event=>act(event.currentTarget,load);
 }
 
-function startConcern(){
- if(board.locality.state!=='active')return;
+
+function submissionNotice(item){
+ return `<section class="concern-notice" id="concernSubmissionReason" role="status" tabindex="-1">
+  <strong>You already have an open concern in ${esc(item.locality_name)}.</strong>
+  <p>You can have one open concern at a time, including one awaiting moderation. View or delete it in My concerns before submitting another.</p>
+  <button type="button" class="secondary" id="manageOpenConcern">View or delete my concern</button></section>`;
+}
+function bindDeletes(items){
+ main.querySelectorAll('[data-delete-concern]').forEach(button=>button.onclick=()=>{
+  const item=items.find(item=>item.concern_id===button.dataset.deleteConcern);
+  if(item)confirmDelete(item);
+ });
+}
+function confirmDelete(item){
+ const dialog=$('#concernDelete');
+ if(dialog.open)return;
+ dialog.innerHTML=`<h2 id="concernDeleteTitle">Delete your concern?</h2>
+  <p>${esc(item.description)}</p><p><strong>This cannot be undone.</strong> The concern, its upvotes and council updates will be removed from Bag Day. Any attached photo will be removed from storage in the background.</p>
+  <p>You can submit a new concern when you have no open concern and the locality is accepting submissions.</p>
+  <p class="concern-notice concern-error" data-delete-error role="alert" tabindex="-1" hidden></p>
+  <div class="concern-actions"><button type="button" class="secondary" data-keep-concern>Keep concern</button>
+  <button type="button" class="concern-delete" data-confirm-delete>Delete concern</button></div>`;
+ let deleting=false;
+ const keep=dialog.querySelector('[data-keep-concern]'),confirm=dialog.querySelector('[data-confirm-delete]');
+ keep.onclick=()=>{if(!deleting)dialog.close()};
+ const cancel=event=>{if(deleting)event.preventDefault()};
+ dialog.addEventListener('cancel',cancel);
+ dialog.addEventListener('close',()=>dialog.removeEventListener('cancel',cancel),{once:true});
+ confirm.onclick=async()=>{
+  if(deleting)return;
+  deleting=true;keep.disabled=true;confirm.disabled=true;confirm.textContent='Deleting…';
+  try{
+   await request('/concerns/items/'+encodeURIComponent(item.concern_id),{method:'DELETE'});
+   dialog.close();
+   if(itemId===item.concern_id){itemId=null;archived=false;offset=0;history.replaceState(null,'',boardURL(loc))}
+   await load();message('Your concern has been deleted.');
+  }catch(error){
+   const notice=dialog.open?dialog.querySelector('[data-delete-error]'):$('#concernMessage');
+   notice.textContent=error.message;notice.hidden=false;notice.focus();notice.scrollIntoView({block:'nearest'});
+  }finally{deleting=false;keep.disabled=false;confirm.disabled=false;confirm.textContent='Delete concern'}
+ };
+ dialog.showModal();keep.focus();
+}
+
+async function startConcern(){
+ if(checkingSubmission||compose.open||!board||board.locality.state!=='active')return;
+ // Recheck immediately before building the form, including after sign-in and
+ // when another tab may have submitted since this board was loaded.
+ checkingSubmission=true;
+ try{
+  const eligibility=await request('/concerns/eligibility');
+  if(!eligibility.can_submit){
+   await load();
+   const notice=$('#concernSubmissionReason');notice?.focus();notice?.scrollIntoView({block:'nearest'});
+   return;
+  }
+ }catch(error){
+  if(error.status===401){me=false;await load();signIn(async()=>{await load();await startConcern()});return}
+  throw error;
+ }finally{checkingSubmission=false}
+ if(!board||board.locality.state!=='active')return;
  let photo=null,photoPreview='',submitting=false,confirmed=false;
  const concernId=crypto.randomUUID();
  compose.innerHTML=`<div class="concern-toolbar"><h2 id="concernComposeTitle">Voice a Concern</h2><button type="button" class="secondary" data-close>Close</button></div>
-  <p>${esc(board.locality.locality_name)}</p><p data-form-message role="status" hidden></p>
+  <p>${esc(board.locality.locality_name)}</p><p class="concern-notice concern-error" data-form-message role="alert" tabindex="-1" hidden></p>
   <form class="concern-form"><label>What happened, and where?<textarea name="description" required maxlength="500" rows="4" placeholder="For example, broken streetlight outside number 14"></textarea></label>
   ${locationFields({},true)}
   ${board.photos_available?`<fieldset><legend>Photo (optional · one photo)</legend><div class="concern-actions">
@@ -148,7 +213,7 @@ function startConcern(){
   <section data-received hidden><h3>Submitted · Awaiting moderation</h3><p>Your concern is private until a moderator approves it.</p><p data-photo-failed hidden>Photo couldn’t be uploaded.</p>
   <button class="primary" type="button" data-done>Done</button></section>`;
  const select=s=>compose.querySelector(s),form=select('form'),review=select('[data-review]');
- const error=copy=>{const node=select('[data-form-message]');node.textContent=copy;node.hidden=!copy};
+ const error=copy=>{const node=select('[data-form-message]');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}};
  const close=()=>{if(!submitting)compose.close()};
  select('[data-close]').onclick=close;
  select('[data-done]').onclick=()=>{close();load().catch(e=>message(e.message))};
@@ -217,7 +282,12 @@ function startConcern(){
    }
    review.hidden=true;select('[data-received]').hidden=false;select('[data-photo-failed]').hidden=!photo||accepted;
    select('[data-done]').focus();
-  }catch(e){error(e.message)}
+  }catch(e){
+   if(e.code==='OPEN_CONCERN_EXISTS'){
+    compose.close();await load();
+    const notice=$('#concernSubmissionReason');notice?.focus();notice?.scrollIntoView({block:'nearest'});
+   }else error(e.message);
+  }
   finally{submitting=false;buttons.forEach(b=>b.disabled=false);select('[data-confirm]').textContent='Confirm and submit'}
  };
  compose.showModal();form.elements.description.focus();

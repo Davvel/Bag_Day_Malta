@@ -40,3 +40,10 @@
 
 .concern-leaders{margin:14px 0}.concern-leaders h2{font-size:17px}
 .concern-leaders .concern-card{border-inline-start:3px solid var(--concern-accent)}
+
+.concern-notice{padding:14px;margin:12px 0;border:2px solid var(--concern-accent);border-radius:10px;background:var(--nb-panel,Canvas);color:var(--nb-ink,CanvasText)}
+.concern-notice strong{display:block;font-size:1.05rem}
+.concern-notice:focus{outline:3px solid var(--concern-accent);outline-offset:3px}
+.concern-error{border-color:#e98b48;border-inline-start-width:6px;font-weight:700}
+.concern-page button.concern-delete,.concern-dialog button.concern-delete{background:#a72c2c;color:#fff;border-color:#a72c2c}
+#newConcern:disabled{opacity:.6;cursor:not-allowed}

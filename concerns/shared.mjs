@@ -1,4 +1,4 @@
-import {API,esc} from '../noticeboard/shared.mjs?v=1.1.148';
+import {API,esc} from '../noticeboard/shared.mjs?v=1.1.149';
 export {esc};
 export const labels={pending:'Awaiting moderation',collecting:'Collecting support',ready:'Ready for council action',in_progress:'Action taken',completed:'Closed — Completed',cannot_complete:'Closed — Cannot complete',declined:'Declined'};
 export const channelCopy={
@@ -35,7 +35,7 @@ export async function request(path,{method='GET',body,token}={}){
  }catch{throw Error('Could not connect to Bag Day. Check your connection and try again.')}
  let value;
  try{value=await response.json()}catch{throw Error('Voice a Concern is temporarily unavailable.')}
- if(!response.ok)throw Object.assign(Error(value.error?.message||'Please try again.'),{status:response.status});
+ if(!response.ok)throw Object.assign(Error(value.error?.message||'Please try again.'),{status:response.status,code:value.error?.code});
  return value;
 }
 export async function shareConcern(id){
