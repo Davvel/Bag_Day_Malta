@@ -1,17 +1,18 @@
-import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.151';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.151';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.151';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.151';
+import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.152';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.152';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.152';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.152';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
 const params=new URLSearchParams(location.search);
 let loc=params.get('locality'),itemId=params.get('concern'),archived=params.get('archive')==='1',offset=0;
+let activeView=archived?'past':'open',detailId=null,detailSequence=0;
 let board=null,me=false,actionAfterLogin=null,googleTask=null,sequence=0,checkingSubmission=false;
 try{loc ||= localStorage.getItem('bag-day-locality-v1')||'Żejtun'}catch{loc ||= 'Żejtun'}
 
 function message(copy){
- const node=$('#concernMessage');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}
+ const detail=$('#concernDetail');let node=detail?.open?detail.querySelector('[data-detail-message]'):null;if(detail?.open&&!node){node=document.createElement('p');node.dataset.detailMessage='';node.className='concern-notice';node.setAttribute('role','status');detail.append(node)}node ||= $('#concernMessage');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}
 }
 function signIn(next){
  actionAfterLogin=next;
@@ -58,20 +59,21 @@ function card(item){
  ${meta(item)}${item.status==='collecting'?`<p class="concern-caption">${esc(deadline(item))}</p>`:''}${controls(item)}<div class="concern-photo" hidden></div></article>`;
 }
 const updates=items=>items.length?`<section><h2>Council updates</h2>${items.map(item=>`<article class="concern-card"><strong>${esc(labels[item.status])} · ${esc(date(item.created_at))}</strong><p>${esc(item.note)}</p></article>`).join('')}</section>`:'<p class="muted">No council updates yet.</p>';
-function bind(items=[]){
- bindDeletes(items);
- main.querySelectorAll('[data-upvote]').forEach(button=>button.onclick=()=>act(button,async()=>{
+function bind(items=[],scope=main){
+ bindDeletes(items,scope);
+ scope.querySelectorAll('a[href*="?concern="]').forEach(link=>link.onclick=event=>{event.preventDefault();const id=new URL(link.href,location.origin).searchParams.get('concern');act(link,()=>openDetail(id))});
+ scope.querySelectorAll('[data-upvote]').forEach(button=>button.onclick=()=>act(button,async()=>{
   const vote=async()=>{
    const result=await request('/concerns/items/'+button.dataset.upvote+'/vote',{method:'POST',body:{}});
    message(result.status==='ready'&&result.upvotes===3?'Three upvotes! The concern is ready for council action.':'Your upvote has been recorded.');
-   await load();
+   await load();if(detailId&&$('#concernDetail')?.open)await openDetail(detailId);
   };
   if(me)await vote();else signIn(vote);
  }));
- main.querySelectorAll('[data-share]').forEach(button=>button.onclick=()=>act(button,async()=>{
+ scope.querySelectorAll('[data-share]').forEach(button=>button.onclick=()=>act(button,async()=>{
   const result=await shareConcern(button.dataset.share);if(result)message(result);
  }));
- main.querySelectorAll('[data-photo]').forEach(button=>button.onclick=()=>act(button,async()=>{
+ scope.querySelectorAll('[data-photo]').forEach(button=>button.onclick=()=>act(button,async()=>{
   const box=button.closest('article').querySelector('.concern-photo');box.hidden=false;button.hidden=true;
   const loaded=await revealPhoto(box,'/concerns/items/'+button.dataset.photo+'/photo');
   if(!loaded){button.hidden=false;button.textContent='Retry photo'}
@@ -82,21 +84,39 @@ async function act(button,action){
  try{await action()}catch(error){message(error.message)}
  finally{if(button.isConnected)button.disabled=false}
 }
+function updateTabs(){
+ document.querySelectorAll('[data-concern-tab]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.concernTab===activeView)));
+}
+async function switchView(view){
+ if(view==='mine'&&!me){signIn(mine);return}
+ activeView=view;archived=view==='past';offset=0;sequence++;
+ await load();
+}
+document.querySelectorAll('[data-concern-tab]').forEach(button=>button.onclick=()=>act(button,()=>switchView(button.dataset.concernTab)));
+async function openDetail(id,provided){
+ const dialog=$('#concernDetail');if(!dialog)return;
+ const current=++detailSequence;
+ const item=provided||await request('/concerns/items/'+encodeURIComponent(id));
+ if(current!==detailSequence)return;
+ detailId=id;const pin=mapURL(item);
+ dialog.innerHTML=`<div class="concern-toolbar"><h2>Concern details</h2><button type="button" class="secondary" data-close-detail>Close</button></div>
+ <p class="concern-locality">${esc(item.locality_name)}</p><article class="concern-card"><p>${esc(item.description)}</p>${meta(item)}
+ ${item.status==='collecting'?`<p class="concern-caption">${esc(deadline(item))}</p>`:''}
+ ${pin?`<p><a href="${esc(pin)}" target="_blank" rel="noopener">Open pin in Google Maps</a></p>`:''}
+ ${controls(item)}<div class="concern-photo" hidden></div></article>${updates(item.updates||[])}`;
+ dialog.querySelector('[data-close-detail]').onclick=()=>dialog.close();dialog.onclose=()=>{detailSequence++;detailId=null};bind([item],dialog);
+ if(!dialog.open)dialog.showModal();
+}
 async function load(){
  const version=++sequence;
  if(itemId){
-  const item=await request('/concerns/items/'+encodeURIComponent(itemId));
-  if(version!==sequence)return;
-  loc=item.locality_id;me=item.signed_in;
-  $('#concernLocality').textContent=item.locality_name;
-  const pin=mapURL(item);
-  main.innerHTML=`<p><a href="${esc(boardURL(loc,!!item.closed_at))}">← ${item.closed_at?'Past concerns':'Open concerns'}</a></p>
-   <article class="concern-card"><p>${esc(item.description)}</p>${meta(item)}
-   ${item.status==='collecting'?`<p>${item.upvotes===2?'One more to go! ':''}Think this would help your locality? Sign in and upvote.</p><p class="concern-caption">${esc(deadline(item))}</p>`:''}
-   ${pin?`<p><a href="${esc(pin)}" target="_blank" rel="noopener">Open pin in Google Maps</a></p>`:''}
-   ${controls(item)}<div class="concern-photo" hidden></div></article>${updates(item.updates||[])}`;
-  bind([item]);return;
+  const id=itemId;itemId=null;
+  const item=await request('/concerns/items/'+encodeURIComponent(id));
+  loc=item.locality_id;archived=!!item.closed_at;activeView=archived?'past':'open';
+  await load();await openDetail(id,item);return;
  }
+ if(activeView==='mine'){await mine();return}
+ updateTabs();
  const query=new URLSearchParams({locality:loc,offset,...(archived?{archive:'1'}:{})});
  const data=await request('/concerns/board?'+query);
  if(version!==sequence)return;
@@ -111,10 +131,8 @@ async function load(){
 
  main.innerHTML=`<div class="concern-toolbar"><h2>${data.archive?'Past concerns':'Open concerns'}</h2>
   ${state==='active'&&!data.archive?`<button type="button" class="primary" id="newConcern" ${data.open_concern?'disabled aria-describedby="concernSubmissionReason"':''}>Voice a concern</button>`:''}</div>
-  ${data.open_concern?submissionNotice(data.open_concern):''}
+  ${data.open_concern&&!data.archive?submissionNotice(data.open_concern):''}
   ${state==='paused'&&!data.archive?'<p>New submissions are temporarily paused. You can still upvote and follow updates.</p>':''}
-  <nav class="concern-navigation" aria-label="Concern views"><div class="concern-actions">${state!=='inactive'?`<a href="${esc(boardURL(loc,!data.archive))}">${data.archive?'Open concerns':'Past concerns'}</a>`:''}
-  ${me?'<button type="button" class="secondary" id="myConcerns">My concerns</button>':'<button type="button" class="secondary" id="concernLogin">Sign in</button>'}</div></nav>
   ${publicList||`<p>${data.archive?'No past concerns yet.':'No open concerns yet.'}</p>`}
   <div class="concern-actions">${offset?'<button type="button" id="concernPrevious">Previous</button>':''}${data.more?'<button type="button" id="concernNext">More concerns</button>':''}</div>`;
  $('#newConcern')?.addEventListener('click',event=>act(event.currentTarget,()=>me?startConcern():signIn(async()=>{await load();await startConcern()})));
@@ -126,14 +144,16 @@ async function load(){
  bind(data.items);
 }
 async function mine(){
+ activeView='mine';updateTabs();
+ const current=++sequence;
  const {items}=await request('/concerns/mine');
- main.innerHTML=`<div class="concern-toolbar"><h2>My concerns</h2><button class="secondary" type="button" id="backToConcerns">Back</button></div>
+ if(current!==sequence)return;
+ main.innerHTML=`<div class="concern-toolbar"><h2>My concerns</h2></div>
   ${items.map(item=>`<article class="concern-card"><h3>${esc(previewText(item.description))}</h3><p>${esc(item.locality_name)}</p>${meta(item)}
   ${item.moderation_note?`<p>${esc(item.moderation_note)}</p>`:''}
-  ${!['pending','declined'].includes(item.status)?`<p><a href="/concerns/?concern=${esc(item.concern_id)}">View updates</a></p>`:''}
-  <button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}">Delete my concern</button></article>`).join('')||'<p>You haven’t submitted any concerns.</p>'}`;
- bindDeletes(items);
- $('#backToConcerns').onclick=event=>act(event.currentTarget,load);
+  <div class="concern-actions">${!['pending','declined'].includes(item.status)?`<a class="secondary" href="/concerns/?concern=${esc(item.concern_id)}">View updates</a>`:''}
+  <button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}">Delete my concern</button></div></article>`).join('')||'<p>You haven’t submitted any concerns.</p>'}`;
+ bind(items);
 }
 
 
@@ -143,8 +163,8 @@ function submissionNotice(item){
   <p>You can have one open concern at a time, including one awaiting moderation. View or delete it in My concerns before submitting another.</p>
   <button type="button" class="secondary" id="manageOpenConcern">View or delete my concern</button></section>`;
 }
-function bindDeletes(items){
- main.querySelectorAll('[data-delete-concern]').forEach(button=>button.onclick=()=>{
+function bindDeletes(items,scope=main){
+ scope.querySelectorAll('[data-delete-concern]').forEach(button=>button.onclick=()=>{
   const item=items.find(item=>item.concern_id===button.dataset.deleteConcern);
   if(item)confirmDelete(item);
  });
@@ -169,7 +189,7 @@ function confirmDelete(item){
   deleting=true;keep.disabled=true;confirm.disabled=true;confirm.textContent='Deleting…';
   try{
    await request('/concerns/items/'+encodeURIComponent(item.concern_id),{method:'DELETE'});
-   dialog.close();
+   dialog.close();if($('#concernDetail')?.open)$('#concernDetail').close();
    if(itemId===item.concern_id){itemId=null;archived=false;offset=0;history.replaceState(null,'',boardURL(loc))}
    await load();message('Your concern has been deleted.');
   }catch(error){
