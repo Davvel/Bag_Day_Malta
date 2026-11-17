@@ -1,11 +1,11 @@
-import {mountCouncilConcerns} from '../concerns/council.mjs?v=1.1.150';
-import {openNoticeWizard} from './wizard.mjs?v=1.1.150';
-import {loadOptions} from './options.mjs?v=1.1.150';
-import {openSlotHelp} from './editor-help.mjs?v=1.1.150';
-import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.150';
-import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.150';
-import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.150';
-const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0,deskArea='notices';
+import {mountCouncilConcerns} from '../concerns/council.mjs?v=1.1.151';
+import {openNoticeWizard} from './wizard.mjs?v=1.1.151';
+import {loadOptions} from './options.mjs?v=1.1.151';
+import {openSlotHelp} from './editor-help.mjs?v=1.1.151';
+import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.151';
+import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.151';
+import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.151';
+const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0,deskArea='notices',disposeConcerns=null;
 function updateEditorTitle(){const brand=document.querySelector('.editor-desk .brand');if(brand&&activeSection){brand.dataset.section=activeSection;brand.innerHTML=icon(sections[activeSection].icon)+'<span>Bag Day Malta</span>'}const title=(activeSection?sections[activeSection].name:'Community')+' Noticeboard Editor';const header=document.querySelector('#noticeboardTitle');if(header)header.textContent=title;document.title=title+' · Bag Day Malta'}
 updateEditorTitle();
 function publishedTime(value){return new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(new Date(value)).replaceAll('/','-').replace(',','')}
@@ -38,6 +38,7 @@ async function enter(){
 }
 async function refresh(){updateEditorTitle();const seq=++loadSeq,id=pageId;if(!profile.pages.some(p=>p.page_id===id&&p.section===activeSection))throw Error('This locality is not assigned to your account');const data=await request('/noticeboard/'+id+'/entries',{token});if(seq!==loadSeq||id!==pageId)return;try{data.published=(await publishedPages()).find(p=>p.page_id===id)||{csv:'',published_at:null}}catch{data.published=null}if(seq!==loadSeq||id!==pageId)return;state=data;render()}
 function render(){
+ disposeConcerns?.();disposeConcerns=null;
  const p=state.page,status=noticeStatus(state.items,state.published),drafts=state.drafts||[];
  const ready=status.changed.size+status.removed,section=sections[p.section];
  const allowed=authorisedPages(profile.pages,activeSection);
@@ -60,10 +61,10 @@ function render(){
  if(p.section==='council'){
   const areas=[...root.querySelectorAll('[data-desk-area]')],notices=root.querySelector('#councilNotices'),concerns=root.querySelector('[data-concern-panel]');
   function showArea(area){
-   deskArea=area;const show=area==='concerns';
+   disposeConcerns?.();disposeConcerns=null;deskArea=area;const show=area==='concerns';
    notices.hidden=show;concerns.hidden=!show;
    for(const button of areas)button.setAttribute('aria-pressed',String(button.dataset.deskArea===area));
-   if(show)mountCouncilConcerns(concerns,{page:p,token,onSignIn:copy=>{token='';login(copy)}});
+   if(show)disposeConcerns=mountCouncilConcerns(concerns,{page:p,token,onSignIn:copy=>{token='';login(copy)}});
   }
   for(const button of areas)button.onclick=()=>{if(button.dataset.deskArea!==deskArea)showArea(button.dataset.deskArea)};
   showArea(deskArea);

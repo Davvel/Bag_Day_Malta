@@ -1,7 +1,7 @@
-import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.150';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.150';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.150';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.150';
+import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.151';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.151';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.151';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.151';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -45,7 +45,7 @@ async function openGoogle(){
 signin.querySelector('[data-dismiss]').onclick=()=>signin.close();
 signin.addEventListener('close',()=>{actionAfterLogin=null});
 
-const meta=item=>`<div class="concern-meta"><span class="concern-status">${esc(labels[item.status])}</span><span>${esc(age(item))}</span><span>${support(item)}</span></div>`;
+const meta=item=>`<div class="concern-meta"><span class="concern-status" data-status="${esc(item.status)}">${esc(labels[item.status])}</span><span>${esc(age(item))}</span><span>${support(item)}</span></div>`;
 function controls(item){
  const open=standing(item);
  return `<div class="concern-actions">${open&&!item.own?`<button type="button" class="secondary" data-upvote="${esc(item.concern_id)}" ${item.voted?'disabled':''}>${item.voted?'Upvoted':'Upvote'}</button>`:''}
@@ -57,7 +57,7 @@ function card(item){
  return `<article class="concern-card"><h2><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(previewText(item.description))}</a></h2>
  ${meta(item)}${item.status==='collecting'?`<p class="concern-caption">${esc(deadline(item))}</p>`:''}${controls(item)}<div class="concern-photo" hidden></div></article>`;
 }
-const updates=items=>items.length?`<section><h2>Updates</h2>${items.map(item=>`<article class="concern-card"><strong>${esc(labels[item.status])} · ${esc(date(item.created_at))}</strong><p>${esc(item.note)}</p></article>`).join('')}</section>`:'';
+const updates=items=>items.length?`<section><h2>Council updates</h2>${items.map(item=>`<article class="concern-card"><strong>${esc(labels[item.status])} · ${esc(date(item.created_at))}</strong><p>${esc(item.note)}</p></article>`).join('')}</section>`:'<p class="muted">No council updates yet.</p>';
 function bind(items=[]){
  bindDeletes(items);
  main.querySelectorAll('[data-upvote]').forEach(button=>button.onclick=()=>act(button,async()=>{
@@ -73,7 +73,8 @@ function bind(items=[]){
  }));
  main.querySelectorAll('[data-photo]').forEach(button=>button.onclick=()=>act(button,async()=>{
   const box=button.closest('article').querySelector('.concern-photo');box.hidden=false;button.hidden=true;
-  await revealPhoto(box,'/concerns/items/'+button.dataset.photo+'/photo');
+  const loaded=await revealPhoto(box,'/concerns/items/'+button.dataset.photo+'/photo');
+  if(!loaded){button.hidden=false;button.textContent='Retry photo'}
  }));
 }
 async function act(button,action){
@@ -90,7 +91,7 @@ async function load(){
   $('#concernLocality').textContent=item.locality_name;
   const pin=mapURL(item);
   main.innerHTML=`<p><a href="${esc(boardURL(loc,!!item.closed_at))}">← ${item.closed_at?'Past concerns':'Open concerns'}</a></p>
-   <article class="concern-card"><h2>Concern</h2><p>${esc(item.description)}</p>${meta(item)}
+   <article class="concern-card"><p>${esc(item.description)}</p>${meta(item)}
    ${item.status==='collecting'?`<p>${item.upvotes===2?'One more to go! ':''}Think this would help your locality? Sign in and upvote.</p><p class="concern-caption">${esc(deadline(item))}</p>`:''}
    ${pin?`<p><a href="${esc(pin)}" target="_blank" rel="noopener">Open pin in Google Maps</a></p>`:''}
    ${controls(item)}<div class="concern-photo" hidden></div></article>${updates(item.updates||[])}`;
@@ -112,8 +113,8 @@ async function load(){
   ${state==='active'&&!data.archive?`<button type="button" class="primary" id="newConcern" ${data.open_concern?'disabled aria-describedby="concernSubmissionReason"':''}>Voice a concern</button>`:''}</div>
   ${data.open_concern?submissionNotice(data.open_concern):''}
   ${state==='paused'&&!data.archive?'<p>New submissions are temporarily paused. You can still upvote and follow updates.</p>':''}
-  <div class="concern-actions">${state!=='inactive'?`<a href="${esc(boardURL(loc,!data.archive))}">${data.archive?'Open concerns':'Past concerns'}</a>`:''}
-  ${me?'<button type="button" class="secondary" id="myConcerns">My concerns</button>':'<button type="button" class="secondary" id="concernLogin">Sign in</button>'}</div>
+  <nav class="concern-navigation" aria-label="Concern views"><div class="concern-actions">${state!=='inactive'?`<a href="${esc(boardURL(loc,!data.archive))}">${data.archive?'Open concerns':'Past concerns'}</a>`:''}
+  ${me?'<button type="button" class="secondary" id="myConcerns">My concerns</button>':'<button type="button" class="secondary" id="concernLogin">Sign in</button>'}</div></nav>
   ${publicList||`<p>${data.archive?'No past concerns yet.':'No open concerns yet.'}</p>`}
   <div class="concern-actions">${offset?'<button type="button" id="concernPrevious">Previous</button>':''}${data.more?'<button type="button" id="concernNext">More concerns</button>':''}</div>`;
  $('#newConcern')?.addEventListener('click',event=>act(event.currentTarget,()=>me?startConcern():signIn(async()=>{await load();await startConcern()})));
@@ -199,18 +200,18 @@ async function startConcern(){
  let photo=null,photoPreview='',submitting=false,confirmed=false;
  const concernId=crypto.randomUUID();
  compose.innerHTML=`<div class="concern-toolbar"><h2 id="concernComposeTitle">Voice a Concern</h2><button type="button" class="secondary" data-close>Close</button></div>
-  <p>${esc(board.locality.locality_name)}</p><p class="concern-notice concern-error" data-form-message role="alert" tabindex="-1" hidden></p>
-  <form class="concern-form"><label>What happened, and where?<textarea name="description" required maxlength="500" rows="4" placeholder="For example, broken streetlight outside number 14"></textarea></label>
+  <p class="concern-locality">${esc(board.locality.locality_name)}</p><ol class="concern-steps"><li data-step="write" aria-current="step">1 Write</li><li data-step="review">2 Review</li></ol><p class="concern-notice concern-error" data-form-message role="alert" tabindex="-1" hidden></p>
+  <form class="concern-form"><label>What happened, and where?<textarea name="description" required maxlength="500" rows="4" placeholder="For example, broken streetlight outside number 14"></textarea><span class="concern-counter" data-counter>0 / 500</span></label>
   ${locationFields({},true)}
-  ${board.photos_available?`<fieldset><legend>Photo (optional · one photo)</legend><div class="concern-actions">
+  ${board.photos_available?`<fieldset><legend>Photo · Optional · one photo</legend><div class="concern-actions">
     <button type="button" class="secondary" data-pick="camera">Take photo</button><button type="button" class="secondary" data-pick="gallery">Choose photo</button>
     <button type="button" class="secondary" data-remove hidden>Remove photo</button></div>
     <input type="file" accept="image/*" capture="environment" data-input="camera" hidden><input type="file" accept="image/*" data-input="gallery" hidden>
     <p data-photo-status aria-live="polite"></p><img class="concern-draft-photo" alt="Compressed photo preview" hidden></fieldset>`:''}
   <button type="submit" class="primary">Review concern</button></form>
-  <section data-review hidden><h3>Review your concern</h3><div data-review-body></div>
+  <section data-review hidden><h3>Check your concern</h3><div data-review-body></div>
   <div class="concern-actions"><button type="button" class="secondary" data-back>Back to edit</button><button type="button" class="primary" data-confirm>Confirm and submit</button></div></section>
-  <section data-received hidden><h3>Submitted · Awaiting moderation</h3><p>Your concern is private until a moderator approves it.</p><p data-photo-failed hidden>Photo couldn’t be uploaded.</p>
+  <section data-received hidden><h3>Submitted · Awaiting moderation</h3><p>Your concern is private until a moderator approves it.</p><p data-photo-failed hidden>Your concern was submitted, but the photo could not be uploaded.</p>
   <button class="primary" type="button" data-done>Done</button></section>`;
  const select=s=>compose.querySelector(s),form=select('form'),review=select('[data-review]');
  const error=copy=>{const node=select('[data-form-message]');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}};
@@ -224,6 +225,7 @@ async function startConcern(){
   if(photoPreview)URL.revokeObjectURL(photoPreview);
  },{once:true});
  bindLocationFields(form,board.locality);
+ form.elements.description.addEventListener('input',()=>{select('[data-counter]').textContent=form.elements.description.value.length+' / 500'});
  const changePhoto=next=>{
   if(photoPreview)URL.revokeObjectURL(photoPreview);
   photo=next;
@@ -244,7 +246,7 @@ async function startConcern(){
    try{
     const compressed=await compressPhoto(file);
     if(!compose.open||!form.isConnected)return;
-    changePhoto(compressed);status.textContent='Photo ready · '+(photo.size/1000).toFixed(1)+' KB';
+    changePhoto(compressed);status.textContent='Photo ready';
    }catch{status.textContent='This photo couldn’t be prepared. Choose another or continue without it.'}
    finally{controls.forEach(el=>el.disabled=false)}
   };
@@ -257,9 +259,9 @@ async function startConcern(){
   select('[data-review-body]').innerHTML=`<p>${esc(form.elements.description.value.trim())}</p>
    ${pin?`<p><a href="${esc(pin)}" target="_blank" rel="noopener">Check map pin</a></p>`:''}
    ${photoPreview?`<img class="concern-draft-photo" src="${esc(photoPreview)}" alt="The compressed photo you are confirming"><p>You can’t change this photo after you submit. It stays private until a moderator approves it.</p>`:''}`;
-  form.hidden=true;review.hidden=false;select('[data-back]').focus();
+  select('[data-step=write]').removeAttribute('aria-current');select('[data-step=review]').setAttribute('aria-current','step');form.hidden=true;review.hidden=false;select('[data-back]').focus();
  };
- select('[data-back]').onclick=()=>{if(submitting||confirmed)return;error('');review.hidden=true;form.hidden=false;form.elements.description.focus()};
+ select('[data-back]').onclick=()=>{if(submitting||confirmed)return;error('');select('[data-step=review]').removeAttribute('aria-current');select('[data-step=write]').setAttribute('aria-current','step');review.hidden=true;form.hidden=false;form.elements.description.focus()};
  select('[data-confirm]').onclick=async()=>{
   if(submitting||confirmed)return;
   submitting=true;error('');
