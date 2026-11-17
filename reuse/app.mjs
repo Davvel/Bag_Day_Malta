@@ -1,14 +1,14 @@
-import {showUntilLimits,showUntilFromExpiry,maltaDate} from './show-until.mjs?v=1.1.156';
-import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.156';
-import {titleLength,titleSlice} from './title-text.mjs?v=1.1.156';
-import {createIconState} from './ai-icon-state.mjs?v=1.1.156';
-import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.156';
-import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.156';
-import {emojiCandidates} from './custom-emoji.mjs?v=1.1.156';
-import {request,esc} from './client.mjs?v=1.1.156';
-import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.156';
-import {titleIcons} from './title-icons.mjs?v=1.1.156';
-import {detectLocality,matchLocality} from './location.mjs?v=1.1.156';
+import {showUntilLimits,showUntilFromExpiry,maltaDate} from './show-until.mjs?v=1.1.157';
+import {priceToCents,purchaseSummary,maltaYear} from './purchase-info.mjs?v=1.1.157';
+import {titleLength,titleSlice} from './title-text.mjs?v=1.1.157';
+import {createIconState} from './ai-icon-state.mjs?v=1.1.157';
+import {ATTRIBUTES,decodeAttributes,attributeSummary} from './item-attributes.mjs?v=1.1.157';
+import {EMOJI_PALETTE,splitEmojis} from './emoji-palette.mjs?v=1.1.157';
+import {emojiCandidates} from './custom-emoji.mjs?v=1.1.157';
+import {request,esc} from './client.mjs?v=1.1.157';
+import {ageLabel,postedDate,postedShortDate,submittedTime,newestFirst} from './item-dates.mjs?v=1.1.157';
+import {titleIcons} from './title-icons.mjs?v=1.1.157';
+import {detectLocality,matchLocality} from './location.mjs?v=1.1.157';
 const $=s=>document.querySelector(s),content=$('#content'),loginDialog=$('#signinDialog'),itemDialog=$('#itemDialog'),detailsDialog=$('#detailsDialog');
 let localities=[],me=null,view='browse',locality='',preferredLocality='',allLocalities=true,gpsLocality='',useGpsLocality=true,page=0,loading=false,afterLogin=null,feedRequest=0,locationHint='',searchQuery='',searchTimer=null;
 let iconSessionStorage;try{iconSessionStorage=window.sessionStorage}catch{}
@@ -34,7 +34,7 @@ async function signIn(next){track('reuse_signin_open');afterLogin=next;$('#signi
   const config=await request('/auth/public/config');
   if(!window.google?.accounts){await new Promise((resolve,reject)=>{const old=$('#gsi-script');if(old)old.remove();const s=document.createElement('script');s.id='gsi-script';s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=resolve;s.onerror=()=>reject(Error('Google sign-in could not load. Please try again.'));document.head.append(s)})}
   google.accounts.id.initialize({client_id:config.google_client_id,nonce:config.nonce,callback:async r=>{
-   try{await request('/auth/public/google',{method:'POST',body:{credential:r.credential}});await refreshMe();track('reuse_signin_success');loginDialog.close();const next=afterLogin;afterLogin=null;message('');if(next)await next()}catch(e){failed('signin',e);$('#signinError').textContent=e.message;$('#signinError').hidden=false}
+   try{await request('/auth/public/google',{method:'POST',body:{credential:r.credential}});await refreshMe();try{localStorage.setItem('bag-day-account-refresh',String(Date.now()))}catch{}track('reuse_signin_success');loginDialog.close();const next=afterLogin;afterLogin=null;message('');if(next)await next()}catch(e){failed('signin',e);$('#signinError').textContent=e.message;$('#signinError').hidden=false}
   }});
   google.accounts.id.renderButton($('#googleButton'),{theme:'outline',size:'large',width:Math.min(320,window.innerWidth-96)});
  }catch(e){failed('signin',e);$('#signinError').textContent=e.message;$('#signinError').hidden=false}
@@ -271,7 +271,7 @@ function itemForm(old){
  markRequiredFields($('#itemForm')); $('#itemForm').onsubmit=async e=>{e.preventDefault();if(!$('#itemEmojis').value.trim()){$('.emoji-picker').classList.add('field-invalid');$('#iconRequiredError').hidden=false;$('#manualIcons').focus();return}if(loading)return;loading=true;e.submitter.disabled=true;try{const b={...Object.fromEntries(new FormData(e.target)),...collectAttributes(),free_only:$('#free').checked,...(old?{revision:old.revision}:{item_id:id})};b.original_price_cents=priceToCents(b.original_price_eur);delete b.original_price_eur;if(old)delete b.external_url;b.purchase_year=b.purchase_year.trim()?Number(b.purchase_year):null;track('reuse_item_submit',{operation:old?'edit':'create',...contactStats(b)});const r=await request('/reuse/items'+(old?'/'+old.item_id:''),{method:old?'PATCH':'POST',body:b});if(!r.replayed)track(old?'reuse_item_edit_saved':'reuse_item_submitted',{...contactStats(b),listing_state:r.item.status==='LIVE'?'live':'pending'});itemDialog.close();await mine();message(r.publication_pending?'Your item is saved. Its public listing update is pending and will retry automatically.':'')}catch(err){failed(old?'edit':'create',err);$('#itemError').textContent=err.message;$('#itemError').hidden=false}finally{loading=false;if(e.submitter?.isConnected)e.submitter.disabled=false}};
 }
 loginDialog.addEventListener('cancel',()=>{track('reuse_signin_cancel');afterLogin=null});
-$('#signin').onclick=()=>signIn(()=>view==='mine'?mine():browse());$('#signout').onclick=()=>run(async()=>{detailsDialog.close();itemDialog.close();await request('/auth/public/logout',{method:'POST',body:{}});track('reuse_signout');me=null;account();message('');await browse()});$('#closeSignin').onclick=()=>{track('reuse_signin_cancel');afterLogin=null;loginDialog.close()};$('#mineTab').onclick=()=>{track('reuse_my_items_open');run(mine)};$('#browseTab').onclick=()=>run(browse);
+$('#signin').onclick=()=>signIn(()=>view==='mine'?mine():browse());$('#signout').onclick=()=>run(async()=>{detailsDialog.close();itemDialog.close();await request('/auth/public/logout',{method:'POST',body:{}});try{localStorage.setItem('bag-day-account-refresh',String(Date.now()))}catch{}track('reuse_signout');me=null;account();message('');await browse()});$('#closeSignin').onclick=()=>{track('reuse_signin_cancel');afterLogin=null;loginDialog.close()};$('#mineTab').onclick=()=>{track('reuse_my_items_open');run(mine)};$('#browseTab').onclick=()=>run(browse);
 async function start(){try{
  const [ls]=await Promise.all([request('/public/reuse/localities'),refreshMe()]);
  localities=ls.items.sort((a,b)=>a.name.localeCompare(b.name,'en'));
@@ -307,3 +307,6 @@ function markRequiredFields(form){
   for(const event of ['input','change'])input.addEventListener(event,()=>{if(input.validity.valid)input.classList.remove('field-invalid')});
  }
 }
+
+window.addEventListener('pageshow',()=>refreshMe().catch(e=>message(e.message)));
+window.addEventListener('storage',e=>{if(e.key==='bag-day-account-refresh')refreshMe().then(()=>{if(!me&&view==='mine')return browse()}).catch(e=>message(e.message))});

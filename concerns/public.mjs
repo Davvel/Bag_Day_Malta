@@ -1,7 +1,7 @@
-import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.156';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.156';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.156';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.156';
+import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.157';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.157';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.157';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.157';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -35,7 +35,7 @@ async function openGoogle(){
  google.accounts.id.initialize({client_id:conf.google_client_id,nonce:conf.nonce,callback:async ({credential})=>{
   try{
    await request('/auth/public/google',{method:'POST',body:{credential}});
-   me=true;const next=actionAfterLogin;actionAfterLogin=null;signin.close();message('');
+   me=true;window.BAG_DAY_PUBLIC_ACCOUNT?.refresh();const next=actionAfterLogin;actionAfterLogin=null;signin.close();message('');
    if(next)await next();else await load();
   }catch(error){
    if(signin.open)$('#concernSignInError').textContent=error.message;else message(error.message);
@@ -337,4 +337,5 @@ async function startConcern(){
  compose.showModal();form.elements.description.focus();
 }
 
+window.addEventListener('bag-day-account-changed',event=>{me=event.detail.signed_in;if(!me){activeView='open';archived=false;$('#concernDetail')?.close();compose.close();signin.close()}load().catch(error=>message(error.message))});
 load().catch(error=>{main.textContent='';message(error.message)});
