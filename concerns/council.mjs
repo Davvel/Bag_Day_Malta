@@ -1,5 +1,5 @@
-import {age,channelCopy,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,support} from './shared.mjs?v=1.1.149';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.149';
+import {age,channelCopy,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,support} from './shared.mjs?v=1.1.150';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.150';
 
 export function mountCouncilConcerns(container,{page,token,onSignIn}){
  const endpoint='/concerns/council/'+page.page_id;
@@ -65,10 +65,10 @@ export function mountCouncilConcerns(container,{page,token,onSignIn}){
    ${link?`<p><a href="${esc(link)}" target="_blank" rel="noopener">Open pin in Google Maps</a></p>`:''}
    <div class="concern-actions">
    ${item.published_at?`<button type="button" class="secondary" data-share>Share concern</button>`:''}
-   ${photo?`<button type="button" class="secondary" data-photo>View photo</button>`:''}</div>
+   </div>
    <div class="concern-photo" hidden></div>
    ${photo?`<p>${item.photo_state==='pending'?'Photo awaiting separate moderation.':'Photo approved for public viewing.'}</p>
-    <div class="concern-actions">${item.photo_state==='pending'?'<button type="button" class="secondary" data-action="approve_photo">Approve photo</button>':''}<button type="button" class="secondary" data-action="reject_photo">Hide photo</button></div>`:''}
+    <div class="concern-actions">${item.photo_state==='pending'?'<button type="button" class="secondary" data-action="approve_photo" disabled title="Wait for the photo to load before approving it">Approve photo</button>':''}<button type="button" class="secondary" data-action="reject_photo">Hide photo</button></div>`:''}
    ${pending||needsAction?`<form><label class="concern-note">${pending?'Reason if declining':'Short update or closure reason'}<textarea name="note" maxlength="500" rows="2"></textarea></label><div class="concern-actions">
     ${pending?'<button type="button" class="primary" data-action="publish">Approve and publish</button><button type="button" class="secondary" data-action="decline">Decline</button>':
     '<button type="button" class="primary" data-action="in_progress">Record action</button><button type="button" class="secondary" data-action="completed">Close as completed</button><button type="button" class="secondary" data-action="cannot_complete">Close as cannot complete</button>'}</div></form>`:''}
@@ -78,18 +78,33 @@ export function mountCouncilConcerns(container,{page,token,onSignIn}){
   detail.querySelector('[data-share]')?.addEventListener('click',event=>act(event.currentTarget,async()=>{
    const result=await shareConcern(id);if(result)message(result);
   }));
-  detail.querySelector('[data-photo]')?.addEventListener('click',event=>act(event.currentTarget,async()=>{
-   const box=detail.querySelector('.concern-photo');box.hidden=false;await revealPhoto(box,endpoint+'/'+id+'/photo',token);
-  }));
+  let photoLoaded=false;
+  const photoBox=detail.querySelector('.concern-photo');
+  const approvePhoto=detail.querySelector('[data-action="approve_photo"]');
+  async function loadPhoto(){
+   photoLoaded=false;
+   if(approvePhoto)approvePhoto.disabled=true;
+   photoBox.hidden=false;
+   const loaded=await revealPhoto(photoBox,endpoint+'/'+id+'/photo',token);
+   if(!photoBox.isConnected)return;
+   photoLoaded=loaded;
+   if(approvePhoto){approvePhoto.disabled=!loaded;approvePhoto.title=loaded?'':'The photo must load before it can be approved';}
+   if(!loaded){
+    const retry=document.createElement('button');retry.type='button';retry.className='secondary';retry.textContent='Retry photo';
+    retry.onclick=()=>act(retry,loadPhoto);photoBox.append(retry);
+   }
+  }
   detail.querySelector('form')?.addEventListener('submit',event=>event.preventDefault());
   detail.querySelectorAll('[data-action]').forEach(button=>button.onclick=()=>act(button,async()=>{
    const action=button.dataset.action,note=detail.querySelector('textarea')?.value.trim()||undefined;
+   if(action==='approve_photo'&&!photoLoaded)throw Error('Wait for the photo to load before approving it.');
    const result=await get('/'+id,{method:'PATCH',body:{action,note,revision:item.revision}});
    await refresh();await open(id);
    const copy=action==='publish'&&result.status==='collecting'?'Concern published. Share it so residents can sign in and give it the first upvotes.':
     action==='publish'?'Concern published and sent to the council queue.':'Saved.';
    message(copy);
   }));
+  if(photo)void loadPhoto();
  }
  return act(null,refresh);
 }

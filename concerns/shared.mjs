@@ -1,4 +1,4 @@
-import {API,esc} from '../noticeboard/shared.mjs?v=1.1.149';
+import {API,esc} from '../noticeboard/shared.mjs?v=1.1.150';
 export {esc};
 export const labels={pending:'Awaiting moderation',collecting:'Collecting support',ready:'Ready for council action',in_progress:'Action taken',completed:'Closed — Completed',cannot_complete:'Closed — Cannot complete',declined:'Declined'};
 export const channelCopy={
@@ -53,6 +53,6 @@ export async function revealPhoto(container,path,token){
   const {url}=await request(path,{token});
   const image=document.createElement('img');image.alt='Photo of the concern';
   const loaded=new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=reject});
-  image.src=url;await loaded;container.replaceChildren(image);
- }catch{container.textContent='Photo temporarily unavailable.'}
+  image.src=url;await loaded;container.replaceChildren(image);return true;
+ }catch{container.textContent='Photo temporarily unavailable.';return false;}
 }
