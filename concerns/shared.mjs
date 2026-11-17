@@ -1,4 +1,4 @@
-import {API,esc} from '../noticeboard/shared.mjs?v=1.1.147';
+import {API,esc} from '../noticeboard/shared.mjs?v=1.1.148';
 export {esc};
 export const labels={pending:'Awaiting moderation',collecting:'Collecting support',ready:'Ready for council action',in_progress:'Action taken',completed:'Closed — Completed',cannot_complete:'Closed — Cannot complete',declined:'Declined'};
 export const channelCopy={
