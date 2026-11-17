@@ -1,7 +1,7 @@
-import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.152';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.152';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.152';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.152';
+import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.153';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.153';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.153';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.153';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -84,6 +84,27 @@ async function act(button,action){
  try{await action()}catch(error){message(error.message)}
  finally{if(button.isConnected)button.disabled=false}
 }
+let sponsorLocality=null;
+function showConcernSponsors(name){
+ sponsorLocality=name;
+ if(!window.BAG_DAY_SPONSORS)return;
+ const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+ const part=type=>parts.find(p=>p.type===type).value;
+ window.BAG_DAY_SPONSORS.render(name,new Date(part('year')+'-'+part('month')+'-'+part('day')+'T00:00:00Z'));
+}
+function sizeConcernDock(){
+ const dock=$('#sponsorDock'),panel=$('#sponsorPanel');if(!dock||!panel)return;
+ dock.hidden=panel.hidden;
+ document.documentElement.style.setProperty('--noticeboard-dock-height',dock.hidden?'0px':dock.getBoundingClientRect().height+'px');
+}
+window.addEventListener('bag-day-sponsors-ready',()=>{if(sponsorLocality)showConcernSponsors(sponsorLocality);sizeConcernDock()});
+window.addEventListener('resize',sizeConcernDock);
+const dock=$('#sponsorDock'),sponsorPanel=$('#sponsorPanel');
+if(dock&&sponsorPanel){
+ new MutationObserver(sizeConcernDock).observe(sponsorPanel,{attributes:true,attributeFilter:['hidden'],childList:true});
+ if(window.ResizeObserver)new ResizeObserver(sizeConcernDock).observe(dock);
+ sizeConcernDock();
+}
 function updateTabs(){
  document.querySelectorAll('[data-concern-tab]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.concernTab===activeView)));
 }
@@ -121,7 +142,8 @@ async function load(){
  const data=await request('/concerns/board?'+query);
  if(version!==sequence)return;
  board=data;loc=data.locality.locality_id;me=data.signed_in;
- $('#concernLocality').textContent=data.locality.locality_name;
+ $('#concernLocality').textContent=data.locality.locality_name+' · Your community, your voice';
+ showConcernSponsors(data.locality.locality_name);
  const state=data.locality.state;
  const leaders=!data.archive&&!offset?data.items.slice(0,3):[];
  const otherItems=data.items.slice(leaders.length);
