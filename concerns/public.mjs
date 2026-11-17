@@ -1,7 +1,7 @@
-import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.153';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.153';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.153';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.153';
+import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.154';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.154';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.154';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.154';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
