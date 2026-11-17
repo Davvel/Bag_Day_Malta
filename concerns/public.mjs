@@ -1,7 +1,7 @@
-import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.155';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.155';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.155';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.155';
+import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.156';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.156';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.156';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.156';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -148,7 +148,7 @@ async function load(){
  const leaders=!data.archive&&!offset?data.items.slice(0,3):[];
  const otherItems=data.items.slice(leaders.length);
  const publicList=leaders.length
-  ?`<section class="concern-leaders" aria-label="Most supported"><h2>Most supported</h2>${leaders.map(card).join('')}</section>${otherItems.map(card).join('')}`
+  ?`<section class="concern-leaders" aria-label="Sorted by most supported"><h2>Sorted by most supported</h2>${leaders.map(card).join('')}</section>${otherItems.map(card).join('')}`
   :otherItems.map(card).join('');
 
  main.innerHTML=`<div class="concern-toolbar"><h2>${data.archive?'Past concerns':'Open concerns'}</h2>
