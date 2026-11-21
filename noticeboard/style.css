@@ -276,7 +276,7 @@ html[data-zoomed="true"] .public-notices #root>.source-panel{overflow:visible;fl
 .public-notices #root>.source-panel{border:0;border-radius:0;background:transparent;overflow:visible}
 .source-tabs{border-bottom:2px solid white;align-items:stretch;position:relative}
 .source-tab{position:relative;gap:4px;padding:6px 4px;min-height:46px;border:2px solid transparent;border-bottom:0;border-radius:13px 13px 0 0;background:var(--nb-card)}
-.source-tab[aria-selected=true]{z-index:1;border-color:white;border-bottom:0;background:var(--tint);margin-bottom:-2px;padding-bottom:8px}
+.source-tab[aria-selected=true]{z-index:1;border-color:white;border-bottom:0;background:var(--tint);padding-bottom:8px}
 .source-tab svg{flex:none;width:18px;height:18px}
 .source-label{min-width:0;line-height:1.15;text-align:center}
 .source-count{display:inline-flex;align-items:center;justify-content:center;flex:none;width:25px;height:25px;border-radius:50%;background:white;color:#163247;font-size:12px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;overflow-wrap:normal}
@@ -432,3 +432,6 @@ dialog.notice-wizard{width:min(1120px,calc(100% - 32px));max-width:calc(100% - 3
 /* Keep Reset filters beside search without changing the compact filter rows below. */
 .public-notices .search-view-row{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:6px;align-items:center}.public-notices .search-view-row .inline-search{min-width:0;margin:0;height:36px}.public-notices #noticeShowAll.search-reset{width:96px;min-height:36px;height:36px;padding:4px 6px;border:1px solid var(--nb-border);border-radius:8px;background:var(--nb-card);color:var(--nb-ink);font-size:12px;line-height:1.15;white-space:nowrap}
 @media(max-width:350px){.public-notices .search-view-row{grid-template-columns:minmax(0,1fr) 88px;gap:4px}.public-notices #noticeShowAll.search-reset{width:88px;font-size:11px;padding-inline:3px}}
+/* Match the minimum scrollable height of the Voice a Concern tab panel. */
+.public-notices .source-panel:not(.combined-calendar) #sections{min-height:280px}
+.public-notices .source-panel:not(.combined-calendar) #sections:has(>.empty:only-child){display:grid;place-items:center}
