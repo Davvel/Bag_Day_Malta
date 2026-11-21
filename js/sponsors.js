@@ -128,7 +128,7 @@
     if(window.BAG_DAY_WHATSAPP_VISIBLE===true&&whatsappMode!=='hidden'&&(whatsappMode!=='enabled'||whatsapp.length<8)){
       const button=document.createElement('button');button.type='button';button.className='council-link council-whatsapp-disabled';button.textContent='WhatsApp';button.disabled=true;button.title='Council WhatsApp is not available yet';actions.append(button);
     }
-    if(actions.childElementCount)council.append(actions);
+    if(actions.childElementCount){actions.style.setProperty('--council-action-count',String(actions.childElementCount));council.append(actions)}
     window.BAG_DAY_CONCERNS?.append(locality,actions);
     window.BAG_DAY_ANALYTICS?.observe(council,'council_impression',councilParams,'council:'+(placement||'generic'));
     }

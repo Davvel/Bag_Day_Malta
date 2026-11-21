@@ -23,7 +23,7 @@
    visual.innerHTML='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 14-4v12L3 13V9Zm14-4 3-2v16l-3-2M5 14l2 6h3l-2-5"/></svg>';
    const count=document.createElement('small');count.textContent=String(item.open_count);visual.append(count);
    const caption=document.createElement('span');caption.className='council-concern-caption';caption.textContent='Voice a Concern';
-   link.append(visual,caption);actions.append(link);actions.classList.add('has-concerns');
+   link.append(visual,caption);actions.append(link);actions.classList.add('has-concerns');actions.style.setProperty('--council-action-count',String(actions.childElementCount));
   };
   getLocality(locality).then(add);
  }

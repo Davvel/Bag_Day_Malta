@@ -406,3 +406,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 :root[data-theme=light] #councilPanel .council-notice-icon{color:#286f91}
 @media(max-width:360px){#councilPanel .council-home-link .council-emblem{display:grid}.home-shortcut img{width:24px;height:24px}}
 @media(max-height:700px){.home-shortcut img{width:24px;height:24px}}
+
+/* v1.1.165: one date bar; council actions divide their full row evenly. */
+#councilPanel .council-actions{grid-template-columns:repeat(var(--council-action-count,3),minmax(0,1fr))}
