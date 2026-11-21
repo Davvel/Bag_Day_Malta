@@ -3,6 +3,6 @@
  const row=document.querySelector('.home-shortcuts');if(!row)return;
  row.addEventListener('click',e=>{const target=e.target.closest('.home-shortcut');if(!target)return;
  if(target.id==='reuseModeButton')window.BAG_DAY_ANALYTICS?.event('reuse_entry_click',{entry_point:'home_shortcuts'});
- if(target.id==='noticeModeButton')window.BAG_DAY_ANALYTICS?.event('noticeboard_entry_click',{entry_point:'home_shortcuts'});
+ if(target.id==='roadshowModeButton')window.BAG_DAY_ANALYTICS?.event('roadshow_schedule_click',{entry_point:'home_shortcuts'});
  });
 })();

@@ -381,3 +381,28 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 #councilPanel .council-concern-icon{position:relative;display:inline-grid;place-items:center;color:#a8d9ef}
 #councilPanel .council-concern-icon small{position:absolute;top:-4px;left:calc(100% - 2px);min-width:14px;padding:0 2px;border-radius:9px;background:#bceafd;color:#092d45;font-size:9px;font-weight:800}
 #councilPanel .council-concern-caption{max-width:9ch}
+
+/* v1.1.164: compact date navigation sits above the collection card. */
+#dashboard>.collection-date{min-height:0!important;margin:5px 0 7px!important;padding:0!important;width:100%}
+#dashboard #dayNavigation{display:grid;grid-template-columns:28px 36px minmax(0,1fr) 32px 28px;gap:1px;min-height:38px;padding:2px 4px;border:1px solid #38617c;border-radius:12px;background:var(--card);box-sizing:border-box}
+#dashboard #dayNavigation .nav-button{width:28px;min-width:28px;height:32px;min-height:32px;font-size:26px}
+#dashboard #goToToday,#dashboard #openDateCalendar{width:100%;height:32px;min-height:32px}
+#dashboard #goToToday>span{font-size:25px;line-height:19px}
+#dashboard #goToToday small{font-size:8px;line-height:10px}
+#dashboard #dateButton{min-height:32px;padding:2px 0}
+#dashboard #dateButton #date{font-size:clamp(13px,3.8cqw,18px);line-height:1.15}
+#dashboard #openDateCalendar svg{width:23px;height:25px}
+
+/* Keep the council identity as one clear, keyboard-accessible website link. */
+#councilPanel .council-home-link{grid-column:1/-1;display:grid;grid-template-columns:35px minmax(0,1fr);gap:9px;align-items:center;min-width:0;color:inherit;text-decoration:none;border-radius:9px}
+#councilPanel .council-home-link .council-emblem{display:grid;place-items:center;width:35px;height:35px;margin:0}
+#councilPanel .council-home-link .council-identity{min-width:0}
+#councilPanel .council-home-link:focus-visible{outline:2px solid #c3f1ff;outline-offset:2px}
+#councilPanel .council-notice-icon{display:inline-grid;place-items:center;width:26px;height:26px;flex:none;color:#a8d9ef}
+#councilPanel .council-notice-icon svg{display:block;width:24px;height:24px}
+#councilPanel .council-notice-link{border-color:#60a9c7;background:linear-gradient(#174b68,#0a2c45)}
+#councilPanel .council-notice-link:focus-visible{outline:2px solid #c3f1ff;outline-offset:2px}
+.home-shortcut img{display:block;flex:none;width:28px;height:28px;object-fit:contain}
+:root[data-theme=light] #councilPanel .council-notice-icon{color:#286f91}
+@media(max-width:360px){#councilPanel .council-home-link .council-emblem{display:grid}.home-shortcut img{width:24px;height:24px}}
+@media(max-height:700px){.home-shortcut img{width:24px;height:24px}}

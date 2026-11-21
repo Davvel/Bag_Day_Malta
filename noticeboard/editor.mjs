@@ -1,10 +1,10 @@
-import {mountCouncilConcerns} from '../concerns/council.mjs?v=1.1.163';
-import {openNoticeWizard} from './wizard.mjs?v=1.1.163';
-import {loadOptions} from './options.mjs?v=1.1.163';
-import {openSlotHelp} from './editor-help.mjs?v=1.1.163';
-import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.163';
-import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.163';
-import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.163';
+import {mountCouncilConcerns} from '../concerns/council.mjs?v=1.1.164';
+import {openNoticeWizard} from './wizard.mjs?v=1.1.164';
+import {loadOptions} from './options.mjs?v=1.1.164';
+import {openSlotHelp} from './editor-help.mjs?v=1.1.164';
+import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.164';
+import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.164';
+import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.164';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0,deskArea='notices',disposeConcerns=null;
 function updateEditorTitle(){const brand=document.querySelector('.editor-desk .brand');if(brand&&activeSection){brand.dataset.section=activeSection;brand.innerHTML=icon(sections[activeSection].icon)+'<span>Bag Day Malta</span>'}const title=(activeSection?sections[activeSection].name:'Community')+' Noticeboard Editor';const header=document.querySelector('#noticeboardTitle');if(header)header.textContent=title;document.title=title+' · Bag Day Malta'}
 updateEditorTitle();

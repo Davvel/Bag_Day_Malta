@@ -106,8 +106,10 @@
     if(council){
     council.replaceChildren();
     const details=councilRows.find(r=>canonical(r.locality||r.council)===canonical(locality));
-    const name=document.createElement('strong');name.textContent=details?.councilname||locality+' Local Council';const emblem=document.createElement('span');emblem.className='council-emblem';emblem.innerHTML='<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12 16 5l12 7H4ZM7 14v11m6-11v11m6-11v11m6-11v11M4 27h24"/></svg>';emblem.setAttribute('aria-hidden','true');const identity=document.createElement('div');identity.className='council-identity';identity.append(name);council.append(emblem,identity);
-    const shortcut=document.getElementById('noticeModeButton');if(shortcut){const u=new URL('noticeboard/',siteRoot);u.searchParams.set('locality',locality);shortcut.href=u.href;shortcut.setAttribute('aria-label','Community notices for '+locality)}
+    const name=document.createElement('strong');name.textContent=details?.councilname||locality+' Local Council';const emblem=document.createElement('span');emblem.className='council-emblem';emblem.innerHTML='<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12 16 5l12 7H4ZM7 14v11m6-11v11m6-11v11m6-11v11M4 27h24"/></svg>';emblem.setAttribute('aria-hidden','true');const identity=document.createElement('div');identity.className='council-identity';identity.append(name);
+    const website=safeURL(details?.website||details?.websiteurl),home=website?document.createElement('a'):document.createElement('div');home.className='council-home-link';home.append(emblem,identity);
+    if(website){home.href=website;home.target='_blank';home.rel='noopener noreferrer';home.setAttribute('aria-label','Open '+name.textContent+' website (opens in a new tab)');home.title='Open '+name.textContent+' website';home.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('council_website_click',{placement_locality:locality}))}
+    council.append(home);
     const actions=document.createElement('div');actions.className='council-actions';
     const actionContent=(node,icon,label)=>{
       const image=document.createElement('img');image.src=new URL('icons/council-'+icon+'.svg',siteRoot).href;image.alt='';image.width=26;image.height=26;
@@ -115,14 +117,11 @@
     };
     const placement=window.WASTE_DATA.localities.find(r=>canonical(r[0])===canonical(details?.locality||details?.council||''))?.[0];
     const councilParams=placement?{placement_locality:placement}:{};
-    if(details&&safeURL(details.website||details.websiteurl)){const a=link('Website ↗',safeURL(details.website||details.websiteurl),'council-link');a.rel='noopener noreferrer';actionContent(a,'website','Council Website');a.setAttribute('aria-label','Open '+locality+' council website (opens a new tab)');a.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('council_website_click',councilParams));actions.append(a);}
+    const notices=document.createElement('a');notices.className='council-link council-notice-link';const noticeURL=new URL('noticeboard/',siteRoot);noticeURL.searchParams.set('locality',locality);notices.href=noticeURL.href;notices.setAttribute('aria-label','Community Notices for '+locality);notices.title='Community Notices for '+locality;
+    const noticeIcon=document.createElement('span');noticeIcon.className='council-notice-icon';noticeIcon.setAttribute('aria-hidden','true');noticeIcon.innerHTML='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/><path d="M12 2v1"/></svg>';
+    const noticeCaption=document.createElement('span');noticeCaption.textContent='Community Notices';notices.append(noticeIcon,noticeCaption);notices.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('noticeboard_entry_click',{...councilParams,entry_point:'council_panel'}));actions.append(notices);
     const phone=(details?.bulkytelephone||details?.phone||'').replace(/[^+0-9]/g,'');
     if(phone.length>=8){const a=document.createElement('button');a.type='button';a.className='council-link council-bulky';actionContent(a,'bulky','Bulky Refuse');a.setAttribute('aria-label','Bulky refuse collection information for '+locality);a.setAttribute('aria-haspopup','dialog');a.setAttribute('aria-controls','bulkyOverlay');a.onclick=()=>window.BAG_DAY_BULKY.open({locality,council:name.textContent,phone,website:safeURL(details?.website||details?.websiteurl),dedicated:!!details?.bulkytelephone,analyticsPlacement:placement});actions.append(a);}
-    const truck=link('', 'https://www.wsm.com.mt/en/roadshow','council-link council-roadshow');
-    actionContent(truck,'truck','WasteServ Truck');truck.rel='noopener noreferrer';
-    truck.setAttribute('aria-label','WasteServ Roadshow Truck: check the official schedule for cooking oil, batteries and more (opens a new tab)');
-    truck.title='Check the official schedule for cooking oil, batteries and more';
-    truck.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('roadshow_schedule_click',councilParams));actions.append(truck);
     const whatsapp=(details?.whatsapp||details?.whatsappnumber||'').replace(/\D/g,'');
     const whatsappMode=(details?.whatsappmode||'disabled').toLowerCase();
     if(window.BAG_DAY_WHATSAPP_VISIBLE===true&&whatsappMode==='enabled'&&whatsapp.length>=8){const a=link('WhatsApp ↗','https://wa.me/'+(whatsapp.length===8?'356':'')+whatsapp,'council-link');a.rel='noopener noreferrer';a.addEventListener('click',()=>window.BAG_DAY_ANALYTICS?.event('council_whatsapp_click',councilParams));actions.append(a);}
