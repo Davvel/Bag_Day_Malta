@@ -1,7 +1,7 @@
-import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.160';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.160';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.160';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.160';
+import {age,boardURL,date,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.161';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.161';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.161';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.161';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -51,12 +51,12 @@ function controls(item){
  const open=standing(item);
  return `<div class="concern-actions">${open&&!item.own?`<button type="button" class="secondary" data-upvote="${esc(item.concern_id)}" ${item.voted?'disabled':''}>${item.voted?'Upvoted':'Upvote'}</button>`:''}
  <button type="button" class="secondary" data-share="${esc(item.concern_id)}">Share concern</button>
- ${item.has_photo?`<button type="button" class="secondary" data-photo="${esc(item.concern_id)}">View photo</button>`:''}
+ ${item.has_photo||item.own_photo?`<button type="button" class="secondary" data-photo="${esc(item.concern_id)}">${item.own_photo?(item.photo_pending?'View my photo · awaiting approval':'View my photo · hidden'):'View photo'}</button>`:''}
  ${item.own?`<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}">Delete my concern</button>`:''}</div>`;
 }
 function card(item){
  return `<article class="concern-card"><h2><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(previewText(item.description))}</a></h2>
- ${meta(item)}${item.status==='collecting'?`<p class="concern-caption">${esc(deadline(item))}</p>`:''}${controls(item)}<div class="concern-photo" hidden></div></article>`;
+ ${meta(item)}${standing(item)?'<p class="concern-caption">Every upvote helps the council see that residents care about this issue.</p>':''}${item.own_photo&&item.photo_pending?'<p class="concern-caption">Your photo is waiting for council approval. Other residents cannot see that a photo was attached.</p>':''}${controls(item)}<div class="concern-photo" hidden></div></article>`;
 }
 const updates=items=>items.length?`<section><h2>Council updates</h2>${items.map(item=>`<article class="concern-card"><strong>${esc(labels[item.status])} · ${esc(date(item.created_at))}</strong><p>${esc(item.note)}</p></article>`).join('')}</section>`:'<p class="muted">No council updates yet.</p>';
 function bind(items=[],scope=main){
@@ -65,7 +65,7 @@ function bind(items=[],scope=main){
  scope.querySelectorAll('[data-upvote]').forEach(button=>button.onclick=()=>act(button,async()=>{
   const vote=async()=>{
    const result=await request('/concerns/items/'+button.dataset.upvote+'/vote',{method:'POST',body:{}});
-   message(result.status==='ready'&&result.upvotes===3?'Three upvotes! The concern is ready for council action.':'Your upvote has been recorded.');
+   message('Your upvote has been recorded. More support helps bring this concern to the council’s attention.');
    await load();if(detailId&&$('#concernDetail')?.open)await openDetail(detailId);
   };
   if(me)await vote();else signIn(vote);
@@ -163,7 +163,7 @@ async function openDetail(id,provided){
  detailId=id;const pin=mapURL(item);
  dialog.innerHTML=`<div class="concern-toolbar"><h2>Concern details</h2><button type="button" class="secondary" data-close-detail>Close</button></div>
  <p class="concern-locality">${esc(item.locality_name)}</p><article class="concern-card"><p>${esc(item.description)}</p>${meta(item)}
- ${item.status==='collecting'?`<p class="concern-caption">${esc(deadline(item))}</p>`:''}
+ ${standing(item)?'<p class="concern-caption">Every upvote helps the council see that residents care about this issue.</p>':''}${item.own_photo&&item.photo_pending?'<p class="concern-caption">Your photo is waiting for council approval. Other residents cannot see that a photo was attached.</p>':''}
  ${pin?`<p><a href="${esc(pin)}" target="_blank" rel="noopener">Open pin in Google Maps</a></p>`:''}
  ${controls(item)}<div class="concern-photo" hidden></div></article>${updates(item.updates||[])}`;
  dialog.querySelector('[data-close-detail]').onclick=()=>dialog.close();dialog.onclose=()=>{detailSequence++;detailId=null};bind([item],dialog);
@@ -194,6 +194,8 @@ async function load(){
 
  main.innerHTML=`<div class="concern-toolbar"><h2>${data.archive?'Past concerns':'Open concerns'}</h2>
   ${state==='active'&&!data.archive?`<button type="button" class="primary" id="newConcern" ${data.open_concern?'disabled aria-describedby="concernSubmissionReason"':''}>Voice a concern</button>`:''}</div>
+  ${!data.archive&&activeView==='open'?'<p class="concern-caption">Upvotes help the council see which issues matter to residents. A concern with no upvote for 30 days is archived; each upvote starts that 30-day period again.</p>':''}
+  ${data.archive?'<p class="concern-caption">Archived concerns keep their text for one year. Any attached photo is deleted when the concern is archived.</p>':''}
   ${data.open_concern&&!data.archive?submissionNotice(data.open_concern):''}
   ${state==='paused'&&!data.archive?'<p>New submissions are temporarily paused. You can still upvote and follow updates.</p>':''}
   ${publicList||`<p>${data.archive?'No past concerns yet.':'No open concerns yet.'}</p>`}
@@ -223,7 +225,7 @@ async function mine(){
 function submissionNotice(item){
  return `<section class="concern-notice" id="concernSubmissionReason" role="status" tabindex="-1">
   <strong>You already have an open concern in ${esc(item.locality_name)}.</strong>
-  <p>You can have one open concern at a time, including one awaiting moderation. View or delete it in My concerns before submitting another.</p>
+  <p>You can have one open concern at a time. View or delete it in My concerns before submitting another.</p>
   <button type="button" class="secondary" id="manageOpenConcern">View or delete my concern</button></section>`;
 }
 function bindDeletes(items,scope=main){
@@ -294,7 +296,7 @@ async function startConcern(){
   <button type="submit" class="primary">Review concern</button></form>
   <section data-review hidden><h3>Check your concern</h3><div data-review-body></div>
   <div class="concern-actions"><button type="button" class="secondary" data-back>Back to edit</button><button type="button" class="primary" data-confirm>Confirm and submit</button></div></section>
-  <section data-received hidden><h3>Submitted · Awaiting moderation</h3><p>Your concern is private until a moderator approves it.</p><p data-photo-failed hidden>Your concern was submitted, but the photo could not be uploaded.</p>
+  <section data-received hidden><h3>Concern submitted</h3><p>Your concern is now visible to the community. Upvotes help the council see how much support it has.</p><p data-photo-pending hidden>Your photo is visible only to you until the council approves it.</p><p data-photo-failed hidden>Your concern was submitted, but the photo could not be uploaded.</p>
   <button class="primary" type="button" data-done>Done</button></section>`;
  const select=s=>compose.querySelector(s),form=select('form'),review=select('[data-review]');
  const error=copy=>{const node=select('[data-form-message]');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}};
@@ -341,7 +343,7 @@ async function startConcern(){
   error('');const pin=mapURL(readLocationFields(form));
   select('[data-review-body]').innerHTML=`<p>${esc(form.elements.description.value.trim())}</p>
    ${pin?`<p><a href="${esc(pin)}" target="_blank" rel="noopener">Check map pin</a></p>`:''}
-   ${photoPreview?`<img class="concern-draft-photo" src="${esc(photoPreview)}" alt="The compressed photo you are confirming"><p>You can’t change this photo after you submit. It stays private until a moderator approves it.</p>`:''}`;
+   ${photoPreview?`<img class="concern-draft-photo" src="${esc(photoPreview)}" alt="The compressed photo you are confirming"><p>Your concern will be public immediately. The photo will be visible only to you until the council approves it.</p>`:''}`;
   select('[data-step=write]').removeAttribute('aria-current');select('[data-step=review]').setAttribute('aria-current','step');form.hidden=true;review.hidden=false;select('[data-back]').focus();
  };
  select('[data-back]').onclick=()=>{if(submitting||confirmed)return;error('');select('[data-step=review]').removeAttribute('aria-current');select('[data-step=write]').setAttribute('aria-current','step');review.hidden=true;form.hidden=false;form.elements.description.focus()};
@@ -365,7 +367,7 @@ async function startConcern(){
      accepted=verified.photo_received;
     }catch{}
    }
-   review.hidden=true;select('[data-received]').hidden=false;select('[data-photo-failed]').hidden=!photo||accepted;
+   review.hidden=true;select('[data-received]').hidden=false;select('[data-photo-failed]').hidden=!photo||accepted;select('[data-photo-pending]').hidden=!photo||!accepted;
    select('[data-done]').focus();
   }catch(e){
    if(e.code==='OPEN_CONCERN_EXISTS'){

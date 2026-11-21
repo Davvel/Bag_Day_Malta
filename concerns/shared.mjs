@@ -1,8 +1,8 @@
-import {API,esc} from '../noticeboard/shared.mjs?v=1.1.160';
+import {API,esc} from '../noticeboard/shared.mjs?v=1.1.161';
 export {esc};
-export const labels={pending:'Awaiting moderation',collecting:'Collecting support',ready:'Ready for council action',in_progress:'Action taken',completed:'Closed — Completed',cannot_complete:'Closed — Cannot complete',declined:'Declined'};
+export const labels={pending:'Open',collecting:'Open',ready:'Open',in_progress:'Under review by council',completed:'Closed — Completed',cannot_complete:'Closed — Cannot complete',declined:'Blocked'};
 export const channelCopy={
- inactive:'The homepage button is hidden. New submissions are closed.',
+ inactive:'The home button and all concerns are hidden. Re-enable this channel to restore retained concerns.',
  active:'The homepage button is visible. Residents can submit new concerns.',
  paused:'New submissions are temporarily paused. Residents can still vote and follow updates.'
 };
@@ -14,15 +14,7 @@ export function age(item,time=Date.now()){
  const days=Math.max(0,Math.floor((time-Date.parse(item.submitted_at))/day));
  return !days?'Submitted today':`Submitted ${days} day${days===1?'':'s'} ago`;
 }
-export function support(item){
- if(item.status!=='collecting')return item.status==='pending'||item.status==='declined'?'—':`${item.upvotes} upvote${item.upvotes===1?'':'s'}`;
- const n=Math.min(3,item.upvotes);
- return `<strong>${n} of 3 upvotes</strong><span class="concern-marks" aria-hidden="true">${[0,1,2].map(i=>`<i ${i<n?'class="filled"':''}></i>`).join('')}</span>`;
-}
-export function deadline(item,time=Date.now()){
- const days=Math.max(0,Math.ceil((Date.parse(item.council_due_at)-time)/day));
- return days?`Goes to the council at 3 upvotes or in ${days} day${days===1?'':'s'}.`:'The concern is due to reach the council.';
-}
+export function support(item){return `<strong>${item.upvotes} supporter${item.upvotes===1?'':'s'}</strong>`}
 export const previewText=text=>text.length>95?text.slice(0,92).trimEnd()+'…':text;
 export const boardURL=(locality,archive=false)=>'/concerns/?'+new URLSearchParams({locality,...(archive?{archive:'1'}:{})});
 export const itemURL=id=>new URL('/concerns/?'+new URLSearchParams({concern:id}),location.origin).href;

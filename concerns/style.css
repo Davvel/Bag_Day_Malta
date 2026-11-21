@@ -61,3 +61,4 @@
 
 /* Concern tabs can track a horizontal finger drag while preserving vertical scrolling. */
 .public-concerns .concern-parent{touch-action:pan-y pinch-zoom}.public-concerns .concern-parent #concernMain{will-change:transform}
+.concern-queue-thumb{display:block;width:76px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--nb-border)}.concern-thumb-button{padding:0;background:transparent;border:0;cursor:pointer}.concern-queue td[data-label=Photo]{min-width:100px}.concern-queue td[data-label=Photo] span{display:block;font-size:12px;color:var(--nb-secondary);margin-top:4px}.concern-settings form .concern-actions{align-items:end}.concern-photo-switch{display:flex;align-items:center;gap:8px;min-height:44px}.concern-photo-switch input{width:20px;height:20px}

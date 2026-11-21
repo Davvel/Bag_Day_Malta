@@ -1,10 +1,10 @@
-import {esc,icon,sections} from './shared.mjs?v=1.1.160';
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.160';
-import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.160';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.160';
-import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.160';
-import {normaliseNoticeURL} from './links.mjs?v=1.1.160';
-import {mountNoticePreview} from './preview.mjs?v=1.1.160';
+import {esc,icon,sections} from './shared.mjs?v=1.1.161';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.161';
+import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.161';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.161';
+import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.161';
+import {normaliseNoticeURL} from './links.mjs?v=1.1.161';
+import {mountNoticePreview} from './preview.mjs?v=1.1.161';
 export const typeNames={info:'Information or advice',event:'Event or activity',disruption:'Disruption or temporary change'};
 export function validateWizardData(data,today,maximumInfo,maximumEvent){
  if(!data.title.trim()||!data.description.trim())throw Error('Please enter a title and message.');
