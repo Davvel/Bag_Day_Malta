@@ -1,13 +1,13 @@
-import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.157';
-import {mapURL} from './locations.mjs?v=1.1.157';
-import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.157';
-import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.157';
-import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.157';
-import {noticeLink} from './links.mjs?v=1.1.157';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.157';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.157';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.157';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.157';
+import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.158';
+import {mapURL} from './locations.mjs?v=1.1.158';
+import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.158';
+import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.158';
+import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.158';
+import {noticeLink} from './links.mjs?v=1.1.158';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.158';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.158';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.158';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.158';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
 let pages=[],loaded=false,error='',filterWarning='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,renderEpoch=0,searchTimer=null;
 const params=()=>new URLSearchParams(location.search);
@@ -43,7 +43,7 @@ function searchOptions(){const p=params();return {q:p.get('q')||'',locality,allL
 const sourceOrder=['council','church','police'];
 let activeTab='council';
 const retainedTab=()=>null;
-function compactToolbar(names){const mode=view(),o=searchOptions();return `<div class="notice-controls"><div class="notice-half-row search-view-row"><form id="noticeSearch" class="inline-search" role="search"><input id="noticeQuery" type="search" name="q" aria-label="Search notices" placeholder="Search notices…" autocomplete="off" value="${esc(o.q)}"><button aria-label="Search notices" type="submit">${icon('search')}</button></form></div><div class="notice-half-row locality-controls"><label class="compact-locality"><select id="locality" aria-label="Noticeboard locality"><option value="" ${o.allLocalities?'selected':''}>All localities</option>${names.map(n=>`<option value="${esc(n)}" ${!o.allLocalities&&n===locality?'selected':''}>${esc(n)}</option>`).join('')}</select></label><label class="locality-scope"><span>All localities</span><span class="locality-toggle"><input id="localityScope" type="checkbox" role="switch" aria-label="Show all localities" ${o.allLocalities?'checked':''}><span aria-hidden="true"></span></span></label></div><div class="notice-half-row category-audience-row"><select id="noticeCategory" aria-label="Category">${optionSelect('categories',o.category,true)}</select><select id="noticeAudience" aria-label="Audience">${optionSelect('audiences',o.audience,true)}</select></div></div>`}
+function compactToolbar(names){const mode=view(),o=searchOptions();return `<div class="notice-controls"><div class="notice-half-row search-view-row"><form id="noticeSearch" class="inline-search" role="search"><input id="noticeQuery" type="search" name="q" aria-label="Search notices" placeholder="Search notices…" autocomplete="off" value="${esc(o.q)}"><button aria-label="Search notices" type="submit">${icon('search')}</button></form><button type="button" id="noticeShowAll" class="search-reset" title="Clear filters and return to your saved Home locality">Reset filters</button></div><div class="notice-half-row locality-controls"><label class="compact-locality"><select id="locality" aria-label="Noticeboard locality"><option value="" ${o.allLocalities?'selected':''}>All localities</option>${names.map(n=>`<option value="${esc(n)}" ${!o.allLocalities&&n===locality?'selected':''}>${esc(n)}</option>`).join('')}</select></label><label class="locality-scope"><span>All localities</span><span class="locality-toggle"><input id="localityScope" type="checkbox" role="switch" aria-label="Show all localities" ${o.allLocalities?'checked':''}><span aria-hidden="true"></span></span></label></div><div class="notice-half-row category-audience-row"><select id="noticeCategory" aria-label="Category">${optionSelect('categories',o.category,true)}</select><select id="noticeAudience" aria-label="Audience">${optionSelect('audiences',o.audience,true)}</select></div></div>`}
 function viewTitleBar(){const calendar=view()!=='list';return `<header class="notice-view-titlebar"><h2>${icon(calendar?'calendar':'list')}<span>${calendar?'Calendar View':'List View'}</span></h2><button type="button" class="view-mode-button" data-view="${calendar?'list':'calendar'}" aria-label="Switch to ${calendar?'list':'calendar'} view">${icon(calendar?'list':'calendar')}<span>${calendar?'List View':'Calendar View'}</span></button></header>`}
 function sourcePanel(){const combined=view()!=='list';return `<div class="source-panel section ${combined?'combined-calendar':'council'}" id="sourcePanel">${viewTitleBar()}${combined?'':`<div class="source-tabs" role="tablist" aria-label="Noticeboard source">${sourceOrder.map(k=>`<button type="button" role="tab" class="source-tab ${k}" id="source-${k}" data-source-tab="${k}" aria-selected="false" aria-controls="sections">${icon(sections[k].icon)}<span class="source-label">${esc(sections[k].name)}</span><span class="source-count" id="count-${k}" aria-hidden="true">0</span></button>`).join('')}</div>`}<div id="sections" role="${combined?'region':'tabpanel'}" ${combined?'aria-label="Combined community notices"':'aria-labelledby="source-council"'}></div></div>`}
 function chooseSource(groups,mode=view(),month=currentMonth(),requested=params().get('tab')){return noticeboardTab(groups.flatMap(g=>g.items),{view:mode,month,day:params().get('day')||'',requested})}
@@ -149,7 +149,7 @@ function render(){
  root.querySelector('#noticeSearch').onsubmit=e=>{e.preventDefault();updateTextSearch(e.target.elements.q.value)};
  root.querySelector('#noticeQuery').addEventListener('input',e=>queueTextSearch(e.target.value,e.isComposing));
  root.querySelector('#noticeQuery').addEventListener('compositionend',e=>queueTextSearch(e.target.value));
- document.querySelector('#noticeShowAll').onclick=showAllNotices;
+ root.querySelector('#noticeShowAll').onclick=showAllNotices;
  root.querySelectorAll('[data-source-tab]').forEach(b=>{b.onclick=()=>{navigate({tab:b.dataset.sourceTab,section:null,sources:null,entry:null,page:null},{replace:view()==='day'});root.querySelector('#source-'+b.dataset.sourceTab)?.focus({preventScroll:true})};b.addEventListener('keydown',e=>{const index=sourceOrder.indexOf(b.dataset.sourceTab);let next;if(e.key==='ArrowRight')next=(index+1)%3;else if(e.key==='ArrowLeft')next=(index+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();root.querySelector('#source-'+sourceOrder[next]).onclick()})});
  root.querySelector('#noticeCategory').onchange=e=>applyInline({category:e.target.value});
  root.querySelector('#noticeAudience').onchange=e=>applyInline({audience:e.target.value});

@@ -1,7 +1,7 @@
-import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.157';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.157';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.157';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.157';
+import {age,boardURL,date,deadline,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.158';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.158';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.158';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.158';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -114,6 +114,47 @@ async function switchView(view){
  await load();
 }
 document.querySelectorAll('[data-concern-tab]').forEach(button=>button.onclick=()=>act(button,()=>switchView(button.dataset.concernTab)));
+const concernParent=document.querySelector('.concern-parent');
+const concernViews=['open','past','mine'];
+let concernSwipe=null,concernSettling=false,suppressConcernClickTarget=null;
+const concernMotionReduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+function clearConcernDrag(){concernSwipe=null;main.style.transition='';main.style.transform='';main.style.opacity='';}
+concernParent?.addEventListener('touchstart',event=>{
+ clearConcernDrag();
+ if(concernSettling||event.touches.length!==1||$('#concernDetail')?.open||compose.open||signin.open||!event.target.closest('.concern-parent')||event.target.closest('input,select,textarea,summary,a,[data-upvote],[data-share],[data-photo],[data-delete-concern],#newConcern,#manageOpenConcern,#myConcerns,#concernNext,#concernPrevious'))return;
+ const touch=event.touches[0];concernSwipe={x:touch.clientX,y:touch.clientY,dx:0,dy:0,axis:null,target:event.target};
+},{passive:true});
+concernParent?.addEventListener('touchmove',event=>{
+ if(!concernSwipe||concernSettling||event.touches.length!==1){clearConcernDrag();return}
+ const touch=event.touches[0],gesture=concernSwipe;gesture.dx=touch.clientX-gesture.x;gesture.dy=touch.clientY-gesture.y;
+ if(!gesture.axis&&Math.max(Math.abs(gesture.dx),Math.abs(gesture.dy))>8)gesture.axis=Math.abs(gesture.dx)>Math.abs(gesture.dy)*1.5?'x':'y';
+ if(gesture.axis!=='x')return;
+ if(event.cancelable)event.preventDefault();
+ const next=concernViews.indexOf(activeView)+(gesture.dx<0?1:-1),edge=next<0||next>=concernViews.length;
+ if(concernMotionReduced())return;
+ main.style.transition='none';main.style.transform=`translateX(${Math.max(-160,Math.min(160,gesture.dx*(edge?.2:.65)))}px)`;
+},{passive:false});
+concernParent?.addEventListener('touchend',async event=>{
+ const gesture=concernSwipe;concernSwipe=null;
+ if(!gesture||event.touches.length||concernSettling){clearConcernDrag();return}
+ if(gesture.axis!=='x'){clearConcernDrag();return}
+ const next=concernViews.indexOf(activeView)+(gesture.dx<0?1:-1);
+ if(Math.abs(gesture.dx)<55||next<0||next>=concernViews.length){
+  if(!concernMotionReduced()){main.style.transition='transform 150ms ease-out, opacity 150ms ease-out';main.style.transform='translateX(0)'}
+  setTimeout(clearConcernDrag,160);return;
+ }
+ suppressConcernClickTarget=gesture.target;
+ setTimeout(()=>{if(suppressConcernClickTarget===gesture.target)suppressConcernClickTarget=null},500);
+ concernSettling=true;
+ try{
+  if(!concernMotionReduced()){main.style.transition='transform 120ms ease-out, opacity 120ms ease-out';main.style.transform=`translateX(${gesture.dx<0?-160:160}px)`;main.style.opacity='0';await new Promise(resolve=>setTimeout(resolve,120))}
+  main.style.transition='';main.style.transform='';main.style.opacity='';
+  await switchView(concernViews[next]);
+ }finally{clearConcernDrag();concernSettling=false}
+},{passive:true});
+concernParent?.addEventListener('touchcancel',clearConcernDrag,{passive:true});
+window.addEventListener('bag-day-gesture-cancel',clearConcernDrag);
+concernParent?.addEventListener('click',event=>{if(suppressConcernClickTarget&&(event.target===suppressConcernClickTarget||suppressConcernClickTarget.contains?.(event.target))){suppressConcernClickTarget=null;event.preventDefault();event.stopPropagation()}},true);
 async function openDetail(id,provided){
  const dialog=$('#concernDetail');if(!dialog)return;
  const current=++detailSequence;
