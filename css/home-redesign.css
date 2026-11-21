@@ -407,5 +407,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @media(max-width:360px){#councilPanel .council-home-link .council-emblem{display:grid}.home-shortcut img{width:24px;height:24px}}
 @media(max-height:700px){.home-shortcut img{width:24px;height:24px}}
 
-/* v1.1.165: one date bar; council actions divide their full row evenly. */
+/* v1.1.166: council action tiles use the full panel width, including when concerns are enabled. */
 #councilPanel .council-actions{grid-template-columns:repeat(var(--council-action-count,3),minmax(0,1fr))}
+#councilPanel .council-actions.has-concerns{grid-template-columns:repeat(var(--council-action-count,3),minmax(0,1fr))}
+#councilPanel .council-actions .council-link{justify-self:stretch;width:100%;box-sizing:border-box}
