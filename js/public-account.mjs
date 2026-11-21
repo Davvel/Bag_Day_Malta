@@ -1,4 +1,4 @@
-import {request} from '../reuse/client.mjs?v=1.1.161';
+import {request} from '../reuse/client.mjs?v=1.1.162';
 const buttons=[...document.querySelectorAll('[data-public-account]')];
 let signed=false,known=false,busy=false,loadGoogle;
 const dialog=document.createElement('dialog');dialog.className='bagday-account-dialog';dialog.setAttribute('aria-labelledby','publicAccountTitle');
