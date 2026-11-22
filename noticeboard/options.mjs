@@ -1,5 +1,5 @@
-import {selectionIds} from './selection.mjs?v=1.1.168';
-import {API,esc} from './shared.mjs?v=1.1.168';
+import {selectionIds} from './selection.mjs?v=1.1.169';
+import {API,esc} from './shared.mjs?v=1.1.169';
 let options={categories:[{id:'other',label:'Other'}],audiences:[{id:'all',label:'All'}]};
 const CACHE_KEY='bagday-noticeboard-options-v1';
 let loadedAt=0,pending=null,hasSaved=false;
