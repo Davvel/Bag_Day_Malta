@@ -1,13 +1,13 @@
-import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.174';
-import {mapURL} from './locations.mjs?v=1.1.174';
-import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.174';
-import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.174';
-import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.174';
-import {noticeLink} from './links.mjs?v=1.1.174';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.174';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.174';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.174';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.174';
+import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.175';
+import {mapURL} from './locations.mjs?v=1.1.175';
+import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.175';
+import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.175';
+import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.175';
+import {noticeLink} from './links.mjs?v=1.1.175';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.175';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.175';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.175';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.175';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
 let pages=[],loaded=false,error='',filterWarning='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,renderEpoch=0,searchTimer=null;
 const params=()=>new URLSearchParams(location.search);
@@ -22,6 +22,24 @@ if(!restoringVisit){const u=new URL(location.href);u.searchParams.set('locality'
 if(params().get('audience')==='all'||params().get('view')==='search'){
  const u=new URL(location.href);if(u.searchParams.get('audience')==='all')u.searchParams.delete('audience');if(u.searchParams.get('view')==='search')u.searchParams.delete('view');history.replaceState(history.state,'',u);
 }
+const visitKey='bag-day-notices-visit-v1';
+try{
+ const saved=JSON.parse(sessionStorage.getItem(visitKey)||'null');
+ const explicit=[...params().keys()].some(key=>!['locality','v'].includes(key));
+ if(saved&&!restoringVisit&&!explicit&&saved.home===homeLocality){
+  history.replaceState({...history.state,noticeboard:true,noticeScroll:saved.scroll,noticeLimit:saved.limit,noticeDayLimit:saved.dayLimit},'',saved.url);
+  locality=params().get('locality')||homeLocality;
+ }
+}catch{}
+function saveNoticeVisit(){
+ const url=new URL(location.href);url.searchParams.delete('entry');url.searchParams.delete('page');
+ if(url.searchParams.get('view')==='day')url.searchParams.set('view','calendar');
+ const scroll=params().has('entry')?history.state?.noticeScroll||0:readerScroller()?.scrollTop||0;
+ try{sessionStorage.setItem(visitKey,JSON.stringify({home:homeLocality,url:url.pathname+url.search,scroll,limit:searchLimit,dayLimit}))}catch{}
+ rememberPosition();
+}
+window.addEventListener('pagehide',saveNoticeVisit);
+window.addEventListener('bag-day-save-section',saveNoticeVisit);
 function section(){return sections[params().get('section')]?params().get('section'):null}
 function view(){return ['calendar','day'].includes(params().get('view'))?params().get('view'):'list'}
 function currentMonth(){return boundedCalendarMonth(params().get('month'),today())}
@@ -30,13 +48,24 @@ function href(patch){const u=new URL(location.href);for(const [k,v] of Object.en
 const readerScroller=()=>document.scrollingElement||root.querySelector('#sections');
 function rememberPosition(){history.replaceState({...history.state,noticeScroll:readerScroller()?.scrollTop||0,noticeLimit:searchLimit,noticeDayLimit:dayLimit},'',location.href)}
 function restorePosition(){searchLimit=history.state?.noticeLimit||NOTICE_SEARCH_PAGE_SIZE;dayLimit=history.state?.noticeDayLimit||NOTICE_SEARCH_PAGE_SIZE;renderBoards();requestAnimationFrame(()=>readerScroller()?.scrollTo?.(0,history.state?.noticeScroll||0))}
-function navigate(patch,{replace=false,entry=false,scroll=true,day=false}={}){
+function navigate(patch,{replace,entry=false,scroll=true,day=false}={}){
+ replace ??= !entry&&!day;
  const feedPosition=readerScroller()?.scrollTop||0;if(dialog.open)dialog.close();if(!replace)rememberPosition();
  const steps=history.state?.bagDayHomeSteps,returnCalendar=day?href({view:'calendar',day:patch.day,month:currentMonth(),entry:null,page:null,filters:null}):history.state?.returnCalendar;
- const state={noticeboard:true,noticeEntry:entry,noticeDay:day,...(returnCalendar?{returnCalendar}:{}),...(Number.isInteger(steps)&&steps>0?{bagDayHomeSteps:steps+(replace?0:1)}:{})};
+ const state={...history.state,noticeboard:true,noticeEntry:entry,noticeDay:day,noticeScroll:entry||day?feedPosition:0,...(returnCalendar?{returnCalendar}:{}),...(Number.isInteger(steps)&&steps>0?{bagDayHomeSteps:steps+(replace?0:1)}:{})};
  history[replace?'replaceState':'pushState'](state,'',href(patch));render();if(!scroll&&root.querySelector('#sections'))readerScroller().scrollTop=feedPosition;if(scroll&&!entry)readerScroller()?.scrollTo?.(0,0);
 }
 function openEntry(item){if(!item)return;trackNotice('notice_open',item);navigate({entry:item.entry_id,page:item.page_id},{entry:true,scroll:false})}
+// Shared links get the same Back hierarchy as details opened from the list.
+{
+ const p=params(),entry=p.get('entry'),page=p.get('page'),isDay=view()==='day';
+ if((entry||isDay)&&!history.state?.noticeEntry&&!history.state?.noticeDay){
+  const steps=history.state?.bagDayHomeSteps;
+  history.replaceState({...history.state,noticeboard:true,noticeEntry:false,noticeDay:false},'',href({entry:null,page:null,...(isDay?{view:'calendar'}:{})}));
+  if(isDay)history.pushState({...history.state,noticeDay:true,...(steps?{bagDayHomeSteps:steps+1}:{})},'',href({view:'day'}));
+  if(entry)history.pushState({...history.state,noticeEntry:true,...(steps?{bagDayHomeSteps:steps+(isDay?2:1)}:{})},'',href({entry,page}));
+ }
+}
 function closeEntry(){if(history.state?.noticeEntry)history.back();else navigate({entry:null,page:null},{replace:true,scroll:false})}
 function returnToCalendar(){if(history.state?.noticeDay)history.back();else navigate({view:'calendar',entry:null,page:null,filters:null},{replace:true})}
 function searchOptions(){const p=params();return {q:p.get('q')||'',locality,allLocalities:p.get('all')==='1',category:p.get('category')||'',audience:p.get('audience')==='all'?'':p.get('audience')||''}}
@@ -212,4 +241,4 @@ async function load(){
  await Promise.allSettled([filterTask,noticeTask]);
 }
 try{const saved=JSON.parse(localStorage.getItem('bagday-noticeboard-public-v1')||'null');if(Array.isArray(saved?.pages)){pages=saved.pages;loaded=true}}catch{}
-window.addEventListener('popstate',handlePopState);window.addEventListener('pageshow',render);document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();load()}});setInterval(()=>{if(!document.hidden){if(renderedDate!==today())render();if(filterWarning)load()}},60000);window.addEventListener('online',load);render();load();
+window.addEventListener('popstate',handlePopState);window.addEventListener('pageshow',()=>{render();restorePosition()});document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();load()}});setInterval(()=>{if(!document.hidden){if(renderedDate!==today())render();if(filterWarning)load()}},60000);window.addEventListener('online',load);render();load().then(()=>{if(!params().has('entry'))restorePosition()});

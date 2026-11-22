@@ -1,7 +1,7 @@
-import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.174';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.174';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.174';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.174';
+import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.175';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.175';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.175';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.175';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -11,6 +11,17 @@ let activeView=archived?'past':'open',detailId=null,detailSequence=0;
 let board=null,me=false,actionAfterLogin=null,googleTask=null,sequence=0,checkingSubmission=false;
 try{loc ||= localStorage.getItem('bag-day-locality-v1')||'Żejtun'}catch{loc ||= 'Żejtun'}
 
+const visitKey='bag-day-concerns-visit-v1';
+let restoreScroll=null;
+try{
+ const saved=JSON.parse(sessionStorage.getItem(visitKey)||'null');
+ if(saved&&!itemId&&!params.has('archive')&&(saved.loc===loc||(!params.has('locality')&&saved.home===localStorage.getItem('bag-day-locality-v1')))){
+  loc=saved.loc;activeView=saved.view==='past'?'past':'open';archived=activeView==='past';offset=saved.offset||0;justMyConcern=!!saved.mine;restoreScroll=saved.scroll||0;
+ }
+}catch{}
+function saveConcernVisit(){try{sessionStorage.setItem(visitKey,JSON.stringify({home:localStorage.getItem('bag-day-locality-v1'),loc,view:activeView,offset,mine:justMyConcern,scroll:window.scrollY}))}catch{}}
+window.addEventListener('pagehide',saveConcernVisit);
+window.addEventListener('bag-day-save-section',saveConcernVisit);
 function message(copy){
  const detail=$('#concernDetail');let node=detail?.open?detail.querySelector('[data-detail-message]'):null;if(detail?.open&&!node){node=document.createElement('p');node.dataset.detailMessage='';node.className='concern-notice';node.setAttribute('role','status');detail.append(node)}node ||= $('#concernMessage');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}
 }
@@ -229,6 +240,7 @@ async function load(){
   const id=itemId;itemId=null;
   const item=await request('/concerns/items/'+encodeURIComponent(id));
   loc=item.locality_id;archived=!!item.closed_at;activeView=archived?'past':'open';
+  history.replaceState(history.state,'',boardURL(loc,archived));
   await load();await openDetail(id,item);return;
  }
  updateTabs();
@@ -261,6 +273,7 @@ async function load(){
  $('#concernPrevious')?.addEventListener('click',event=>act(event.currentTarget,async()=>{offset=Math.max(0,offset-30);await load();window.scrollTo(0,0)}));
  $('#concernNext')?.addEventListener('click',event=>act(event.currentTarget,async()=>{offset+=30;await load();window.scrollTo(0,0)}));
  bind(data.items);
+ if(restoreScroll!==null){const top=restoreScroll;restoreScroll=null;requestAnimationFrame(()=>window.scrollTo(0,top))}
 }
 function bindDeletes(items,scope=main){
  scope.querySelectorAll('[data-delete-concern]').forEach(button=>button.onclick=()=>{
@@ -278,6 +291,7 @@ function confirmDelete(item){
   <div class="concern-actions"><button type="button" class="secondary" data-keep-concern>Keep concern</button>
   <button type="button" class="concern-delete" data-confirm-delete>Delete concern</button></div>`;
  let deleting=false;
+ dialog.bagDayCanClose=()=>!deleting;
  const keep=dialog.querySelector('[data-keep-concern]'),confirm=dialog.querySelector('[data-confirm-delete]');
  keep.onclick=()=>{if(!deleting)dialog.close()};
  const cancel=event=>{if(deleting)event.preventDefault()};
@@ -334,10 +348,12 @@ async function startConcern(){
   <button class="primary" type="button" data-done>Done</button></section>`;
  const select=s=>compose.querySelector(s),form=select('form'),review=select('[data-review]');
  const error=copy=>{const node=select('[data-form-message]');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}};
- const close=()=>{if(!submitting)compose.close()};
+ const dirty=()=>!!(form.elements.description.value.trim()||photo||form.elements.latitude.value||form.elements.longitude.value);
+ compose.bagDayCanClose=()=>!submitting&&(confirmed||!dirty()||window.confirm('Discard your unfinished concern? Your text, photo and map pin will be lost.'));
+ const close=()=>{if(compose.bagDayCanClose())compose.close()};
  select('[data-close]').onclick=close;
  select('[data-done]').onclick=()=>{close();load().catch(e=>message(e.message))};
- const cancel=event=>{if(submitting)event.preventDefault()};
+ const cancel=event=>{event.preventDefault();close()};
  compose.addEventListener('cancel',cancel);
  compose.addEventListener('close',()=>{
   compose.removeEventListener('cancel',cancel);

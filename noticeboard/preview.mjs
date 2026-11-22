@@ -1,5 +1,5 @@
-import {detailHTML} from './presentation.mjs?v=1.1.174';
-import {esc} from './shared.mjs?v=1.1.174';
+import {detailHTML} from './presentation.mjs?v=1.1.175';
+import {esc} from './shared.mjs?v=1.1.175';
 
 // Isolate the public notice from all editor and wizard styles.
 export function mountNoticePreview(frame,item,source,locality){
