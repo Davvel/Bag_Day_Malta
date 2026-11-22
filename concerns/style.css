@@ -133,3 +133,5 @@
 
 .public-concerns button.vote-toggle[aria-pressed=true]{background:#d9dfe3;color:#26333b;border:1px solid #abb4bb;opacity:1}
 .vote-toggle[aria-pressed=true] span{filter:grayscale(1)}
+
+.detail-facts dt.detail-votes-label{display:flex;align-items:center;gap:4px;white-space:nowrap}

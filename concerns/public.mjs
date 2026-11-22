@@ -1,7 +1,7 @@
-import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.176';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.176';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.176';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.176';
+import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.177';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.177';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.177';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.177';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -61,7 +61,7 @@ function detailFacts(item){
  const closed=Boolean(item.closed_at),left=daysLeft(item);
  const expiry=left<=0?'Today':left===1?'1 day':left+' days';
  return `<dl class="detail-facts">
- <div><dt>Votes so far <button type="button" class="concern-info-button" data-concern-help="votes" ${helpContext(item)} aria-label="About votes">i</button></dt><dd>${esc(String(item.upvotes??0))}</dd></div>
+ <div><dt class="detail-votes-label">Votes <button type="button" class="concern-info-button" data-concern-help="votes" ${helpContext(item)} aria-label="About votes">i</button></dt><dd>${esc(String(item.upvotes??0))}</dd></div>
  <div><dt>Submitted on</dt><dd>${esc(formatDay(item.submitted_at))}</dd></div>
  <div><dt>${closed?'Closed on':`Expires in <button type="button" class="concern-info-button" data-concern-help="expiry" ${helpContext(item)} aria-label="About expiry">i</button>`}</dt><dd class="${!closed&&left<=3?'concern-expiry-urgent':''}">${esc(closed?formatDay(item.closed_at):expiry)}</dd></div></dl>`;
 }
