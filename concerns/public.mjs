@@ -1,7 +1,7 @@
-import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.172';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.172';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.172';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.172';
+import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.174';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.174';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.174';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.174';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -50,20 +50,31 @@ function detailFacts(item){
  const closed=Boolean(item.closed_at),left=daysLeft(item);
  const expiry=left<=0?'Today':left===1?'1 day':left+' days';
  return `<dl class="detail-facts">
- <div><dt>Votes so far <button type="button" class="concern-info-button" data-concern-help="votes" aria-label="About votes">i</button></dt><dd>${esc(String(item.upvotes??0))}</dd></div>
+ <div><dt>Votes so far <button type="button" class="concern-info-button" data-concern-help="votes" ${helpContext(item)} aria-label="About votes">i</button></dt><dd>${esc(String(item.upvotes??0))}</dd></div>
  <div><dt>Submitted on</dt><dd>${esc(formatDay(item.submitted_at))}</dd></div>
- <div><dt>${closed?'Closed on':'Expires in <button type="button" class="concern-info-button" data-concern-help="expiry" aria-label="About expiry">i</button>'}</dt><dd class="${!closed&&left<=3?'concern-expiry-urgent':''}">${esc(closed?formatDay(item.closed_at):expiry)}</dd></div></dl>`;
+ <div><dt>${closed?'Closed on':`Expires in <button type="button" class="concern-info-button" data-concern-help="expiry" ${helpContext(item)} aria-label="About expiry">i</button>`}</dt><dd class="${!closed&&left<=3?'concern-expiry-urgent':''}">${esc(closed?formatDay(item.closed_at):expiry)}</dd></div></dl>`;
 }
+function concernLocality(item){return item.locality_name||board?.locality?.locality_name||'this locality'}
+function helpContext(item){return `data-help-own="${item.own?'1':'0'}" data-help-locality="${esc(concernLocality(item))}"`}
+function votingEligibility(locality){return `To vote, sign in and have ${locality} selected as your home locality in Settings. Simply opening this locality’s concerns does not change your home locality.`}
+function ownConcernCopy(locality){return `You cannot vote for your own concern. Share this concern with other people in ${locality} so they can upvote it. They must have ${locality} selected as their home locality to vote.`}
 const helpCopy={
- expiry:'You may vote every 24 hours to reset the expiry countdown to 30 days.',
- votes:'Shows how many votes this concern has received. You may vote once every 24 hours.',
+ expiry:'Each new vote resets the expiry countdown to 30 days. Eligible users can vote once every 24 hours.',
+ votes:'Shows how many votes this concern has received. Eligible users can vote once every 24 hours.',
  pin:'Choose a map pin to show the council exactly where the issue is.'
 };
+function helpParagraphs(key,item){
+ if(key==='pin')return [helpCopy.pin];
+ if(!helpCopy[key])return [];
+ const locality=concernLocality(item);
+ return [helpCopy[key],votingEligibility(locality),...(item.own?[ownConcernCopy(locality)]:[])];
+}
 document.addEventListener('click',event=>{
  const trigger=event.target.closest('[data-concern-help]');if(!trigger)return;
  const dialog=$('#concernHelp'),key=trigger.dataset.concernHelp;
  if(!helpCopy[key]||!dialog)return;
- dialog.innerHTML=`<div class="concern-toolbar"><h2 id="concernHelpTitle">${key==='expiry'?'Expiry countdown':key==='votes'?'Vote count':'Location pin'}</h2><button type="button" class="detail-x" data-close-help aria-label="Close">×</button></div><p>${esc(helpCopy[key])}</p>`;
+ const paragraphs=helpParagraphs(key,{own:trigger.dataset.helpOwn==='1',locality_name:trigger.dataset.helpLocality});
+ dialog.innerHTML=`<div class="concern-toolbar"><h2 id="concernHelpTitle">${key==='expiry'?'Expiry countdown':key==='votes'?'Vote count':'Location pin'}</h2><button type="button" class="detail-x" data-close-help aria-label="Close">×</button></div>${paragraphs.map(copy=>`<p>${esc(copy)}</p>`).join('')}`;
  dialog.querySelector('[data-close-help]').onclick=()=>dialog.close();dialog.showModal();
 });
 function formatDay(value){
@@ -78,16 +89,16 @@ function voteButton(item){
 function card(item,past=false){
  const count=Math.max(0,Number(item.upvotes)||0),remaining=daysLeft(item),wait=item.voted?voteAgainIn(item):'';
  const photo=item.photo_url?`<a class="concern-thumb-link" href="/concerns/?concern=${esc(item.concern_id)}" aria-label="Open concern details"><img src="${esc(item.photo_url)}" alt="" loading="lazy" decoding="async"></a>`:'';
- const action=past?'':item.own?'<span class="concern-own-badge">My concern</span>':voteButton(item);
+ const action=past?'':item.own?`<a class="concern-own-badge" href="/concerns/?concern=${esc(item.concern_id)}">My concern</a>`:voteButton(item);
  const expiryText=remaining<=0?'Expires today':`Expires in ${remaining} day${remaining===1?'':'s'}`;
- const expiry=past?`<p class="concern-closed-date">${"Closed on "+esc(formatDay(item.closed_at))}</p>`:`<p class="concern-expiry${remaining<=3?' concern-expiry-urgent':''}"><span>${esc(expiryText)}</span><button type="button" class="concern-info-button" data-concern-help="expiry" aria-label="About the expiry countdown">i</button></p>`;
- return `<article class="concern-card concern-list-card${photo?' has-photo':''}">${photo}<div class="concern-list-copy"><h3><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(previewText(item.description))}</a></h3>${expiry}</div><div class="concern-support"><span class="concern-vote-count"><strong>${count} ${count===1?'vote':'votes'}</strong><button type="button" class="concern-info-button" data-concern-help="votes" aria-label="About the vote count">i</button></span>${action}</div></article>`;
+ const expiry=past?`<p class="concern-closed-date">${"Closed on "+esc(formatDay(item.closed_at))}</p>`:`<p class="concern-expiry${remaining<=3?' concern-expiry-urgent':''}"><span>${esc(expiryText)}</span><button type="button" class="concern-info-button" data-concern-help="expiry" ${helpContext(item)} aria-label="About the expiry countdown">i</button></p>`;
+ return `<article class="concern-card concern-list-card${photo?' has-photo':''}">${photo}<div class="concern-list-copy"><h3><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(previewText(item.description))}</a></h3>${expiry}</div><div class="concern-support"><span class="concern-vote-count"><strong>${count} ${count===1?'vote':'votes'}</strong><button type="button" class="concern-info-button" data-concern-help="votes" ${helpContext(item)} aria-label="About the vote count">i</button></span>${action}</div></article>`;
 }
 function controls(item){
  const open=standing(item)&&!item.archived_at&&!item.closed_at;
  const wait=item.voted?voteAgainIn(item):'';
- return `<div class="detail-actions">${open&&!item.own?voteButton(item):''}
- <button type="button" class="secondary" data-share="${esc(item.concern_id)}">Share</button>
+ return `${item.own?`<p class="concern-caption concern-owner-message">${esc(ownConcernCopy(concernLocality(item)))}</p>`:open?`<p class="concern-caption">${esc(votingEligibility(concernLocality(item)))}</p>`:''}<div class="detail-actions">${open&&!item.own?voteButton(item):''}
+ <button type="button" class="secondary" data-share="${esc(item.concern_id)}">${item.own?'Share Concern':'Share'}</button>
  ${item.has_photo||item.own_photo?`<button type="button" class="secondary" data-photo="${esc(item.concern_id)}">Photo</button>`:''}
  ${item.own&&item.status!=='completed'?`<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}" aria-label="Delete my concern">Delete</button>`:''}</div>`;
 }
@@ -200,7 +211,7 @@ async function openDetail(id,provided){
  dialog.innerHTML=`<div class="concern-toolbar"><h2>Concern details</h2><button type="button" class="detail-x" data-close-detail aria-label="Close">×</button></div>
  <article><div class="detail-place"><strong>${esc(item.locality_name)}</strong>${pin?`<a class="detail-pin" href="${esc(pin)}" target="_blank" rel="noopener noreferrer" title="View in Google Maps (new tab)" aria-label="View location in Google Maps (new tab)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 10c0 4-6 10-6 10s-6-6-6-10a6 6 0 1 1 12 0Z"/><circle cx="12" cy="10" r="2"/></svg></a>`:''}</div>
  <p class="detail-description">${esc(item.description)}</p>${detailFacts(item)}
- ${!item.closed_at&&!item.archived_at&&daysLeft(item)<=3?'<p class="detail-warning">Share this concern so others can vote. Each vote gives it another 30 days.</p>':''}
+ ${!item.closed_at&&!item.archived_at&&daysLeft(item)<=3?`<p class="detail-warning">Share this concern with people in ${esc(concernLocality(item))} who have it selected as their home locality so they can vote. Each new vote resets the countdown to 30 days.</p>`:''}
  ${item.own_photo&&item.photo_pending?'<small>Photo awaiting council approval.</small>':''}
  ${controls(item)}<div class="concern-photo" hidden></div></article>${updates(item.updates||[])}`;
  const mapLink=dialog.querySelector('.detail-pin');
@@ -319,7 +330,7 @@ async function startConcern(){
   <button type="submit" class="primary">Review concern</button></form>
   <section data-review hidden><h3>Check your concern</h3><div data-review-body></div>
   <div class="concern-actions"><button type="button" class="secondary" data-back>Back to edit</button><button type="button" class="primary" data-confirm>Confirm and submit</button></div></section>
-  <section data-received hidden><h3>Concern submitted</h3><p>Your concern is now visible to the community. Upvotes help the council see how much support it has.</p><p data-photo-pending hidden>Your photo is visible only to you until the council approves it.</p><p data-photo-failed hidden>Your concern was submitted, but the photo could not be uploaded.</p>
+  <section data-received hidden><h3>Concern submitted</h3><p>Your concern is now visible to the community. Share it with other people in ${esc(board.locality.locality_name)} so they can upvote it. They must have ${esc(board.locality.locality_name)} selected as their home locality to vote.</p><p data-photo-pending hidden>Your photo is visible only to you until the council approves it.</p><p data-photo-failed hidden>Your concern was submitted, but the photo could not be uploaded.</p>
   <button class="primary" type="button" data-done>Done</button></section>`;
  const select=s=>compose.querySelector(s),form=select('form'),review=select('[data-review]');
  const error=copy=>{const node=select('[data-form-message]');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}};
