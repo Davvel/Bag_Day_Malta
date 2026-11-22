@@ -1,7 +1,7 @@
-import {age,boardURL,date,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support} from './shared.mjs?v=1.1.166';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.166';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.166';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.166';
+import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.167';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.167';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.167';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.167';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -46,13 +46,14 @@ async function openGoogle(){
 signin.querySelector('[data-dismiss]').onclick=()=>signin.close();
 signin.addEventListener('close',()=>{actionAfterLogin=null});
 
-const meta=item=>`<div class="concern-meta"><span class="concern-status" data-status="${esc(item.status)}">${esc(labels[item.status])}</span><span>${esc(age(item))}</span><span>${support(item)}</span></div>`;
+const meta=item=>`<div class="concern-meta"><span class="concern-status" data-status="${esc(item.status)}">${esc(item.archived_at?'Archived':labels[item.status])}</span><span>${esc(age(item))}</span><span>${support(item)}</span>${standing(item)&&!item.archived_at?`<strong>${daysLeft(item)} days left before archive</strong>`:''}</div>`;
 function controls(item){
- const open=standing(item);
- return `<div class="concern-actions">${open&&!item.own?`<button type="button" class="secondary" data-upvote="${esc(item.concern_id)}" ${item.voted?'disabled':''}>${item.voted?'Upvoted':'Upvote'}</button>`:''}
+ const open=standing(item)&&!item.archived_at&&!item.closed_at;
+ const wait=item.voted?voteAgainIn(item):'';
+ return `<div class="concern-actions">${open&&!item.own?`<button type="button" class="secondary" data-upvote="${esc(item.concern_id)}" ${item.voted?'disabled':''}>${item.voted?'Upvoted · again in '+esc(wait):'Upvote'}</button>`:''}
  <button type="button" class="secondary" data-share="${esc(item.concern_id)}">Share concern</button>
  ${item.has_photo||item.own_photo?`<button type="button" class="secondary" data-photo="${esc(item.concern_id)}">${item.own_photo?(item.photo_pending?'View my photo · awaiting approval':'View my photo · hidden'):'View photo'}</button>`:''}
- ${item.own?`<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}">Delete my concern</button>`:''}</div>`;
+ ${item.own&&item.status!=='completed'?`<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}">Delete my concern</button>`:''}</div>`;
 }
 function card(item){
  return `<article class="concern-card"><h2><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(previewText(item.description))}</a></h2>
@@ -194,8 +195,8 @@ async function load(){
 
  main.innerHTML=`<div class="concern-toolbar"><h2>${data.archive?'Past concerns':'Open concerns'}</h2>
   ${state==='active'&&!data.archive?`<button type="button" class="primary" id="newConcern" ${data.open_concern?'disabled aria-describedby="concernSubmissionReason"':''}>Voice a concern</button>`:''}</div>
-  ${!data.archive&&activeView==='open'?'<p class="concern-caption">Upvotes help the council see which issues matter to residents. A concern with no upvote for 30 days is archived; each upvote starts that 30-day period again.</p>':''}
-  ${data.archive?'<p class="concern-caption">Archived concerns keep their text for one year. Any attached photo is deleted when the concern is archived.</p>':''}
+  ${!data.archive&&activeView==='open'?'<p class="concern-caption">Each upvote helps the concern stay visible to the council. You can upvote once every 24 hours. After 30 days without an upvote, a concern is archived. The council can revive it for 10 days; after day 40 it is permanently deleted.</p>':''}
+  ${data.archive?'<p class="concern-caption">Only the council can revive an archived concern during its 10-day grace period. After 40 days without an upvote, the concern and all related data are permanently deleted.</p>':''}
   ${data.open_concern&&!data.archive?submissionNotice(data.open_concern):''}
   ${state==='paused'&&!data.archive?'<p>New submissions are temporarily paused. You can still upvote and follow updates.</p>':''}
   ${publicList||`<p>${data.archive?'No past concerns yet.':'No open concerns yet.'}</p>`}
@@ -217,7 +218,7 @@ async function mine(){
   ${items.map(item=>`<article class="concern-card"><h3>${esc(previewText(item.description))}</h3><p>${esc(item.locality_name)}</p>${meta(item)}
   ${item.moderation_note?`<p>${esc(item.moderation_note)}</p>`:''}
   <div class="concern-actions">${!['pending','declined'].includes(item.status)?`<a class="secondary" href="/concerns/?concern=${esc(item.concern_id)}">View updates</a>`:''}
-  <button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}">Delete my concern</button></div></article>`).join('')||'<p>You haven’t submitted any concerns.</p>'}`;
+  ${item.status==='completed'?'<span class="concern-caption">This completed concern is retained for council records.</span>':`<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}">Delete my concern</button>`}</div></article>`).join('')||'<p>You haven’t submitted any concerns.</p>'}`;
  bind(items);
 }
 
@@ -238,8 +239,8 @@ function confirmDelete(item){
  const dialog=$('#concernDelete');
  if(dialog.open)return;
  dialog.innerHTML=`<h2 id="concernDeleteTitle">Delete your concern?</h2>
-  <p>${esc(item.description)}</p><p><strong>This cannot be undone.</strong> The concern, its upvotes and council updates will be removed from Bag Day. Any attached photo will be removed from storage in the background.</p>
-  <p>You can submit a new concern when you have no open concern and the locality is accepting submissions.</p>
+  <p><strong>Are you sure?</strong> The concern’s text, photo and all upvotes will be permanently deleted. This cannot be undone. No email will be sent.</p>
+  <p>You can then start again and submit a new concern if the locality is accepting submissions.</p>
   <p class="concern-notice concern-error" data-delete-error role="alert" tabindex="-1" hidden></p>
   <div class="concern-actions"><button type="button" class="secondary" data-keep-concern>Keep concern</button>
   <button type="button" class="concern-delete" data-confirm-delete>Delete concern</button></div>`;

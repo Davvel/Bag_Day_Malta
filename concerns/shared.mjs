@@ -1,4 +1,4 @@
-import {API,esc} from '../noticeboard/shared.mjs?v=1.1.166';
+import {API,esc} from '../noticeboard/shared.mjs?v=1.1.167';
 export {esc};
 export const labels={pending:'Open',collecting:'Open',ready:'Open',in_progress:'Under review by council',completed:'Closed — Completed',cannot_complete:'Closed — Cannot complete',declined:'Blocked'};
 export const channelCopy={
@@ -7,6 +7,7 @@ export const channelCopy={
  paused:'New submissions are temporarily paused. Residents can still vote and follow updates.'
 };
 const day=86400000;
+export const inactivityDays=30;
 export const standing=item=>['collecting','ready','in_progress'].includes(item.status);
 export const date=value=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Malta',dateStyle:'medium'}).format(new Date(value));
 export function age(item,time=Date.now()){
@@ -14,7 +15,25 @@ export function age(item,time=Date.now()){
  const days=Math.max(0,Math.floor((time-Date.parse(item.submitted_at))/day));
  return !days?'Submitted today':`Submitted ${days} day${days===1?'':'s'} ago`;
 }
-export function support(item){return `<strong>${item.upvotes} supporter${item.upvotes===1?'':'s'}</strong>`}
+export function daysSinceLastUpvote(item,time=Date.now()){
+ if(item.status==='completed')return 'Individual upvote times deleted on completion';
+ const last=item.last_upvoted_at;
+ const start=Date.parse(last||item.submitted_at);
+ const days=Math.max(0,Math.floor((time-start)/day));
+ return last?`${days} day${days===1?'':'s'} since last upvote`:`No upvotes yet · ${days} day${days===1?'':'s'} since submission`;
+}
+export function daysLeft(item,time=Date.now()){
+ const start=Date.parse(item.inactivity_started_at||item.last_upvoted_at||item.submitted_at);
+ return Math.max(0,Math.ceil(inactivityDays-(time-start)/day));
+}
+export function voteAgainIn(item,time=Date.now()){
+ if(!item.my_vote_at)return '';
+ const ms=day-(time-Date.parse(item.my_vote_at));
+ if(ms<=0)return '';
+ const hours=Math.ceil(ms/3600000);
+ return hours<24?`${hours} hour${hours===1?'':'s'}`:`1 day`;
+}
+export function support(item){return `<strong>${item.upvotes} upvote${item.upvotes===1?'':'s'}</strong>`}
 export const previewText=text=>text.length>95?text.slice(0,92).trimEnd()+'…':text;
 export const boardURL=(locality,archive=false)=>'/concerns/?'+new URLSearchParams({locality,...(archive?{archive:'1'}:{})});
 export const itemURL=id=>new URL('/concerns/?'+new URLSearchParams({concern:id}),location.origin).href;
