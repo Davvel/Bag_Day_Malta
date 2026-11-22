@@ -1,7 +1,7 @@
-import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.171';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.171';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.171';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.171';
+import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.172';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.172';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.172';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.172';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -71,10 +71,14 @@ function formatDay(value){
  const part=type=>parts.find(item=>item.type===type)?.value||'';
  return `${part('day')}-${part('month')}-${part('year')}`;
 }
+function voteButton(item){
+ const selected=Boolean(item.voted);
+ return `<button type="button" class="concern-vote-button vote-toggle" aria-pressed="${selected}" data-upvote="${esc(item.concern_id)}" data-vote-time="${selected?esc(item.my_vote_at):''}"><span aria-hidden="true">${selected?'✓':'👍'}</span> ${selected?'Undo vote':'Vote'}</button>`;
+}
 function card(item,past=false){
  const count=Math.max(0,Number(item.upvotes)||0),remaining=daysLeft(item),wait=item.voted?voteAgainIn(item):'';
  const photo=item.photo_url?`<a class="concern-thumb-link" href="/concerns/?concern=${esc(item.concern_id)}" aria-label="Open concern details"><img src="${esc(item.photo_url)}" alt="" loading="lazy" decoding="async"></a>`:'';
- const action=past?'':item.own?'<span class="concern-own-badge">My concern</span>':`<button type="button" class="concern-vote-button" data-upvote="${esc(item.concern_id)}" aria-label="${item.voted?'Already voted. You can vote again in '+esc(wait):'Vote for this concern'}" ${item.voted?'disabled':''}><span aria-hidden="true">👍</span> ${item.voted?'Voted':'Vote'}</button>`;
+ const action=past?'':item.own?'<span class="concern-own-badge">My concern</span>':voteButton(item);
  const expiryText=remaining<=0?'Expires today':`Expires in ${remaining} day${remaining===1?'':'s'}`;
  const expiry=past?`<p class="concern-closed-date">${"Closed on "+esc(formatDay(item.closed_at))}</p>`:`<p class="concern-expiry${remaining<=3?' concern-expiry-urgent':''}"><span>${esc(expiryText)}</span><button type="button" class="concern-info-button" data-concern-help="expiry" aria-label="About the expiry countdown">i</button></p>`;
  return `<article class="concern-card concern-list-card${photo?' has-photo':''}">${photo}<div class="concern-list-copy"><h3><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(previewText(item.description))}</a></h3>${expiry}</div><div class="concern-support"><span class="concern-vote-count"><strong>${count} ${count===1?'vote':'votes'}</strong><button type="button" class="concern-info-button" data-concern-help="votes" aria-label="About the vote count">i</button></span>${action}</div></article>`;
@@ -82,7 +86,7 @@ function card(item,past=false){
 function controls(item){
  const open=standing(item)&&!item.archived_at&&!item.closed_at;
  const wait=item.voted?voteAgainIn(item):'';
- return `<div class="detail-actions">${open&&!item.own?`<button type="button" class="secondary" data-upvote="${esc(item.concern_id)}" ${item.voted?'disabled':''}>${item.voted?'Voted':'Vote'}</button>`:''}
+ return `<div class="detail-actions">${open&&!item.own?voteButton(item):''}
  <button type="button" class="secondary" data-share="${esc(item.concern_id)}">Share</button>
  ${item.has_photo||item.own_photo?`<button type="button" class="secondary" data-photo="${esc(item.concern_id)}">Photo</button>`:''}
  ${item.own&&item.status!=='completed'?`<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}" aria-label="Delete my concern">Delete</button>`:''}</div>`;
@@ -93,9 +97,13 @@ function bind(items=[],scope=main){
  scope.querySelectorAll('a[href*="?concern="]').forEach(link=>link.onclick=event=>{event.preventDefault();const id=new URL(link.href,location.origin).searchParams.get('concern');act(link,()=>openDetail(id))});
  scope.querySelectorAll('[data-upvote]').forEach(button=>button.onclick=()=>act(button,async()=>{
   const vote=async()=>{
-   const result=await request('/concerns/items/'+button.dataset.upvote+'/vote',{method:'POST',body:{}});
-   message('Your upvote has been recorded. More support helps bring this concern to the council’s attention.');
+   const previous=button.dataset.voteTime;
+   const result=await request('/concerns/items/'+button.dataset.upvote+'/vote',previous?
+    {method:'DELETE',body:{voted_at:previous}}:{method:'POST',body:{}});
    await load();if(detailId&&$('#concernDetail')?.open)await openDetail(detailId);
+   const feedback=previous?(result.removed?'Vote removed.':'Vote status refreshed.'):'Vote added.';
+   document.querySelector('#voteFeedback').textContent=feedback;
+
   };
   if(me)await vote();else signIn(vote);
  }));
@@ -220,7 +228,6 @@ async function load(){
  $('#concernLocality').textContent=data.locality.locality_name+' · Your community, your voice';
  showConcernSponsors(data.locality.locality_name);
  const state=data.locality.state;
- $('#concernExpiryNote').hidden=Boolean(data.archive);
  const publicList=data.items.map(item=>card(item,Boolean(data.archive))).join('');
  const hasItems=data.items.length>0;
  const showFilter=!data.archive||hasItems||justMyConcern||offset>0;
@@ -230,7 +237,7 @@ async function load(){
   ${showAction?`<button type="button" class="primary" id="newConcern">${ownerId?'View my concern':'Voice a concern'}</button>`:''}</div>
   ${showFilter?`<label class="concern-mine-filter"><input type="checkbox" id="concernMineFilter" ${justMyConcern?'checked':''}> <span>Show just my concern</span></label>`:''}
   ${state==='paused'&&!data.archive?'<p class="concern-caption">New submissions are temporarily paused. You can still vote and follow updates.</p>':''}
-  ${publicList||`<p>${justMyConcern?'You have no concerns in this list.':data.archive?'No concerns were successfully closed in the last 30 days.':'No concerns in progress yet.'}</p>`}
+  ${publicList||`<p>${justMyConcern?'You have no concerns in this list.':data.archive?'No Concerns closed in last 30 days.':'No concerns in progress yet.'}</p>`}
   <div class="concern-actions">${offset?'<button type="button" id="concernPrevious">Previous</button>':''}${data.more?'<button type="button" id="concernNext">More concerns</button>':''}</div>
   ${data.archive&&hasItems?'<p class="concern-past-note">Only successfully closed concerns show here.</p>':''}`;
  $('#newConcern')?.addEventListener('click',event=>act(event.currentTarget,()=>ownerId?openDetail(ownerId):me?startConcern():signIn(async()=>{await load();await startConcern()})));
