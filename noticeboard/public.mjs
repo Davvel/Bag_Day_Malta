@@ -1,13 +1,13 @@
-import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.175';
-import {mapURL} from './locations.mjs?v=1.1.175';
-import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.175';
-import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.175';
-import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.175';
-import {noticeLink} from './links.mjs?v=1.1.175';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.175';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.175';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.175';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.175';
+import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.176';
+import {mapURL} from './locations.mjs?v=1.1.176';
+import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.176';
+import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.176';
+import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.176';
+import {noticeLink} from './links.mjs?v=1.1.176';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.176';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.176';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.176';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.176';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
 let pages=[],loaded=false,error='',filterWarning='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,renderEpoch=0,searchTimer=null;
 const params=()=>new URLSearchParams(location.search);
@@ -48,23 +48,41 @@ function href(patch){const u=new URL(location.href);for(const [k,v] of Object.en
 const readerScroller=()=>document.scrollingElement||root.querySelector('#sections');
 function rememberPosition(){history.replaceState({...history.state,noticeScroll:readerScroller()?.scrollTop||0,noticeLimit:searchLimit,noticeDayLimit:dayLimit},'',location.href)}
 function restorePosition(){searchLimit=history.state?.noticeLimit||NOTICE_SEARCH_PAGE_SIZE;dayLimit=history.state?.noticeDayLimit||NOTICE_SEARCH_PAGE_SIZE;renderBoards();requestAnimationFrame(()=>readerScroller()?.scrollTo?.(0,history.state?.noticeScroll||0))}
-function navigate(patch,{replace,entry=false,scroll=true,day=false}={}){
- replace ??= !entry&&!day;
+function navigate(patch,{replace,entry=false,scroll=true,day=false,calendar=false}={}){
+ // Only opening a deeper view creates a history entry. Browsing stays in place.
+ replace ??= !entry&&!day&&!calendar;
  const feedPosition=readerScroller()?.scrollTop||0;if(dialog.open)dialog.close();if(!replace)rememberPosition();
  const steps=history.state?.bagDayHomeSteps,returnCalendar=day?href({view:'calendar',day:patch.day,month:currentMonth(),entry:null,page:null,filters:null}):history.state?.returnCalendar;
- const state={...history.state,noticeboard:true,noticeEntry:entry,noticeDay:day,noticeScroll:entry||day?feedPosition:0,...(returnCalendar?{returnCalendar}:{}),...(Number.isInteger(steps)&&steps>0?{bagDayHomeSteps:steps+(replace?0:1)}:{})};
+ const state={...history.state,noticeboard:true,noticeEntry:entry,noticeDay:day||(replace&&!patch.view&&!!history.state?.noticeDay),noticeCalendar:calendar||(patch.view!=='list'&&!!history.state?.noticeCalendar),noticeScroll:entry||day?feedPosition:0,...(returnCalendar?{returnCalendar}:{}),...(Number.isInteger(steps)&&steps>0?{bagDayHomeSteps:steps+(replace?0:1)}:{})};
  history[replace?'replaceState':'pushState'](state,'',href(patch));render();if(!scroll&&root.querySelector('#sections'))readerScroller().scrollTop=feedPosition;if(scroll&&!entry)readerScroller()?.scrollTo?.(0,0);
 }
 function openEntry(item){if(!item)return;trackNotice('notice_open',item);navigate({entry:item.entry_id,page:item.page_id},{entry:true,scroll:false})}
-// Shared links get the same Back hierarchy as details opened from the list.
+// Direct/restored Calendar visits also get a List parent. Deeper shared links
+// retain their calendar/day/notice hierarchy without seeding it again on reload.
 {
- const p=params(),entry=p.get('entry'),page=p.get('page'),isDay=view()==='day';
- if((entry||isDay)&&!history.state?.noticeEntry&&!history.state?.noticeDay){
+ const p=params(),entry=p.get('entry'),page=p.get('page'),mode=view(),isDay=mode==='day';
+ if(!history.state?.noticeEntry&&!history.state?.noticeDay){
+  if(mode!=='list'&&!history.state?.noticeCalendar){
+   const month=currentMonth(),selectedDay=p.get('day');
+   history.replaceState({...history.state,noticeboard:true,noticeEntry:false,noticeDay:false,noticeCalendar:false},'',href({view:'list',day:null,entry:null,page:null}));
+   const steps=history.state?.bagDayHomeSteps;
+   history.pushState({...history.state,noticeCalendar:true,...(steps?{bagDayHomeSteps:steps+1}:{})},'',href({view:'calendar',month,day:selectedDay}));
+  }
   const steps=history.state?.bagDayHomeSteps;
-  history.replaceState({...history.state,noticeboard:true,noticeEntry:false,noticeDay:false},'',href({entry:null,page:null,...(isDay?{view:'calendar'}:{})}));
   if(isDay)history.pushState({...history.state,noticeDay:true,...(steps?{bagDayHomeSteps:steps+1}:{})},'',href({view:'day'}));
-  if(entry)history.pushState({...history.state,noticeEntry:true,...(steps?{bagDayHomeSteps:steps+(isDay?2:1)}:{})},'',href({entry,page}));
+  if(entry){
+   if(!isDay)history.replaceState({...history.state,noticeEntry:false},'',href({entry:null,page:null}));
+   history.pushState({...history.state,noticeEntry:true,...(steps?{bagDayHomeSteps:steps+(isDay?2:1)}:{})},'',href({entry,page}));
+  }
  }
+}
+function switchNoticeView(target){
+ if(target===view())return;
+ if(target==='list'&&history.state?.noticeCalendar){history.back();return}
+ if(target==='calendar'){
+  navigate({view:'calendar',month:today().slice(0,7),day:null,tab:null,entry:null,page:null},{calendar:true});return;
+ }
+ navigate({view:target,tab:null,entry:null,page:null},{replace:true});
 }
 function closeEntry(){if(history.state?.noticeEntry)history.back();else navigate({entry:null,page:null},{replace:true,scroll:false})}
 function returnToCalendar(){if(history.state?.noticeDay)history.back();else navigate({view:'calendar',entry:null,page:null,filters:null},{replace:true})}
@@ -76,7 +94,7 @@ function compactToolbar(names){const mode=view(),o=searchOptions();return `<div 
 function viewTitleBar(){const calendar=view()!=='list';return `<header class="notice-view-titlebar"><h2>${icon(calendar?'calendar':'list')}<span>${calendar?'Calendar View':'List View'}</span></h2><button type="button" class="view-mode-button" data-view="${calendar?'list':'calendar'}" aria-label="Switch to ${calendar?'list':'calendar'} view">${icon(calendar?'list':'calendar')}<span>${calendar?'List View':'Calendar View'}</span></button></header>`}
 function sourcePanel(){const combined=view()!=='list';return `<div class="source-panel section ${combined?'combined-calendar':'council'}" id="sourcePanel">${viewTitleBar()}${combined?'':`<div class="source-tabs" role="tablist" aria-label="Noticeboard source">${sourceOrder.map(k=>`<button type="button" role="tab" class="source-tab ${k}" id="source-${k}" data-source-tab="${k}" aria-selected="false" aria-controls="sections">${icon(sections[k].icon)}<span class="source-label">${esc(sections[k].name)}</span><span class="source-count" id="count-${k}" aria-hidden="true">0</span></button>`).join('')}</div>`}<div id="sections" role="${combined?'region':'tabpanel'}" ${combined?'aria-label="Combined community notices"':'aria-labelledby="source-council"'}></div></div>`}
 function chooseSource(groups,mode=view(),month=currentMonth(),requested=params().get('tab')){return noticeboardTab(groups.flatMap(g=>g.items),{view:mode,month,day:params().get('day')||'',requested})}
-function showAllNotices(){clearTimeout(searchTimer);searchTimer=null;navigate({locality:savedLocality()||homeLocality,all:null,view:view()==='day'?'calendar':view(),q:null,category:null,audience:null,section:null,sources:null,tab:retainedTab(),help:null,filters:null,entry:null,page:null},{replace:view()==='day'})}
+function showAllNotices(){clearTimeout(searchTimer);searchTimer=null;navigate({locality:savedLocality()||homeLocality,all:null,view:view()==='day'?'calendar':view(),q:null,category:null,audience:null,section:null,sources:null,tab:retainedTab(),help:null,filters:null,entry:null,page:null},{replace:true})}
 function updateTextSearch(value){
  const q=value.trim();clearTimeout(searchTimer);searchTimer=null;
  history.replaceState({...history.state,noticeLimit:NOTICE_SEARCH_PAGE_SIZE,noticeDayLimit:NOTICE_SEARCH_PAGE_SIZE},'',href({q:q||null,tab:retainedTab(),section:null,sources:null,entry:null,page:null}));
@@ -174,15 +192,15 @@ function render(){
  renderBoards();if(p.get('entry')||history.state?.noticeEntry)readerScroller().scrollTop=feedScroll;
  root.querySelector('#locality').onchange=e=>navigate({tab:retainedTab(),locality:e.target.value||locality,all:e.target.value?null:'1',entry:null,page:null});
  root.querySelector('#localityScope').onchange=e=>navigate({tab:retainedTab(),all:e.target.checked?'1':null,locality,entry:null,page:null});
- const applyInline=patch=>navigate({...patch,tab:retainedTab(),section:null,sources:null,entry:null,page:null},{replace:view()==='day'});
+ const applyInline=patch=>navigate({...patch,tab:retainedTab(),section:null,sources:null,entry:null,page:null},{replace:true});
  root.querySelector('#noticeSearch').onsubmit=e=>{e.preventDefault();updateTextSearch(e.target.elements.q.value)};
  root.querySelector('#noticeQuery').addEventListener('input',e=>queueTextSearch(e.target.value,e.isComposing));
  root.querySelector('#noticeQuery').addEventListener('compositionend',e=>queueTextSearch(e.target.value));
  root.querySelector('#noticeShowAll').onclick=showAllNotices;
- root.querySelectorAll('[data-source-tab]').forEach(b=>{b.onclick=()=>{navigate({tab:b.dataset.sourceTab,section:null,sources:null,entry:null,page:null},{replace:view()==='day'});root.querySelector('#source-'+b.dataset.sourceTab)?.focus({preventScroll:true})};b.addEventListener('keydown',e=>{const index=sourceOrder.indexOf(b.dataset.sourceTab);let next;if(e.key==='ArrowRight')next=(index+1)%3;else if(e.key==='ArrowLeft')next=(index+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();root.querySelector('#source-'+sourceOrder[next]).onclick()})});
+ root.querySelectorAll('[data-source-tab]').forEach(b=>{b.onclick=()=>{navigate({tab:b.dataset.sourceTab,section:null,sources:null,entry:null,page:null},{replace:true});root.querySelector('#source-'+b.dataset.sourceTab)?.focus({preventScroll:true})};b.addEventListener('keydown',e=>{const index=sourceOrder.indexOf(b.dataset.sourceTab);let next;if(e.key==='ArrowRight')next=(index+1)%3;else if(e.key==='ArrowLeft')next=(index+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();root.querySelector('#source-'+sourceOrder[next]).onclick()})});
  root.querySelector('#noticeCategory').onchange=e=>applyInline({category:e.target.value});
  root.querySelector('#noticeAudience').onchange=e=>applyInline({audience:e.target.value});
- root.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{if(b.dataset.view==='calendar'){navigate({view:'calendar',month:today().slice(0,7),day:null,tab:null,entry:null,page:null});return}if(b.dataset.view===view())return;navigate({view:b.dataset.view,tab:null,entry:null,page:null})});
+ root.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>switchNoticeView(b.dataset.view));
  if(editing){const field=root.querySelector('#noticeQuery');field.value=draft;field.focus({preventScroll:true});try{field.setSelectionRange(caret,caret)}catch{}queueTextSearch(draft)}
  root.querySelector('#retry')?.addEventListener('click',load);root.querySelector('#retryFilters')?.addEventListener('click',load);
  const entry=p.get('entry');if(entry){const page=pages.find(r=>p.get('page')?r.page_id===p.get('page'):r.section===section()&&localityKey(r.locality_name)===localityKey(locality)),item=visibleItems(page?.csv,today()).find(i=>i.entry_id===entry);if(item){if(dialog.open)dialog.close();showDetails({...item,locality:page.locality_name,section:page.section,page_id:page.page_id})}else if(loaded){if(dialog.open)dialog.close();const el=document.createElement('p');el.className='status';el.textContent='This notice has expired or is no longer published.';root.prepend(el)}}else if(dialog.open)dialog.close();
