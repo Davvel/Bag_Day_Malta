@@ -39,7 +39,7 @@
  const available=['calendar',...(!play?.hidden?['game']:[]),...(reuse?['reuse']:[])];
  const choice=window.BAG_DAY_HELP?.nextTip(window.BAG_DAY_HELP.tipState(),now,available);
  if(choice&&now>=inviteAttempt&&!bubble){
-  const text={game:'Play The 1 Minute Sorting Game',calendar:'Use the Calendar to see the month',reuse:'Click REUSE to find free items available near you.'};
+  const text={game:'Play 1-Minute Sorting Game',calendar:'Use the Calendar to see the month',reuse:'Click REUSE to find free items available near you.'};
   clear();nextAt=now+20000;
   bubble=document.createElement('aside');bubble.className='feature-tip';bubble.setAttribute('aria-label','Bag Day tip');
   const action=document.createElement('button');action.type='button';action.className='feature-tip-action';

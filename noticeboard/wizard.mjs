@@ -1,10 +1,10 @@
-import {esc,icon,sections} from './shared.mjs?v=1.1.177';
-import {eventDateMaximum} from './notice-dates.mjs?v=1.1.177';
-import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.177';
-import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.177';
-import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.177';
-import {normaliseNoticeURL} from './links.mjs?v=1.1.177';
-import {mountNoticePreview} from './preview.mjs?v=1.1.177';
+import {esc,icon,sections} from './shared.mjs?v=1.1.179';
+import {eventDateMaximum} from './notice-dates.mjs?v=1.1.179';
+import {locationFields,bindLocationFields,readLocationFields} from './map-picker.mjs?v=1.1.179';
+import {symbolPickerHTML,bindSymbolPicker} from './symbol-picker.mjs?v=1.1.179';
+import {multiSelectionHTML,bindMultiSelections,readMultiSelections} from './options.mjs?v=1.1.179';
+import {normaliseNoticeURL} from './links.mjs?v=1.1.179';
+import {mountNoticePreview} from './preview.mjs?v=1.1.179';
 export const typeNames={info:'Information or advice',event:'Event or activity',disruption:'Disruption or temporary change'};
 export function validateWizardData(data,today,maximumInfo,maximumEvent){
  if(!data.title.trim()||!data.description.trim())throw Error('Please enter a title and message.');
@@ -87,7 +87,7 @@ export function openNoticeWizard({dialog,state,item,record,review=false,token,re
   }else if(step===4){
    fields.innerHTML=symbolPickerHTML(data.icon_emoji);bindSymbolPicker(form);
   }else{
-   fields.innerHTML='<p class="review-instruction">Check your notice, then mark it for publication below.</p><p class="hint review-caption">Preview only — links and × are inactive.</p><iframe class="public-notice-preview" title="Notice as displayed in Bag Day" sandbox="allow-same-origin"></iframe>';
+   fields.innerHTML='<p class="review-instruction">Check your notice, then mark it for publication below.</p><p class="hint review-caption">Preview only — external links are inactive. Close the preview to return here.</p><iframe class="public-notice-preview" title="Notice as displayed in Bag Day" sandbox="allow-same-origin"></iframe>';
    mountNoticePreview(fields.querySelector('iframe'),{...data,section:page.section,locality:page.locality_name},section,page.locality_name);
   }
   bindMultiSelections(form);for(const panel of fields.querySelectorAll('.notice-multiselect details')){panel.open=true;panel.querySelector('summary').hidden=true}
