@@ -1,8 +1,8 @@
-import {boardURL,date,daysLeft,esc,labels,request,revealPhoto,shareConcern,standing,voteAgainIn} from './shared.mjs?v=1.1.181';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.181';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.181';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.181';
-import {icon} from '../noticeboard/shared.mjs?v=1.1.181';
+import {boardURL,date,daysLeft,esc,labels,request,revealPhoto,shareConcern,standing,voteAgainIn} from './shared.mjs?v=1.1.182';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.182';
+import {locationKey,mapURL} from '../noticeboard/locations.mjs?v=1.1.182';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.182';
+import {icon} from '../noticeboard/shared.mjs?v=1.1.182';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -26,8 +26,10 @@ window.addEventListener('bag-day-save-section',saveConcernVisit);
 function message(copy){
  const detail=$('#concernDetail');let node=detail?.open?detail.querySelector('[data-detail-message]'):null;if(detail?.open&&!node){node=document.createElement('p');node.dataset.detailMessage='';node.className='concern-notice';node.setAttribute('role','status');detail.append(node)}node ||= $('#concernMessage');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}
 }
-function signIn(next){
+function signIn(next,reason=''){
  actionAfterLogin=next;
+ const hint=$('#concernSignInReason');
+ hint.textContent=reason;hint.hidden=!reason;
  $('#concernSignInError').textContent='';
  $('#concernGoogle').replaceChildren();
  if(!signin.open)signin.showModal();
@@ -62,7 +64,6 @@ function detailFacts(item){
  const closed=Boolean(item.closed_at),left=daysLeft(item);
  const expiry=left<=0?'Today':left===1?'1 day':left+' days';
  return `<dl class="detail-facts">
- <div><dt class="detail-votes-label">Votes <button type="button" class="concern-info-button" data-concern-help="votes" ${helpContext(item)} aria-label="About votes">i</button></dt><dd>${esc(String(item.upvotes??0))}</dd></div>
  <div><dt>Submitted on</dt><dd>${esc(formatDay(item.submitted_at))}</dd></div>
  <div><dt>${closed?'Closed on':`Expires in <button type="button" class="concern-info-button" data-concern-help="expiry" ${helpContext(item)} aria-label="About expiry">i</button>`}</dt><dd class="${!closed&&left<=3?'concern-expiry-urgent':''}">${esc(closed?formatDay(item.closed_at):expiry)}</dd></div></dl>`;
 }
@@ -72,7 +73,6 @@ function votingEligibility(locality){return `To vote, sign in and have ${localit
 function ownConcernCopy(locality){return `You cannot vote for your own report. Share this report with other people in ${locality} so they can upvote it. They must have ${locality} selected as their home locality to vote.`}
 const helpCopy={
  expiry:'Each new vote resets the expiry countdown to 30 days. Eligible users can vote once every 24 hours.',
- votes:'Shows how many votes this report has received. Eligible users can vote once every 24 hours.',
  pin:'Choose a map pin to show the council exactly where the issue is.'
 };
 function helpParagraphs(key,item){
@@ -86,7 +86,7 @@ document.addEventListener('click',event=>{
  const dialog=$('#concernHelp'),key=trigger.dataset.concernHelp;
  if(!helpCopy[key]||!dialog)return;
  const paragraphs=helpParagraphs(key,{own:trigger.dataset.helpOwn==='1',locality_name:trigger.dataset.helpLocality});
- dialog.innerHTML=`<div class="concern-toolbar"><h2 id="concernHelpTitle">${key==='expiry'?'Expiry countdown':key==='votes'?'Vote count':'Location pin'}</h2><button type="button" class="detail-x" data-close-help aria-label="Close">×</button></div>${paragraphs.map(copy=>`<p>${esc(copy)}</p>`).join('')}`;
+ dialog.innerHTML=`<div class="concern-toolbar"><h2 id="concernHelpTitle">${key==='expiry'?'Expiry countdown':'Location pin'}</h2><button type="button" class="detail-x" data-close-help aria-label="Close">×</button></div>${paragraphs.map(copy=>`<p>${esc(copy)}</p>`).join('')}`;
  dialog.querySelector('[data-close-help]').onclick=()=>dialog.close();dialog.showModal();
 });
 function formatDay(value){
@@ -94,22 +94,18 @@ function formatDay(value){
  const part=type=>parts.find(item=>item.type===type)?.value||'';
  return `${part('day')}-${part('month')}-${part('year')}`;
 }
-function voteButton(item){
- const selected=Boolean(item.voted);
- return `<button type="button" class="concern-vote-button vote-toggle" aria-pressed="${selected}" data-upvote="${esc(item.concern_id)}" data-vote-time="${selected?esc(item.my_vote_at):''}"><span aria-hidden="true">${selected?'✓':'👍'}</span> ${selected?'Undo vote':'Vote'}</button>`;
-}
 const ownVoteMessage='You can’t vote for your own problem. Others can vote once every 24 hours.';
-function cardVotes(item,past){
+function voteControls(item,readOnly,context='card'){
  const count=Math.max(0,Number(item.upvotes)||0);
  const total=`${count} ${count===1?'upvote':'upvotes'}`;
  const score=`<span aria-hidden="true">👍</span><strong aria-hidden="true">${count}</strong>`;
- if(past)return `<span class="concern-card-score" role="img" aria-label="${total}">${score}</span>`;
- const helpId=`vote-help-${esc(item.concern_id)}`;
+ if(readOnly)return `<span class="concern-card-score" role="img" aria-label="${total}">${score}</span>`;
+ const helpId=`${context}-vote-help-${esc(item.concern_id)}`;
  const helpTrigger=`data-card-vote-help aria-controls="${helpId}" aria-expanded="false"`;
  const selected=Boolean(item.voted);
  const action=item.own?helpTrigger:`data-upvote="${esc(item.concern_id)}" data-vote-time="${selected?esc(item.my_vote_at||''):''}" aria-pressed="${selected}"`;
  const label=item.own?`About voting on your own problem, ${total}`:`Vote, ${total}`;
- return `<button type="button" class="concern-card-vote" ${action} aria-label="${label}">${score}</button>
+ return `<button type="button" class="concern-card-vote" ${action} aria-label="${label}"${selected&&!item.own?' aria-description="Tap again to undo your vote"':''}>${score}</button>
  ${selected&&!item.own?`<button type="button" class="concern-vote-clock" ${helpTrigger} aria-label="When you can vote again">
  ${icon('clock')}<span aria-hidden="true">24h</span></button>`:''}
  ${item.own||selected?`<p class="concern-card-vote-help" id="${helpId}" hidden></p>`:''}`;
@@ -119,22 +115,23 @@ function card(item,past=false){
  const photo=item.photo_url?`<a class="concern-thumb-link" href="/concerns/?concern=${esc(item.concern_id)}" aria-label="Open report details"><img src="${esc(item.photo_url)}" alt="" loading="lazy" decoding="async"></a>`:'';
  const expiryText=remaining<=0?'Expires today':`Expires in ${remaining} day${remaining===1?'':'s'}`;
  const expiry=past?`<p class="concern-closed-date">${"Closed on "+esc(formatDay(item.closed_at))}</p>`:`<p class="concern-expiry${remaining<=3?' concern-expiry-urgent':''}"><span>${esc(expiryText)}</span><button type="button" class="concern-info-button" data-concern-help="expiry" ${helpContext(item)} aria-label="About the expiry countdown">i</button></p>`;
- return `<article class="concern-card concern-list-card"><div class="concern-list-copy"><h3><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(item.description)}</a></h3>${expiry}</div><div class="concern-support">${photo}${cardVotes(item,past)}</div></article>`;
+ return `<article class="concern-card concern-list-card"><div class="concern-list-copy"><h3><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(item.description)}</a></h3>${expiry}</div><div class="concern-support">${photo}${voteControls(item,past)}</div></article>`;
 }
-function closeCardVoteHelp(){
- const trigger=main.querySelector('[data-card-vote-help][aria-expanded="true"]');
- if(!trigger)return;
- document.getElementById(trigger.getAttribute('aria-controls')).hidden=true;
- trigger.setAttribute('aria-expanded','false');
+let expandedVoteHelp=null;
+function closeVoteHelp(){
+ if(!expandedVoteHelp)return;
+ expandedVoteHelp.help.hidden=true;
+ expandedVoteHelp.trigger.setAttribute('aria-expanded','false');
+ expandedVoteHelp=null;
 }
 document.addEventListener('click',event=>{
  const trigger=event.target.closest('[data-card-vote-help]');
  if(!trigger){
-  if(!event.target.closest('.concern-card-vote-help'))closeCardVoteHelp();
+  if(!event.target.closest('.concern-card-vote-help'))closeVoteHelp();
   return;
  }
  const shouldOpen=trigger.getAttribute('aria-expanded')==='false';
- closeCardVoteHelp();
+ closeVoteHelp();
  if(!shouldOpen)return;
  const help=document.getElementById(trigger.getAttribute('aria-controls'));
  const vote=trigger.closest('.concern-support').querySelector('[data-upvote]');
@@ -144,31 +141,64 @@ document.addEventListener('click',event=>{
  help.textContent=vote?`You can vote once every 24 hours.${nextVote}`:ownVoteMessage;
  help.hidden=false;
  trigger.setAttribute('aria-expanded','true');
+ expandedVoteHelp={trigger,help};
 });
 document.addEventListener('keydown',event=>{
- if(event.key==='Escape')closeCardVoteHelp();
+ if(event.key==='Escape'&&expandedVoteHelp){
+  if(expandedVoteHelp.trigger.closest('dialog[open]'))event.preventDefault();
+  closeVoteHelp();
+ }
 });
 function controls(item){
  const open=standing(item)&&!item.archived_at&&!item.closed_at;
- return `${item.own?`<p class="concern-caption concern-owner-message">${esc(ownConcernCopy(concernLocality(item)))}</p>`:open?`<p class="concern-caption">${esc(votingEligibility(concernLocality(item)))}</p>`:''}<div class="detail-actions">${open&&!item.own?voteButton(item):''}
+ const photo=item.has_photo||item.own_photo?
+  `<button type="button" class="secondary" data-photo="${esc(item.concern_id)}">Photo</button>`:'';
+ const remove=item.own&&item.status!=='completed'?
+  `<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}" aria-label="Delete my report">Delete</button>`:'';
+ return `<div class="concern-support report-detail-votes">${voteControls(item,!open,'detail')}</div>
+ <p class="concern-caption report-detail-vote-feedback" data-detail-vote-feedback role="status" hidden></p>
+ <div class="report-detail-actions">
  <button type="button" class="secondary" data-share="${esc(item.concern_id)}">${item.own?'Share report':'Share'}</button>
- ${item.has_photo||item.own_photo?`<button type="button" class="secondary" data-photo="${esc(item.concern_id)}">Photo</button>`:''}
- ${item.own&&item.status!=='completed'?`<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}" aria-label="Delete my report">Delete</button>`:''}</div>`;
+ ${photo||remove?`<div class="report-detail-secondary-actions">${photo}${remove}</div>`:''}</div>`;
+}
+function hasHomeLocality(item){
+ try{
+  const home=locationKey(localStorage.getItem('bag-day-locality-v1'));
+  return Boolean(home&&(home===locationKey(item.locality_name)||home===locationKey(item.locality_id)));
+ }catch{return false}
 }
 const updates=items=>items.length?`<section><h2>Council updates</h2>${items.map(item=>`<article class="concern-card"><strong>${esc(labels[item.status])} · ${esc(date(item.created_at))}</strong><p>${esc(item.note)}</p></article>`).join('')}</section>`:'';
 function bind(items=[],scope=main){
  bindDeletes(items,scope);
  scope.querySelectorAll('a[href*="?concern="]').forEach(link=>link.onclick=event=>{event.preventDefault();const id=new URL(link.href,location.origin).searchParams.get('concern');act(link,()=>openDetail(id))});
  scope.querySelectorAll('[data-upvote]').forEach(button=>button.onclick=()=>act(button,async()=>{
+  const id=button.dataset.upvote;
+  const previous=button.dataset.voteTime;
   const vote=async()=>{
-   const previous=button.dataset.voteTime;
-   const result=await request('/concerns/items/'+button.dataset.upvote+'/vote',previous?
+   const result=await request('/concerns/items/'+encodeURIComponent(id)+'/vote',previous?
     {method:'DELETE',body:{voted_at:previous}}:{method:'POST',body:{}});
    await load();if(detailId&&$('#concernDetail')?.open)await openDetail(detailId);
    const feedback=previous?(result.removed?'Vote removed.':'Vote status refreshed.'):'Vote added.';
    document.querySelector('#voteFeedback').textContent=feedback;
 
   };
+  if(scope!==main){
+   if(!me){
+    signIn(async()=>{
+     await load();
+     if(scope.open&&detailId===id)await openDetail(id);
+    },'Sign in with Google to vote on this problem.');
+    return;
+   }
+   const item=items[0];
+   const hint=scope.querySelector('[data-detail-vote-feedback]');
+   const wrongLocality=!previous&&!hasHomeLocality(item);
+   hint.hidden=!wrongLocality;
+   if(wrongLocality){
+    hint.textContent=`In Settings, select ${concernLocality(item)} as your home locality to vote on this problem.`;
+    return;
+   }
+  }
   if(me)await vote();else signIn(vote);
  }));
  scope.querySelectorAll('[data-share]').forEach(button=>button.onclick=()=>act(button,async()=>{
@@ -260,6 +290,7 @@ async function openDetail(id,provided){
  const current=++detailSequence;
  const item=provided||await request('/concerns/items/'+encodeURIComponent(id));
  if(current!==detailSequence)return;
+ closeVoteHelp();
  detailId=id;const pin=mapURL(item);
  dialog.innerHTML=`<div class="concern-toolbar"><h2>Report details</h2><button type="button" class="detail-x" data-close-detail aria-label="Close">×</button></div>
  <article><div class="detail-place"><strong>${esc(item.locality_name)}</strong>${pin?`<a class="detail-pin" href="${esc(pin)}" target="_blank" rel="noopener noreferrer" title="View in Google Maps (new tab)" aria-label="View location in Google Maps (new tab)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 10c0 4-6 10-6 10s-6-6-6-10a6 6 0 1 1 12 0Z"/><circle cx="12" cy="10" r="2"/></svg></a>`:''}</div>
@@ -273,7 +304,7 @@ async function openDetail(id,provided){
   const page=window.open('about:blank','_blank');
   if(page){page.opener=null;page.location.replace(mapLink.href);event.preventDefault()}
  };
- dialog.querySelector('[data-close-detail]').onclick=()=>dialog.close();dialog.onclose=()=>{detailSequence++;detailId=null};bind([item],dialog);
+ dialog.querySelector('[data-close-detail]').onclick=()=>dialog.close();dialog.onclose=()=>{closeVoteHelp();detailSequence++;detailId=null};bind([item],dialog);
  if(!dialog.open)dialog.showModal();
 }
 async function load(){

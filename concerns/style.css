@@ -106,19 +106,20 @@
 .detail-place{display:flex;align-items:center;justify-content:space-between;margin:8px 0;color:var(--nb-secondary)}
 .detail-pin{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--nb-soft);color:var(--nb-ink)}.detail-pin svg{width:25px;height:25px}
 .detail-description{white-space:pre-wrap;line-height:1.45}
-.detail-facts{display:grid;grid-template-columns:.85fr 1.2fr 1fr;gap:6px;background:var(--nb-soft);padding:12px 8px;border-radius:12px;margin:14px 0}
+.detail-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;background:var(--nb-soft);padding:12px;border-radius:12px;margin:14px 0}
 .detail-facts dt{font-size:.8rem;color:var(--nb-secondary)}.detail-facts dd{margin:5px 0 0;font-weight:700}.detail-facts .concern-info-button{vertical-align:middle}
-.detail-actions{display:grid;grid-auto-columns:minmax(0,1fr);grid-auto-flow:column;gap:6px;margin-top:12px}
-.detail-actions button{width:100%;min-width:0;min-height:44px;padding:6px;border-radius:10px;font-weight:650}
+.report-detail-votes{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.report-detail-votes .concern-card-vote,.report-detail-votes .concern-card-score,.report-detail-votes .concern-vote-clock{min-width:56px}
+.report-detail-votes .concern-vote-clock{min-height:44px!important}
+.report-detail-votes .concern-card-vote-help{flex-basis:100%;box-sizing:border-box;margin:0;padding:8px 10px;border:1px solid var(--concern-border);border-radius:10px;background:var(--nb-soft);font-size:14px;line-height:1.4}
+.report-detail-vote-feedback{padding:8px 10px;border-radius:10px;background:var(--nb-soft)}
+.report-detail-actions,.report-detail-secondary-actions{display:grid;gap:8px}
+.report-detail-actions{margin-top:12px}
+.report-detail-secondary-actions{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+.report-detail-actions button{width:100%;min-width:0;min-height:44px;padding:6px;border-radius:10px;font-weight:650}
 .detail-warning{padding:10px;background:var(--nb-soft);border-inline-start:3px solid var(--nb-danger);border-radius:6px}
 
 .public-concerns .concern-list-heading{min-height:44px;flex-wrap:nowrap}
-.public-concerns .concern-vote-button{width:42px;height:42px;min-height:42px;margin-top:4px;padding:0;border:0;border-radius:50%;background:var(--nb-soft);color:var(--nb-primary);font-size:21px;line-height:1;cursor:pointer}
-.public-concerns .concern-vote-button:disabled{opacity:.55}
-.public-concerns button.vote-toggle[aria-pressed=true]{background:#d9dfe3;color:#26333b;border:1px solid #abb4bb;opacity:1}
-.vote-toggle[aria-pressed=true] span{filter:grayscale(1)}
-
-.detail-facts dt.detail-votes-label{display:flex;align-items:center;gap:4px;white-space:nowrap}
 
 .public-concerns .concern-list-card {
   position:relative;
