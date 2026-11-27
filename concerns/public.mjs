@@ -1,8 +1,8 @@
-import {boardURL,date,daysLeft,esc,labels,request,revealPhoto,shareConcern,standing,voteAgainIn} from './shared.mjs?v=1.1.184';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.184';
-import {locationKey,mapURL} from '../noticeboard/locations.mjs?v=1.1.184';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.184';
-import {icon} from '../noticeboard/shared.mjs?v=1.1.184';
+import {boardURL,date,daysLeft,esc,labels,request,revealPhoto,shareConcern,standing,voteAgainIn} from './shared.mjs?v=1.1.185';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.185';
+import {locationKey,mapURL} from '../noticeboard/locations.mjs?v=1.1.185';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.185';
+import {icon} from '../noticeboard/shared.mjs?v=1.1.185';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -72,11 +72,9 @@ function helpContext(item){return `data-help-own="${item.own?'1':'0'}" data-help
 function votingEligibility(locality){return `To vote, sign in and have ${locality} selected as your home locality in Settings. Simply opening this locality’s reports does not change your home locality.`}
 function ownConcernCopy(locality){return `You cannot vote for your own report. Share this report with other people in ${locality} so they can upvote it. They must have ${locality} selected as their home locality to vote.`}
 const helpCopy={
- expiry:'Each new vote resets the expiry countdown to 30 days. Eligible users can vote once every 24 hours.',
- pin:'Choose a map pin to show the council exactly where the issue is.'
+ expiry:'Each new vote resets the expiry countdown to 30 days. Eligible users can vote once every 24 hours.'
 };
 function helpParagraphs(key,item){
- if(key==='pin')return [helpCopy.pin];
  if(!helpCopy[key])return [];
  const locality=concernLocality(item);
  return [helpCopy[key],votingEligibility(locality),...(item.own?[ownConcernCopy(locality)]:[])];
@@ -86,7 +84,7 @@ document.addEventListener('click',event=>{
  const dialog=$('#concernHelp'),key=trigger.dataset.concernHelp;
  if(!helpCopy[key]||!dialog)return;
  const paragraphs=helpParagraphs(key,{own:trigger.dataset.helpOwn==='1',locality_name:trigger.dataset.helpLocality});
- dialog.innerHTML=`<div class="concern-toolbar"><h2 id="concernHelpTitle">${key==='expiry'?'Expiry countdown':'Location pin'}</h2><button type="button" class="detail-x" data-close-help aria-label="Close">×</button></div>${paragraphs.map(copy=>`<p>${esc(copy)}</p>`).join('')}`;
+ dialog.innerHTML=`<div class="concern-toolbar"><h2 id="concernHelpTitle">Expiry countdown</h2><button type="button" class="detail-x" data-close-help aria-label="Close">×</button></div>${paragraphs.map(copy=>`<p>${esc(copy)}</p>`).join('')}`;
  dialog.querySelector('[data-close-help]').onclick=()=>dialog.close();dialog.showModal();
 });
 function formatDay(value){
@@ -414,7 +412,7 @@ async function startConcern(){
     <button type="button" class="secondary" data-remove hidden>Remove photo</button></div>
     <input type="file" accept="image/*" capture="environment" data-input="camera" hidden><input type="file" accept="image/*" data-input="gallery" hidden>
     <p data-photo-status aria-live="polite"></p><img class="concern-draft-photo" alt="Compressed photo preview" hidden></fieldset>`:''}
-  <button type="submit" class="primary">Review report</button></form>
+  <button type="submit" class="primary report-review-button">Review report</button></form>
   <section data-review hidden><h3>Check your report</h3><div data-review-body></div>
   <div class="concern-actions"><button type="button" class="secondary" data-back>Back to edit</button><button type="button" class="primary" data-confirm>Confirm and submit</button></div></section>
   <section data-received hidden><h3>Report submitted</h3><p>Your report is now visible to the community. Share it with other people in ${esc(board.locality.locality_name)} so they can upvote it. They must have ${esc(board.locality.locality_name)} selected as their home locality to vote.</p><p data-photo-pending hidden>Your photo is visible only to you until the council approves it.</p><p data-photo-failed hidden>Your report was submitted, but the photo could not be uploaded.</p>
@@ -433,8 +431,6 @@ async function startConcern(){
   if(photoPreview)URL.revokeObjectURL(photoPreview);
  },{once:true});
  bindLocationFields(form,board.locality,{report:true});
- const pinHelp=document.createElement('button');pinHelp.type='button';pinHelp.className='concern-info-button';pinHelp.dataset.concernHelp='pin';pinHelp.setAttribute('aria-label','About the location pin');pinHelp.textContent='i';
- form.querySelector('#chooseMapPin')?.insertAdjacentElement('afterend',pinHelp);
  form.elements.description.addEventListener('input',()=>{select('[data-counter]').textContent=form.elements.description.value.length+' / 500'});
  const changePhoto=next=>{
   if(photoPreview)URL.revokeObjectURL(photoPreview);

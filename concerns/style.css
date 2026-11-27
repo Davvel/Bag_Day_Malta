@@ -187,8 +187,20 @@
 .report-pin-marker{position:absolute;z-index:500;top:50%;left:50%;transform:translate(-50%,-42px);pointer-events:none}
 .map-pin-modal .report-pin-gps{position:absolute;z-index:1001;top:10px;right:10px;display:grid;place-items:center;width:44px;min-height:44px;padding:0;background:var(--nb-card);box-shadow:0 1px 4px #0004}
 .report-pin-gps svg{width:24px;height:24px}
+.report-pin-loading{position:absolute;z-index:1100;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;border-radius:12px;background:#102c3be6;color:#fff;text-align:center;font-weight:650}
+.report-pin-loading[hidden]{display:none}
+.report-pin-spinner{width:28px;height:28px;border:3px solid #ffffff60;border-top-color:#fff;border-radius:50%;animation:report-pin-spin .85s linear infinite}
+@keyframes report-pin-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.report-pin-spinner{animation:none}}
 .report-pin-status:empty{margin:0}
+.report-pin-live-only{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .report-pin-credits{margin:8px 0;color:var(--nb-secondary);font-size:13px}
 .report-pin-credits summary{width:fit-content;padding:4px 0;cursor:pointer}
 .report-pin-credits .hint{margin:4px 0}
 .map-pin-modal .report-pin-confirm{width:100%;min-height:44px}
+.report-location-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch}
+.report-location-actions #chooseMapPin{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:8px 10px;line-height:1.25}
+.report-location-actions #chooseMapPin svg{flex:none}
+.report-location-actions #removeMapPin{padding:8px 10px;white-space:nowrap}
+.report-location-actions #pinStatus{grid-column:1/-1}
+.concern-form .report-review-button{display:block;width:100%;margin-top:12px}

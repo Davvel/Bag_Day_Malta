@@ -1,7 +1,7 @@
 import {esc} from './data.mjs';
-import {localityCentre,validPin} from '../../noticeboard/locations.mjs?v=1.1.184';
-import {localityCentres} from '../../noticeboard/locality-centres.mjs?v=1.1.184';
-import {loadLeaflet} from '../../noticeboard/map-picker.mjs?v=1.1.184';
+import {localityCentre,validPin} from '../../noticeboard/locations.mjs?v=1.1.185';
+import {localityCentres} from '../../noticeboard/locality-centres.mjs?v=1.1.185';
+import {loadLeaflet} from '../../noticeboard/map-picker.mjs?v=1.1.185';
 export function localityFields(old={}){
  const point=localityCentre({...old,locality_name:old.name});
  const source=validPin(old.center_latitude,old.center_longitude)?old.center_source||'Saved in database':localityCentres.some(r=>r.latitude===point[0]&&r.longitude===point[1])?'Bundled locality starting point':'General Malta starting point';
