@@ -1,8 +1,8 @@
-import {boardURL,date,daysLeft,esc,labels,request,revealPhoto,shareConcern,standing,voteAgainIn} from './shared.mjs?v=1.1.182';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.182';
-import {locationKey,mapURL} from '../noticeboard/locations.mjs?v=1.1.182';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.182';
-import {icon} from '../noticeboard/shared.mjs?v=1.1.182';
+import {boardURL,date,daysLeft,esc,labels,request,revealPhoto,shareConcern,standing,voteAgainIn} from './shared.mjs?v=1.1.183';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.183';
+import {locationKey,mapURL} from '../noticeboard/locations.mjs?v=1.1.183';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.183';
+import {icon} from '../noticeboard/shared.mjs?v=1.1.183';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -432,7 +432,7 @@ async function startConcern(){
   compose.removeEventListener('cancel',cancel);
   if(photoPreview)URL.revokeObjectURL(photoPreview);
  },{once:true});
- bindLocationFields(form,board.locality);
+ bindLocationFields(form,board.locality,{report:true});
  const pinHelp=document.createElement('button');pinHelp.type='button';pinHelp.className='concern-info-button';pinHelp.dataset.concernHelp='pin';pinHelp.setAttribute('aria-label','About the location pin');pinHelp.textContent='i';
  form.querySelector('#chooseMapPin')?.insertAdjacentElement('afterend',pinHelp);
  form.elements.description.addEventListener('input',()=>{select('[data-counter]').textContent=form.elements.description.value.length+' / 500'});

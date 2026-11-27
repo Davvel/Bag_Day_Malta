@@ -1,5 +1,5 @@
-import {channelCopy,date,daysSinceLastUpvote,esc,labels,previewText,request,revealPhoto,shareConcern,support} from './shared.mjs?v=1.1.182';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.182';
+import {channelCopy,date,daysSinceLastUpvote,esc,labels,previewText,request,revealPhoto,shareConcern,support} from './shared.mjs?v=1.1.183';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.183';
 
 export function mountCouncilConcerns(container,{page,token,onSignIn}){
  const endpoint='/concerns/council/'+page.page_id;
