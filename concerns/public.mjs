@@ -1,7 +1,7 @@
-import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.179';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.179';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.179';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.179';
+import {age,boardURL,date,daysLeft,esc,labels,previewText,request,revealPhoto,shareConcern,standing,support,voteAgainIn} from './shared.mjs?v=1.1.180';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.180';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.180';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.180';
 
 const $=selector=>document.querySelector(selector);
 const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
@@ -67,11 +67,11 @@ function detailFacts(item){
 }
 function concernLocality(item){return item.locality_name||board?.locality?.locality_name||'this locality'}
 function helpContext(item){return `data-help-own="${item.own?'1':'0'}" data-help-locality="${esc(concernLocality(item))}"`}
-function votingEligibility(locality){return `To vote, sign in and have ${locality} selected as your home locality in Settings. Simply opening this locality’s concerns does not change your home locality.`}
-function ownConcernCopy(locality){return `You cannot vote for your own concern. Share this concern with other people in ${locality} so they can upvote it. They must have ${locality} selected as their home locality to vote.`}
+function votingEligibility(locality){return `To vote, sign in and have ${locality} selected as your home locality in Settings. Simply opening this locality’s reports does not change your home locality.`}
+function ownConcernCopy(locality){return `You cannot vote for your own report. Share this report with other people in ${locality} so they can upvote it. They must have ${locality} selected as their home locality to vote.`}
 const helpCopy={
  expiry:'Each new vote resets the expiry countdown to 30 days. Eligible users can vote once every 24 hours.',
- votes:'Shows how many votes this concern has received. Eligible users can vote once every 24 hours.',
+ votes:'Shows how many votes this report has received. Eligible users can vote once every 24 hours.',
  pin:'Choose a map pin to show the council exactly where the issue is.'
 };
 function helpParagraphs(key,item){
@@ -99,19 +99,19 @@ function voteButton(item){
 }
 function card(item,past=false){
  const count=Math.max(0,Number(item.upvotes)||0),remaining=daysLeft(item),wait=item.voted?voteAgainIn(item):'';
- const photo=item.photo_url?`<a class="concern-thumb-link" href="/concerns/?concern=${esc(item.concern_id)}" aria-label="Open concern details"><img src="${esc(item.photo_url)}" alt="" loading="lazy" decoding="async"></a>`:'';
- const action=past?'':item.own?`<a class="concern-own-badge" href="/concerns/?concern=${esc(item.concern_id)}">My concern</a>`:voteButton(item);
+ const photo=item.photo_url?`<a class="concern-thumb-link" href="/concerns/?concern=${esc(item.concern_id)}" aria-label="Open report details"><img src="${esc(item.photo_url)}" alt="" loading="lazy" decoding="async"></a>`:`<span class="concern-thumb-link concern-thumb-placeholder" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M15 13a6 6 0 1 0-12 0c0 4 6 10 6 10s2-2 3.8-4.5"/><circle cx="9" cy="13" r="1.8"/><path d="M16 5h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-5l-5 4v-4a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3Z"/><path d="M18 11h6"/></svg></span>`;
+ const action=past?'':item.own?`<a class="concern-own-badge" href="/concerns/?concern=${esc(item.concern_id)}">My report</a>`:voteButton(item);
  const expiryText=remaining<=0?'Expires today':`Expires in ${remaining} day${remaining===1?'':'s'}`;
  const expiry=past?`<p class="concern-closed-date">${"Closed on "+esc(formatDay(item.closed_at))}</p>`:`<p class="concern-expiry${remaining<=3?' concern-expiry-urgent':''}"><span>${esc(expiryText)}</span><button type="button" class="concern-info-button" data-concern-help="expiry" ${helpContext(item)} aria-label="About the expiry countdown">i</button></p>`;
- return `<article class="concern-card concern-list-card${photo?' has-photo':''}">${photo}<div class="concern-list-copy"><h3><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(previewText(item.description))}</a></h3>${expiry}</div><div class="concern-support"><span class="concern-vote-count"><strong>${count} ${count===1?'vote':'votes'}</strong><button type="button" class="concern-info-button" data-concern-help="votes" ${helpContext(item)} aria-label="About the vote count">i</button></span>${action}</div></article>`;
+ return `<article class="concern-card concern-list-card">${photo}<div class="concern-list-copy"><h3><a href="/concerns/?concern=${esc(item.concern_id)}">${esc(previewText(item.description))}</a></h3>${expiry}</div><div class="concern-support"><span class="concern-vote-count"><strong>${count} ${count===1?'vote':'votes'}</strong><button type="button" class="concern-info-button" data-concern-help="votes" ${helpContext(item)} aria-label="About the vote count">i</button></span>${action}</div></article>`;
 }
 function controls(item){
  const open=standing(item)&&!item.archived_at&&!item.closed_at;
  const wait=item.voted?voteAgainIn(item):'';
  return `${item.own?`<p class="concern-caption concern-owner-message">${esc(ownConcernCopy(concernLocality(item)))}</p>`:open?`<p class="concern-caption">${esc(votingEligibility(concernLocality(item)))}</p>`:''}<div class="detail-actions">${open&&!item.own?voteButton(item):''}
- <button type="button" class="secondary" data-share="${esc(item.concern_id)}">${item.own?'Share Concern':'Share'}</button>
+ <button type="button" class="secondary" data-share="${esc(item.concern_id)}">${item.own?'Share report':'Share'}</button>
  ${item.has_photo||item.own_photo?`<button type="button" class="secondary" data-photo="${esc(item.concern_id)}">Photo</button>`:''}
- ${item.own&&item.status!=='completed'?`<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}" aria-label="Delete my concern">Delete</button>`:''}</div>`;
+ ${item.own&&item.status!=='completed'?`<button type="button" class="concern-delete" data-delete-concern="${esc(item.concern_id)}" aria-label="Delete my report">Delete</button>`:''}</div>`;
 }
 const updates=items=>items.length?`<section><h2>Council updates</h2>${items.map(item=>`<article class="concern-card"><strong>${esc(labels[item.status])} · ${esc(date(item.created_at))}</strong><p>${esc(item.note)}</p></article>`).join('')}</section>`:'';
 function bind(items=[],scope=main){
@@ -219,10 +219,10 @@ async function openDetail(id,provided){
  const item=provided||await request('/concerns/items/'+encodeURIComponent(id));
  if(current!==detailSequence)return;
  detailId=id;const pin=mapURL(item);
- dialog.innerHTML=`<div class="concern-toolbar"><h2>Concern details</h2><button type="button" class="detail-x" data-close-detail aria-label="Close">×</button></div>
+ dialog.innerHTML=`<div class="concern-toolbar"><h2>Report details</h2><button type="button" class="detail-x" data-close-detail aria-label="Close">×</button></div>
  <article><div class="detail-place"><strong>${esc(item.locality_name)}</strong>${pin?`<a class="detail-pin" href="${esc(pin)}" target="_blank" rel="noopener noreferrer" title="View in Google Maps (new tab)" aria-label="View location in Google Maps (new tab)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 10c0 4-6 10-6 10s-6-6-6-10a6 6 0 1 1 12 0Z"/><circle cx="12" cy="10" r="2"/></svg></a>`:''}</div>
  <p class="detail-description">${esc(item.description)}</p>${detailFacts(item)}
- ${!item.closed_at&&!item.archived_at&&daysLeft(item)<=3?`<p class="detail-warning">Share this concern with people in ${esc(concernLocality(item))} who have it selected as their home locality so they can vote. Each new vote resets the countdown to 30 days.</p>`:''}
+ ${!item.closed_at&&!item.archived_at&&daysLeft(item)<=3?`<p class="detail-warning">Share this report with people in ${esc(concernLocality(item))} who have it selected as their home locality so they can vote. Each new vote resets the countdown to 30 days.</p>`:''}
  ${item.own_photo&&item.photo_pending?'<small>Photo awaiting council approval.</small>':''}
  ${controls(item)}<div class="concern-photo" hidden></div></article>${updates(item.updates||[])}`;
  const mapLink=dialog.querySelector('.detail-pin');
@@ -256,13 +256,13 @@ async function load(){
  const showFilter=!data.archive||hasItems||justMyConcern||offset>0;
  const ownerId=data.open_concern?.concern_id;
  const showAction=!data.archive&&(ownerId||state==='active');
- main.innerHTML=`<div class="concern-toolbar concern-list-heading"><h2>Concerns of ${esc(data.locality.locality_name)}</h2>
-  ${showAction?`<button type="button" class="primary" id="newConcern">${ownerId?'View my concern':'Voice a concern'}</button>`:''}</div>
-  ${showFilter?`<label class="concern-mine-filter"><input type="checkbox" id="concernMineFilter" ${justMyConcern?'checked':''}> <span>Show just my concern</span></label>`:''}
+ main.innerHTML=`<div class="concern-toolbar concern-list-heading"><h2>Problems in ${esc(data.locality.locality_name)}</h2>
+  ${showAction?`<button type="button" class="primary" id="newConcern">${ownerId?'View my report':'Report a Problem'}</button>`:''}</div>
+  ${showFilter?`<label class="concern-mine-filter"><input type="checkbox" id="concernMineFilter" ${justMyConcern?'checked':''}> <span>Show just my report</span></label>`:''}
   ${state==='paused'&&!data.archive?'<p class="concern-caption">New submissions are temporarily paused. You can still vote and follow updates.</p>':''}
-  ${publicList||`<p>${justMyConcern?'You have no concerns in this list.':data.archive?'No Concerns closed in last 30 days.':'No concerns in progress yet.'}</p>`}
-  <div class="concern-actions">${offset?'<button type="button" id="concernPrevious">Previous</button>':''}${data.more?'<button type="button" id="concernNext">More concerns</button>':''}</div>
-  ${data.archive&&hasItems?'<p class="concern-past-note">Only successfully closed concerns show here.</p>':''}`;
+  ${publicList||`<p>${justMyConcern?'You have no reports in this list.':data.archive?'No reports closed in the last 30 days.':'No reports in progress yet.'}</p>`}
+  <div class="concern-actions">${offset?'<button type="button" id="concernPrevious">Previous</button>':''}${data.more?'<button type="button" id="concernNext">More reports</button>':''}</div>
+  ${data.archive&&hasItems?'<p class="concern-past-note">Only successfully closed reports show here.</p>':''}`;
  $('#newConcern')?.addEventListener('click',event=>act(event.currentTarget,()=>ownerId?openDetail(ownerId):me?startConcern():signIn(async()=>{await load();await startConcern()})));
  const mineFilter=$('#concernMineFilter');mineFilter?.addEventListener('change',event=>{
   const enabled=event.currentTarget.checked;offset=0;
@@ -284,12 +284,12 @@ function bindDeletes(items,scope=main){
 function confirmDelete(item){
  const dialog=$('#concernDelete');
  if(dialog.open)return;
- dialog.innerHTML=`<h2 id="concernDeleteTitle">Delete your concern?</h2>
-  <p><strong>Are you sure?</strong> The concern’s text, photo and all upvotes will be permanently deleted. This cannot be undone. No email will be sent.</p>
-  <p>You can then start again and submit a new concern if the locality is accepting submissions.</p>
+ dialog.innerHTML=`<h2 id="concernDeleteTitle">Delete your report?</h2>
+  <p><strong>Are you sure?</strong> The report’s text, photo and all upvotes will be permanently deleted. This cannot be undone. No email will be sent.</p>
+  <p>You can then start again and submit a new report if the locality is accepting submissions.</p>
   <p class="concern-notice concern-error" data-delete-error role="alert" tabindex="-1" hidden></p>
-  <div class="concern-actions"><button type="button" class="secondary" data-keep-concern>Keep concern</button>
-  <button type="button" class="concern-delete" data-confirm-delete>Delete concern</button></div>`;
+  <div class="concern-actions"><button type="button" class="secondary" data-keep-concern>Keep report</button>
+  <button type="button" class="concern-delete" data-confirm-delete>Delete report</button></div>`;
  let deleting=false;
  dialog.bagDayCanClose=()=>!deleting;
  const keep=dialog.querySelector('[data-keep-concern]'),confirm=dialog.querySelector('[data-confirm-delete]');
@@ -304,11 +304,11 @@ function confirmDelete(item){
    await request('/concerns/items/'+encodeURIComponent(item.concern_id),{method:'DELETE'});
    dialog.close();if($('#concernDetail')?.open)$('#concernDetail').close();
    if(itemId===item.concern_id){itemId=null;archived=false;offset=0;history.replaceState(null,'',boardURL(loc))}
-   await load();message('Your concern has been deleted.');
+   await load();message('Your report has been deleted.');
   }catch(error){
    const notice=dialog.open?dialog.querySelector('[data-delete-error]'):$('#concernMessage');
    notice.textContent=error.message;notice.hidden=false;notice.focus();notice.scrollIntoView({block:'nearest'});
-  }finally{deleting=false;keep.disabled=false;confirm.disabled=false;confirm.textContent='Delete concern'}
+  }finally{deleting=false;keep.disabled=false;confirm.disabled=false;confirm.textContent='Delete report'}
  };
  dialog.showModal();keep.focus();
 }
@@ -332,7 +332,7 @@ async function startConcern(){
  if(!board||board.locality.state!=='active')return;
  let photo=null,photoPreview='',submitting=false,confirmed=false;
  const concernId=crypto.randomUUID();
- compose.innerHTML=`<div class="concern-toolbar"><h2 id="concernComposeTitle">Voice a Concern</h2><button type="button" class="detail-x" data-close aria-label="Close">×</button></div>
+ compose.innerHTML=`<div class="concern-toolbar"><h2 id="concernComposeTitle">Report a Problem</h2><button type="button" class="detail-x" data-close aria-label="Close">×</button></div>
   <p class="concern-locality">${esc(board.locality.locality_name)}</p><ol class="concern-steps"><li data-step="write" aria-current="step">1 Write</li><li data-step="review">2 Review</li></ol><p class="concern-notice concern-error" data-form-message role="alert" tabindex="-1" hidden></p>
   <form class="concern-form"><label>What happened, and where?<textarea name="description" required maxlength="500" rows="4" placeholder="For example, broken streetlight outside number 14"></textarea><span class="concern-counter" data-counter>0 / 500</span></label>
   ${locationFields({},true)}
@@ -341,15 +341,15 @@ async function startConcern(){
     <button type="button" class="secondary" data-remove hidden>Remove photo</button></div>
     <input type="file" accept="image/*" capture="environment" data-input="camera" hidden><input type="file" accept="image/*" data-input="gallery" hidden>
     <p data-photo-status aria-live="polite"></p><img class="concern-draft-photo" alt="Compressed photo preview" hidden></fieldset>`:''}
-  <button type="submit" class="primary">Review concern</button></form>
-  <section data-review hidden><h3>Check your concern</h3><div data-review-body></div>
+  <button type="submit" class="primary">Review report</button></form>
+  <section data-review hidden><h3>Check your report</h3><div data-review-body></div>
   <div class="concern-actions"><button type="button" class="secondary" data-back>Back to edit</button><button type="button" class="primary" data-confirm>Confirm and submit</button></div></section>
-  <section data-received hidden><h3>Concern submitted</h3><p>Your concern is now visible to the community. Share it with other people in ${esc(board.locality.locality_name)} so they can upvote it. They must have ${esc(board.locality.locality_name)} selected as their home locality to vote.</p><p data-photo-pending hidden>Your photo is visible only to you until the council approves it.</p><p data-photo-failed hidden>Your concern was submitted, but the photo could not be uploaded.</p>
+  <section data-received hidden><h3>Report submitted</h3><p>Your report is now visible to the community. Share it with other people in ${esc(board.locality.locality_name)} so they can upvote it. They must have ${esc(board.locality.locality_name)} selected as their home locality to vote.</p><p data-photo-pending hidden>Your photo is visible only to you until the council approves it.</p><p data-photo-failed hidden>Your report was submitted, but the photo could not be uploaded.</p>
   <button class="primary" type="button" data-done>Done</button></section>`;
  const select=s=>compose.querySelector(s),form=select('form'),review=select('[data-review]');
  const error=copy=>{const node=select('[data-form-message]');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}};
  const dirty=()=>!!(form.elements.description.value.trim()||photo||form.elements.latitude.value||form.elements.longitude.value);
- compose.bagDayCanClose=()=>!submitting&&(confirmed||!dirty()||window.confirm('Discard your unfinished concern? Your text, photo and map pin will be lost.'));
+ compose.bagDayCanClose=()=>!submitting&&(confirmed||!dirty()||window.confirm('Discard your unfinished report? Your text, photo and map pin will be lost.'));
  const close=()=>{if(compose.bagDayCanClose())compose.close()};
  select('[data-close]').onclick=close;
  select('[data-done]').onclick=()=>{close();load().catch(e=>message(e.message))};
@@ -391,11 +391,11 @@ async function startConcern(){
  select('[data-remove]')?.addEventListener('click',()=>{changePhoto(null);select('[data-photo-status]').textContent=''});
  form.onsubmit=event=>{
   event.preventDefault();
-  if(!form.elements.description.value.trim()){error('Describe the concern and where it happened.');form.elements.description.focus();return}
+  if(!form.elements.description.value.trim()){error('Describe the problem and where it happened.');form.elements.description.focus();return}
   error('');const pin=mapURL(readLocationFields(form));
   select('[data-review-body]').innerHTML=`<p>${esc(form.elements.description.value.trim())}</p>
    ${pin?`<p><a href="${esc(pin)}" target="_blank" rel="noopener">Check map pin</a></p>`:''}
-   ${photoPreview?`<img class="concern-draft-photo" src="${esc(photoPreview)}" alt="The compressed photo you are confirming"><p>Your concern will be public immediately. The photo will be visible only to you until the council approves it.</p>`:''}`;
+   ${photoPreview?`<img class="concern-draft-photo" src="${esc(photoPreview)}" alt="The compressed photo you are confirming"><p>Your report will be public immediately. The photo will be visible only to you until the council approves it.</p>`:''}`;
   select('[data-step=write]').removeAttribute('aria-current');select('[data-step=review]').setAttribute('aria-current','step');form.hidden=true;review.hidden=false;select('[data-back]').focus();
  };
  select('[data-back]').onclick=()=>{if(submitting||confirmed)return;error('');select('[data-step=review]').removeAttribute('aria-current');select('[data-step=write]').setAttribute('aria-current','step');review.hidden=true;form.hidden=false;form.elements.description.focus()};

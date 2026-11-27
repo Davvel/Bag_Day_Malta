@@ -432,6 +432,6 @@ dialog.notice-wizard{width:min(1120px,calc(100% - 32px));max-width:calc(100% - 3
 /* Keep Reset filters beside search without changing the compact filter rows below. */
 .public-notices .search-view-row{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:6px;align-items:center}.public-notices .search-view-row .inline-search{min-width:0;margin:0;height:36px}.public-notices #noticeShowAll.search-reset{width:96px;min-height:36px;height:36px;padding:4px 6px;border:1px solid var(--nb-border);border-radius:8px;background:var(--nb-card);color:var(--nb-ink);font-size:12px;line-height:1.15;white-space:nowrap}
 @media(max-width:350px){.public-notices .search-view-row{grid-template-columns:minmax(0,1fr) 88px;gap:4px}.public-notices #noticeShowAll.search-reset{width:88px;font-size:11px;padding-inline:3px}}
-/* Match the minimum scrollable height of the Voice a Concern tab panel. */
+/* Match the minimum scrollable height of the Report a Problem tab panel. */
 .public-notices .source-panel:not(.combined-calendar) #sections{min-height:280px}
 .public-notices .source-panel:not(.combined-calendar) #sections:has(>.empty:only-child){display:grid;place-items:center}

@@ -1,13 +1,13 @@
-import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.179';
-import {mapURL} from './locations.mjs?v=1.1.179';
-import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.179';
-import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.179';
-import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.179';
-import {noticeLink} from './links.mjs?v=1.1.179';
-import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.179';
-import {localityNames,localityKey} from './routes.mjs?v=1.1.179';
-import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.179';
-import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.179';
+import {noticeBadge,detailHTML} from './presentation.mjs?v=1.1.180';
+import {mapURL} from './locations.mjs?v=1.1.180';
+import {animateCalendarGrid,slideCalendarPages,pageTurnTransform,settleCalendarDrag} from './calendar-motion.mjs?v=1.1.180';
+import {calendarDays,calendarMonthCells,calendarBounds,boundedCalendarMonth,calendarSectors,cappedNoticeCount} from './calendar-model.mjs?v=1.1.180';
+import {loadOptions,optionSelect,noticeTags,optionsWarning} from './options.mjs?v=1.1.180';
+import {noticeLink} from './links.mjs?v=1.1.180';
+import {syncNoticeboardSponsors} from './sponsors.mjs?v=1.1.180';
+import {localityNames,localityKey} from './routes.mjs?v=1.1.180';
+import {sections,esc,icon,today,visibleItems,calendarURL,readPublishedCSV} from './shared.mjs?v=1.1.180';
+import {eventSymbol,longDate,filterNoticeBoards,highlightNotice,pageNoticeResults,NOTICE_SEARCH_PAGE_SIZE,moveMonth,noticeboardTab} from './discovery.mjs?v=1.1.180';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');
 let pages=[],loaded=false,error='',filterWarning='',generation=0,renderedDate='',lookup=new Map(),swipe=null,suppressUntil=0,searchLimit=NOTICE_SEARCH_PAGE_SIZE,dayLimit=NOTICE_SEARCH_PAGE_SIZE,searchIdentity='',dayIdentity='',renderedURL=location.href,monthBusy=false,renderEpoch=0,searchTimer=null;
 const params=()=>new URLSearchParams(location.search);
@@ -156,7 +156,7 @@ function renderBoards(){
    if(!item?.archive_count||current!==renderEpoch||!container.isConnected||activeTab!=='council'||container.querySelector('[data-concern-archive]'))return;
    const link=document.createElement('a');link.dataset.concernArchive='';
    link.className='secondary';link.href='/concerns/?'+new URLSearchParams({locality:item.locality_id,archive:'1'});
-   link.textContent='Past concerns';container.append(link);
+   link.textContent='Past reports';container.append(link);
   });
  }
  if(mode==='calendar'||mode==='day'){

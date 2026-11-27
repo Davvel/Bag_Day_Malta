@@ -135,3 +135,30 @@
 .vote-toggle[aria-pressed=true] span{filter:grayscale(1)}
 
 .detail-facts dt.detail-votes-label{display:flex;align-items:center;gap:4px;white-space:nowrap}
+
+/* Public report cards: match the media position and strengthen the outline. */
+.public-concerns .concern-list-card {
+  grid-template-columns:clamp(36px,11vw,60px) minmax(0,1fr) max-content;
+  background:#102c3b;
+  border:2px solid #5b8897;
+}
+[data-theme=light] .public-concerns .concern-list-card {
+  background:#edf6f5;
+  border-color:#568494;
+}
+.concern-list-card .concern-thumb-link {
+  width:100%;
+  height:auto;
+  aspect-ratio:1;
+}
+.concern-list-card .concern-thumb-placeholder {
+  display:grid;
+  place-items:center;
+  background:#214354;
+  color:#c0e1e2;
+}
+[data-theme=light] .concern-list-card .concern-thumb-placeholder {
+  background:#d9ebe9;
+  color:#2b6170;
+}
+.concern-thumb-placeholder svg {width:57%;height:57%;}

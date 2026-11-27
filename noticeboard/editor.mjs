@@ -1,10 +1,10 @@
-import {mountCouncilConcerns} from '../concerns/council.mjs?v=1.1.179';
-import {openNoticeWizard} from './wizard.mjs?v=1.1.179';
-import {loadOptions} from './options.mjs?v=1.1.179';
-import {openSlotHelp} from './editor-help.mjs?v=1.1.179';
-import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.179';
-import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.179';
-import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.179';
+import {mountCouncilConcerns} from '../concerns/council.mjs?v=1.1.180';
+import {openNoticeWizard} from './wizard.mjs?v=1.1.180';
+import {loadOptions} from './options.mjs?v=1.1.180';
+import {openSlotHelp} from './editor-help.mjs?v=1.1.180';
+import {noticeStatus,publishedPages} from './publication.mjs?v=1.1.180';
+import {EDITOR_ROUTES,sectionFromPath,editorURL,authorisedPages,selectEditorPage} from './routes.mjs?v=1.1.180';
+import {sections,esc,icon,request,addDays,today} from './shared.mjs?v=1.1.180';
 const root=document.querySelector('#root'),dialog=document.querySelector('#noticeDialog');let token='',profile=null,state=null,busy=false,pageId='',activeSection=sectionFromPath(location.pathname),loadSeq=0,deskArea='notices',disposeConcerns=null;
 function updateEditorTitle(){const brand=document.querySelector('.editor-desk .brand');if(brand&&activeSection){brand.dataset.section=activeSection;brand.innerHTML=icon(sections[activeSection].icon)+'<span>Bag Day Malta</span>'}const title=(activeSection?sections[activeSection].name:'Community')+' Noticeboard Editor';const header=document.querySelector('#noticeboardTitle');if(header)header.textContent=title;document.title=title+' · Bag Day Malta'}
 updateEditorTitle();
@@ -48,7 +48,7 @@ function render(){
  const rows=state.items.map(i=>{const changed=status.changed.has(i.entry_id);return row(i.entry_id,i.title,date(i),i.end_date<today()?'Expired':status.state==='unknown'?'Unverified':changed?'Ready':'Published',changed?'Review':'Edit')});
  const occupied=state.items.length;
  root.innerHTML=`<section class="desk-hero ${p.section}"><h1>${esc(p.locality_name)} · ${section.name}${p.section==='council'?'':' noticeboard'}</h1><details class="desk-account"><summary>${esc(profile.name)}</summary>${signoutButton()}</details></section>
- ${p.section==='council'?`<nav class="concern-admin-tabs" aria-label="Council areas"><button type="button" class="secondary" data-desk-area="notices" aria-pressed="true">Notices</button><button type="button" class="secondary" data-desk-area="concerns" aria-pressed="false">Voice a Concern</button>${allowed.length>1?pickerHTML():''}</nav>`:''}
+ ${p.section==='council'?`<nav class="concern-admin-tabs" aria-label="Council areas"><button type="button" class="secondary" data-desk-area="notices" aria-pressed="true">Notices</button><button type="button" class="secondary" data-desk-area="concerns" aria-pressed="false">Report a Problem</button>${allowed.length>1?pickerHTML():''}</nav>`:''}
  <section id="councilNotices" aria-label="Notices">
  <div class="desk-toolbar"><strong>All notices (${rows.length+draftRows.length})</strong>${p.section!=="council"?(allowed.length>1?pickerHTML():`<span>${esc(p.locality_name)}</span>`):""}<button id="add" class="primary">+ New notice</button></div>
  <div id="message" role="status"></div>
@@ -56,7 +56,7 @@ function render(){
  ${!rows.length&&!draftRows.length?'<p class="empty">Add your first notice.</p>':''}
  <div class="desk-publication" ${ready?'':'hidden'}><span>${ready} change${ready===1?'':'s'} ready for ${esc(p.locality_name)}${status.removed?' · '+status.removed+' removal(s)':''}</span><button id="publish" class="primary ${ready?'publish-attention':''}" ${ready?'':'disabled'}>Publish all (${ready})</button></div>
  <footer class="desk-foot"><span>${occupied}/20 notice slots used <button id="slotHelp" class="row-remove" aria-label="About notice slots">${icon('info')}</button></span><span>${status.state==='unknown'?'Publication status unavailable':status.state==='published'?'All current notices published':''} ${state.publication?.published_at?' · Last published '+esc(publishedTime(state.publication.published_at)):''}</span><button id="checkPublication" class="secondary">Refresh status</button></footer></section>
- ${p.section==='council'?'<section class="concern-admin" data-concern-panel hidden aria-label="Voice a Concern"></section>':''}`;
+ ${p.section==='council'?'<section class="concern-admin" data-concern-panel hidden aria-label="Report a Problem"></section>':''}`;
  bindPicker();bindSignout();
  if(p.section==='council'){
   const areas=[...root.querySelectorAll('[data-desk-area]')],notices=root.querySelector('#councilNotices'),concerns=root.querySelector('[data-concern-panel]');

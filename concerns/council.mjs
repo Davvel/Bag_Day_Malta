@@ -1,11 +1,11 @@
-import {channelCopy,date,daysSinceLastUpvote,esc,labels,previewText,request,revealPhoto,shareConcern,support} from './shared.mjs?v=1.1.179';
-import {mapURL} from '../noticeboard/locations.mjs?v=1.1.179';
+import {channelCopy,date,daysSinceLastUpvote,esc,labels,previewText,request,revealPhoto,shareConcern,support} from './shared.mjs?v=1.1.180';
+import {mapURL} from '../noticeboard/locations.mjs?v=1.1.180';
 
 export function mountCouncilConcerns(container,{page,token,onSignIn}){
  const endpoint='/concerns/council/'+page.page_id;
  const get=(path='',options={})=>request(endpoint+path,{...options,token});
  let filter='open',offset=0,seq=0,detailSeq=0,disposed=false,opener=null;
- const dialog=document.createElement('dialog');dialog.className='concern-dialog concern-review-dialog';dialog.setAttribute('aria-label','Council concern review');
+ const dialog=document.createElement('dialog');dialog.className='concern-dialog concern-review-dialog';dialog.setAttribute('aria-label','Council report review');
  dialog.addEventListener('close',()=>{detailSeq++;opener?.focus()});
  container.innerHTML='<p data-concern-alert role="status" hidden></p><div data-concern-queue></div><section data-concern-detail hidden></section>';
  container.append(dialog);
@@ -26,22 +26,22 @@ export function mountCouncilConcerns(container,{page,token,onSignIn}){
   try{
    const data=await get('?'+new URLSearchParams({filter,offset}));
    if(disposed||current!==seq||!container.isConnected)return;
-   queue.innerHTML=`<details class="concern-settings" open><summary>Concern settings · ${esc(data.state)}</summary><form><div class="concern-actions"><label>Channel status
+   queue.innerHTML=`<details class="concern-settings" open><summary>Report settings · ${esc(data.state)}</summary><form><div class="concern-actions"><label>Channel status
     <select name="state">${Object.keys(channelCopy).map(state=>`<option value="${state}" ${state===data.state?'selected':''}>${state[0].toUpperCase()+state.slice(1)}</option>`).join('')}</select></label>
     <label class="concern-photo-switch"><input type="checkbox" name="photos_enabled" ${data.photos_enabled?'checked':''} ${data.photos_available||data.photos_enabled?'':'disabled'}> Allow photo attachments</label>
-    <button class="primary" type="submit" disabled>Save settings</button></div><p data-state-copy>${channelCopy[data.state]}</p><p class="hint">Only enable photos if your council can review each photo. Residents can see their own photo while it awaits approval; everyone else sees only the concern text.</p>${data.photos_available?'':'<p class="hint">Photo storage is unavailable, so photo attachments cannot be enabled.</p>'}</form></details>
-    <details class="concern-settings" data-completed-report><summary>Completed concerns report</summary><form class="concern-actions" data-report-form>
+    <button class="primary" type="submit" disabled>Save settings</button></div><p data-state-copy>${channelCopy[data.state]}</p><p class="hint">Only enable photos if your council can review each photo. Residents can see their own photo while it awaits approval; everyone else sees only the report text.</p>${data.photos_available?'':'<p class="hint">Photo storage is unavailable, so photo attachments cannot be enabled.</p>'}</form></details>
+    <details class="concern-settings" data-completed-report><summary>Completed report summary</summary><form class="concern-actions" data-report-form>
      <label>From month <input type="month" name="from" required></label><label>To month <input type="month" name="to" required></label>
      <button class="secondary" type="submit">Show total</button><strong data-report-result role="status" aria-live="polite"></strong>
-    </form><p class="hint">The report counts concerns completed in the selected inclusive month range.</p></details>
+    </form><p class="hint">Counts reports completed from the first selected month through the last.</p></details>
     <div class="concern-toolbar"><h2>Resident submissions</h2><label>Show <select data-filter>
-    <option value="open" ${filter==='open'?'selected':''}>Open concerns</option><option value="photos" ${filter==='photos'?'selected':''}>All photos</option><option value="closed" ${filter==='closed'?'selected':''}>Closed and archived</option><option value="blocked" ${filter==='blocked'?'selected':''}>Blocked concerns</option><option value="all" ${filter==='all'?'selected':''}>All concerns</option></select></label></div>
-    <details class="concern-help"><summary>How this board works</summary><p>Concern text is public as soon as it is submitted. A person can upvote once every 24 hours; each upvote renews the 30-day timer and moves the concern higher in the council’s support order. After 30 days without an upvote, only the council can revive it for 10 days. Unresolved concerns are deleted after day 40. Photos stay private until approved; you can later hide an approved photo again.</p></details>
-    ${data.items.length?`<table class="desk-list concern-queue"><thead><tr><th>Concern</th><th>Date submitted</th><th>Since last upvote</th><th>Upvotes</th><th>Photo</th><th>Status</th><th>Action</th></tr></thead>
+    <option value="open" ${filter==='open'?'selected':''}>Open reports</option><option value="photos" ${filter==='photos'?'selected':''}>All photos</option><option value="closed" ${filter==='closed'?'selected':''}>Closed and archived</option><option value="blocked" ${filter==='blocked'?'selected':''}>Blocked reports</option><option value="all" ${filter==='all'?'selected':''}>All reports</option></select></label></div>
+    <details class="concern-help"><summary>How this board works</summary><p>The report is public as soon as it is submitted. A person can upvote once every 24 hours; each upvote renews the 30-day timer and moves the report higher in the council’s support order. After 30 days without an upvote, only the council can revive it for 10 days. Unresolved reports are deleted after day 40. Photos stay private until approved; you can later hide an approved photo again.</p></details>
+    ${data.items.length?`<table class="desk-list concern-queue"><thead><tr><th>Report</th><th>Date submitted</th><th>Since last upvote</th><th>Upvotes</th><th>Photo</th><th>Status</th><th>Action</th></tr></thead>
     <tbody>${data.items.map(item=>`<tr><td><strong>${esc(previewText(item.description))}</strong></td><td>${esc(date(item.submitted_at))}</td><td>${esc(daysSinceLastUpvote(item))}</td>
-    <td>${support(item)}</td><td>${item.photo_url?`<button class="concern-thumb-button" type="button" data-open-concern="${esc(item.concern_id)}" aria-label="Review attached photo"><img class="concern-queue-thumb" src="${esc(item.photo_url)}" alt="Attached concern photo"></button><span>${esc(item.photo_state==='pending'?'Awaiting approval':item.photo_state==='approved'?'Public':'Hidden')}</span>`:'—'}</td><td>${esc(item.archived_at?'Archived':labels[item.status])}</td><td><button class="secondary" type="button" data-open-concern="${esc(item.concern_id)}">${item.photo_url?'Review':'Open'}</button></td></tr>`).join('')}</tbody></table>`:'<p>No concerns in this view.</p>'}
-    <div class="concern-actions">${offset?'<button type="button" data-page="previous">Previous</button>':''}${data.more?'<button type="button" data-page="next">More concerns</button>':''}</div>`;
-   queue.querySelectorAll('tbody tr').forEach(row=>[...row.cells].forEach((cell,i)=>cell.dataset.label=['Concern','Date submitted','Since last upvote','Upvotes','Photo','Status','Action'][i]));
+    <td>${support(item)}</td><td>${item.photo_url?`<button class="concern-thumb-button" type="button" data-open-concern="${esc(item.concern_id)}" aria-label="Review attached photo"><img class="concern-queue-thumb" src="${esc(item.photo_url)}" alt="Photo attached to the report"></button><span>${esc(item.photo_state==='pending'?'Awaiting approval':item.photo_state==='approved'?'Public':'Hidden')}</span>`:'—'}</td><td>${esc(item.archived_at?'Archived':labels[item.status])}</td><td><button class="secondary" type="button" data-open-concern="${esc(item.concern_id)}">${item.photo_url?'Review':'Open'}</button></td></tr>`).join('')}</tbody></table>`:'<p>No reports in this view.</p>'}
+    <div class="concern-actions">${offset?'<button type="button" data-page="previous">Previous</button>':''}${data.more?'<button type="button" data-page="next">More reports</button>':''}</div>`;
+   queue.querySelectorAll('tbody tr').forEach(row=>[...row.cells].forEach((cell,i)=>cell.dataset.label=['Report','Date submitted','Since last upvote','Upvotes','Photo','Status','Action'][i]));
    const reportForm=queue.querySelector('[data-report-form]'),reportResult=queue.querySelector('[data-report-result]');
    const maltaParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Malta',year:'numeric',month:'2-digit'}).formatToParts(new Date());
    const part=type=>maltaParts.find(value=>value.type===type).value,currentMonth=part('year')+'-'+part('month');
@@ -50,7 +50,7 @@ export function mountCouncilConcerns(container,{page,token,onSignIn}){
     const from=reportForm.elements.from.value,to=reportForm.elements.to.value;
     if(from>to)throw Error('The starting month must be before or equal to the ending month.');
     const report=await get('?'+new URLSearchParams({filter:'completed_report',from,to}));
-    reportResult.textContent=`${report.total} completed concern${report.total===1?'':'s'} from ${from} to ${to}.`;
+    reportResult.textContent=`${report.total} completed report${report.total===1?'':'s'} from ${from} to ${to}.`;
    })};
    const form=queue.querySelector('form'),save=form.querySelector('button');
    form.elements.state.onchange=()=>{
@@ -80,27 +80,27 @@ export function mountCouncilConcerns(container,{page,token,onSignIn}){
   const photo=['pending','approved','rejected'].includes(item.photo_state)&&!item.photo_deleted_at;
   const link=mapURL(item);
   detail.className='concern-dialog concern-review-dialog';
-  detail.innerHTML=`<div class="concern-toolbar"><div><p class="concern-caption">${esc(page.locality_name)} · Council</p><h2>Concern details</h2></div><button type="button" class="secondary" data-close-detail>Close</button></div>
+  detail.innerHTML=`<div class="concern-toolbar"><div><p class="concern-caption">${esc(page.locality_name)} · Council</p><h2>Report details</h2></div><button type="button" class="secondary" data-close-detail>Close</button></div>
    <p data-review-message class="concern-notice" role="status" hidden></p><div class="concern-review-grid"><section class="concern-reading"><p class="concern-full-text">${esc(item.description)}</p><p>Date submitted: ${esc(date(item.submitted_at))} · ${esc(daysSinceLastUpvote(item))}</p><p><strong class="concern-status" data-status="${esc(item.status)}">${esc(labels[item.status])}</strong> · ${support(item)}</p>
-   ${needsAction?'<p>Upvotes show how much community support this concern has. The text is already public.</p>':''}
+   ${needsAction?'<p>Upvotes show how much community support this report has. The text is already public.</p>':''}
    ${link?`<p><a href="${esc(link)}" target="_blank" rel="noopener">Open pin in Google Maps</a></p>`:''}
    <div class="concern-actions">
-   ${item.published_at?`<button type="button" class="secondary" data-share>Share concern</button>`:''}
+   ${item.published_at?`<button type="button" class="secondary" data-share>Share report</button>`:''}
    </div>
    ${photo?'<h3>Attached photo · '+esc(item.photo_state==='pending'?'Waiting for approval':item.photo_state==='approved'?'Public':'Hidden from public')+'</h3>':''}<div class="concern-photo" hidden></div>
    ${photo?`<div class="concern-actions"><button type="button" class="secondary" data-action="approve_photo" ${item.photo_state==='approved'?'disabled':''} disabled title="Wait for the photo to load before approving it">Approve / show photo</button><button type="button" class="secondary" data-action="reject_photo">Hide photo</button></div>`:''}
    </section><aside class="concern-decision">${needsAction?`<form><h3>Council response</h3><label class="concern-note">Update or closure reason<textarea name="note" maxlength="500" rows="2"></textarea><span class="concern-counter" data-note-count>0 / 500</span></label><div class="concern-actions">
     <button type="button" class="primary" data-action="in_progress">Record update</button><button type="button" class="secondary" data-action="completed">Close as completed</button><button type="button" class="secondary" data-action="cannot_complete">Close as cannot complete</button></div></form>`:''}
    ${item.blocked_at?'<p class="concern-notice">Blocked for everyone. Retained for council records.</p>':''}
-   <div class="concern-actions">${canRevive?'<button type="button" class="primary" data-action="revive">Revive concern · 10-day grace period</button>':''}<button type="button" class="secondary" data-action="block_concern" ${item.blocked_at?'disabled':''}>Block concern for everyone</button><button type="button" class="concern-delete" data-delete-permanent>Delete permanently</button></div>
+   <div class="concern-actions">${canRevive?'<button type="button" class="primary" data-action="revive">Revive report · 10-day grace period</button>':''}<button type="button" class="secondary" data-action="block_concern" ${item.blocked_at?'disabled':''}>Block report for everyone</button><button type="button" class="concern-delete" data-delete-permanent>Delete permanently</button></div>
    </aside></div>${item.updates.length?`<section class="concern-timeline"><h3>Council updates</h3>${item.updates.map(update=>`<p><strong>${esc(date(update.created_at))} · ${esc(labels[update.status])}</strong><br>${esc(update.note)}</p>`).join('')}</section>`:''}`;
   detail.querySelector('[data-close-detail]').onclick=()=>{detail.close()};
   detail.querySelector('[data-share]')?.addEventListener('click',event=>act(event.currentTarget,async()=>{
    const result=await shareConcern(id);if(result)message(result);
   }));
   detail.querySelector('[data-delete-permanent]')?.addEventListener('click',event=>act(event.currentTarget,async()=>{
-   if(!window.confirm('Permanently delete this concern, its votes, updates, and photo? This cannot be undone.'))return;
-   await get('/'+id,{method:'DELETE'});detail.close();await refresh();message('Concern permanently deleted.');
+   if(!window.confirm('Permanently delete this report, its votes, updates, and photo? This cannot be undone.'))return;
+   await get('/'+id,{method:'DELETE'});detail.close();await refresh();message('Report permanently deleted.');
   }));
   let photoLoaded=false;
   const photoBox=detail.querySelector('.concern-photo');
@@ -122,7 +122,7 @@ export function mountCouncilConcerns(container,{page,token,onSignIn}){
   const noteField=detail.querySelector('textarea'),noteLabel=detail.querySelector('.concern-note');
   async function irreversibleCannotComplete(){
    const modal=document.createElement('dialog');modal.className='concern-dialog concern-irreversible';modal.setAttribute('aria-labelledby','concernIrreversibleTitle');
-   modal.innerHTML='<h2 id="concernIrreversibleTitle">Permanently close this concern?</h2><p>The same email with the council’s reason will be sent to the creator and council. Then the concern, photo and individual upvote records will be permanently deleted. This cannot be undone.</p><div class="concern-actions"><button type="button" class="secondary" data-cancel>Go back</button><button type="button" class="concern-delete" data-confirm>Send email and delete</button></div>';
+   modal.innerHTML='<h2 id="concernIrreversibleTitle">Permanently close this report?</h2><p>The same email with the council’s reason will be sent to the creator and council. Then the report, photo and individual upvote records will be permanently deleted. This cannot be undone.</p><div class="concern-actions"><button type="button" class="secondary" data-cancel>Go back</button><button type="button" class="concern-delete" data-confirm>Send email and delete</button></div>';
    detail.append(modal);return await new Promise(resolve=>{let answer=false;modal.querySelector('[data-confirm]').onclick=()=>{answer=true;modal.close()};modal.querySelector('[data-cancel]').onclick=()=>modal.close();modal.addEventListener('close',()=>{modal.remove();resolve(answer)},{once:true});modal.showModal();modal.querySelector('[data-cancel]').focus()});
   }
   if(noteField)noteField.oninput=()=>{detail.querySelector('[data-note-count]').textContent=noteField.value.length+' / 500'};
@@ -141,10 +141,10 @@ export function mountCouncilConcerns(container,{page,token,onSignIn}){
    if(action==='approve_photo'&&!photoLoaded)throw Error('Wait for the photo to load before approving it.');
    const result=await get('/'+id,{method:'PATCH',body:{action,note,revision:item.revision}});
    if(disposed||current!==detailSeq||!detail.open)return;
-   if(action==='cannot_complete'&&result.deleted){detail.close();await refresh();message('The creator and council were emailed. The concern and its related data have been deleted.');return}
-   if(action==='revive'){detail.close();await refresh();message('Concern revived. Its 30-day activity period has restarted.');return}
+   if(action==='cannot_complete'&&result.deleted){detail.close();await refresh();message('The creator and council were emailed. The report and its related data have been deleted.');return}
+   if(action==='revive'){detail.close();await refresh();message('Report revived. Its 30-day activity period has restarted.');return}
    await refresh();if(disposed||current!==detailSeq||!detail.open)return;await open(id);
-   const copy=({approve_photo:'Photo is now visible to everyone.',reject_photo:'Photo hidden from everyone and retained for the council.',block_concern:'Concern blocked for everyone and retained for council records.',in_progress:'Update saved.',completed:'Concern marked completed. Its photo and individual upvote records were deleted; the total upvote count was kept.'}[action]||'Saved.');
+   const copy=({approve_photo:'Photo is now visible to everyone.',reject_photo:'Photo hidden from everyone and retained for the council.',block_concern:'Report blocked for everyone and retained for council records.',in_progress:'Update saved.',completed:'Report marked completed. Its photo and individual upvote records were deleted; the total upvote count was kept.'}[action]||'Saved.');
    message(copy);
   }));
   if(!detail.open)detail.showModal();

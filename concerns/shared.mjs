@@ -1,9 +1,9 @@
-import {API,esc} from '../noticeboard/shared.mjs?v=1.1.179';
+import {API,esc} from '../noticeboard/shared.mjs?v=1.1.180';
 export {esc};
 export const labels={pending:'Open',collecting:'Open',ready:'Open',in_progress:'Under review by council',completed:'Closed — Completed',cannot_complete:'Closed — Cannot complete',declined:'Blocked'};
 export const channelCopy={
- inactive:'The home button and all concerns are hidden. Re-enable this channel to restore retained concerns.',
- active:'The homepage button is visible. Residents can submit new concerns.',
+ inactive:'The home button and all reports are hidden. Re-enable this channel to restore retained reports.',
+ active:'The homepage button is visible. Residents can submit new reports.',
  paused:'New submissions are temporarily paused. Residents can still vote and follow updates.'
 };
 const day=86400000;
@@ -45,24 +45,24 @@ export async function request(path,{method='GET',body,token}={}){
    ...(body?{body:JSON.stringify(body)}:{})});
  }catch{throw Error('Could not connect to Bag Day. Check your connection and try again.')}
  let value;
- try{value=await response.json()}catch{throw Error('Voice a Concern is temporarily unavailable.')}
+ try{value=await response.json()}catch{throw Error('Report a Problem is temporarily unavailable.')}
  if(!response.ok)throw Object.assign(Error(value.error?.message||'Please try again.'),{status:response.status,code:value.error?.code});
  return value;
 }
 export async function shareConcern(id){
  const url=itemURL(id);
  if(navigator.share){
-  try{await navigator.share({title:'Voice a Concern · Bag Day Malta',url});return 'Concern shared.'}
+  try{await navigator.share({title:'Report a Problem · Bag Day Malta',url});return 'Report shared.'}
   catch(error){if(error.name==='AbortError')return ''}
  }
- try{await navigator.clipboard.writeText(url);return 'Concern link copied.'}
+ try{await navigator.clipboard.writeText(url);return 'Report link copied.'}
  catch{return url}
 }
 export async function revealPhoto(container,path,token){
  container.textContent='Loading photo…';
  try{
   const {url}=await request(path,{token});
-  const image=document.createElement('img');image.alt='Photo of the concern';
+  const image=document.createElement('img');image.alt='Photo attached to the report';
   const loaded=new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=reject});
   image.src=url;await loaded;if(image.decode)await image.decode();if(!container.isConnected)return false;container.replaceChildren(image);return true;
  }catch{container.textContent='Photo temporarily unavailable.';return false;}
