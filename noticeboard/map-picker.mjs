@@ -1,13 +1,13 @@
-import {esc,icon} from './shared.mjs?v=1.1.183';
-import {localityCentre,validPin} from './locations.mjs?v=1.1.183';
+import {esc,icon} from './shared.mjs?v=1.1.184';
+import {localityCentre,validPin} from './locations.mjs?v=1.1.184';
 const pinSVG='<svg viewBox="0 0 36 44" aria-hidden="true"><path d="M18 42S3 26 3 17a15 15 0 1 1 30 0c0 9-15 25-15 25Z" fill="#e23c38" stroke="white" stroke-width="2"/><circle cx="18" cy="17" r="5" fill="white"/></svg>';
 const localitySource='<p class="hint map-source">Locality starting points: <a href="https://openadmindata.org/mt/" target="_blank" rel="noopener">Open Admin Data</a> (CC BY 4.0).</p>';
 let leafletTask;
 export function loadLeaflet(){
  if(window.L)return Promise.resolve(window.L);
  if(!leafletTask)leafletTask=new Promise((resolve,reject)=>{
-  const css=document.createElement('link');css.rel='stylesheet';css.href='/noticeboard/vendor/leaflet/leaflet.css?v=1.1.183';document.head.append(css);
-  const script=document.createElement('script');script.src='/noticeboard/vendor/leaflet/leaflet.js?v=1.1.183';script.onload=()=>resolve(window.L);script.onerror=()=>{leafletTask=null;reject(Error('Map library unavailable'))};document.head.append(script);
+  const css=document.createElement('link');css.rel='stylesheet';css.href='/noticeboard/vendor/leaflet/leaflet.css?v=1.1.184';document.head.append(css);
+  const script=document.createElement('script');script.src='/noticeboard/vendor/leaflet/leaflet.js?v=1.1.184';script.onload=()=>resolve(window.L);script.onerror=()=>{leafletTask=null;reject(Error('Map library unavailable'))};document.head.append(script);
  });return leafletTask;
 }
 export function locationFields(item={},pinOnly=false){const hasPin=validPin(item.latitude,item.longitude);return `${pinOnly?'':`<label><span>Where <span class="notice-required">*</span></span><input name="where_text" maxlength="300" placeholder="Venue, address or meeting point" value="${esc(item.where_text||'')}"></label>`}<input type="hidden" name="latitude" value="${hasPin?esc(item.latitude):''}"><input type="hidden" name="longitude" value="${hasPin?esc(item.longitude):''}"><div class="location-actions"><button type="button" class="secondary" id="chooseMapPin">${icon('pin')}<span>${hasPin?'Change map pin':'Choose map pin'}</span></button><button type="button" class="secondary" id="removeMapPin" ${hasPin?'':'hidden'}>Remove pin</button><span class="hint" id="pinStatus">${hasPin?'Map pin saved':'Map pin optional'}</span></div>${pinOnly?'':'<p class="hint">Describe where to meet. You can also choose an exact point on the map.</p>'}`}
@@ -20,10 +20,14 @@ function pickerMarkup(page,hasPin,report){
  <div class="report-pin-map-wrap">
   <div class="pin-map" role="region" aria-label="Problem location map. Use arrow keys to move the map." aria-describedby="reportPinHint"></div>
   <span class="notice-map-marker report-pin-marker" aria-hidden="true">${pinSVG}</span>
-  <button type="button" class="secondary report-pin-gps" id="useCurrentPosition">Use my location</button>
+  <button type="button" class="secondary report-pin-gps" id="useCurrentPosition" aria-label="Use my location" title="Use my location">
+   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+   </svg>
+  </button>
  </div>
  <p class="hint report-pin-status" id="reportPinStatus" role="status"></p>
- ${localitySource}
+ <details class="report-pin-credits"><summary>Map credits</summary>${localitySource}</details>
  <button type="button" class="primary report-pin-confirm" id="usePin">Use this pin</button>`;
  return `${header}<p class="hint">${locality} · Zoom, pan and tap the exact meeting point.</p><div class="pin-map" role="region" aria-label="Choose a location on the map"></div><p class="hint">Tap the map or drag the pin. Keyboard: pan with arrows, then use “Pin at map centre”.</p>${localitySource}<div class="location-actions"><button type="button" class="secondary" id="centrePin">Pin at map centre</button><button type="button" class="secondary" id="resetPinMap">Back to locality</button></div><div class="toolbar"><button type="button" class="secondary" id="cancelPin">Cancel</button><button type="button" class="primary" id="usePin" ${hasPin?'':'disabled'}>Use this pin</button></div>`;
 }
@@ -31,7 +35,7 @@ function bindReportPicker(L,map,modal,initialPin,update){
  const locate=modal.querySelector('#useCurrentPosition'),usePin=modal.querySelector('#usePin'),status=modal.querySelector('#reportPinStatus');
  let attempt=0,pending=false;
  function focusPin(latitude,longitude){
-  const span=L.latLng(latitude,longitude).toBounds(20);
+  const span=L.latLng(latitude,longitude).toBounds(80);
   const zoom=map.getBoundsZoom([[span.getSouth(),longitude],[span.getNorth(),longitude]]);
   map.setView([latitude,longitude],zoom,{animate:false});
  }

@@ -185,6 +185,10 @@
 }
 .report-pin-map-wrap{position:relative;isolation:isolate}
 .report-pin-marker{position:absolute;z-index:500;top:50%;left:50%;transform:translate(-50%,-42px);pointer-events:none}
-.map-pin-modal .report-pin-gps{position:absolute;z-index:1001;top:10px;right:10px;min-height:44px;padding:6px 10px;background:var(--nb-card);box-shadow:0 1px 4px #0004}
+.map-pin-modal .report-pin-gps{position:absolute;z-index:1001;top:10px;right:10px;display:grid;place-items:center;width:44px;min-height:44px;padding:0;background:var(--nb-card);box-shadow:0 1px 4px #0004}
+.report-pin-gps svg{width:24px;height:24px}
 .report-pin-status:empty{margin:0}
+.report-pin-credits{margin:8px 0;color:var(--nb-secondary);font-size:13px}
+.report-pin-credits summary{width:fit-content;padding:4px 0;cursor:pointer}
+.report-pin-credits .hint{margin:4px 0}
 .map-pin-modal .report-pin-confirm{width:100%;min-height:44px}
