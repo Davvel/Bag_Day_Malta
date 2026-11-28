@@ -1,13 +1,13 @@
-import {esc,icon} from './shared.mjs?v=1.1.185';
-import {localityCentre,validPin} from './locations.mjs?v=1.1.185';
+import {esc,icon} from './shared.mjs?v=1.1.187';
+import {localityCentre,validPin} from './locations.mjs?v=1.1.187';
 const pinSVG='<svg viewBox="0 0 36 44" aria-hidden="true"><path d="M18 42S3 26 3 17a15 15 0 1 1 30 0c0 9-15 25-15 25Z" fill="#e23c38" stroke="white" stroke-width="2"/><circle cx="18" cy="17" r="5" fill="white"/></svg>';
 const localitySource='<p class="hint map-source">Locality starting points: <a href="https://openadmindata.org/mt/" target="_blank" rel="noopener">Open Admin Data</a> (CC BY 4.0).</p>';
 let leafletTask;
 export function loadLeaflet(){
  if(window.L)return Promise.resolve(window.L);
  if(!leafletTask)leafletTask=new Promise((resolve,reject)=>{
-  const css=document.createElement('link');css.rel='stylesheet';css.href='/noticeboard/vendor/leaflet/leaflet.css?v=1.1.185';document.head.append(css);
-  const script=document.createElement('script');script.src='/noticeboard/vendor/leaflet/leaflet.js?v=1.1.185';script.onload=()=>resolve(window.L);script.onerror=()=>{leafletTask=null;reject(Error('Map library unavailable'))};document.head.append(script);
+  const css=document.createElement('link');css.rel='stylesheet';css.href='/noticeboard/vendor/leaflet/leaflet.css?v=1.1.187';document.head.append(css);
+  const script=document.createElement('script');script.src='/noticeboard/vendor/leaflet/leaflet.js?v=1.1.187';script.onload=()=>resolve(window.L);script.onerror=()=>{leafletTask=null;reject(Error('Map library unavailable'))};document.head.append(script);
  });return leafletTask;
 }
 function pinButtonText(hasPin,report){

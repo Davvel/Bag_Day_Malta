@@ -7,11 +7,28 @@
  const storage={read(){try{return Math.max(10,Math.min(100,Math.floor(Number(localStorage.getItem(progressKey)))||10));}catch(_){return 1;}},write(value){try{localStorage.setItem(progressKey,String(value));}catch(_){}}};
  function savedLevel(){try{return Math.max(1,Math.min(storage.read(),Math.floor(Number(localStorage.getItem(lastLevelKey)))||1));}catch(_){return 1;}}
  function rememberLevel(value){try{localStorage.setItem(lastLevelKey,String(value));}catch(_){}}
+ // Advice belongs to this browser, including its selected level on shared devices.
+ const adviceKey='sort-belt-easier-advice-at-v1',nextAdviceKey='sort-belt-next-level-advice-v1',adviceCooldown=60*60*1000;
+ let adviceAt=readAdviceNumber(adviceKey),nextAdviceLevel=readAdviceNumber(nextAdviceKey);
+ function readAdviceNumber(key){try{return Math.max(0,Number(localStorage.getItem(key))||0);}catch(_){return 0;}}
+ function writeAdviceNumber(key,value){try{localStorage.setItem(key,String(value));}catch(_){}}
+ function roundEndMessage(){
+  const now=Date.now();
+  // Read again so another game tab's advice also starts this browser's cooldown.
+  adviceAt=Math.max(adviceAt,readAdviceNumber(adviceKey));
+  const advise=!adviceAt||now-adviceAt>=adviceCooldown||now<adviceAt||nextAdviceLevel===level;
+  if(advise){adviceAt=now;writeAdviceNumber(adviceKey,now);if(nextAdviceLevel===level){nextAdviceLevel=0;writeAdviceNumber(nextAdviceKey,0);}}
+  renderMenu();
+  byId('roundEndTitle').textContent='Round ended · 5 mistakes in a row';
+  byId('roundEndMessage').textContent=advise?'Try choosing a slower, easier level from the level list.':'Keep going—you can do this! Choose a level when you are ready to try again.';
+  byId('roundEndNotice').hidden=false;
+  byId('levelChoice').focus({preventScroll:true});
+ }
  let hintItem=null,helpEnabled=true;
  const readHelp=()=>{try{helpEnabled=localStorage.getItem('bag-day-help-animations-v1')!=='false'}catch{}};readHelp();
  window.addEventListener('storage',e=>{if(e.key==='bag-day-help-animations-v1'||e.key===null){readHelp();if(!helpEnabled)hideHint()}});
  const activePointers=new Set();
- let unlocked=storage.read(),level=savedLevel(),mode='menu',practice=false,elapsed=0,hits=0,misses=0,items=[],mistakes=new Map(),deck=[],nextSpawn=0,serial=0,selected=null,drag=null,raf=null,lastFrame=0,lastInput=0,feedbackUntil=0;
+ let unlocked=storage.read(),level=savedLevel(),mode='menu',practice=false,elapsed=0,hits=0,misses=0,consecutiveMistakes=0,items=[],mistakes=new Map(),deck=[],nextSpawn=0,serial=0,selected=null,drag=null,raf=null,lastFrame=0,lastInput=0,feedbackUntil=0;
  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
  const belt=byId('conveyor'),itemsLayer=byId('fallingItems'),hand=byId('pushHand'),bags=[...document.querySelectorAll('#gameBags button')];
  const pace=()=>({travel:Math.max(5.2,12-(level-1)*.55),interval:Math.max(1.5,6-(level-1)*.35)});
@@ -20,6 +37,7 @@
  function abandon(){if(['running','paused','info'].includes(mode))measure('game_round_abandon',{level,mode:practice?'practice':'timed'})}
  function showOnly(id){for(const name of ['gameMenu','gamePlay','gameResults'])byId(name).hidden=name!==id;}
  function renderMenu(){
+  byId('roundEndNotice').hidden=true;
   orientationIntent=null;closeOrientation();
   prepareSerial++;preparing=false;pendingRound=null;
   if(byId('lessonPanel').open)byId('lessonPanel').close();
@@ -136,32 +154,35 @@
 
  function accept(item){
   if(!items.includes(item)||mode!=='running')return;
-  const correct=content.accepts(item.info,round.columns[item.lane]);if(correct)hits++;else{misses++;mistakes.set(item.info.id,item.info);}
+  const correct=content.accepts(item.info,round.columns[item.lane]);if(correct){hits++;consecutiveMistakes=0;}else{misses++;consecutiveMistakes++;mistakes.set(item.info.id,item.info);}
   const bag=bags[item.lane];bag.classList.remove('good','bad');void bag.offsetWidth;bag.classList.add(correct?'good':'bad');
   bag.querySelector('.bag-feedback').textContent=correct?'✓':'✕';
   clearTimeout(bag.pulseTimer);bag.pulseTimer=setTimeout(()=>bag.classList.remove('good','bad'),900);
   byId('feedback').textContent=correct?'Correct':item.info.name+' → '+columnName(content.laneFor(item.info,round.columns));
 
   byId('hitCount').textContent=String(hits);byId('missCount').textContent=String(misses);
-  if(drag?.item===item)drag=null;if(selected===item)clearSelection();item.node.remove();items=items.filter(entry=>entry!==item);hideHint();if(elapsed<60)ensureSupply();
+  if(drag?.item===item)drag=null;if(selected===item)clearSelection();item.node.remove();items=items.filter(entry=>entry!==item);hideHint();
+  if(consecutiveMistakes>=5){finishRound('mistakes');return;}
+  if(elapsed<60)ensureSupply();
  }
  function tick(now){
-  if(mode!=='running')return;const dt=Math.max(0,(now-lastFrame)/1000);lastFrame=now;elapsed+=dt;
+  if(mode!=='running')return;const dt=Math.max(0,(now-lastFrame)/1000);lastFrame=now;elapsed=Math.min(60,elapsed+dt);
+  if(elapsed>=60){updateClock();finishRound();return;}
   const settings=pace();
-  for(const item of [...items]){if(drag?.item===item)continue;moveItem(item,item.lane,item.y+dt/settings.travel);if(item.y>=1)accept(item);}
+  for(const item of [...items]){if(drag?.item===item)continue;moveItem(item,item.lane,item.y+dt/settings.travel);if(item.y>=1)accept(item);if(mode!=='running')return;}
   if(elapsed<60)ensureSupply();
   updateClock();
 
   const middleItem=items.find(item=>item.lane===1);
   if(helpEnabled && !drag && !activePointers.size && middleItem && level<=10 && now-lastInput>2000 && !reduced.matches)showHint(middleItem);else hideHint();
-  if(!practice && elapsed>=60){finishRound();return;}raf=requestAnimationFrame(tick);
+  raf=requestAnimationFrame(tick);
  }
  function updateClock(){
   const remaining=Math.max(0,60-elapsed),seconds=Math.ceil(remaining),face=byId('timerFace'),label=byId('timeLeft');
-  label.textContent=practice?'∞':String(seconds);
-  label.setAttribute('aria-label',practice?'Practice: no time limit':`${seconds} seconds remaining`);
-  face.style.setProperty('--elapsed-angle',`${practice?0:(60-remaining)*6}deg`);
-  face.classList.toggle('urgent',!practice&&remaining>0&&remaining<=5);
+  label.textContent=String(seconds);
+  label.setAttribute('aria-label',`${seconds} seconds remaining`);
+  face.style.setProperty('--elapsed-angle',`${(60-remaining)*6}deg`);
+  face.classList.toggle('urgent',remaining>0&&remaining<=5);
  }
  const orientationPanel=byId('orientationPanel');
  const landscape=()=>window.matchMedia('(orientation: landscape)').matches && window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width,screen.height)<600 && window.innerWidth<900;
@@ -251,7 +272,7 @@
  function beginRound(next,isPractice=false){
   window.BAG_DAY_GAME_LAYOUT?.sync();
   byId('winPanel').hidden=true;byId('gamePlay').inert=false;notifyWin();
-  abandon();level=Math.max(1,Math.min(unlocked,Number(next)||1));rememberLevel(level);practice=isPractice;measure('game_round_start',{level,mode:practice?'practice':'timed'});elapsed=0;hits=0;misses=0;items=[];mistakes=new Map();deck=[];nextSpawn=0;selected=null;drag=null;lastSpawnId=null;displayColumns();
+  abandon();level=Math.max(1,Math.min(unlocked,Number(next)||1));rememberLevel(level);practice=isPractice;measure('game_round_start',{level,mode:practice?'practice':'timed'});elapsed=0;hits=0;misses=0;consecutiveMistakes=0;items=[];mistakes=new Map();deck=[];nextSpawn=0;selected=null;drag=null;lastSpawnId=null;displayColumns();
   itemsLayer.replaceChildren();byId('pausePanel').hidden=true;byId('feedback').classList.remove('shown');bags.forEach(bag=>bag.classList.remove('target','good','bad'));hideHint();
   byId('playingLevel').textContent=String(level);byId('hitCount').textContent='0';byId('missCount').textContent='0';updateClock();byId('controlHint').textContent='Drag to move · drop into a destination';showOnly('gamePlay');mode='running';ensureSupply();notifyRound();byId('gamePlay').classList.add('running');lastFrame=performance.now();lastInput=lastFrame;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});checkOrientation();
  }
@@ -259,13 +280,15 @@
   if(mode!=='running')return;measure('game_pause');mode='paused';cancelAnimationFrame(raf);drag=null;hideHint();byId('gamePlay').classList.remove('running');byId('pausePanel').hidden=false;byId('gamePlay').inert=true;notifyPause();byId('resumeGame').focus({preventScroll:true});
  }
  function resume(){if(mode!=='paused')return;if(landscape()){showOrientation();return;}measure('game_resume');byId('pausePanel').hidden=true;byId('gamePlay').inert=false;mode='running';notifyPause();lastFrame=performance.now();lastInput=lastFrame;byId('gamePlay').classList.add('running');raf=requestAnimationFrame(tick);byId('pauseGame').focus({preventScroll:true});}
- function finishRound(){
+ function finishRound(reason='time'){
+  if(mode!=='running')return;
   cancelAnimationFrame(raf);raf=null;byId('gamePlay').classList.remove('running');byId('pausePanel').hidden=true;byId('gamePlay').inert=false;
 
-  mode='results';drag=null;hideHint();const total=hits+misses,accuracy=total?Math.round(hits/total*100):0,passed=!practice&&total>0&&hits*5>=total*4;
-  measure('game_round_complete',{level,mode:practice?'practice':'timed',score:hits,mistakes:misses,accuracy,duration_seconds:Math.round(elapsed),outcome:passed?'passed':'retry'});
+  mode='results';drag=null;hideHint();const total=hits+misses,accuracy=total?Math.round(hits/total*100):0,passed=reason==='time'&&!practice&&elapsed>=60&&total>0&&hits*5>=total*4;
+  measure('game_round_complete',{level,mode:practice?'practice':'timed',score:hits,mistakes:misses,accuracy,duration_seconds:Math.round(elapsed),outcome:passed?'passed':'retry',end_reason:reason});
   if(!practice && elapsed>=60)window.SORTING_STATS.complete({level,hits,passed,misses});
-  if(passed){unlocked=Math.max(unlocked,Math.min(100,level+1));storage.write(unlocked);rememberLevel(unlocked);}
+  if(reason==='mistakes'){roundEndMessage();return;}
+  if(passed){nextAdviceLevel=level<100?level+1:0;writeAdviceNumber(nextAdviceKey,nextAdviceLevel);unlocked=Math.max(unlocked,Math.min(100,level+1));storage.write(unlocked);rememberLevel(unlocked);}
   if(passed){celebrate(accuracy);return;}
   const result=content.outcome(hits,misses);
   byId('resultsTitle').textContent=`Level ${level}`;

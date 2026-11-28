@@ -1,11 +1,11 @@
-import {boardURL,date,daysLeft,esc,labels,request,revealPhoto,shareConcern,standing,voteAgainIn} from './shared.mjs?v=1.1.185';
-import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.185';
-import {locationKey,mapURL} from '../noticeboard/locations.mjs?v=1.1.185';
-import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.185';
-import {icon} from '../noticeboard/shared.mjs?v=1.1.185';
+import {boardURL,date,daysLeft,esc,labels,request,revealPhoto,shareConcern,standing,voteAgainIn} from './shared.mjs?v=1.1.187';
+import {bindLocationFields,locationFields,readLocationFields} from '../noticeboard/map-picker.mjs?v=1.1.187';
+import {locationKey,mapURL} from '../noticeboard/locations.mjs?v=1.1.187';
+import {compressPhoto,sendPhoto} from './photo.mjs?v=1.1.187';
+import {icon} from '../noticeboard/shared.mjs?v=1.1.187';
 
 const $=selector=>document.querySelector(selector);
-const main=$('#concernMain'),compose=$('#concernCompose'),signin=$('#concernSignIn');
+const main=$('#concernMain'),compose=$('#concernCompose'),preview=$('#concernPreview'),signin=$('#concernSignIn');
 const params=new URLSearchParams(location.search);
 let loc=params.get('locality'),itemId=params.get('concern'),archived=params.get('archive')==='1',offset=0,justMyConcern=false;
 let activeView=archived?'past':'open',detailId=null,detailSequence=0;
@@ -283,16 +283,24 @@ concernParent?.addEventListener('touchend',async event=>{
 concernParent?.addEventListener('touchcancel',clearConcernDrag,{passive:true});
 window.addEventListener('bag-day-gesture-cancel',clearConcernDrag);
 concernParent?.addEventListener('click',event=>{if(suppressConcernClickTarget&&(event.target===suppressConcernClickTarget||suppressConcernClickTarget.contains?.(event.target))){suppressConcernClickTarget=null;event.preventDefault();event.stopPropagation()}},true);
+function reportContent(item,{preview=false}={}){
+ const pin=mapURL(item);
+ const marker='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 10c0 4-6 10-6 10s-6-6-6-10a6 6 0 1 1 12 0Z"/><circle cx="12" cy="10" r="2"/></svg>';
+ const location=pin&&(preview
+  ?`<span class="detail-pin" role="img" aria-label="Map pin included">${marker}</span>`
+  :`<a class="detail-pin" href="${esc(pin)}" target="_blank" rel="noopener noreferrer" title="View in Google Maps (new tab)" aria-label="View location in Google Maps (new tab)">${marker}</a>`);
+ return `<div class="detail-place"><strong>${esc(item.locality_name)}</strong>${location||''}</div>
+ <p class="detail-description">${esc(item.description)}</p>`;
+}
 async function openDetail(id,provided){
  const dialog=$('#concernDetail');if(!dialog)return;
  const current=++detailSequence;
  const item=provided||await request('/concerns/items/'+encodeURIComponent(id));
  if(current!==detailSequence)return;
  closeVoteHelp();
- detailId=id;const pin=mapURL(item);
+ detailId=id;
  dialog.innerHTML=`<div class="concern-toolbar"><h2>Report details</h2><button type="button" class="detail-x" data-close-detail aria-label="Close">×</button></div>
- <article><div class="detail-place"><strong>${esc(item.locality_name)}</strong>${pin?`<a class="detail-pin" href="${esc(pin)}" target="_blank" rel="noopener noreferrer" title="View in Google Maps (new tab)" aria-label="View location in Google Maps (new tab)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 10c0 4-6 10-6 10s-6-6-6-10a6 6 0 1 1 12 0Z"/><circle cx="12" cy="10" r="2"/></svg></a>`:''}</div>
- <p class="detail-description">${esc(item.description)}</p>${detailFacts(item)}
+ <article>${reportContent(item)}${detailFacts(item)}
  ${!item.closed_at&&!item.archived_at&&daysLeft(item)<=3?`<p class="detail-warning">Share this report with people in ${esc(concernLocality(item))} who have it selected as their home locality so they can vote. Each new vote resets the countdown to 30 days.</p>`:''}
  ${item.own_photo&&item.photo_pending?'<small>Photo awaiting council approval.</small>':''}
  ${controls(item)}<div class="concern-photo" hidden></div></article>${updates(item.updates||[])}`;
@@ -401,37 +409,48 @@ async function startConcern(){
   throw error;
  }finally{checkingSubmission=false}
  if(!board||board.locality.state!=='active')return;
- let photo=null,photoPreview='',submitting=false,confirmed=false;
+ const locality=board.locality;
+ let photo=null,photoPreview='',preparingPhoto=false,submitting=false,confirmed=false;
  const concernId=crypto.randomUUID();
  compose.innerHTML=`<div class="concern-toolbar"><h2 id="concernComposeTitle">Report a Problem</h2><button type="button" class="detail-x" data-close aria-label="Close">×</button></div>
-  <p class="concern-locality">${esc(board.locality.locality_name)}</p><ol class="concern-steps"><li data-step="write" aria-current="step">1 Write</li><li data-step="review">2 Review</li></ol><p class="concern-notice concern-error" data-form-message role="alert" tabindex="-1" hidden></p>
-  <form class="concern-form"><label>What happened, and where?<textarea name="description" required maxlength="500" rows="4" placeholder="For example, broken streetlight outside number 14"></textarea><span class="concern-counter" data-counter>0 / 500</span></label>
+  <p class="concern-locality">${esc(locality.locality_name)}</p>
+  <form class="concern-form"><label><span>What happened, and where? <strong class="report-required">Required</strong></span><textarea name="description" required maxlength="500" rows="4" placeholder="For example, broken streetlight outside number 14"></textarea><span class="concern-counter" data-counter>0 / 500</span></label>
+  <p class="concern-caption">Map pin · Optional</p>
   ${locationFields({},true)}
   ${board.photos_available?`<fieldset><legend>Photo · Optional · one photo</legend><div class="concern-actions">
     <button type="button" class="secondary" data-pick="camera">Take photo</button><button type="button" class="secondary" data-pick="gallery">Choose photo</button>
     <button type="button" class="secondary" data-remove hidden>Remove photo</button></div>
     <input type="file" accept="image/*" capture="environment" data-input="camera" hidden><input type="file" accept="image/*" data-input="gallery" hidden>
     <p data-photo-status aria-live="polite"></p><img class="concern-draft-photo" alt="Compressed photo preview" hidden></fieldset>`:''}
-  <button type="submit" class="primary report-review-button">Review report</button></form>
-  <section data-review hidden><h3>Check your report</h3><div data-review-body></div>
-  <div class="concern-actions"><button type="button" class="secondary" data-back>Back to edit</button><button type="button" class="primary" data-confirm>Confirm and submit</button></div></section>
-  <section data-received hidden><h3>Report submitted</h3><p>Your report is now visible to the community. Share it with other people in ${esc(board.locality.locality_name)} so they can upvote it. They must have ${esc(board.locality.locality_name)} selected as their home locality to vote.</p><p data-photo-pending hidden>Your photo is visible only to you until the council approves it.</p><p data-photo-failed hidden>Your report was submitted, but the photo could not be uploaded.</p>
+  <p class="concern-notice concern-error" data-form-message role="alert" tabindex="-1" hidden></p>
+  <div class="report-form-actions"><button type="button" class="secondary" data-preview aria-haspopup="dialog" disabled>Preview problem report</button><button type="submit" class="primary" data-submit disabled>Submit report</button></div></form>
+  <section data-received hidden><h3>Report submitted</h3><p>Your report is now visible to the community. Share it with other people in ${esc(locality.locality_name)} so they can upvote it. They must have ${esc(locality.locality_name)} selected as their home locality to vote.</p><p data-photo-pending hidden>Your photo is visible only to you until the council approves it.</p><p data-photo-failed hidden>Your report was submitted, but the photo could not be uploaded.</p>
   <button class="primary" type="button" data-done>Done</button></section>`;
- const select=s=>compose.querySelector(s),form=select('form'),review=select('[data-review]');
- const error=copy=>{const node=select('[data-form-message]');node.textContent=copy;node.hidden=!copy;if(copy){node.focus();node.scrollIntoView({block:'nearest'})}};
- const dirty=()=>!!(form.elements.description.value.trim()||photo||form.elements.latitude.value||form.elements.longitude.value);
+ const form=compose.querySelector('form'),select=s=>form.querySelector(s);
+ const description=form.elements.description,previewButton=select('[data-preview]'),submitButton=select('[data-submit]');
+ const closeButton=compose.querySelector('[data-close]');
+ const errorNode=select('[data-form-message]');
+ const error=copy=>{errorNode.textContent=copy;errorNode.hidden=!copy;if(copy){errorNode.focus();errorNode.scrollIntoView({block:'nearest'})}};
+ const valid=()=>!!description.value.trim()&&description.validity.valid;
+ const refreshActions=()=>{previewButton.disabled=submitButton.disabled=!valid()||preparingPhoto||submitting||confirmed};
+ const dirty=()=>!!(description.value.trim()||photo||preparingPhoto||form.elements.latitude.value||form.elements.longitude.value);
  compose.bagDayCanClose=()=>!submitting&&(confirmed||!dirty()||window.confirm('Discard your unfinished report? Your text, photo and map pin will be lost.'));
  const close=()=>{if(compose.bagDayCanClose())compose.close()};
- select('[data-close]').onclick=close;
- select('[data-done]').onclick=()=>{close();load().catch(e=>message(e.message))};
+ closeButton.onclick=close;
+ const received=compose.querySelector('[data-received]'),done=received.querySelector('[data-done]');
+ done.onclick=()=>{close();load().catch(e=>message(e.message))};
  const cancel=event=>{event.preventDefault();close()};
  compose.addEventListener('cancel',cancel);
  compose.addEventListener('close',()=>{
   compose.removeEventListener('cancel',cancel);
+  if(preview.open)preview.close();
   if(photoPreview)URL.revokeObjectURL(photoPreview);
  },{once:true});
- bindLocationFields(form,board.locality,{report:true});
- form.elements.description.addEventListener('input',()=>{select('[data-counter]').textContent=form.elements.description.value.length+' / 500'});
+ bindLocationFields(form,locality,{report:true});
+ description.addEventListener('input',()=>{
+  select('[data-counter]').textContent=description.value.length+' / 500';
+  refreshActions();
+ });
  const changePhoto=next=>{
   if(photoPreview)URL.revokeObjectURL(photoPreview);
   photo=next;
@@ -440,44 +459,44 @@ async function startConcern(){
   if(photoPreview)image.src=photoPreview;else image.removeAttribute('src');
   select('[data-remove]').hidden=!photoPreview;
  };
- const photoControls=[...compose.querySelectorAll('[data-pick],[data-remove]')];
- for(const button of compose.querySelectorAll('[data-pick]')){
+ const photoControls=[...form.querySelectorAll('[data-pick],[data-remove]')];
+ for(const button of form.querySelectorAll('[data-pick]')){
   const input=select('[data-input="'+button.dataset.pick+'"]');
   button.onclick=()=>input.click();
   input.onchange=async()=>{
-   const file=input.files[0];input.value='';if(!file)return;
-   const status=select('[data-photo-status]'),next=form.querySelector('[type="submit"]');
-   const controls=[...photoControls,next];controls.forEach(el=>el.disabled=true);
+   const file=input.files[0];input.value='';if(!file||submitting||preparingPhoto||confirmed)return;
+   const status=select('[data-photo-status]');
+   preparingPhoto=true;refreshActions();photoControls.forEach(el=>el.disabled=true);
    status.textContent='Preparing photo…';
    try{
     const compressed=await compressPhoto(file);
     if(!compose.open||!form.isConnected)return;
-    changePhoto(compressed);status.textContent='Photo ready';
+    changePhoto(compressed);status.textContent='Photo ready. The community will see it once the council approves it.';
    }catch{status.textContent='This photo couldn’t be prepared. Choose another or continue without it.'}
-   finally{controls.forEach(el=>el.disabled=false)}
+   finally{preparingPhoto=false;refreshActions();photoControls.forEach(el=>el.disabled=false)}
   };
  }
  select('[data-remove]')?.addEventListener('click',()=>{changePhoto(null);select('[data-photo-status]').textContent=''});
- form.onsubmit=event=>{
-  event.preventDefault();
-  if(!form.elements.description.value.trim()){error('Describe the problem and where it happened.');form.elements.description.focus();return}
-  error('');const pin=mapURL(readLocationFields(form));
-  select('[data-review-body]').innerHTML=`<p>${esc(form.elements.description.value.trim())}</p>
-   ${pin?`<p><a href="${esc(pin)}" target="_blank" rel="noopener">Check map pin</a></p>`:''}
-   ${photoPreview?`<img class="concern-draft-photo" src="${esc(photoPreview)}" alt="The compressed photo you are confirming"><p>Your report will be public immediately. The photo will be visible only to you until the council approves it.</p>`:''}`;
-  select('[data-step=write]').removeAttribute('aria-current');select('[data-step=review]').setAttribute('aria-current','step');form.hidden=true;review.hidden=false;select('[data-back]').focus();
+ previewButton.onclick=()=>{
+  if(previewButton.disabled||preview.open)return;
+  const draft={...readLocationFields(form),locality_name:locality.locality_name,description:description.value.trim()};
+  preview.innerHTML=`<article tabindex="-1" autofocus>${reportContent(draft,{preview:true})}
+   ${photoPreview?`<div class="concern-photo"><img src="${esc(photoPreview)}" alt="Photo attached to the report"></div>`:''}</article>
+   <button type="button" class="report-preview-dismiss">Back to editing</button>`;
+  preview.onclick=()=>preview.close();
+  preview.showModal();
  };
- select('[data-back]').onclick=()=>{if(submitting||confirmed)return;error('');select('[data-step=review]').removeAttribute('aria-current');select('[data-step=write]').setAttribute('aria-current','step');review.hidden=true;form.hidden=false;form.elements.description.focus()};
- select('[data-confirm]').onclick=async()=>{
-  if(submitting||confirmed)return;
+ form.onsubmit=async event=>{
+  event.preventDefault();
+  if(submitButton.disabled||!valid()||preview.open)return;
   submitting=true;error('');
-  const buttons=[select('[data-confirm]'),select('[data-back]'),select('[data-close]')];
-  buttons.forEach(b=>b.disabled=true);
-  select('[data-confirm]').textContent='Submitting…';
+  const editControls=[description,closeButton,...photoControls,select('#chooseMapPin'),select('#removeMapPin')];
+  editControls.forEach(control=>control.disabled=true);
+  refreshActions();submitButton.textContent='Submitting…';
   try{
    const {latitude,longitude}=readLocationFields(form);
-   const result=await request('/concerns/submit',{method:'POST',body:{concern_id:concernId,locality_id:loc,
-    description:form.elements.description.value.trim(),latitude,longitude,photo:!!photo}});
+   const result=await request('/concerns/submit',{method:'POST',body:{concern_id:concernId,locality_id:locality.locality_id,
+    description:description.value.trim(),latitude,longitude,photo:!!photo}});
    confirmed=true;
    let accepted=result.photo_received;
    if(photo&&result.upload&&!accepted){
@@ -488,18 +507,23 @@ async function startConcern(){
      accepted=verified.photo_received;
     }catch{}
    }
-   review.hidden=true;select('[data-received]').hidden=false;select('[data-photo-failed]').hidden=!photo||accepted;select('[data-photo-pending]').hidden=!photo||!accepted;
-   select('[data-done]').focus();
+   form.hidden=true;received.hidden=false;
+   received.querySelector('[data-photo-failed]').hidden=!photo||accepted;
+   received.querySelector('[data-photo-pending]').hidden=!photo||!accepted;
+   done.focus();
   }catch(e){
    if(e.code==='OPEN_CONCERN_EXISTS'){
     compose.close();await load();
     const notice=$('#concernSubmissionReason');notice?.focus();notice?.scrollIntoView({block:'nearest'});
    }else error(e.message);
   }
-  finally{submitting=false;buttons.forEach(b=>b.disabled=false);select('[data-confirm]').textContent='Confirm and submit'}
+  finally{
+   submitting=false;editControls.forEach(control=>control.disabled=false);
+   refreshActions();submitButton.textContent='Submit report';
+  }
  };
- compose.showModal();form.elements.description.focus();
+ refreshActions();compose.showModal();description.focus();
 }
 
-window.addEventListener('bag-day-account-changed',event=>{me=event.detail.signed_in;if(!me){activeView='open';archived=false;justMyConcern=false;$('#concernDetail')?.close();compose.close();signin.close()}load().catch(error=>message(error.message))});
+window.addEventListener('bag-day-account-changed',event=>{me=event.detail.signed_in;if(!me){activeView='open';archived=false;justMyConcern=false;$('#concernDetail')?.close();preview.close();compose.close();signin.close()}load().catch(error=>message(error.message))});
 load().catch(error=>{main.textContent='';message(error.message)});
